@@ -1,8 +1,12 @@
-# 🌟 Scrumble
+# 🌟 Scrumble Frontend
 
 > AI 시대에 잃어가는 인간적 연결을 업무 환경에서 되찾자
 
 **Scrumble**은 팀원 간의 감정적 유대와 상호 지지를 형성하는 daily scrum 기반 팀 커뮤니케이션 플랫폼입니다.
+
+[![Next.js](https://img.shields.io/badge/Next.js-15.1.8-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 
 ## 🎯 제품 비전
 
@@ -38,18 +42,19 @@
 
 ## 🛠 기술 스택
 
-### Frontend
+### Frontend Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15.1.8 (App Router)
 - **Language**: TypeScript 5.x
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **API Client**: Axios + React Query (TanStack Query)
-- **Real-time**: WebSocket (native)
-- **Animations**: Framer Motion
-- **Forms**: React Hook Form + Zod
-- **PWA**: next-pwa
-- **Testing**: Jest + React Testing Library
+- **Styling**: Tailwind CSS + Pretendard Font
+- **State Management**: Zustand 5.0.5
+- **API Client**: Axios 1.9.0 + React Query 5.77.0
+- **Real-time**: WebSocket (native) - *planned*
+- **Animations**: Framer Motion 12.12.2
+- **Forms**: React Hook Form 7.56.4 + Zod 3.25.28
+- **Icons**: Lucide React + React Icons
+- **PWA**: next-pwa 5.6.0 - *configured*
+- **Testing**: Jest 29.7.0 + React Testing Library 16.3.0 - *setup required*
 
 ### Backend (별도 레포지토리)
 
@@ -63,38 +68,41 @@
 
 ```
 scrumble-frontend/
-├── app/                    # Next.js App Router
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── features/               # Feature-based 아키텍처
-│   ├── auth/              # 인증 관련
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   └── types/
-│   ├── checkin/           # 체크인 관련
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   └── types/
-│   └── workspace/         # 워크스페이스 관련
-├── shared/                # 공통 모듈
-│   ├── components/        # 재사용 가능한 컴포넌트
-│   ├── hooks/            # 공통 훅
-│   ├── lib/              # 라이브러리 설정
-│   ├── types/            # 공통 타입
-│   └── utils/            # 유틸리티 함수
-├── public/               # 정적 파일
-└── docs/                 # 문서
+├── src/
+│   ├── app/                    # Next.js 15 App Router
+│   │   ├── auth/              # 인증 관련 페이지
+│   │   │   ├── callback/      # OAuth 콜백 처리
+│   │   │   └── page.tsx       # 로그인 페이지
+│   │   ├── workspace/         # 워크스페이스 페이지
+│   │   │   └── create/        # 워크스페이스 생성
+│   │   ├── layout.tsx         # 루트 레이아웃
+│   │   ├── page.tsx           # 랜딩 페이지
+│   │   └── globals.css        # 전역 스타일
+│   ├── features/              # Feature-based 모듈
+│   │   ├── auth/             # 인증 기능
+│   │   │   ├── components/   # 인증 컴포넌트
+│   │   │   └── AuthPage.tsx  # 메인 인증 페이지
+│   │   ├── checkin/          # 체크인 기능 (예정)
+│   │   └── workspace/        # 워크스페이스 기능 (예정)
+│   └── shared/               # 공통 모듈
+│       ├── components/       # 재사용 컴포넌트
+│       │   └── feedback/     # 토스트, 로딩 등
+│       ├── hooks/           # 공통 훅
+│       ├── lib/             # 외부 라이브러리 설정
+│       ├── stores/          # Zustand 스토어
+│       └── types/           # 공통 타입 정의
+├── public/                   # 정적 파일
+├── docs/                     # 프로젝트 문서
+└── CLAUDE.md                # Claude Code 가이드
 ```
 
 ## 🚀 시작하기
 
 ### 요구사항
 
-- Node.js 18.17 이상
+- Node.js 18.17 이상 (권장: 20.x)
 - npm, yarn, pnpm 또는 bun
+- Git
 
 ### 설치 및 실행
 
@@ -105,24 +113,21 @@ cd scrumble-frontend
 
 # 의존성 설치
 npm install
-# 또는
-yarn install
-# 또는
-pnpm install
 
 # 환경 변수 설정
 cp .env.example .env.local
-# .env.local 파일에서 환경 변수 수정
+# .env.local 파일 편집하여 환경 변수 설정
 
-# 개발 서버 실행
+# 개발 서버 실행 (Turbopack 사용)
 npm run dev
-# 또는
-yarn dev
-# 또는
-pnpm dev
 ```
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 결과를 확인하세요.
+
+### 백엔드 연동
+
+백엔드 서버가 `http://localhost:8080`에서 실행 중이어야 합니다.
+- [Scrumble Backend Repository](https://github.com/your-username/scrumble-backend)
 
 ### 환경 변수
 
@@ -149,21 +154,23 @@ Scrumble은 PWA로 개발되어 모바일 기기에서 앱처럼 사용할 수 �
 
 ## 🧪 테스트
 
+> ⚠️ **Note**: 테스트 환경 설정이 필요합니다. Jest와 React Testing Library는 설치되어 있으나 설정 파일이 없습니다.
+
 ```bash
-# 단위 테스트 실행
+# 단위 테스트 실행 (설정 필요)
 npm run test
 
-# 테스트 커버리지 확인
+# 테스트 커버리지 확인 (설정 필요)
 npm run test:coverage
 
-# E2E 테스트 실행 (예정)
+# E2E 테스트 실행 (미구현)
 npm run test:e2e
 ```
 
 ## 🔧 개발 도구
 
 ```bash
-# 개발 서버 실행
+# 개발 서버 실행 (Turbopack)
 npm run dev
 
 # 프로덕션 빌드
@@ -175,12 +182,19 @@ npm run start
 # 린트 검사
 npm run lint
 
-# 타입 체크
+# 타입 체크 (스크립트 추가 필요)
 npm run type-check
 
-# 코드 포맷팅
+# 코드 포맷팅 (Prettier 설정 필요)
 npm run format
 ```
+
+### 현재 알려진 이슈
+
+- ESLint 경고/에러 7개 존재 (사용하지 않는 변수 등)
+- Jest 설정 파일 없음
+- Prettier 설정 파일 없음
+- 환경 변수 예시 파일(.env.example) 업데이트 필요
 
 ## 📊 성능 목표
 
@@ -193,16 +207,19 @@ npm run format
 
 ### 컬러 팔레트
 
-- **Primary**: Blue-500 (#3B82F6)
+- **Primary**: Orange (#FF7800)
+- **Primary Dark**: #FF5829
+- **Background**: #FBFBFB
+- **Text Primary**: #181818
 - **Success**: Green-500 (#10B981)
 - **Warning**: Yellow-500 (#F59E0B)
 - **Error**: Red-500 (#EF4444)
 
 ### 타이포그래피
 
-- **Font Family**: Inter (웹폰트)
+- **Font Family**: Pretendard (한국어 최적화)
 - **Base Size**: 16px
-- **Scale**: 12px, 14px, 16px, 18px, 20px, 24px, 32px
+- **Scale**: 12px, 14px, 16px, 18px, 20px, 24px, 32px, 56px
 
 ## 🤝 기여하기
 
@@ -223,6 +240,31 @@ refactor: 코드 리팩토링
 test: 테스트 코드
 chore: 빌드 관련 파일 수정
 ```
+
+## 🚧 개발 현황
+
+### ✅ 완료된 기능
+- Google OAuth 인증 플로우
+- 로그인/로그아웃 기능
+- 토스트 알림 시스템
+- 워크스페이스 생성 페이지 UI
+- 반응형 로그인 페이지
+- 토큰 관리 시스템
+- Pretendard 폰트 적용
+
+### 🔄 진행 중
+- 워크스페이스 관리 기능
+- 팀 초대 시스템
+- 백엔드 API 연동
+
+### 📋 예정된 기능
+- 체크인 시스템
+- 팀 피드
+- 실시간 WebSocket 연동
+- PWA 설정
+- 테스트 환경 구축
+- 이모지 리액션
+- 사용자 대시보드
 
 ## 📄 라이선스
 
