@@ -1,15 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { tokenStorage } from '@/shared/lib/api';
-import { LoginResponse } from '@/shared/types/auth';
+import { useAuthStore } from '@/shared/stores/auth.store';
 
 const AuthCallbackPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const { login } = useAuthStore();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -17,8 +16,7 @@ const AuthCallbackPage = () => {
         // URL에서 에러 파라미터 확인
         const error = searchParams.get('error');
         if (error) {
-          setStatus('error');
-          setErrorMessage('로그인이 취소되었거나 오류가 발생했습니다.');
+          router.push('/auth?auth=error&message=' + encodeURIComponent('로그인이 취소되었거나 오류가 발생했습니다.'));
           return;
         }
 
@@ -46,14 +44,12 @@ const AuthCallbackPage = () => {
             name: decodeURIComponent(userName),
             avatarURL: '', // 백엔드에서 제공되지 않으면 빈 문자열
           };
-          localStorage.setItem('user', JSON.stringify(userData));
           
-          setStatus('success');
+          // 전역 상태에 로그인 정보 저장
+          login(userData);
           
-          // 메인 페이지로 리다이렉트
-          setTimeout(() => {
-            router.push('/');
-          }, 1500);
+          // 성공 시 workspace 페이지로 리다이렉트
+          router.push('/workspace/create?auth=success');
         } else {
           // 토큰이 없는 경우, 백엔드에서 세션을 통해 처리되었을 수 있음
           // 현재 사용자 정보를 확인해보기
@@ -63,79 +59,37 @@ const AuthCallbackPage = () => {
             });
             
             if (response.ok) {
-              const userData: LoginResponse['user'] = await response.json();
-              setStatus('success');
+              const userData = await response.json();
               
-              // 사용자 정보를 로컬 스토리지에 저장 (선택사항)
-              localStorage.setItem('user', JSON.stringify(userData));
+              // 전역 상태에 로그인 정보 저장
+              login(userData);
               
-              setTimeout(() => {
-                router.push('/');
-              }, 1500);
+              router.push('/workspace/create?auth=success');
             } else {
               throw new Error('사용자 정보를 가져올 수 없습니다.');
             }
           } catch (error) {
             console.error('Auth callback error:', error);
-            setStatus('error');
-            setErrorMessage('로그인 처리 중 오류가 발생했습니다.');
+            router.push('/auth?auth=error&message=' + encodeURIComponent('로그인 처리 중 오류가 발생했습니다.'));
           }
         }
       } catch (error) {
         console.error('Auth callback error:', error);
-        setStatus('error');
-        setErrorMessage('로그인 처리 중 오류가 발생했습니다.');
+        router.push('/?auth=error&message=' + encodeURIComponent('로그인 처리 중 오류가 발생했습니다.'));
       }
     };
 
     handleCallback();
   }, [searchParams, router]);
 
-  // 에러 발생 시 로그인 페이지로 돌아가기
-  const handleRetry = () => {
-    router.push('/auth');
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FBFBFB]">
       <div className="text-center">
-        {status === 'loading' && (
-          <div>
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF7800] mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold text-[#181818] mb-2">로그인 처리 중...</h2>
-            <p className="text-[#181818] opacity-70">잠시만 기다려주세요.</p>
-          </div>
-        )}
-        
-        {status === 'success' && (
-          <div>
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-[#181818] mb-2">로그인 성공!</h2>
-            <p className="text-[#181818] opacity-70">메인 페이지로 이동합니다...</p>
-          </div>
-        )}
-        
-        {status === 'error' && (
-          <div>
-            <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-[#181818] mb-2">로그인 실패</h2>
-            <p className="text-[#181818] opacity-70 mb-4">{errorMessage}</p>
-            <button
-              onClick={handleRetry}
-              className="px-6 py-2 bg-[#FF7800] text-white rounded-lg hover:bg-[#e66a00] transition-colors"
-            >
-              다시 시도
-            </button>
-          </div>
-        )}
+        <div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF7800] mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-[#181818] mb-2">로그인 처리 중...</h2>
+          <p className="text-[#181818] opacity-70">잠시만 기다려주세요.</p>
+        </div>
       </div>
     </div>
   );

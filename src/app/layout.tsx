@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getFontClassNames } from "@/shared/lib/fonts";
+import { ToastProvider } from "@/shared/components/feedback/ToastProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         {children}
+        <ToastProvider />
       </body>
     </html>
   );
