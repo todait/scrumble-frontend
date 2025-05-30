@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { Settings, Users } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React from 'react';
 
 interface SettingsLayoutProps {
   children: React.ReactNode;

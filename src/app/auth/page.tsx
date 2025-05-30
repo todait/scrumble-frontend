@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useRef, Suspense } from 'react';
+
 import AuthPage from '@/features/auth/pages/AuthPage';
+import { LoadingScreen } from '@/shared/components/feedback';
 import { useToast } from '@/shared/hooks/useToast';
 
-export default function AuthPageRoute() {
+function AuthPageContent() {
   const searchParams = useSearchParams();
   const { error } = useToast();
   const hasShownToast = useRef(false);
@@ -33,4 +35,12 @@ export default function AuthPageRoute() {
   }, [searchParams, error]);
 
   return <AuthPage />;
+}
+
+export default function AuthPageRoute() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <AuthPageContent />
+    </Suspense>
+  );
 }

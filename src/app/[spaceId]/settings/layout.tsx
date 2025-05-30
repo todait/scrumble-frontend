@@ -1,14 +1,15 @@
 import { SettingsLayout } from '@/features/settings/components/layout';
 
-export default function SettingsLayoutPage({
+export default async function SettingsLayoutPage({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { spaceId: string };
+  params: Promise<{ spaceId: string }>;
 }) {
+  const { spaceId } = await params;
   return (
-    <SettingsLayout spaceId={params.spaceId}>
+    <SettingsLayout spaceId={spaceId}>
       {children}
     </SettingsLayout>
   );

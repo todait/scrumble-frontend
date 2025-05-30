@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { getFontClassNames } from "@/shared/lib/fonts";
+
 import { ToastProvider } from "@/shared/components/feedback/ToastProvider";
+import { getFontClassNames } from "@/shared/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {

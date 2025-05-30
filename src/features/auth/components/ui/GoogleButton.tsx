@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
+
 import { Button } from '@/shared/components/ui';
 
 interface GoogleButtonProps {

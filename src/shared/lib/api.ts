@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { LoginResponse } from '../types/auth';
 
 // API 기본 URL 설정
@@ -73,7 +74,7 @@ apiClient.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return apiClient(originalRequest);
         }
-      } catch (refreshError) {
+      } catch {
         // 리프레시 실패 시 로그아웃 처리
         tokenStorage.clearTokens();
         window.location.href = '/auth';
@@ -112,7 +113,7 @@ export const validateToken = async (): Promise<boolean> => {
   try {
     await getCurrentUser();
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }; 

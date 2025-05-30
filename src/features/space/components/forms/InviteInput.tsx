@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { EmailTagInput } from './EmailTagInput';
+
 import { InviteButton } from '../ui/InviteButton';
+
+import { EmailTagInput } from './EmailTagInput';
 
 interface InviteInputProps {
   emails: string[];

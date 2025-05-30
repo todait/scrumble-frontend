@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { spaceNameSchema } from '@/schemas';
 import { z } from 'zod';
+
+import { spaceNameSchema } from '@/schemas';
 
 interface SpaceNameInputProps {
   value: string;

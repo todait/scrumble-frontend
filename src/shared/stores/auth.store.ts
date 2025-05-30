@@ -1,7 +1,8 @@
-import { create } from 'zustand';
-import { User } from '@/shared/types/auth';
-import { tokenStorage } from '@/shared/lib/api';
 import axios from 'axios';
+import { create } from 'zustand';
+
+import { tokenStorage } from '@/shared/lib/api';
+import { User } from '@/shared/types/auth';
 
 interface AuthState {
   // 상태
@@ -20,7 +21,7 @@ interface AuthState {
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set, _get) => ({
   // 초기 상태
   user: null,
   isAuthenticated: false,

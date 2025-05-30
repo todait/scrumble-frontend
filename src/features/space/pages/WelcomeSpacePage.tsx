@@ -1,23 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useRef } from 'react';
+
+import { LoadingScreen } from '@/shared/components/feedback';
+import { IntroLayout } from '@/shared/components/layout';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
-import { IntroLayout } from '@/shared/components/layout';
+
 import { 
   WelcomeHeader,
   CreateSpaceButton,
   LogoutButton
 } from '../components';
-import { LoadingScreen } from '@/shared/components/feedback';
+
 
 const WelcomeSpagePage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const { success, error } = useToast();
-  const [showNotification, setShowNotification] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const toastShownRef = useRef(false);
 
@@ -32,12 +34,6 @@ const WelcomeSpagePage = () => {
       
       // 토스트를 한 번만 표시
       toastShownRef.current = true;
-      setShowNotification(true);
-      
-      // 3초 후 알림 숨기기
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 3000);
     }
   }, [searchParams]);
 
@@ -61,7 +57,7 @@ const WelcomeSpagePage = () => {
         message: '안전하게 로그아웃되었습니다.',
       });
       router.push('/auth');
-    } catch (err) {
+    } catch {
       error({
         title: '로그아웃 실패',
         message: '로그아웃 중 오류가 발생했습니다.',

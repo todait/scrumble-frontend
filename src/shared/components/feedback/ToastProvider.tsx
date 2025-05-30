@@ -1,6 +1,7 @@
 'use client';
 
 import { useToastStore } from '@/shared/stores/toast.store';
+
 import { ToastContainer } from './Toast';
 
 export function ToastProvider() {

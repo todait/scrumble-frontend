@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
-import { useToastStore } from '../stores/toast.store';
+
 import { ToastType } from '../components/feedback/Toast';
+import { useToastStore } from '../stores/toast.store';
 
 interface ToastOptions {
   title: string;

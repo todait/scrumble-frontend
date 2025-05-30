@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
+
 import { emailSchema } from '@/schemas';
+
 import { EmailTag } from './EmailTag';
 
 interface EmailTagInputProps {

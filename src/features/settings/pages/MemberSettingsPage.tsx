@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MemberTable, type Member } from '../components/tables';
+
 import { InviteInput } from '@/features/space/components/forms';
-import { useForm } from '@/shared/hooks';
 import { inviteTeamSchema } from '@/schemas';
+import { useForm } from '@/shared/hooks';
 import { useToast } from '@/shared/hooks/useToast';
+
+import { MemberTable, type Member } from '../components/tables';
 
 // 더미 데이터
 const dummyMembers: Member[] = [
@@ -103,7 +105,7 @@ export default function MemberSettingsPage() {
     onSubmit: async (data) => {
       try {
         // TODO: API 호출로 팀 멤버 초대
-        console.log('초대할 이메일 목록:', data.emails);
+        console.warn('초대할 이메일 목록:', data.emails);
         
         // 성공 시 토스트 표시
         success({
@@ -119,7 +121,7 @@ export default function MemberSettingsPage() {
     },
   });
 
-  const handleCopyEmail = (email: string) => {
+  const handleCopyEmail = () => {
     info({
       title: '복사 완료',
       message: '이메일 주소가 클립보드에 복사되었습니다.'
@@ -127,7 +129,7 @@ export default function MemberSettingsPage() {
   };
 
   const handleMemberAction = (memberId: string, action: string) => {
-    console.log('Member action:', memberId, action);
+    console.warn('Member action:', memberId, action);
     // TODO: 멤버 관리 액션 구현 (권한 변경, 제거 등)
   };
 

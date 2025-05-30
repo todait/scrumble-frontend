@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, Suspense } from 'react';
+
+import { useToast } from '@/shared/hooks';
 import { tokenStorage } from '@/shared/lib/api';
 import { useAuthStore } from '@/shared/stores/auth.store';
-import { useToast } from '@/shared/hooks';
 
-const AuthCallbackPage = () => {
+const AuthCallbackContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
@@ -98,7 +99,7 @@ const AuthCallbackPage = () => {
     };
 
     handleCallback();
-  }, [searchParams, router]);
+  }, [searchParams, router, login, success]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FBFBFB]">
@@ -113,4 +114,20 @@ const AuthCallbackPage = () => {
   );
 };
 
-export default AuthCallbackPage; 
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FBFBFB]">
+        <div className="text-center">
+          <div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF7800] mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-[#181818] mb-2">로그인 처리 중...</h2>
+            <p className="text-[#181818] opacity-70">잠시만 기다려주세요.</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
+  );
+} 

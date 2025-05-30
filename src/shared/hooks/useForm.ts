@@ -15,7 +15,7 @@ interface UseFormReturn<T extends z.ZodType> {
   isValid: boolean;
   isSubmitting: boolean;
   hasErrors: boolean;
-  setValue: (field: keyof z.infer<T>, value: any) => void;
+  setValue: (field: keyof z.infer<T>, value: unknown) => void;
   setValues: (values: Partial<z.infer<T>>) => void;
   validateField: (field: keyof z.infer<T>) => boolean;
   validateAll: () => boolean;
@@ -35,7 +35,7 @@ export function useForm<T extends z.ZodType>({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 개별 필드 값 설정
-  const setValue = useCallback((field: keyof z.infer<T>, value: any) => {
+  const setValue = useCallback((field: keyof z.infer<T>, value: unknown) => {
     setValuesState(prev => ({ ...prev, [field]: value }));
     // 값이 변경되면 해당 필드의 에러를 클리어
     if (errors[field]) {
@@ -66,7 +66,7 @@ export function useForm<T extends z.ZodType>({
   const validateField = useCallback((field: keyof z.infer<T>): boolean => {
     try {
       // 부분적 검증을 위해 해당 필드만 검증
-      const fieldSchema = (schema as any).shape?.[field as string];
+      const fieldSchema = (schema as unknown as z.ZodObject<Record<string, z.ZodTypeAny>>).shape?.[field as string];
       if (fieldSchema) {
         fieldSchema.parse(values[field]);
       }

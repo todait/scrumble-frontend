@@ -1,21 +1,24 @@
 'use client';
 
-import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+
+import { LoadingScreen } from '@/shared/components/feedback';
+import { IntroLayout } from '@/shared/components/layout';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
 import { startGoogleOAuth } from '@/shared/lib/api';
-import { IntroLayout } from '@/shared/components/layout';
+
 import { 
   GoogleButton, 
   AuthHeader 
 } from '../components';
-import { LoadingScreen } from '@/shared/components/feedback';
+
 
 const AuthPage = () => {
   const router = useRouter();
   const { isAuthenticated, user, logout, isLoading } = useAuth();
-  const { error, success } = useToast();
+  const { error } = useToast();
 
   // 로그인된 상태면 welcome 페이지로 리다이렉트
   useEffect(() => {

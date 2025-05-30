@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
 import { MoreVertical, Copy } from 'lucide-react';
-import Image from 'next/image';
+import React, { useState } from 'react';
 
 export interface Member {
   id: string;

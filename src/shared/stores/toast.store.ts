@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { ToastProps, ToastType } from '../components/feedback/Toast';
+
+import { ToastProps } from '../components/feedback/Toast';
 
 interface ToastState {
   toasts: Omit<ToastProps, 'onClose'>[];

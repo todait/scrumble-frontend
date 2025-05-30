@@ -1,3 +1,14 @@
-import InviteSpacePage에서 from '@/features/space/pages/WelcomeSpacePage';
+'use client';
 
-export default InviteSpacePage에서; 
+import { Suspense } from 'react';
+
+import WelcomeSpacePage from '@/features/space/pages/WelcomeSpacePage';
+import { LoadingScreen } from '@/shared/components/feedback';
+
+export default function WelcomeSpacePageRoute() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <WelcomeSpacePage />
+    </Suspense>
+  );
+}

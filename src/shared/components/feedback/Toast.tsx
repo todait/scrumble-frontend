@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { useEffect } from 'react';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -83,7 +83,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
 }
 
 interface ToastContainerProps {
-  toasts: ToastProps[];
+  toasts: Omit<ToastProps, 'onClose'>[];
   onClose: (id: string) => void;
 }
 

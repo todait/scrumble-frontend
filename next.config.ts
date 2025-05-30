@@ -4,8 +4,6 @@ const nextConfig: NextConfig = {
   // React Strict Mode 활성화
   reactStrictMode: true,
   
-  // 폰트 최적화 설정
-  optimizeFonts: true,
   
   // 실험적 기능 설정
   experimental: {

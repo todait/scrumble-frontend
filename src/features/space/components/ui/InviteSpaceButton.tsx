@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
 import { Users } from 'lucide-react';
+import React from 'react';
+
 import { Button } from '@/shared/components/ui';
 
 interface InviteSpaceButtonProps {

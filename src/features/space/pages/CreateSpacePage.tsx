@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+
+import { createSpaceSchema } from '@/schemas';
+import { LoadingScreen } from '@/shared/components/feedback';
+import { IntroLayout } from '@/shared/components/layout';
 import { useAuth, useForm } from '@/shared/hooks';
 import { useToast } from '@/shared/hooks/useToast';
-import { IntroLayout } from '@/shared/components/layout';
-import { createSpaceSchema } from '@/schemas';
+
 import { 
   CreateSpaceHeader,
   SpaceNameInput,
@@ -13,7 +16,7 @@ import {
   CreateButton,
   DividerLine
 } from '../components';
-import { LoadingScreen } from '@/shared/components/feedback';
+
 
 const CreateSpacePage = () => {
   const router = useRouter();

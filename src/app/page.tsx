@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { tokenStorage } from '@/shared/lib/api';
+import { useEffect } from 'react';
 
 export default function Home() {
   const router = useRouter();
@@ -13,8 +12,8 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FBFBFB]">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF7800]"></div>
+    <div className="flex min-h-screen items-center justify-center bg-[#FBFBFB]">
+      <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7800]"></div>
     </div>
   );
 }

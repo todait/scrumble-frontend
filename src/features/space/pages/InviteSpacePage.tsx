@@ -1,13 +1,15 @@
 'use client';
 
-import React from 'react';
 import { useRouter } from 'next/navigation'; 
-import { IntroLayout } from '@/shared/components/layout';
-import { EmailTagInput, InviteInput } from '../components/forms';
-import { InviteButton, CopyLinkButton } from '../components/ui';
-import { InviteHeader } from '../components/layout';
-import { useForm } from '@/shared/hooks';
+import React from 'react';
+
 import { inviteTeamSchema } from '@/schemas';
+import { IntroLayout } from '@/shared/components/layout';
+import { useForm } from '@/shared/hooks';
+
+import { InviteInput } from '../components/forms';
+import { InviteHeader } from '../components/layout';
+import { CopyLinkButton } from '../components/ui';
 
 interface InviteSpacePageProps {
   spaceId?: string; // 스페이스 ID
@@ -32,8 +34,8 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
     onSubmit: async (data) => {
       try {
         // TODO: API 호출로 팀 멤버 초대
-        console.log('스페이스 ID:', spaceId);
-        console.log('초대할 이메일 목록:', data.emails);
+        console.warn('스페이스 ID:', spaceId);
+        console.warn('초대할 이메일 목록:', data.emails);
         
         // 성공 시 다음 페이지로 이동 (추후 구현)
         router.push(`/${spaceId}/settings/members`);
@@ -51,7 +53,7 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
       await navigator.clipboard.writeText(inviteLink);
       
       // TODO: 토스트 알림 표시
-      console.log('초대 링크가 복사되었습니다!', inviteLink);
+      console.warn('초대 링크가 복사되었습니다!', inviteLink);
     } catch (error) {
       console.error('링크 복사 중 오류 발생:', error);
     }

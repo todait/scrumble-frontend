@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+
 import { emailSchema } from '@/schemas';
 
 interface UseEmailListOptions {
