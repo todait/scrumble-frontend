@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
+import { Button } from '@/shared/components/ui';
 
 interface GoogleButtonProps {
   onClick: () => void;
@@ -11,10 +12,12 @@ interface GoogleButtonProps {
 
 export const GoogleButton: React.FC<GoogleButtonProps> = ({ onClick, text, disabled = false }) => {
   return (
-    <button
+    <Button
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center gap-2.5 px-5 py-5 bg-white border border-[rgba(24,24,24,0.2)] rounded-xl hover:bg-[#181818] active:bg-[#181818] transition-all duration-200 group peer disabled:opacity-50 disabled:cursor-not-allowed"
+      variant="secondary"
+      size="md"
+      className="inline-flex items-center gap-2.5 py-5 hover:bg-[#181818] active:bg-[#181818] group peer"
     >
       {/* 구글 아이콘 */}
       <div className="w-6 h-6 flex-shrink-0">
@@ -37,6 +40,6 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({ onClick, text, disab
       <span className="text-lg lg:text-[20px] font-normal leading-[1.2] text-[#181818] group-hover:text-white group-active:text-white font-pretendard transition-colors duration-200">
         {text}
       </span>
-    </button>
+    </Button>
   );
 };

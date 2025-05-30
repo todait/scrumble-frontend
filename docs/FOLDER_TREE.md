@@ -5,8 +5,8 @@ scrumble-frontend/
 │ │ │ ├── login/
 │ │ │ │ └── page.tsx
 │ │ │ └── layout.tsx
-│ │ ├── (workspace)/ # Route Group - 워크스페이스
-│ │ │ ├── [workspaceId]/
+│ │ ├── (space)/ # Route Group - 스페이스
+│ │ │ ├── [spaceId]/
 │ │ │ │ ├── page.tsx # 팀 피드
 │ │ │ │ ├── checkin/
 │ │ │ │ │ └── page.tsx
@@ -48,7 +48,7 @@ scrumble-frontend/
 │ │ │ │ └── checkin.store.ts
 │ │ │ └── types/
 │ │ │
-│ │ └── workspace/
+│ │ └── space/
 │ │ ├── components/
 │ │ ├── hooks/
 │ │ ├── services/

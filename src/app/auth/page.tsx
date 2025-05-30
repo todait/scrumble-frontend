@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import AuthPage from '@/features/auth/AuthPage';
+import AuthPage from '@/features/auth/pages/AuthPage';
 import { useToast } from '@/shared/hooks/useToast';
 
 export default function AuthPageRoute() {

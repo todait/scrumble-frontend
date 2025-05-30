@@ -5,22 +5,22 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
 import { startGoogleOAuth } from '@/shared/lib/api';
+import { IntroLayout } from '@/shared/components/layout';
 import { 
   GoogleButton, 
-  LoadingScreen, 
-  GradientBackground, 
   AuthHeader 
-} from './components';
+} from '../components';
+import { LoadingScreen } from '@/shared/components/feedback';
 
 const AuthPage = () => {
   const router = useRouter();
   const { isAuthenticated, user, logout, isLoading } = useAuth();
-  const { error } = useToast();
+  const { error, success } = useToast();
 
-  // 로그인된 상태면 workspace 페이지로 리다이렉트
+  // 로그인된 상태면 welcome 페이지로 리다이렉트
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push('/workspace/create');
+      router.push('/spaces/welcome');
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -50,33 +50,25 @@ const AuthPage = () => {
 
   // 로딩 중일 때 표시
   if (isLoading) {
-    return <LoadingScreen />;
+    return <LoadingScreen message="로딩 중..." />;
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* 좌측 입력 폼 섹션 */}
-      <div className="flex-1 lg:w-2/3 bg-[#FBFBFB] flex items-center lg:items-start justify-center lg:pt-[27vh]">
-        <div className="w-full px-6 lg:px-20 py-8 lg:py-0">
-          <AuthHeader />
+    <IntroLayout isAuthenticated={isAuthenticated}>
+      <AuthHeader />
 
-          {/* 구글 로그인/로그아웃 버튼 섹션 */}
-          <div>
-            {!isAuthenticated ? (
-              <LoginSection onLogin={handleGoogleLogin} />
-            ) : (
-              <LogoutSection 
-                userEmail={user?.email} 
-                onLogout={handleLogout} 
-              />
-            )}
-          </div>
-        </div>
+      {/* 구글 로그인/로그아웃 버튼 섹션 */}
+      <div>
+        {!isAuthenticated ? (
+          <LoginSection onLogin={handleGoogleLogin} />
+        ) : (
+          <LogoutSection 
+            userEmail={user?.email} 
+            onLogout={handleLogout} 
+          />
+        )}
       </div>
-
-      {/* 우측 이미지 섹션 */}
-      <GradientBackground isAuthenticated={isAuthenticated} />
-    </div>
+    </IntroLayout>
   );
 };
 

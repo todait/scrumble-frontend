@@ -4,12 +4,14 @@ import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { tokenStorage } from '@/shared/lib/api';
 import { useAuthStore } from '@/shared/stores/auth.store';
+import { useToast } from '@/shared/hooks';
 
 const AuthCallbackPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
-
+  const { success } = useToast();
+  
   useEffect(() => {
     const handleCallback = async () => {
       try {
@@ -48,8 +50,15 @@ const AuthCallbackPage = () => {
           // 전역 상태에 로그인 정보 저장
           login(userData);
           
-          // 성공 시 workspace 페이지로 리다이렉트
-          router.push('/workspace/create?auth=success');
+          // 저장 성공 - 메인 페이지로 리다이렉트
+          success({
+            title: '로그인 성공',
+            message: '이제 스크럼블을 시작할 수 있습니다',
+          });
+
+          setTimeout(() => {
+            router.push('/spaces/welcome?auth=success');
+          }, 100);
         } else {
           // 토큰이 없는 경우, 백엔드에서 세션을 통해 처리되었을 수 있음
           // 현재 사용자 정보를 확인해보기
@@ -64,7 +73,16 @@ const AuthCallbackPage = () => {
               // 전역 상태에 로그인 정보 저장
               login(userData);
               
-              router.push('/workspace/create?auth=success');
+              // 이미 저장된 토큰이 있는 경우 - 메인 페이지로 리다이렉트
+
+              success({
+                title: '로그인 성공',
+                message: '이제 스크럼블을 시작할 수 있습니다',
+              });
+
+              setTimeout(() => {
+                router.push('/spaces/welcome?auth=success');
+              }, 100);
             } else {
               throw new Error('사용자 정보를 가져올 수 없습니다.');
             }

@@ -56,18 +56,23 @@ Organize code by features, not technical layers:
 scrumble-frontend/
 ├── src/
 │   ├── app/                          # Next.js 14 App Router
-│   │   ├── (auth)/                   # Route Group - 인증 관련
-│   │   │   ├── login/
-│   │   │   │   └── page.tsx
-│   │   │   └── layout.tsx
-│   │   ├── (workspace)/              # Route Group - 워크스페이스
-│   │   │   ├── [workspaceId]/
-│   │   │   │   ├── page.tsx         # 팀 피드
-│   │   │   │   ├── checkin/
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── settings/
-│   │   │   │       └── page.tsx
-│   │   │   └── layout.tsx
+│   │   ├── auth/                     # 인증 관련
+│   │   │   ├── page.tsx             # 로그인 페이지
+│   │   │   └── callback/
+│   │   │       └── page.tsx         # OAuth 콜백
+│   │   ├── spaces/                   # 스페이스 관련 (RESTful 구조)
+│   │   │   ├── new/
+│   │   │   │   └── page.tsx         # 스페이스 생성
+│   │   │   ├── welcome/
+│   │   │   │   └── page.tsx         # 환영 페이지
+│   │   │   └── [spaceId]/           # 동적 스페이스 라우트
+│   │   │       ├── page.tsx         # 팀 피드 (대시보드)
+│   │   │       ├── invite/
+│   │   │       │   └── page.tsx     # 팀원 초대
+│   │   │       ├── checkin/
+│   │   │       │   └── page.tsx     # 체크인 작성
+│   │   │       └── settings/
+│   │   │           └── page.tsx     # 스페이스 설정
 │   │   ├── layout.tsx                # Root layout
 │   │   ├── page.tsx                  # Landing page
 │   │   └── globals.css
@@ -103,7 +108,7 @@ scrumble-frontend/
 │   │   │   │   └── checkin.store.ts
 │   │   │   └── types/
 │   │   │
-│   │   └── workspace/
+│   │   └── space/
 │   │       ├── components/
 │   │       ├── hooks/
 │   │       ├── services/
@@ -243,19 +248,19 @@ export function CheckinCard({
 
 ```typescript
 // features/checkin/hooks/useCheckin.ts
-export function useCheckin(workspaceId: string) {
+export function useCheckin(spaceId: string) {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["checkins", workspaceId, "today"],
-    queryFn: () => checkinService.getTodayCheckins(workspaceId),
+    queryKey: ["checkins", spaceId, "today"],
+    queryFn: () => checkinService.getTodayCheckins(spaceId),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const createMutation = useMutation({
     mutationFn: checkinService.create,
     onSuccess: () => {
-      queryClient.invalidateQueries(["checkins", workspaceId]);
+      queryClient.invalidateQueries(["checkins", spaceId]);
     },
   });
 
@@ -273,9 +278,9 @@ export function useCheckin(workspaceId: string) {
 ```typescript
 // features/checkin/services/checkin.service.ts
 class CheckinService {
-  async getTodayCheckins(workspaceId: string): Promise<Checkin[]> {
+  async getTodayCheckins(spaceId: string): Promise<Checkin[]> {
     const { data } = await apiClient.get(`/checkins/today`, {
-      params: { workspaceId },
+      params: { spaceId },
     });
     return data.data;
   }
@@ -426,11 +431,11 @@ export const queryClient = new QueryClient({
 
 ```typescript
 // features/checkin/hooks/useWebSocket.ts
-export function useWebSocket(workspaceId: string) {
+export function useWebSocket(spaceId: string) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(`${WS_URL}/workspace/${workspaceId}`);
+    const ws = new WebSocket(`${WS_URL}/space/${spaceId}`);
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -449,7 +454,7 @@ export function useWebSocket(workspaceId: string) {
     return () => {
       ws.close();
     };
-  }, [workspaceId]);
+  }, [spaceId]);
 
   const sendMessage = useCallback(
     (message: any) => {
@@ -580,7 +585,39 @@ describe('CheckinCard', () => {
 3. PR with screenshots for UI changes
 4. Required checks: lint, type-check, test
 
-### Common Scripts
+### RESTful Routing Structure
+
+스크럼블 프론트엔드는 RESTful 원칙을 따르는 라우팅 구조를 사용합니다:
+
+### 라우팅 규칙
+
+1. **복수형 리소스명**: `/spaces` (단수형 `/space` ❌)
+2. **의미있는 액션명**: `/new` (생성), `/invite` (초대)
+3. **일관된 패턴**: `/spaces/[id]/[action]`
+
+### 현재 라우트 구조
+
+```
+/auth                    # 로그인 페이지
+/auth/callback          # OAuth 콜백 처리
+
+/spaces/new             # 새 스페이스 생성
+/spaces/welcome         # 로그인 후 환영 페이지
+
+/spaces/[id]            # 스페이스 대시보드 (팀 피드)
+/spaces/[id]/invite     # 팀원 초대
+/spaces/[id]/checkin    # 체크인 작성
+/spaces/[id]/settings   # 스페이스 설정
+```
+
+### 라우팅 가이드라인
+
+- **생성 페이지**: `/resources/new` 패턴 사용
+- **특정 리소스 액션**: `/resources/[id]/action` 패턴 사용
+- **단축 경로**: 자주 사용되는 기능은 짧은 경로 제공
+- **의미 명확성**: URL만 봐도 기능을 알 수 있도록
+
+## Common Scripts
 
 ```bash
 npm run dev          # Development server
@@ -772,9 +809,9 @@ export function TeamFeed({ checkins, members }: TeamFeedProps) {
 
 ```typescript
 // 워크스페이스 초대 링크 생성
-export function useWorkspaceInvite(workspaceId: string) {
+export function usespaceInvite(spaceId: string) {
   const generateInviteLink = useMutation({
-    mutationFn: () => workspaceService.generateInviteLink(workspaceId),
+    mutationFn: () => spaceService.generateInviteLink(spaceId),
     onSuccess: (data) => {
       // 클립보드 복사
       navigator.clipboard.writeText(data.inviteUrl);
@@ -874,12 +911,12 @@ type WebSocketMessage =
   | { type: "MEMBER_OFFLINE"; payload: { userId: string } };
 
 // WebSocket 훅 구현
-export function useWorkspaceWebSocket(workspaceId: string) {
+export function usespaceWebSocket(spaceId: string) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const ws = new WebSocket(
-      `${process.env.NEXT_PUBLIC_WS_URL}/workspace/${workspaceId}`
+      `${process.env.NEXT_PUBLIC_WS_URL}/space/${spaceId}`
     );
 
     ws.onmessage = (event) => {
@@ -889,7 +926,7 @@ export function useWorkspaceWebSocket(workspaceId: string) {
         case "NEW_CHECKIN":
           // 체크인 목록 업데이트
           queryClient.setQueryData(
-            ["checkins", workspaceId, "today"],
+            ["checkins", spaceId, "today"],
             (old: Checkin[]) => [...(old || []), message.payload]
           );
           break;
@@ -897,7 +934,7 @@ export function useWorkspaceWebSocket(workspaceId: string) {
         case "NEW_REACTION":
           // 이모지 리액션 업데이트
           queryClient.setQueryData(
-            ["checkins", workspaceId, "today"],
+            ["checkins", spaceId, "today"],
             (old: Checkin[]) =>
               old?.map((checkin) =>
                 checkin.id === message.payload.checkinId
@@ -913,7 +950,7 @@ export function useWorkspaceWebSocket(workspaceId: string) {
     };
 
     return () => ws.close();
-  }, [workspaceId, queryClient]);
+  }, [spaceId, queryClient]);
 }
 ```
 

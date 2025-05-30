@@ -25,7 +25,7 @@
 - **체크인 시스템**: 컨디션 점수(1-10) + 오늘의 한마디
 - **팀 피드**: 카드형 레이아웃으로 팀원들의 일일 체크인 확인
 - **이모지 리액션**: 6개 기본 이모지(❤️ 👍 🔥 💪 🤗 ☕)로 즉각적인 소통
-- **워크스페이스**: 팀 생성/관리 및 초대 링크 시스템
+- **스페이스**: 팀 생성/관리 및 초대 링크 시스템
 - **실시간 동기화**: WebSocket 기반 실시간 업데이트
 - **모바일 최적화**: PWA 지원으로 앱처럼 사용 가능
 
@@ -69,12 +69,17 @@
 ```
 scrumble-frontend/
 ├── src/
-│   ├── app/                    # Next.js 15 App Router
+│   ├── app/                    # Next.js 15 App Router (RESTful 구조)
 │   │   ├── auth/              # 인증 관련 페이지
 │   │   │   ├── callback/      # OAuth 콜백 처리
 │   │   │   └── page.tsx       # 로그인 페이지
-│   │   ├── workspace/         # 워크스페이스 페이지
-│   │   │   └── create/        # 워크스페이스 생성
+│   │   ├── spaces/            # 스페이스 페이지 (복수형 RESTful)
+│   │   │   ├── new/           # 스페이스 생성
+│   │   │   ├── welcome/       # 환영 페이지
+│   │   │   └── [spaceId]/     # 동적 스페이스 라우트
+│   │   │       ├── invite/    # 팀원 초대
+│   │   │       ├── checkin/   # 체크인 작성
+│   │   │       └── settings/  # 스페이스 설정
 │   │   ├── layout.tsx         # 루트 레이아웃
 │   │   ├── page.tsx           # 랜딩 페이지
 │   │   └── globals.css        # 전역 스타일
@@ -83,7 +88,7 @@ scrumble-frontend/
 │   │   │   ├── components/   # 인증 컴포넌트
 │   │   │   └── AuthPage.tsx  # 메인 인증 페이지
 │   │   ├── checkin/          # 체크인 기능 (예정)
-│   │   └── workspace/        # 워크스페이스 기능 (예정)
+│   │   └── space/             # 스페이스 기능 (예정)
 │   └── shared/               # 공통 모듈
 │       ├── components/       # 재사용 컴포넌트
 │       │   └── feedback/     # 토스트, 로딩 등
@@ -167,6 +172,37 @@ npm run test:coverage
 npm run test:e2e
 ```
 
+## 🛣 라우팅 구조
+
+Scrumble은 RESTful 원칙을 따르는 라우팅 구조를 사용합니다:
+
+### 라우팅 규칙
+
+1. **복수형 리소스명**: `/spaces` (단수형 `/space` ❌)
+2. **의미있는 액션명**: `/new` (생성), `/invite` (초대)
+3. **일관된 패턴**: `/spaces/[id]/[action]`
+
+### 현재 라우트 구조
+
+```
+/auth                    # 로그인 페이지
+/auth/callback          # OAuth 콜백 처리
+
+/spaces/new             # 새 스페이스 생성
+/spaces/welcome         # 로그인 후 환영 페이지
+
+/spaces/[id]            # 스페이스 대시보드 (팀 피드)
+/spaces/[id]/invite     # 팀원 초대
+/spaces/[id]/checkin    # 체크인 작성
+/spaces/[id]/settings   # 스페이스 설정
+```
+
+### 라우팅 가이드라인
+
+- **생성 페이지**: `/resources/new` 패턴 사용
+- **특정 리소스 액션**: `/resources/[id]/action` 패턴 사용
+- **의미 명확성**: URL만 봐도 기능을 알 수 있도록 구성
+
 ## 🔧 개발 도구
 
 ```bash
@@ -247,13 +283,13 @@ chore: 빌드 관련 파일 수정
 - Google OAuth 인증 플로우
 - 로그인/로그아웃 기능
 - 토스트 알림 시스템
-- 워크스페이스 생성 페이지 UI
+- 스페이스 생성 페이지 UI
 - 반응형 로그인 페이지
 - 토큰 관리 시스템
 - Pretendard 폰트 적용
 
 ### 🔄 진행 중
-- 워크스페이스 관리 기능
+- 스페이스 관리 기능
 - 팀 초대 시스템
 - 백엔드 API 연동
 

@@ -56,7 +56,7 @@ src/
 
 ### Key Design Patterns
 
-1. **Feature-Based Organization**: Each feature (auth, checkin, workspace) is self-contained with its own components, hooks, services, and types.
+1. **Feature-Based Organization**: Each feature (auth, checkin, space) is self-contained with its own components, hooks, services, and types.
 
 2. **Service Layer Pattern**: API calls are abstracted into service classes (e.g., `auth.service.ts`, `checkin.service.ts`) for better organization and reusability.
 
@@ -100,7 +100,7 @@ src/
    - Real-time updates via WebSocket
    - Non-checked-in members shown with opacity
 
-3. **Workspace Management**:
+3. **Space Management**:
    - Team creation and invitation system
    - Member management
    - Settings and permissions
