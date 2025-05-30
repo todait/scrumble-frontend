@@ -8,7 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     // 모든 경우 /auth로 리다이렉트 (AuthPage에서 인증 상태 확인)
-    router.push('/auth');
+    router.push('/spaces/welcome');
   }, [router]);
 
   return (
