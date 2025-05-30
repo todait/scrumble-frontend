@@ -9,11 +9,7 @@ import { useAuth } from '@/shared/hooks/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
 import { startGoogleOAuth } from '@/shared/lib/api';
 
-import { 
-  GoogleButton, 
-  AuthHeader 
-} from '../components';
-
+import { AuthHeader, GoogleButton } from '../components';
 
 const AuthPage = () => {
   const router = useRouter();
@@ -57,7 +53,7 @@ const AuthPage = () => {
   }
 
   return (
-    <IntroLayout isAuthenticated={isAuthenticated}>
+    <IntroLayout>
       <AuthHeader />
 
       {/* 구글 로그인/로그아웃 버튼 섹션 */}
@@ -65,10 +61,7 @@ const AuthPage = () => {
         {!isAuthenticated ? (
           <LoginSection onLogin={handleGoogleLogin} />
         ) : (
-          <LogoutSection 
-            userEmail={user?.email} 
-            onLogout={handleLogout} 
-          />
+          <LogoutSection userEmail={user?.email} onLogout={handleLogout} />
         )}
       </div>
     </IntroLayout>
@@ -82,11 +75,8 @@ interface LoginSectionProps {
 
 const LoginSection: React.FC<LoginSectionProps> = ({ onLogin }) => (
   <div>
-    <GoogleButton 
-      onClick={onLogin}
-      text="구글 계정으로 계속하기"
-    />
-    <p className="text-sm lg:text-base font-normal leading-[1.2] text-[#181818] opacity-50 peer-hover:text-[#FF7800] peer-hover:opacity-100 font-pretendard mt-2.5 transition-all duration-200">
+    <GoogleButton onClick={onLogin} text="구글 계정으로 계속하기" />
+    <p className="mt-2.5 font-pretendard text-sm font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-base">
       간편하게 Google 계정으로 시작하세요
     </p>
   </div>
@@ -100,11 +90,8 @@ interface LogoutSectionProps {
 
 const LogoutSection: React.FC<LogoutSectionProps> = ({ userEmail, onLogout }) => (
   <div>
-    <GoogleButton 
-      onClick={onLogout}
-      text="로그아웃하기"
-    />
-    <p className="text-sm lg:text-base font-normal leading-[1.2] text-[#181818] opacity-50 peer-hover:text-[#FF7800] peer-hover:opacity-100 font-pretendard mt-2.5 transition-all duration-200">
+    <GoogleButton onClick={onLogout} text="로그아웃하기" />
+    <p className="mt-2.5 font-pretendard text-sm font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-base">
       계정 : {userEmail || '사용자'}
     </p>
   </div>

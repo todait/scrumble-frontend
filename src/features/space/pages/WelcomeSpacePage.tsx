@@ -1,24 +1,17 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { LoadingScreen } from '@/shared/components/feedback';
 import { IntroLayout } from '@/shared/components/layout';
-import { useAuth } from '@/shared/hooks/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
 
-import { 
-  WelcomeHeader,
-  CreateSpaceButton,
-  LogoutButton
-} from '../components';
-
+import { CreateSpaceButton, LogoutButton, WelcomeHeader } from '../components';
 
 const WelcomeSpagePage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  // const { isAuthenticated, isLoading, logout } = useAuth();
   const { success, error } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const toastShownRef = useRef(false);
@@ -31,18 +24,18 @@ const WelcomeSpagePage = () => {
       const url = new URL(window.location.href);
       url.searchParams.delete('auth');
       window.history.replaceState({}, '', url.toString());
-      
+
       // 토스트를 한 번만 표시
       toastShownRef.current = true;
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth');
-    }
-  }, [isAuthenticated, isLoading, router]);
+  // useEffect(() => {
+  //   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+  //   if (!isLoading && !isAuthenticated) {
+  //     router.push('/auth');
+  //   }
+  // }, [isAuthenticated, isLoading, router]);
 
   const handleCreateSpace = () => {
     router.push('/spaces/new');
@@ -51,7 +44,7 @@ const WelcomeSpagePage = () => {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await logout();
+      // await logout();
       success({
         title: '로그아웃 완료',
         message: '안전하게 로그아웃되었습니다.',
@@ -68,9 +61,9 @@ const WelcomeSpagePage = () => {
   };
 
   // 로딩 중일 때 표시
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  // if (isLoading) {
+  //   return <LoadingScreen />;
+  // }
 
   return (
     <IntroLayout>
@@ -79,19 +72,13 @@ const WelcomeSpagePage = () => {
 
         {/* 버튼 섹션 */}
         <div className="flex gap-[10px] pt-3">
-          <CreateSpaceButton
-            onClick={handleCreateSpace}
-          />
-          
-          <LogoutButton
-            onClick={handleLogout}
-            isLoading={isLoggingOut}
-          />
+          <CreateSpaceButton onClick={handleCreateSpace} />
+
+          <LogoutButton onClick={handleLogout} isLoading={isLoggingOut} />
         </div>
-    
       </div>
     </IntroLayout>
   );
 };
 
-export default WelcomeSpagePage; 
+export default WelcomeSpagePage;
