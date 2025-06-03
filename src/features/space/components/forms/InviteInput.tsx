@@ -11,7 +11,7 @@ interface InviteInputProps {
   onEmailsChange: (emails: string[]) => void;
   onInvite: () => void;
   disabled?: boolean;
-  layout?: 'inline' | 'stack'; 
+  layout?: 'inline' | 'stack';
   buttonText?: string;
 }
 
@@ -21,17 +21,16 @@ export const InviteInput: React.FC<InviteInputProps> = ({
   onInvite,
   disabled = false,
   layout = 'stack',
-  buttonText
+  buttonText,
 }) => {
   const isInline = layout === 'inline';
   const [hasEmailError, setHasEmailError] = useState(false);
-
 
   return (
     <div
       className={
         isInline
-          ? 'w-full flex items-start gap-[10px]'      // 버튼·인풋 나란히 + gap
+          ? 'flex w-full items-start gap-[10px]' // 버튼·인풋 나란히 + gap
           : 'space-y-[10px]'
       }
     >
@@ -44,16 +43,17 @@ export const InviteInput: React.FC<InviteInputProps> = ({
         />
       </div>
 
-      {/* 버튼은 고정폭 & 줄어들지 않도록 shrink-0 */}
-      <div className='shrink-0'>
+      {/* 버튼 영역 - inline일 때는 내용 크기만큼, stack일 때는 full width */}
+      <div className={isInline ? 'shrink-0' : 'w-full'}>
         <InviteButton
           emailCount={emails.length}
           onClick={onInvite}
           disabled={disabled || emails.length === 0 || hasEmailError}
           buttonText={buttonText}
-          className={isInline ? 'min-h-[60px]' : undefined}
+          size={isInline ? 'sm' : 'md'}
+          className={isInline ? 'min-h-[45px]' : 'w-full'}
         />
       </div>
     </div>
   );
-}; 
+};

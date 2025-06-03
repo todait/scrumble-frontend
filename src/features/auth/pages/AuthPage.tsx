@@ -76,7 +76,7 @@ interface LoginSectionProps {
 const LoginSection: React.FC<LoginSectionProps> = ({ onLogin }) => (
   <div>
     <GoogleButton onClick={onLogin} text="구글 계정으로 계속하기" />
-    <p className="mt-2.5 font-pretendard text-sm font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-base">
+    <p className="mt-2.5 font-pretendard text-xs font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-sm">
       간편하게 Google 계정으로 시작하세요
     </p>
   </div>
@@ -91,7 +91,7 @@ interface LogoutSectionProps {
 const LogoutSection: React.FC<LogoutSectionProps> = ({ userEmail, onLogout }) => (
   <div>
     <GoogleButton onClick={onLogout} text="로그아웃하기" />
-    <p className="mt-2.5 font-pretendard text-sm font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-base">
+    <p className="mt-2.5 font-pretendard text-xs font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-sm">
       계정 : {userEmail || '사용자'}
     </p>
   </div>

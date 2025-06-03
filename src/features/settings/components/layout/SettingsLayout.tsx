@@ -18,43 +18,44 @@ interface MenuItem {
 
 export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceId }) => {
   const pathname = usePathname();
-  
+
   const menuItems: MenuItem[] = [
     {
-      label: '설정',
+      label: '스페이스 설정',
       href: `/${spaceId}/settings/space`,
-      icon: <Settings className="w-5 h-5" />
+      icon: <Settings className="h-5 w-5" />,
     },
     {
       label: '멤버 관리',
       href: `/${spaceId}/settings/members`,
-      icon: <Users className="w-5 h-5" />
-    }
+      icon: <Users className="h-5 w-5" />,
+    },
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#FBFBFB]">
+    <div className="flex bg-[#FBFBFB]">
       {/* 사이드바 */}
-      <aside className="w-[188px] pt-[108px] px-2 pb-2">
-        <nav className="flex flex-col gap-1">
-          {menuItems.map((item) => {
+      <aside className="min-h-[calc(100vh-70px)] w-[240px] border-r border-gray-200 bg-white px-6 py-8">
+        <div className="mb-6">
+          <h2 className="mb-2 text-lg font-semibold text-[#181818]">설정</h2>
+          <p className="text-sm text-gray-500">스페이스와 멤버를 관리하세요</p>
+        </div>
+
+        <nav className="flex flex-col gap-2">
+          {menuItems.map(item => {
             const isActive = pathname === item.href;
-            
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`
-                  flex items-center gap-1 px-5 py-4 rounded-xl text-[18px] font-normal transition-all
-                  ${isActive 
-                    ? 'bg-gradient-to-r from-white to-[rgba(151,71,255,0.1)] text-[#9747FF] border-2 border-[rgba(151,71,255,0.4)]' 
-                    : 'text-[#181818] hover:bg-gray-50'
-                  }
-                `}
+                className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
+                  isActive
+                    ? 'border border-blue-200 bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                } `}
               >
-                <span className={isActive ? 'text-[#9747FF]' : 'text-[#181818]'}>
-                  {item.icon}
-                </span>
+                <span className={isActive ? 'text-blue-600' : 'text-gray-500'}>{item.icon}</span>
                 {item.label}
               </Link>
             );
@@ -63,9 +64,9 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceI
       </aside>
 
       {/* 메인 컨텐츠 */}
-      <main className="flex-1 bg-white">
-        {children}
+      <main className="min-h-[calc(100vh-70px)] flex-1 overflow-auto bg-white">
+        <div className="mx-auto max-w-6xl">{children}</div>
       </main>
     </div>
   );
-}; 
+};

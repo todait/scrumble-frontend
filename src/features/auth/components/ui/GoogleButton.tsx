@@ -18,7 +18,7 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({ onClick, text, disab
       disabled={disabled}
       variant="secondary"
       size="md"
-      className="inline-flex items-center gap-2.5 py-5 hover:bg-[#181818] active:bg-[#181818] group peer"
+      className="inline-flex items-center gap-2.5 hover:bg-[#181818] active:bg-[#181818] group peer"
     >
       {/* 구글 아이콘 */}
       <div className="w-6 h-6 flex-shrink-0">
@@ -38,7 +38,7 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({ onClick, text, disab
       </div>
       
       {/* 버튼 텍스트 */}
-      <span className="text-lg lg:text-[20px] font-normal leading-[1.2] text-[#181818] group-hover:text-white group-active:text-white font-pretendard transition-colors duration-200">
+      <span className="text-base lg:text-lg font-normal leading-[1.2] text-[#181818] group-hover:text-white group-active:text-white font-pretendard transition-colors duration-200">
         {text}
       </span>
     </Button>

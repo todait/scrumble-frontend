@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { inviteTeamSchema } from '@/schemas';
@@ -16,27 +16,27 @@ interface InviteSpacePageProps {
   spaceName?: string; // 추후 API로 받아올 예정
 }
 
-export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({ 
+export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
   spaceId,
-  spaceName = "스페이스 이름" 
+  spaceName = '스페이스 이름',
 }) => {
-  const router = useRouter(); 
-  
+  const router = useRouter();
+
   const {
     values,
     setValue,
     isValid,
     // isSubmitting, // TODO: 로딩 상태 표시에 사용 예정
-    handleSubmit
+    handleSubmit,
   } = useForm({
     schema: inviteTeamSchema,
     initialValues: { emails: [] },
-    onSubmit: async (data) => {
+    onSubmit: async data => {
       try {
         // TODO: API 호출로 팀 멤버 초대
         console.warn('스페이스 ID:', spaceId);
         console.warn('초대할 이메일 목록:', data.emails);
-        
+
         // 성공 시 다음 페이지로 이동 (추후 구현)
         router.push(`/${spaceId}/settings/members`);
       } catch (error) {
@@ -49,9 +49,9 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
     try {
       // TODO: 초대 링크 생성 API 호출
       const inviteLink = `${window.location.origin}/invite/${spaceId}`;
-      
+
       await navigator.clipboard.writeText(inviteLink);
-      
+
       // TODO: 토스트 알림 표시
       console.warn('초대 링크가 복사되었습니다!', inviteLink);
     } catch (error) {
@@ -59,19 +59,34 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
     }
   };
 
+  const handleSkip = () => {
+    router.push(`/${spaceId}/settings/members`);
+  };
+
   return (
     <IntroLayout>
       <div className="w-full max-w-[524px]">
-        <InviteHeader spaceName={spaceName} />        
+        <InviteHeader spaceName={spaceName} />
 
         {/* 이메일 입력 및 버튼 */}
-        <div onSubmit={handleSubmit} className="space-y-[10px]">
-          <InviteInput 
+        <div onSubmit={handleSubmit} className="space-y-[5px]">
+          <InviteInput
             emails={values.emails || []}
-            onEmailsChange={(emails) => setValue('emails', emails)}
+            onEmailsChange={emails => setValue('emails', emails)}
             onInvite={handleSubmit}
             disabled={!isValid}
           />
+        </div>
+
+        {/* 건너뛰기 버튼 */}
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="text-xs text-gray-500 underline transition-colors hover:text-gray-700"
+          >
+            건너뛰기
+          </button>
         </div>
 
         {/* 초대 링크 복사 버튼 */}
@@ -81,4 +96,4 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
       </div>
     </IntroLayout>
   );
-}; 
+};

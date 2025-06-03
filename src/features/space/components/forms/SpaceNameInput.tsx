@@ -59,9 +59,9 @@ export const SpaceNameInput: React.FC<SpaceNameInputProps> = ({
         onBlur={handleBlur}
         placeholder="워크스페이스 이름"
         disabled={disabled}
-        className={`w-full max-w-[524px] px-5 py-4 bg-white border rounded-xl 
+        className={`w-full max-w-[524px] min-h-[40px] px-3 py-2 bg-white border rounded-xl 
                    focus:outline-none focus:ring-1 
-                   text-[#181818] text-[18px] placeholder-[#181818] placeholder-opacity-20
+                   text-[#181818] text-base placeholder-[#181818] placeholder-opacity-20
                    disabled:opacity-50 disabled:cursor-not-allowed font-pretendard
                    transition-all duration-200 ${
                      hasError
