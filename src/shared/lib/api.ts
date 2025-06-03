@@ -18,18 +18,18 @@ export const tokenStorage = {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('accessToken');
   },
-  
+
   getRefreshToken: (): string | null => {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('refreshToken');
   },
-  
+
   setTokens: (accessToken: string, refreshToken: string): void => {
     if (typeof window === 'undefined') return;
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
   },
-  
+
   clearTokens: (): void => {
     if (typeof window === 'undefined') return;
     localStorage.removeItem('accessToken');
@@ -39,37 +39,37 @@ export const tokenStorage = {
 
 // 요청 인터셉터: 토큰 자동 추가
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     const token = tokenStorage.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // 응답 인터셉터: 토큰 만료 시 자동 갱신
 apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  async error => {
     const originalRequest = error.config;
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         const refreshToken = tokenStorage.getRefreshToken();
         if (refreshToken) {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken,
           });
-          
+
           const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
           tokenStorage.setTokens(accessToken, newRefreshToken);
-          
+
           // 원래 요청 재시도
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return apiClient(originalRequest);
@@ -80,7 +80,7 @@ apiClient.interceptors.response.use(
         window.location.href = '/auth';
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -116,4 +116,4 @@ export const validateToken = async (): Promise<boolean> => {
   } catch {
     return false;
   }
-}; 
+};

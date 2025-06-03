@@ -1,3 +1,6 @@
-import CreateSpacePage from '@/features/space/pages/CreateSpacePage';
+'use client';
 
-export default CreateSpacePage;
+import CreateSpacePage from '@/features/space/pages/CreateSpacePage';
+import { withAuth } from '@/shared/components/auth';
+
+export default withAuth(CreateSpacePage);

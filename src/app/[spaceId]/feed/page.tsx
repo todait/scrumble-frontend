@@ -1,9 +1,15 @@
+'use client';
+
+import { use } from 'react';
+
+import { withAuth } from '@/shared/components/auth';
+
 interface FeedPageProps {
   params: Promise<{ spaceId: string }>;
 }
 
-export default async function FeedPage({ params }: FeedPageProps) {
-  const { spaceId } = await params;
+function FeedPage({ params }: FeedPageProps) {
+  const { spaceId } = use(params);
 
   return (
     <div className="container mx-auto px-6 py-8">
@@ -19,3 +25,5 @@ export default async function FeedPage({ params }: FeedPageProps) {
     </div>
   );
 }
+
+export default withAuth(FeedPage);

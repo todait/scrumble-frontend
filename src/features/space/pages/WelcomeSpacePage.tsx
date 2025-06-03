@@ -1,17 +1,17 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 
 import { IntroLayout } from '@/shared/components/layout';
 import { useToast } from '@/shared/hooks/useToast';
-
+import { useAuth } from '@/shared/hooks';
 import { CreateSpaceButton, LogoutButton, WelcomeHeader } from '../components';
 
-const WelcomeSpagePage = () => {
+function WelcomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // const { isAuthenticated, isLoading, logout } = useAuth();
+  const { logout } = useAuth();
   const { success, error } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const toastShownRef = useRef(false);
@@ -30,13 +30,6 @@ const WelcomeSpagePage = () => {
     }
   }, [searchParams]);
 
-  // useEffect(() => {
-  //   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
-  //   if (!isLoading && !isAuthenticated) {
-  //     router.push('/auth');
-  //   }
-  // }, [isAuthenticated, isLoading, router]);
-
   const handleCreateSpace = () => {
     router.push('/spaces/new');
   };
@@ -44,7 +37,7 @@ const WelcomeSpagePage = () => {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      // await logout();
+      await logout();
       success({
         title: '로그아웃 완료',
         message: '안전하게 로그아웃되었습니다.',
@@ -60,11 +53,6 @@ const WelcomeSpagePage = () => {
     }
   };
 
-  // 로딩 중일 때 표시
-  // if (isLoading) {
-  //   return <LoadingScreen />;
-  // }
-
   return (
     <IntroLayout>
       <div className="relative w-full">
@@ -79,6 +67,18 @@ const WelcomeSpagePage = () => {
       </div>
     </IntroLayout>
   );
+}
+
+const WelcomeSpacePage = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#FBFBFB]">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7800]"></div>
+      </div>
+    }>
+      <WelcomeContent />
+    </Suspense>
+  );
 };
 
-export default WelcomeSpagePage;
+export default WelcomeSpacePage;

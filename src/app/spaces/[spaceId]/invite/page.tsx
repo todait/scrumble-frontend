@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { InviteSpacePage } from '@/features/space/pages';
+import { withAuth } from '@/shared/components/auth';
 
 interface InviteSpacePageRouteProps {
   params: Promise<{
@@ -10,7 +11,7 @@ interface InviteSpacePageRouteProps {
   }>;
 }
 
-export default function InviteSpacePageRoute({ params }: InviteSpacePageRouteProps) {
+function InviteSpacePageRoute({ params }: InviteSpacePageRouteProps) {
   const { spaceId } = React.use(params);
 
   return (
@@ -19,4 +20,6 @@ export default function InviteSpacePageRoute({ params }: InviteSpacePageRoutePro
       spaceName="스크럼블 팀" // 추후 API로 spaceId를 통해 실제 스페이스 이름을 가져올 예정
     />
   );
-} 
+}
+
+export default withAuth(InviteSpacePageRoute); 

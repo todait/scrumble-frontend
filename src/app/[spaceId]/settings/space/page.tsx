@@ -1,5 +1,10 @@
-import SpaceSettingsPage from '@/features/settings/pages/SpaceSettingsPage';
+'use client';
 
-export default function Page() {
+import SpaceSettingsPage from '@/features/settings/pages/SpaceSettingsPage';
+import { withAuth } from '@/shared/components/auth';
+
+function Page() {
   return <SpaceSettingsPage />;
 }
+
+export default withAuth(Page);

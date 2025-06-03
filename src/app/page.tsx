@@ -2,12 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { withAuth } from '@/shared/components/auth';
 
-export default function Home() {
+function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // 모든 경우 /auth로 리다이렉트 (AuthPage에서 인증 상태 확인)
+    // 인증된 사용자는 welcome 페이지로 리다이렉트
     router.push('/spaces/welcome');
   }, [router]);
 
@@ -17,3 +18,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default withAuth(Home);

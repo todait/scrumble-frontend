@@ -1,9 +1,14 @@
+'use client';
+
+import { use } from 'react';
+import { withAuth } from '@/shared/components/auth';
+
 interface SpacePageProps {
   params: Promise<{ spaceId: string }>;
 }
 
-export default async function SpacePage({ params }: SpacePageProps) {
-  const { spaceId } = await params;
+function SpacePage({ params }: SpacePageProps) {
+  const { spaceId } = use(params);
 
   return (
     <div className="container mx-auto px-6 py-8">
@@ -19,3 +24,5 @@ export default async function SpacePage({ params }: SpacePageProps) {
     </div>
   );
 }
+
+export default withAuth(SpacePage);
