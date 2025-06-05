@@ -1,7 +1,6 @@
-import axios from 'axios';
 import { create } from 'zustand';
 
-import { tokenStorage } from '@/shared/lib/api';
+import { apiClient, tokenStorage } from '@/shared/lib/api';
 import { User } from '@/shared/types/auth';
 
 interface AuthState {
@@ -45,13 +44,8 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
     try {
       set({ isLoading: true });
 
-      // 백엔드 로그아웃 API 호출 (백엔드가 준비되면 활성화)
-      // TODO: 백엔드 API 구현 후 주석 해제
-      /*
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {}, {
-        withCredentials: true,
-      });
-      */
+      // 백엔드 로그아웃 API 호출
+      await apiClient.post('/auth/logout');
 
       // 토큰 및 사용자 정보 제거
       tokenStorage.clearTokens();
@@ -109,11 +103,7 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
       }
 
       // 서버에서 사용자 정보 가져오기
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const response = await apiClient.get('/me');
 
       const user = response.data;
       localStorage.setItem('user', JSON.stringify(user));
