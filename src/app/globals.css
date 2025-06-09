@@ -19,6 +19,6 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: #FAFAFA;
   font-family: 'Pretendard', system-ui, sans-serif;
 }
