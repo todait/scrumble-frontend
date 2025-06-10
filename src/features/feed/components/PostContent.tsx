@@ -1,0 +1,311 @@
+'use client';
+
+import { CheckInEditModal } from '@/features/checkin/components';
+import { SimpleToast } from '@/shared/components/feedback';
+import { DeleteConfirmDialog, ImageGallery, ImageViewer, ProfileImage, StatusBadge } from '@/shared/components/ui';
+import { useAuthStore } from '@/shared/stores/auth.store';
+import { formatTime, getConditionLabel } from '@/shared/utils';
+import {
+  RiArrowRightSLine,
+  RiDeleteBinLine,
+  RiEdit2Line,
+} from '@remixicon/react';
+import { formatDistanceToNow } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { useState } from 'react';
+import type { Post } from '../types/feed.types';
+
+interface PostContentProps {
+  post: Post;
+  isSelected?: boolean;
+  isDetailView?: boolean;
+  onReaction?: (postId: string, emoji: string) => void;
+  onCommentClick?: (postId: string) => void;
+}
+
+export function PostContent({
+  post,
+  isSelected = false,
+  isDetailView = false,
+  onReaction,
+  onCommentClick,
+}: PostContentProps) {
+  const [showFullContent, setShowFullContent] = useState(isDetailView);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const user = useAuthStore(state => state.user);
+  const isMyPost = user?.id === post.author.id;
+  const isCheckIn = post.type === 'checkin';
+  const contentPreview =
+    post.content.length > 200 ? post.content.slice(0, 200) + '...' : post.content;
+
+  const handleEdit = () => {
+    if (isCheckIn) {
+      setShowEditModal(true);
+    }
+    // TODO: 체크아웃 수정 기능 구현
+  };
+
+  const handleDelete = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    // TODO: API 호출로 게시물 삭제
+    setShowDeleteDialog(false);
+    setShowToast({ message: '해당 게시물이 삭제되었습니다' });
+  };
+
+  const handleEditSubmit = () => {
+    setShowEditModal(false);
+    setShowToast({
+      message: '노트를 수정했습니다',
+      actionText: '보기',
+    });
+  };
+
+  const handleToastAction = () => {
+    setShowToast(null);
+  };
+
+
+  const profileImageSize = isDetailView ? 48 : 40;
+  const nameTextSize = isDetailView ? 'text-[17px]' : 'text-[15px]';
+  const contentTextSize = isDetailView ? 'text-[16px] leading-[1.5]' : 'text-[15px] leading-[1.4]';
+  const padding = isDetailView ? 'p-6' : 'p-[30px]';
+
+  return (
+    <>
+      <div
+        className={`group relative flex gap-[10px] ${padding} ${
+          isSelected && !isDetailView
+            ? 'bg-[rgba(151,71,255,0.04)]'
+            : !isDetailView
+              ? 'bg-white hover:bg-[rgba(151,71,255,0.04)]'
+              : 'bg-white'
+        }`}
+      >
+        {/* 호버 시 왼쪽 보라색 라인 (카드 뷰에서만) */}
+        {!isDetailView && (
+          <div
+            className={`absolute left-0 top-0 h-full w-1 bg-[#9747FF] transition-opacity ${
+              isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+            }`}
+          />
+        )}
+
+        {/* 내 포스트일 때 수정/삭제 버튼 - 호버 시 표시 (카드 뷰에서만) */}
+        {isMyPost && !isDetailView && (
+          <div className="absolute right-[30px] top-0 z-10 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="flex h-[50px] w-[150px] items-center justify-center gap-[10px] rounded-lg bg-white p-2 shadow-[0px_2px_8px_rgba(0,0,0,0.08)]">
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  handleEdit();
+                }}
+                className="flex h-[34px] w-[62px] items-center justify-center gap-1 rounded-lg hover:bg-[#F1F1F1]"
+              >
+                <RiEdit2Line className="h-4 w-4 text-[#222222]" />
+                <span className="text-[13px] font-medium text-[#222222]">수정</span>
+              </button>
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+                className="flex h-[34px] w-[62px] items-center justify-center gap-1 rounded-lg text-[#E04646] hover:bg-[rgba(224,70,70,0.04)]"
+              >
+                <RiDeleteBinLine className="h-4 w-4" />
+                <span className="text-[13px] font-medium">삭제</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 프로필 이미지 */}
+        <div className="flex-shrink-0">
+          <ProfileImage
+            src={post.author.profileImage}
+            alt={post.author.name}
+            size={profileImageSize}
+          />
+        </div>
+
+        {/* 콘텐츠 영역 */}
+        <div className="min-w-0 flex-1 space-y-[10px]">
+          {/* 헤더 */}
+          <div className="flex items-start justify-between gap-2">
+            <div
+              className="flex min-w-0 flex-1 flex-col justify-between"
+              style={{ height: profileImageSize }}
+            >
+              {/* 이름 - 프로필 이미지 상단에서 0.5px 아래 */}
+              <div
+                className={`font-bold text-[#222222] ${nameTextSize} leading-none`}
+                style={{ transform: 'translateY(2px)' }}
+              >
+                {post.author.name}
+              </div>
+
+              {/* 타입과 시간 - 프로필 이미지 하단에서 0.5px 위 */}
+              <div className="flex items-center gap-1" style={{ transform: 'translateY(-1px)' }}>
+                <StatusBadge type={isCheckIn ? 'checkin' : 'checkout'} />
+                <span className="text-[13px] leading-none text-[#222222] opacity-40">
+                  {formatTime(post.createdAt)}
+                  {post.updatedAt && ' (수정됨)'}
+                </span>
+              </div>
+            </div>
+            {isCheckIn && 'conditionScore' in post && (
+              <div className="flex-shrink-0 rounded border border-[rgba(34,34,34,0.08)] px-2 py-2">
+                <span className="text-[15px] text-[#222222] opacity-80">
+                  {post.conditionEmoji || getConditionLabel(post.conditionScore)}{' '}
+                  {post.conditionScore}점
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* 본문 */}
+          <div className="py-2">
+            <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
+              {showFullContent ? post.content : contentPreview}
+            </p>
+            {post.content.length > 200 && !showFullContent && (
+              <button
+                onClick={() => setShowFullContent(true)}
+                className={`mt-1 font-medium text-[#222222] opacity-80 hover:opacity-100 ${contentTextSize}`}
+              >
+                ...더보기
+              </button>
+            )}
+          </div>
+
+          {/* 이미지 섹션 */}
+          {post.images && post.images.length > 0 && (
+            <ImageGallery
+              images={post.images}
+              size={isDetailView ? 'large' : 'medium'}
+              className="mt-2"
+              onClick={(index, event) => {
+                // 이벤트 전파를 막고 이미지 뷰어 열기
+                event.stopPropagation();
+                event.preventDefault();
+                setSelectedImageIndex(index);
+                // setTimeout을 사용하여 다음 이벤트 루프에서 실행
+                setTimeout(() => {
+                  setImageViewerOpen(true);
+                }, 0);
+              }}
+            />
+          )}
+
+          {/* 리액션 및 댓글 섹션 */}
+          <div className="flex flex-col gap-[10px] py-2">
+            {/* 이모지 리액션 */}
+            <div className="flex items-center gap-2">
+              {post.reactions.map((reaction, index) => (
+                <button
+                  key={index}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onReaction?.(post.id, reaction.emoji);
+                  }}
+                  className={`flex items-center gap-1 rounded-full px-[10px] py-[6px] text-[13px] transition-colors border ${
+                    reaction.userIds.includes(user?.id || '')
+                      ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
+                      : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
+                  }`}
+                >
+                  <span>{reaction.emoji}</span>
+                  {reaction.count > 0 && <span>{reaction.count}</span>}
+                </button>
+              ))}
+            </div>
+
+            {/* 댓글 정보 (카드 뷰에서만) */}
+            {!isDetailView && post.commentCount > 0 && (
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  onCommentClick?.(post.id);
+                }}
+                className="group/comment flex h-10 items-center gap-2 rounded-lg bg-white px-2"
+              >
+                <div className="flex gap-1">
+                  {post.comments
+                    .slice(-5) // 최신 5개 댓글
+                    .reverse() // 최신순으로 정렬
+                    .map((comment, index) => (
+                      <ProfileImage
+                        key={index}
+                        src={comment.author.profileImage}
+                        alt={comment.author.name}
+                        size={32}
+                        className="bg-white"
+                      />
+                    ))}
+                </div>
+                <span className="text-[13px] leading-[1.5] text-[#222222] opacity-80">
+                  {post.commentCount}개의 댓글
+                </span>
+                {post.lastCommentTime && (
+                  <>
+                    <span className="text-[13px] leading-[1.5] text-[#222222] opacity-40 group-hover:hidden">
+                      {formatDistanceToNow(post.lastCommentTime, { addSuffix: true, locale: ko })}
+                    </span>
+                    <span className="hidden text-[13px] leading-[1.5] text-[#222222] opacity-40 group-hover:block">
+                      보기
+                    </span>
+                  </>
+                )}
+                <RiArrowRightSLine className="ml-auto h-4 w-4 text-[#222222] opacity-0 transition-opacity group-hover:opacity-60" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <DeleteConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
+      />
+
+      {/* 체크인 수정 모달 */}
+      {isCheckIn && 'conditionScore' in post && (
+        <CheckInEditModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          post={post}
+          onSubmit={handleEditSubmit}
+        />
+      )}
+
+      {/* 토스트 메시지 */}
+      {showToast && (
+        <SimpleToast
+          message={showToast.message}
+          actionText={showToast.actionText}
+          onAction={showToast.actionText ? handleToastAction : undefined}
+          onClose={() => setShowToast(null)}
+        />
+      )}
+
+      {/* 이미지 뷰어 */}
+      {post.images && post.images.length > 0 && (
+        <ImageViewer
+          images={post.images}
+          initialIndex={selectedImageIndex}
+          isOpen={imageViewerOpen}
+          onClose={() => setImageViewerOpen(false)}
+        />
+      )}
+    </>
+  );
+}

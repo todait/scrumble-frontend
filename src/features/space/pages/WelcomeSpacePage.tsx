@@ -1,11 +1,11 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState, Suspense } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 import { IntroLayout } from '@/shared/components/layout';
-import { useToast } from '@/shared/hooks/useToast';
 import { useAuth } from '@/shared/hooks';
+import { useToast } from '@/shared/hooks/useToast';
 import { CreateSpaceButton, LogoutButton, WelcomeHeader } from '../components';
 
 function WelcomeContent() {
@@ -31,7 +31,7 @@ function WelcomeContent() {
   }, [searchParams]);
 
   const handleCreateSpace = () => {
-    router.push('/spaces/new');
+    router.push('/temp-space-id/feed');
   };
 
   const handleLogout = async () => {
@@ -71,11 +71,13 @@ function WelcomeContent() {
 
 const WelcomeSpacePage = () => {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-[#FBFBFB]">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7800]"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#FBFBFB]">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7800]"></div>
+        </div>
+      }
+    >
       <WelcomeContent />
     </Suspense>
   );
