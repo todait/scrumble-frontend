@@ -1,3 +1,4 @@
 export * from './Button';
 export * from './DropdownMenu';
 export * from './ProfileDropdownMenu';
+export * from './DeleteConfirmDialog';

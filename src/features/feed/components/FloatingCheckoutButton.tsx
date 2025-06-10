@@ -8,12 +8,18 @@ interface FloatingCheckoutButtonProps {
 
 export function FloatingCheckoutButton({ onClick }: FloatingCheckoutButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      className="fixed bottom-8 right-8 z-20 flex items-center gap-1 rounded-full border border-[rgba(34,34,34,0.2)] bg-white px-6 py-4 shadow-lg transition-all hover:shadow-xl"
-    >
-      <span className="text-[15px] font-medium text-[#222222]">체크아웃하기</span>
-      <RiArrowRightLine className="h-5 w-5 text-[#222222]" />
-    </button>
+    <div className="pointer-events-none fixed bottom-8 left-0 right-0 z-20 flex justify-center px-8">
+      <div className="pointer-events-none w-full max-w-[1200px]">
+        <div className="flex justify-end">
+          <button
+            onClick={onClick}
+            className="pointer-events-auto flex items-center gap-1 rounded-full border border-[rgba(34,34,34,0.2)] bg-white px-6 py-4 shadow-lg transition-all hover:shadow-xl"
+          >
+            <span className="text-[15px] font-medium text-[#222222]">체크아웃하기</span>
+            <RiArrowRightLine className="h-5 w-5 text-[#222222]" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

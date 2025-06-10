@@ -1,17 +1,25 @@
 'use client';
 
 import { RiCheckLine, RiImageLine } from '@remixicon/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ScoreSelector } from '../ui';
 
 interface CheckInFormProps {
   onSubmit: (data: { score: number; message: string; images: string[] }) => void;
   disabled?: boolean;
+  initialData?: { score: number; message: string; images: string[] };
 }
 
-export const CheckInForm = ({ onSubmit, disabled = false }: CheckInFormProps) => {
-  const [selectedScore, setSelectedScore] = useState<number | null>(null);
-  const [message, setMessage] = useState('');
+export const CheckInForm = ({ onSubmit, disabled = false, initialData }: CheckInFormProps) => {
+  const [selectedScore, setSelectedScore] = useState<number | null>(initialData?.score || null);
+  const [message, setMessage] = useState(initialData?.message || '');
+
+  useEffect(() => {
+    if (initialData) {
+      setSelectedScore(initialData.score);
+      setMessage(initialData.message);
+    }
+  }, [initialData]);
 
   const handleSubmit = () => {
     if (selectedScore && message.trim()) {

@@ -38,7 +38,7 @@ export function FilterDropdown({ value, onChange }: FilterDropdownProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 rounded-full p-2.5"
+        className="flex items-center gap-2.5 rounded-full p-1"
       >
         <span className="text-[15px] font-bold text-[#222222]">{selectedOption?.label}</span>
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#F1F1F1] opacity-50">

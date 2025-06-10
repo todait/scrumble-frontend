@@ -45,63 +45,63 @@ export function SidebarNav({ spaceId }: SidebarNavProps) {
     {
       icon: RiBarChartLine,
       activeIcon: RiBarChartFill,
-      href: `/${spaceId}/stats`,
-      label: '통계',
+      href: `/${spaceId}/reports`,
+      label: '리포트',
     },
     {
       icon: RiUser6Line,
       activeIcon: RiUser6Fill,
-      href: `/${spaceId}/members`,
-      label: '멤버',
+      href: `/${spaceId}/my-page`,
+      label: '마이페이지',
     },
   ];
 
   const settingsItem: NavItem = {
     icon: RiSettings6Line,
     activeIcon: RiSettings6Fill,
-    href: `/${spaceId}/settings`,
+    href: `/${spaceId}/settings/space`,
     label: '설정',
   };
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
+
+  const SettingsIcon = isActive(settingsItem.href) ? settingsItem.activeIcon : settingsItem.icon;
 
   return (
-    <nav className="fixed left-2.5 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-[7px]">
-      {/* 메인 네비게이션 아이템들 */}
-      <div className="flex flex-col gap-[7px]">
-        {navItems.map(item => {
-          const Icon = isActive(item.href) ? item.activeIcon : item.icon;
-          const active = isActive(item.href);
+    <div className="fixed left-2.5 top-0 z-10 flex h-screen flex-col justify-between py-8">
+      {/* 메인 네비게이션 아이템들 - 중앙에 위치 */}
+      <div className="flex flex-1 items-center">
+        <nav className="flex flex-col gap-[7px]">
+          {navItems.map(item => {
+            const Icon = isActive(item.href) ? item.activeIcon : item.icon;
+            const active = isActive(item.href);
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
-                active ? 'bg-white opacity-80' : 'opacity-30 hover:bg-white/10 hover:opacity-50'
-              }`}
-            >
-              <Icon className="h-8 w-8 text-black" />
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
+                  active ? 'bg-[#9747FF]' : 'hover:bg-[rgba(151,71,255,0.08)]'
+                }`}
+              >
+                <Icon className={`h-8 w-8 ${active ? 'text-white' : 'text-[#222222] opacity-30 hover:opacity-60'}`} />
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* 설정 아이템 (하단에 별도로 배치) */}
+      {/* 설정 아이템 - 하단에 위치 */}
       <Link
         href={settingsItem.href}
-        className={`mt-8 flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
+        className={`flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
           isActive(settingsItem.href)
-            ? 'bg-white opacity-80'
-            : 'opacity-20 hover:bg-white/10 hover:opacity-30'
+            ? 'bg-[#9747FF]'
+            : 'hover:bg-[rgba(151,71,255,0.08)]'
         }`}
       >
-        {isActive(settingsItem.href) ? (
-          <settingsItem.activeIcon className="h-8 w-8 text-black" />
-        ) : (
-          <settingsItem.icon className="h-8 w-8 text-black" />
-        )}
+        <SettingsIcon className={`h-8 w-8 ${isActive(settingsItem.href) ? 'text-white' : 'text-[#222222] opacity-20 hover:opacity-40'}`} />
       </Link>
-    </nav>
+    </div>
   );
 }

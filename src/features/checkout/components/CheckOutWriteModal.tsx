@@ -2,7 +2,7 @@
 
 import { CheckInModalLayout } from '@/features/checkin/components/layout';
 import { RiPokerDiamondsFill } from '@remixicon/react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { CheckOutForm } from './forms';
 
 interface CheckOutWriteModalProps {
@@ -11,7 +11,6 @@ interface CheckOutWriteModalProps {
 }
 
 export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps) {
-  const router = useRouter();
   const params = useParams();
   const spaceId = params.spaceId as string;
 
@@ -19,7 +18,6 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
     console.log('체크아웃 제출:', data);
     // TODO: API 연동
     onClose();
-    router.push(`/${spaceId}/feed`);
   };
 
   const formatDate = () => {
