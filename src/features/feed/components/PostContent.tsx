@@ -88,13 +88,9 @@ export function PostContent({
               : 'bg-white'
         }`}
       >
-        {/* 호버 시 왼쪽 보라색 라인 (카드 뷰에서만) */}
-        {!isDetailView && (
-          <div
-            className={`absolute left-0 top-0 h-full w-1 bg-[#9747FF] transition-opacity ${
-              isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-            }`}
-          />
+        {/* 선택 시 왼쪽 보라색 라인 (카드 뷰에서만) */}
+        {!isDetailView && isSelected && (
+          <div className="absolute left-0 top-0 h-full w-1 bg-[#9747FF]" />
         )}
 
         {/* 내 포스트일 때 수정/삭제 버튼 - 호버 시 표시 (카드 뷰에서만) */}

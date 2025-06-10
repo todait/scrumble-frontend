@@ -25,25 +25,31 @@ export function PostDetail({ post, onClose, onReaction }: PostDetailProps) {
   const commentsParam = searchParams.get('comments');
 
   useEffect(() => {
-    if (commentsParam && scrollableAreaRef.current) {
-      // 댓글 영역으로 스크롤 (가장 아래로)
+    if (commentsParam) {
+      // textarea 활성화만 수행
       setTimeout(() => {
-        const scrollableArea = scrollableAreaRef.current;
         const commentInput = commentInputRef.current;
-
-        if (scrollableArea) {
-          // 스크롤 영역의 맨 아래로 즉시 이동 (애니메이션 없음)
-          scrollableArea.scrollTop = scrollableArea.scrollHeight;
-
-          // textarea 활성화 (즉시)
-          const textarea = commentInput?.querySelector('textarea');
-          if (textarea) {
-            textarea.focus();
-          }
+        const textarea = commentInput?.querySelector('textarea');
+        if (textarea) {
+          textarea.focus();
         }
       }, 100); // PostDetail 렌더링 완료 후 실행
     }
   }, [commentsParam]);
+
+  // ESC 키 눌렀을 때 닫기
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [onClose]);
 
   const handleCommentSubmit = () => {
     // TODO: API 호출로 댓글 생성
