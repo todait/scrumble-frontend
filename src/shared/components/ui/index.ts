@@ -7,3 +7,5 @@ export * from './PostForm';
 export * from './ProfileDropdownMenu';
 export * from './ProfileImage';
 export * from './StatusBadge';
+export { default as OptimizedImage } from './OptimizedImage';
+export { default as ProfileAvatar } from './ProfileAvatar';
