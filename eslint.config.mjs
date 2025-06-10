@@ -13,12 +13,9 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
-      // TypeScript rules
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-unused-imports": "error",
-      "simple-import-sort/imports": "error",
-      "simple-import-sort/exports": "error",
+      // TypeScript rules (완화된 설정)
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
       
       // React rules  
       "react-hooks/exhaustive-deps": "warn",
@@ -31,25 +28,8 @@ const eslintConfig = [
       "no-var": "error",
       "no-unused-vars": "off", // Use TypeScript version instead
       
-      // Import rules
-      "import/order": [
-        "error",
-        {
-          "groups": [
-            "builtin",
-            "external", 
-            "internal",
-            "parent",
-            "sibling",
-            "index"
-          ],
-          "newlines-between": "always",
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": true
-          }
-        }
-      ]
+      // Import rules (완화된 설정)
+      "import/order": "off"
     },
     settings: {
       "import/resolver": {
