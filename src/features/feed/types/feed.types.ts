@@ -18,6 +18,7 @@ export interface Comment {
   author: User;
   content: string;
   createdAt: Date;
+  images?: string[];
 }
 
 export interface BasePost {

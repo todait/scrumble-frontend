@@ -1,8 +1,9 @@
 'use client';
 
 import { CheckInModalLayout } from '@/features/checkin/components/layout';
+import { formatDate } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { CheckOutForm } from './forms';
 
 interface CheckOutWriteModalProps {
@@ -11,27 +12,21 @@ interface CheckOutWriteModalProps {
 }
 
 export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps) {
-  const params = useParams();
-  const spaceId = params.spaceId as string;
+  const [dateString, setDateString] = useState('');
 
-  const handleSubmit = (data: { message: string; images: string[] }) => {
-    console.log('체크아웃 제출:', data);
+  useEffect(() => {
+    setDateString(formatDate());
+  }, []);
+
+  const handleSubmit = () => {
     // TODO: API 연동
     onClose();
   };
 
-  const formatDate = () => {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    const day = ['일', '월', '화', '수', '목', '금', '토'][now.getDay()];
-    return `${month}월 ${date}일 ${day}요일`;
-  };
-
   return (
     <CheckInModalLayout isOpen={isOpen} onClose={onClose}>
-      <div className="border-b border-black/8 px-8 py-8">
-        <div className="mb-2 text-[15px] font-bold text-black">{formatDate()}</div>
+      <div className="border-b border-black/8 px-7 py-8">
+        <div className="mb-2 text-[15px] font-bold text-black">{dateString}</div>
         <div className="mb-2 flex items-center gap-2">
           <RiPokerDiamondsFill className="h-6 w-6 text-blue-500" />
           <h2 className="text-2xl font-bold text-black">체크아웃 노트</h2>

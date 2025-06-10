@@ -2,18 +2,16 @@
 
 import { CheckInEditModal } from '@/features/checkin/components';
 import { SimpleToast } from '@/shared/components/feedback';
-import { DeleteConfirmDialog } from '@/shared/components/ui';
+import { DeleteConfirmDialog, ImageGallery, ImageViewer, ProfileImage, StatusBadge } from '@/shared/components/ui';
 import { useAuthStore } from '@/shared/stores/auth.store';
+import { formatTime, getConditionLabel } from '@/shared/utils';
 import {
   RiArrowRightSLine,
   RiDeleteBinLine,
   RiEdit2Line,
-  RiPokerClubsFill,
-  RiPokerDiamondsFill,
 } from '@remixicon/react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import Image from 'next/image';
 import { useState } from 'react';
 import type { Post } from '../types/feed.types';
 
@@ -36,6 +34,8 @@ export function PostContent({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const user = useAuthStore(state => state.user);
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
@@ -45,9 +45,8 @@ export function PostContent({
   const handleEdit = () => {
     if (isCheckIn) {
       setShowEditModal(true);
-    } else {
-      console.log('체크아웃 수정은 아직 구현되지 않았습니다:', post.id);
     }
+    // TODO: 체크아웃 수정 기능 구현
   };
 
   const handleDelete = () => {
@@ -55,7 +54,7 @@ export function PostContent({
   };
 
   const handleConfirmDelete = () => {
-    console.log('Delete confirmed for post:', post.id);
+    // TODO: API 호출로 게시물 삭제
     setShowDeleteDialog(false);
     setShowToast({ message: '해당 게시물이 삭제되었습니다' });
   };
@@ -69,27 +68,9 @@ export function PostContent({
   };
 
   const handleToastAction = () => {
-    console.log('토스트 보기 버튼 클릭');
     setShowToast(null);
   };
 
-  const formatTime = (date: Date) => {
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
-    if (diffInHours < 24) {
-      return format(date, 'a h:mm', { locale: ko });
-    }
-    return format(date, 'M월 d일', { locale: ko });
-  };
-
-  const getConditionLabel = (score: number): string => {
-    if (score >= 8) return '😊';
-    if (score >= 6) return '🙂';
-    if (score >= 4) return '😐';
-    if (score >= 2) return '😔';
-    return '😢';
-  };
 
   const profileImageSize = isDetailView ? 48 : 40;
   const nameTextSize = isDetailView ? 'text-[17px]' : 'text-[15px]';
@@ -146,28 +127,11 @@ export function PostContent({
 
         {/* 프로필 이미지 */}
         <div className="flex-shrink-0">
-          <div
-            className={`overflow-hidden rounded-lg border border-[rgba(34,34,34,0.08)]`}
-            style={{ width: profileImageSize, height: profileImageSize }}
-          >
-            {post.author.profileImage ? (
-              <Image
-                src={post.author.profileImage}
-                alt={post.author.name}
-                width={profileImageSize}
-                height={profileImageSize}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div
-                className={`flex h-full w-full items-center justify-center bg-gray-200 font-semibold ${
-                  isDetailView ? 'text-lg' : 'text-sm'
-                }`}
-              >
-                {post.author.name[0]}
-              </div>
-            )}
-          </div>
+          <ProfileImage
+            src={post.author.profileImage}
+            alt={post.author.name}
+            size={profileImageSize}
+          />
         </div>
 
         {/* 콘텐츠 영역 */}
@@ -188,23 +152,7 @@ export function PostContent({
 
               {/* 타입과 시간 - 프로필 이미지 하단에서 0.5px 위 */}
               <div className="flex items-center gap-1" style={{ transform: 'translateY(-1px)' }}>
-                <div className="flex items-center gap-0.5">
-                  {isCheckIn ? (
-                    <>
-                      <RiPokerClubsFill className="-mt-[0.5px] h-3 w-3 text-[#39CD32]" />
-                      <span className="text-[13px] font-medium leading-none text-[#39CD32]">
-                        체크인
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <RiPokerDiamondsFill className="-mt-[1px] h-3 w-3 text-[#009DFF]" />
-                      <span className="text-[13px] font-medium leading-none text-[#009DFF]">
-                        체크아웃
-                      </span>
-                    </>
-                  )}
-                </div>
+                <StatusBadge type={isCheckIn ? 'checkin' : 'checkout'} />
                 <span className="text-[13px] leading-none text-[#222222] opacity-40">
                   {formatTime(post.createdAt)}
                   {post.updatedAt && ' (수정됨)'}
@@ -238,43 +186,21 @@ export function PostContent({
 
           {/* 이미지 섹션 */}
           {post.images && post.images.length > 0 && (
-            <div className="mt-2 min-w-0">
-              {post.images.length === 1 ? (
-                <div
-                  className={`overflow-hidden rounded-lg border border-[#F1F1F1] ${
-                    isDetailView ? 'max-w-md' : 'max-w-sm'
-                  }`}
-                >
-                  <Image
-                    src={post.images[0]}
-                    alt="첨부 이미지"
-                    width={isDetailView ? 400 : 320}
-                    height={isDetailView ? 300 : 240}
-                    className="h-auto w-full object-cover"
-                    style={{ aspectRatio: '4/3' }}
-                  />
-                </div>
-              ) : (
-                <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
-                  {post.images.map((image, index) => (
-                    <div
-                      key={index}
-                      className={`flex-shrink-0 overflow-hidden rounded-lg border border-[#F1F1F1] ${
-                        isDetailView ? 'h-40 w-40' : 'h-32 w-32'
-                      }`}
-                    >
-                      <Image
-                        src={image}
-                        alt={`첨부 이미지 ${index + 1}`}
-                        width={isDetailView ? 160 : 128}
-                        height={isDetailView ? 160 : 128}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ImageGallery
+              images={post.images}
+              size={isDetailView ? 'large' : 'medium'}
+              className="mt-2"
+              onClick={(index, event) => {
+                // 이벤트 전파를 막고 이미지 뷰어 열기
+                event.stopPropagation();
+                event.preventDefault();
+                setSelectedImageIndex(index);
+                // setTimeout을 사용하여 다음 이벤트 루프에서 실행
+                setTimeout(() => {
+                  setImageViewerOpen(true);
+                }, 0);
+              }}
+            />
           )}
 
           {/* 리액션 및 댓글 섹션 */}
@@ -288,10 +214,10 @@ export function PostContent({
                     e.stopPropagation();
                     onReaction?.(post.id, reaction.emoji);
                   }}
-                  className={`flex items-center gap-1 rounded-full px-[10px] py-[6px] text-[13px] ${
-                    reaction.userIds.includes('currentUserId')
-                      ? 'border border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
-                      : 'bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
+                  className={`flex items-center gap-1 rounded-full px-[10px] py-[6px] text-[13px] transition-colors border ${
+                    reaction.userIds.includes(user?.id || '')
+                      ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
+                      : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
                   }`}
                 >
                   <span>{reaction.emoji}</span>
@@ -305,31 +231,24 @@ export function PostContent({
               <button
                 onClick={e => {
                   e.stopPropagation();
+                  e.preventDefault();
                   onCommentClick?.(post.id);
                 }}
                 className="group/comment flex h-10 items-center gap-2 rounded-lg bg-white px-2"
               >
                 <div className="flex gap-1">
-                  {post.comments.slice(0, 3).map((comment, index) => (
-                    <div
-                      key={index}
-                      className="h-8 w-8 overflow-hidden rounded-lg border border-[rgba(34,34,34,0.08)] bg-white"
-                    >
-                      {comment.author.profileImage ? (
-                        <Image
-                          src={comment.author.profileImage}
-                          alt={comment.author.name}
-                          width={32}
-                          height={32}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs">
-                          {comment.author.name[0]}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {post.comments
+                    .slice(-5) // 최신 5개 댓글
+                    .reverse() // 최신순으로 정렬
+                    .map((comment, index) => (
+                      <ProfileImage
+                        key={index}
+                        src={comment.author.profileImage}
+                        alt={comment.author.name}
+                        size={32}
+                        className="bg-white"
+                      />
+                    ))}
                 </div>
                 <span className="text-[13px] leading-[1.5] text-[#222222] opacity-80">
                   {post.commentCount}개의 댓글
@@ -375,6 +294,16 @@ export function PostContent({
           actionText={showToast.actionText}
           onAction={showToast.actionText ? handleToastAction : undefined}
           onClose={() => setShowToast(null)}
+        />
+      )}
+
+      {/* 이미지 뷰어 */}
+      {post.images && post.images.length > 0 && (
+        <ImageViewer
+          images={post.images}
+          initialIndex={selectedImageIndex}
+          isOpen={imageViewerOpen}
+          onClose={() => setImageViewerOpen(false)}
         />
       )}
     </>

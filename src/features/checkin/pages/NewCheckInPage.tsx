@@ -2,9 +2,10 @@
 
 import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckInWriteModal } from '../components/CheckInWriteModal';
 import { TeamStatusCard } from '../components/ui';
+import { formatDateForPage } from '@/shared/utils';
 
 export function NewCheckInPage() {
   const router = useRouter();
@@ -12,31 +13,17 @@ export function NewCheckInPage() {
   const spaceId = params.spaceId as string;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dateString, setDateString] = useState('');
 
-  // 현재 날짜 포맷팅
-  const today = new Date();
-  const monthNames = [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ];
-  const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-  const dateString = `${monthNames[today.getMonth()]} ${today.getDate()}일 ${dayNames[today.getDay()]}`;
+  useEffect(() => {
+    const today = new Date();
+    setDateString(formatDateForPage(today));
+  }, []);
 
   // 체크인 가능 횟수 (임시로 15로 설정)
   const remainingCheckins = 15;
 
   const handleStartCheckin = () => {
-    console.log('체크인 시작:', { spaceId, date: today });
     setIsModalOpen(true);
   };
 
@@ -47,7 +34,6 @@ export function NewCheckInPage() {
   const handleBack = () => {
     router.push(`/${spaceId}`);
   };
-
 
   return (
     <>
@@ -76,11 +62,7 @@ export function NewCheckInPage() {
                 {remainingCheckins}번째 체크인을 남길 수 있습니다
               </p>
 
-              <TeamStatusCard
-                teamCondition={7.2}
-                checkedInCount={14}
-                checkedOutCount={6}
-              />
+              <TeamStatusCard teamCondition={7.2} checkedInCount={14} checkedOutCount={6} />
             </div>
 
             {/* 하단 섹션 - 버튼 */}

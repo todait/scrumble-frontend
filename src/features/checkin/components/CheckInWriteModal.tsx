@@ -1,7 +1,9 @@
 'use client';
 
+import { formatDate } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { CheckInForm } from './forms';
 import { CheckInModalLayout } from './layout';
 
@@ -14,26 +16,21 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const router = useRouter();
   const params = useParams();
   const spaceId = params.spaceId as string;
+  const [dateString, setDateString] = useState('');
+
+  useEffect(() => {
+    setDateString(formatDate());
+  }, []);
 
   const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
-    console.log('체크인 제출:', data);
     // TODO: API 연동
-    router.push(`/${spaceId}`);
-  };
-
-
-  const formatDate = () => {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    const day = ['일', '월', '화', '수', '목', '금', '토'][now.getDay()];
-    return `${month}월 ${date}일 ${day}요일`;
+    router.push(`/${spaceId}/feed`);
   };
 
   return (
     <CheckInModalLayout isOpen={isOpen} onClose={onClose}>
-      <div className="border-b border-black/8 px-8 py-8">
-        <div className="mb-2 text-[15px] font-bold text-black">{formatDate()}</div>
+      <div className="border-b border-black/8 px-7 py-8">
+        <div className="mb-2 text-[15px] font-bold text-black">{dateString}</div>
         <div className="mb-2 flex items-center gap-2">
           <RiPokerClubsFill className="h-6 w-6 text-green-500" />
           <h2 className="text-2xl font-bold text-black">체크인 노트</h2>

@@ -1,6 +1,8 @@
+export { CommentInput } from './CommentInput';
 export { FeedHeader } from './FeedHeader';
 export { FilterDropdown } from './FilterDropdown';
 export { FloatingCheckoutButton } from './FloatingCheckoutButton';
+export { GoToFocusedPostButton } from './GoToFocusedPostButton';
 export { PostCard } from './PostCard';
 export { PostContent } from './PostContent';
 export { PostDetail } from './PostDetail';

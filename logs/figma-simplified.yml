@@ -1,3016 +1,448 @@
 name: Scrumble
-lastModified: '2025-06-10T02:14:51Z'
+lastModified: '2025-06-10T08:48:10Z'
 thumbnailUrl: >-
-  https://s3-alpha.figma.com/thumbnails/050aeb69-d412-47d2-bbb0-277a943ba800?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC2S47B3L5%2F20250608%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250608T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=58ec3ef18a99c078170ddf036a9613b897b863d8f91ffa2550695fc0f78b5015
+  https://s3-alpha.figma.com/thumbnails/837b1146-d646-430e-ba35-94eb3fd80d31?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC2S47B3L5%2F20250608%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250608T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=3ade1831eeb0649d4f923987dd5eacb7a187ef4db997b503d9104680673bb515
 nodes:
-  - id: '651:23310'
-    name: Post Editor / 토스트 메시지 / 수정
+  - id: '794:7648'
+    name: Note Section
     type: FRAME
-    fills: fill_ERUOWX
-    layout: layout_RH38FT
+    fills: fill_7XR36T
+    layout: layout_IWK48D
     children:
-      - id: '651:23323'
-        name: Frame 153
-        type: FRAME
-        layout: layout_8W3BSI
-        children:
-          - id: '651:23324'
-            name: Condition Score
-            type: FRAME
-            layout: layout_CQPGOY
-            borderRadius: 1000px
-            children:
-              - id: '651:23325'
-                name: '======='
-                type: TEXT
-                textStyle: style_H17NRK
-                fills: fill_MH887E
-                layout: layout_W9YDF6
-                text: 전체
-              - id: '651:23326'
-                name: Arron Button
-                type: INSTANCE
-                componentId: '387:19225'
-                componentProperties:
-                  - name: Hover
-                    value: 'Off'
-                    type: VARIANT
-                  - name: Fold
-                    value: 'Off'
-                    type: VARIANT
-                fills: fill_NL0M0Q
-                layout: layout_1XJPPO
-                opacity: 0.5
-                borderRadius: 100px
-                children:
-                  - id: I651:23326;387:19237
-                    name: ri:arrow-down-s-line
-                    type: FRAME
-                    fills: fill_3D0FJJ
-                    layout: layout_SJOOPA
-                    children:
-                      - id: I651:23326;387:19238
-                        name: Vector
-                        type: IMAGE-SVG
-                        fills: fill_G4BODU
-                        layout: layout_6X2JLC
-          - id: '651:23327'
-            name: Frame 154
-            type: FRAME
-            effects: effect_HQD38M
-            layout: layout_AGFAXT
-            children:
-              - id: '651:23328'
-                name: Header
-                type: FRAME
-                fills: fill_3D0FJJ
-                layout: layout_7QOMZQ
-                borderRadius: 16px 16px 0px 0px
-                children:
-                  - id: '651:23329'
-                    name: Heaer
-                    type: FRAME
-                    fills: fill_3D0FJJ
-                    strokes: stroke_BT4200
-                    layout: layout_OLEXEA
-                    children:
-                      - id: '651:23330'
-                        name: Frame 111
-                        type: FRAME
-                        layout: layout_XSU5NL
-                        children:
-                          - id: '651:23331'
-                            name: Date
-                            type: TEXT
-                            textStyle: style_RX4UUF
-                            fills: fill_MH887E
-                            layout: layout_W9YDF6
-                            text: 6월 22일 목요일
-                          - id: '651:23332'
-                            name: ri:arrow-down-s-fill
-                            type: FRAME
-                            fills: fill_3D0FJJ
-                            layout: layout_SJOOPA
-                            children:
-                              - id: '651:23333'
-                                name: Vector
-                                type: IMAGE-SVG
-                                fills: fill_MH887E
-                                layout: layout_4K6467
-                      - id: '651:23334'
-                        name: Frame 114
-                        type: FRAME
-                        layout: layout_3MAM9Q
-                        opacity: 0.5
-                        children:
-                          - id: '651:23335'
-                            name: ri:flashlight-fill
-                            type: FRAME
-                            fills: fill_3D0FJJ
-                            layout: layout_GBCTBG
-                            children:
-                              - id: '651:23336'
-                                name: Vector
-                                type: IMAGE-SVG
-                                fills: fill_MH887E
-                                layout: layout_XKYWUO
-                          - id: '651:23337'
-                            name: Date
-                            type: TEXT
-                            textStyle: style_4BLRQB
-                            fills: fill_MH887E
-                            layout: layout_W9YDF6
-                            text: 오늘 22명 활동 중
-              - id: '651:23338'
-                name: Post Frame
-                type: FRAME
-                fills: fill_3D0FJJ
-                layout: layout_JSQCY1
-                children:
-                  - id: '651:23339'
-                    name: Post
-                    type: FRAME
-                    fills: fill_WYXZOI
-                    strokes: stroke_BT4200
-                    layout: layout_AO4NNY
-                    children:
-                      - id: '651:23340'
-                        name: Post Contents
-                        type: FRAME
-                        layout: layout_00GTH7
-                        children:
-                          - id: '651:23341'
-                            name: Avatar
-                            type: RECTANGLE
-                            fills: fill_8UEYXS
-                            strokes: stroke_7TQ140
-                            layout: layout_7J6CZQ
-                            borderRadius: 8px
-                          - id: '651:23342'
-                            name: Contents
-                            type: FRAME
-                            layout: layout_XAOKKI
-                            children:
-                              - id: '651:23343'
-                                name: Name + Timestamp + Score
-                                type: FRAME
-                                layout: layout_ZPIM5X
-                                children:
-                                  - id: '651:23344'
-                                    name: Name + Timestamp
-                                    type: FRAME
-                                    layout: layout_Z0UQ8C
-                                    children:
-                                      - id: '651:23345'
-                                        name: name
-                                        type: TEXT
-                                        textStyle: style_IV5ZSH
-                                        fills: fill_MH887E
-                                        layout: layout_T4U1TH
-                                        text: 강지은
-                                      - id: '651:23346'
-                                        name: Timestamp
-                                        type: FRAME
-                                        layout: layout_XSU5NL
-                                        children:
-                                          - id: '651:23347'
-                                            name: In/Out Label
-                                            type: FRAME
-                                            layout: layout_2NHJKP
-                                            children:
-                                              - id: '651:23348'
-                                                name: ri:poker-diamonds-fill
-                                                type: FRAME
-                                                fills: fill_3D0FJJ
-                                                layout: layout_GBCTBG
-                                                children:
-                                                  - id: '651:23349'
-                                                    name: Vector
-                                                    type: IMAGE-SVG
-                                                    fills: fill_IYBZEP
-                                                    layout: layout_GLB08D
-                                              - id: '651:23350'
-                                                name: Label
-                                                type: TEXT
-                                                textStyle: style_DCDQP4
-                                                fills: fill_IYBZEP
-                                                layout: layout_W9YDF6
-                                                text: 체크아웃
-                                          - id: '651:23351'
-                                            name: timestamp
-                                            type: TEXT
-                                            textStyle: style_MB4B4G
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 오전 11:02 (수정됨)
-                                            opacity: 0.4000000059604645
-                              - id: '651:23354'
-                                name: Contents (Text+IMG)
-                                type: FRAME
-                                layout: layout_KQ8KPQ
-                                children:
-                                  - id: '651:23355'
-                                    name: Contents
-                                    type: FRAME
-                                    layout: layout_AHOEPQ
-                                    children:
-                                      - id: '651:23356'
-                                        name: text
-                                        type: TEXT
-                                        textStyle: style_UDR5JR
-                                        fills: fill_MH887E
-                                        layout: layout_T4U1TH
-                                        text: >-
-                                          숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고,
-                                          둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안 오고 바람도
-                                          안 불고 너멋골 골짜기서 울어 오는 뻐꾸기. 아득히 가 버린 것 잊어버린
-                                          하늘과 아른아른 오지 않고 보고 싶은 하늘에 어쩌면 만도 질 볼이 고운
-                                          사람이 난 혼자 그리워라. ...더보기
-                              - id: '651:23357'
-                                name: Reaction Set
-                                type: FRAME
-                                layout: layout_O7BVX2
-                                children:
-                                  - id: '651:23358'
-                                    name: Emojis
-                                    type: FRAME
-                                    layout: layout_41X6CQ
-                                    children:
-                                      - id: '651:23359'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23360'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 🌼
-                                          - id: '651:23361'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23362'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23363'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 💕
-                                      - id: '651:23365'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23366'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 😍
-                                      - id: '651:23368'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23369'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 🥰
-                                          - id: '651:23370'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                  - id: '651:23371'
-                                    name: Comment
-                                    type: FRAME
-                                    fills: fill_3D0FJJ
-                                    layout: layout_D2SBKE
-                                    borderRadius: 8px
-                                    children:
-                                      - id: '651:23372'
-                                        name: detail
-                                        type: FRAME
-                                        layout: layout_41X6CQ
-                                        children:
-                                          - id: '651:23373'
-                                            name: proflie
-                                            type: FRAME
-                                            layout: layout_XSU5NL
-                                            children:
-                                              - id: '651:23374'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_2A1BEA
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23375'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_BWNSWV
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23376'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_79LA23
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                          - id: '651:23377'
-                                            name: count
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 999개의 댓글
-                                            opacity: 0.800000011920929
-                                          - id: '651:23378'
-                                            name: timeAgo
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 24분 전
-                                            opacity: 0.4000000059604645
-                  - id: '651:23381'
-                    name: Post
-                    type: FRAME
-                    fills: fill_WYXZOI
-                    strokes: stroke_BT4200
-                    layout: layout_AO4NNY
-                    children:
-                      - id: '651:23382'
-                        name: Post Contents
-                        type: FRAME
-                        layout: layout_00GTH7
-                        children:
-                          - id: '651:23383'
-                            name: Avatar
-                            type: RECTANGLE
-                            fills: fill_BWNSWV
-                            strokes: stroke_7TQ140
-                            layout: layout_7J6CZQ
-                            borderRadius: 8px
-                          - id: '651:23384'
-                            name: Contents
-                            type: FRAME
-                            layout: layout_XAOKKI
-                            children:
-                              - id: '651:23385'
-                                name: Name + Timestamp + Score
-                                type: FRAME
-                                layout: layout_ZPIM5X
-                                children:
-                                  - id: '651:23386'
-                                    name: Name + Timestamp
-                                    type: FRAME
-                                    layout: layout_Z0UQ8C
-                                    children:
-                                      - id: '651:23387'
-                                        name: name
-                                        type: TEXT
-                                        textStyle: style_IV5ZSH
-                                        fills: fill_MH887E
-                                        layout: layout_T4U1TH
-                                        text: 이선우
-                                      - id: '651:23388'
-                                        name: Timestamp
-                                        type: FRAME
-                                        layout: layout_XSU5NL
-                                        children:
-                                          - id: '651:23389'
-                                            name: In/Out Label
-                                            type: FRAME
-                                            layout: layout_2NHJKP
-                                            children:
-                                              - id: '651:23390'
-                                                name: ri:poker-clubs-fill
-                                                type: FRAME
-                                                fills: fill_3D0FJJ
-                                                layout: layout_GBCTBG
-                                                children:
-                                                  - id: '651:23391'
-                                                    name: Vector
-                                                    type: IMAGE-SVG
-                                                    fills: fill_73KNNB
-                                                    layout: layout_5GSUHR
-                                              - id: '651:23392'
-                                                name: Label
-                                                type: TEXT
-                                                textStyle: style_DCDQP4
-                                                fills: fill_73KNNB
-                                                layout: layout_W9YDF6
-                                                text: 체크인
-                                          - id: '651:23393'
-                                            name: timestamp
-                                            type: TEXT
-                                            textStyle: style_MB4B4G
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 오전 11:02
-                                            opacity: 0.4000000059604645
-                                  - id: '651:23394'
-                                    name: Condition Score
-                                    type: FRAME
-                                    strokes: stroke_7TQ140
-                                    layout: layout_X23EMG
-                                    borderRadius: 4px
-                                    children:
-                                      - id: '651:23395'
-                                        name: score
-                                        type: TEXT
-                                        textStyle: style_2B5C7W
-                                        fills: fill_MH887E
-                                        layout: layout_W9YDF6
-                                        text: 🦄 10점
-                                        opacity: 0.800000011920929
-                              - id: '651:23396'
-                                name: Contents (Text+IMG)
-                                type: FRAME
-                                layout: layout_KQ8KPQ
-                                children:
-                                  - id: '651:23397'
-                                    name: text
-                                    type: TEXT
-                                    textStyle: style_UDR5JR
-                                    fills: fill_MH887E
-                                    layout: layout_T4U1TH
-                                    text: >-
-                                      저건 또 무슨 꽃이지. 적잖이 비탈진 곳에 칡덩굴이 엉키어 꽃을 달고
-                                      있었다. 그 날, 도랑을 건너면서 내가 업힌 일이 있지. 그 때, 네 등에서
-                                      옮은 물이다.
-                              - id: '651:23398'
-                                name: Reaction Set
-                                type: FRAME
-                                layout: layout_O7BVX2
-                                children:
-                                  - id: '651:23399'
-                                    name: Emojis
-                                    type: FRAME
-                                    layout: layout_41X6CQ
-                                    children:
-                                      - id: '651:23400'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23401'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 😃
-                                          - id: '651:23402'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23403'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23404'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 🌺
-                                          - id: '651:23405'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23406'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23407'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🍭
-                                      - id: '651:23409'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23410'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 💕
-                                  - id: '651:23412'
-                                    name: Comment
-                                    type: FRAME
-                                    fills: fill_3D0FJJ
-                                    layout: layout_D2SBKE
-                                    borderRadius: 8px
-                                    children:
-                                      - id: '651:23413'
-                                        name: detail
-                                        type: FRAME
-                                        layout: layout_41X6CQ
-                                        children:
-                                          - id: '651:23414'
-                                            name: proflie
-                                            type: FRAME
-                                            layout: layout_XSU5NL
-                                            children:
-                                              - id: '651:23415'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_UTY74A
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23416'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_CVX1UT
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23417'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_3BZNS5
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23418'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_TTA2FI
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23419'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_MX8LOI
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                          - id: '651:23420'
-                                            name: count
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 999개의 댓글
-                                            opacity: 0.800000011920929
-                                          - id: '651:23421'
-                                            name: timeAgo
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 24분 전
-                                            opacity: 0.4000000059604645
-                  - id: '651:23424'
-                    name: Post
-                    type: FRAME
-                    fills: fill_WYXZOI
-                    strokes: stroke_BT4200
-                    layout: layout_AO4NNY
-                    children:
-                      - id: '651:23425'
-                        name: Post Contents
-                        type: FRAME
-                        layout: layout_00GTH7
-                        children:
-                          - id: '651:23426'
-                            name: Avatar
-                            type: RECTANGLE
-                            fills: fill_3BZNS5
-                            strokes: stroke_7TQ140
-                            layout: layout_7J6CZQ
-                            borderRadius: 8px
-                          - id: '651:23427'
-                            name: Contents
-                            type: FRAME
-                            layout: layout_XAOKKI
-                            children:
-                              - id: '651:23428'
-                                name: Name + Timestamp + Score
-                                type: FRAME
-                                layout: layout_ZPIM5X
-                                children:
-                                  - id: '651:23429'
-                                    name: Name + Timestamp
-                                    type: FRAME
-                                    layout: layout_Z0UQ8C
-                                    children:
-                                      - id: '651:23430'
-                                        name: name
-                                        type: TEXT
-                                        textStyle: style_IV5ZSH
-                                        fills: fill_MH887E
-                                        layout: layout_T4U1TH
-                                        text: 김유진
-                                      - id: '651:23431'
-                                        name: Timestamp
-                                        type: FRAME
-                                        layout: layout_XSU5NL
-                                        children:
-                                          - id: '651:23432'
-                                            name: In/Out Label
-                                            type: FRAME
-                                            layout: layout_2NHJKP
-                                            children:
-                                              - id: '651:23433'
-                                                name: ri:poker-clubs-fill
-                                                type: FRAME
-                                                fills: fill_3D0FJJ
-                                                layout: layout_GBCTBG
-                                                children:
-                                                  - id: '651:23434'
-                                                    name: Vector
-                                                    type: IMAGE-SVG
-                                                    fills: fill_73KNNB
-                                                    layout: layout_5GSUHR
-                                              - id: '651:23435'
-                                                name: Label
-                                                type: TEXT
-                                                textStyle: style_DCDQP4
-                                                fills: fill_73KNNB
-                                                layout: layout_W9YDF6
-                                                text: 체크인
-                                          - id: '651:23436'
-                                            name: timestamp
-                                            type: TEXT
-                                            textStyle: style_MB4B4G
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 오전 11:02
-                                            opacity: 0.4000000059604645
-                                  - id: '651:23437'
-                                    name: Condition Score
-                                    type: FRAME
-                                    strokes: stroke_7TQ140
-                                    layout: layout_X23EMG
-                                    borderRadius: 4px
-                                    children:
-                                      - id: '651:23438'
-                                        name: score
-                                        type: TEXT
-                                        textStyle: style_2B5C7W
-                                        fills: fill_MH887E
-                                        layout: layout_W9YDF6
-                                        text: 🎵 7점
-                                        opacity: 0.800000011920929
-                              - id: '651:23439'
-                                name: Contents (Text+IMG)
-                                type: FRAME
-                                layout: layout_KQ8KPQ
-                                children:
-                                  - id: '651:23440'
-                                    name: text
-                                    type: TEXT
-                                    textStyle: style_UDR5JR
-                                    fills: fill_MH887E
-                                    layout: layout_T4U1TH
-                                    text: >-
-                                      소년은 공연히 열없어, 책보를 집어던지고는 외양간으로 가, 쇠잔등을 한 번
-                                      철썩 갈겼다. 그리고는, 안고 온 꽃묶음 속에서 가지가 꺾이고 꽃이 일그러진
-                                      송이를 골라 발 밑에 버린다.
-                              - id: '651:23441'
-                                name: Reaction Set
-                                type: FRAME
-                                layout: layout_O7BVX2
-                                children:
-                                  - id: '651:23442'
-                                    name: Emojis
-                                    type: FRAME
-                                    layout: layout_41X6CQ
-                                    children:
-                                      - id: '651:23443'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23444'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🐝
-                                      - id: '651:23446'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23447'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 😀
-                                          - id: '651:23448'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '5'
-                                      - id: '651:23449'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23450'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🍯
-                                      - id: '651:23452'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23453'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 👍
-                                          - id: '651:23454'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '8'
-                  - id: '651:23455'
-                    name: Post
-                    type: FRAME
-                    fills: fill_WYXZOI
-                    strokes: stroke_BT4200
-                    layout: layout_AO4NNY
-                    children:
-                      - id: '651:23456'
-                        name: Post Contents
-                        type: FRAME
-                        layout: layout_00GTH7
-                        children:
-                          - id: '651:23457'
-                            name: Avatar
-                            type: RECTANGLE
-                            fills: fill_QTI0NS
-                            strokes: stroke_7TQ140
-                            layout: layout_7J6CZQ
-                            borderRadius: 8px
-                          - id: '651:23458'
-                            name: Contents
-                            type: FRAME
-                            layout: layout_XAOKKI
-                            children:
-                              - id: '651:23459'
-                                name: Name + Timestamp + Score
-                                type: FRAME
-                                layout: layout_ZPIM5X
-                                children:
-                                  - id: '651:23460'
-                                    name: Name + Timestamp
-                                    type: FRAME
-                                    layout: layout_P5KBQW
-                                    children:
-                                      - id: '651:23461'
-                                        name: name
-                                        type: TEXT
-                                        textStyle: style_IV5ZSH
-                                        fills: fill_MH887E
-                                        layout: layout_T4U1TH
-                                        text: 이영준
-                                      - id: '651:23462'
-                                        name: Timestamp
-                                        type: FRAME
-                                        layout: layout_XSU5NL
-                                        children:
-                                          - id: '651:23463'
-                                            name: In/Out Label
-                                            type: FRAME
-                                            layout: layout_2NHJKP
-                                            children:
-                                              - id: '651:23464'
-                                                name: ri:poker-clubs-fill
-                                                type: FRAME
-                                                fills: fill_3D0FJJ
-                                                layout: layout_GBCTBG
-                                                children:
-                                                  - id: '651:23465'
-                                                    name: Vector
-                                                    type: IMAGE-SVG
-                                                    fills: fill_73KNNB
-                                                    layout: layout_5GSUHR
-                                              - id: '651:23466'
-                                                name: Label
-                                                type: TEXT
-                                                textStyle: style_DCDQP4
-                                                fills: fill_73KNNB
-                                                layout: layout_W9YDF6
-                                                text: 체크인
-                                          - id: '651:23467'
-                                            name: timestamp
-                                            type: TEXT
-                                            textStyle: style_MB4B4G
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 오전 11:02
-                                            opacity: 0.4000000059604645
-                                  - id: '651:23468'
-                                    name: Condition Score
-                                    type: FRAME
-                                    strokes: stroke_7TQ140
-                                    layout: layout_X23EMG
-                                    borderRadius: 4px
-                                    children:
-                                      - id: '651:23469'
-                                        name: score
-                                        type: TEXT
-                                        textStyle: style_2B5C7W
-                                        fills: fill_MH887E
-                                        layout: layout_W9YDF6
-                                        text: 🐌 4점
-                                        opacity: 0.800000011920929
-                              - id: '651:23470'
-                                name: Contents (Text+IMG)
-                                type: FRAME
-                                layout: layout_KQ8KPQ
-                                children:
-                                  - id: '651:23471'
-                                    name: text
-                                    type: TEXT
-                                    textStyle: style_UDR5JR
-                                    fills: fill_MH887E
-                                    layout: layout_T4U1TH
-                                    text: >-
-                                      티끌 부는 세상에도 벌레 같은 세상에도 눈 맑은 가슴 맑은 보고 지운 나의
-                                      사람.
-                                  - id: '651:23472'
-                                    name: Image Section
-                                    type: FRAME
-                                    layout: layout_5DSVXI
-                                    children:
-                                      - id: '651:23473'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_ZKTA5N
-                                        borderRadius: 8px
-                                      - id: '651:23474'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_ZKTA5N
-                                        borderRadius: 8px
-                                      - id: '651:23475'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_ZKTA5N
-                                        borderRadius: 8px
-                                      - id: '651:23476'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_ZKTA5N
-                                        borderRadius: 8px
-                              - id: '651:23477'
-                                name: Reaction Set
-                                type: FRAME
-                                layout: layout_O7BVX2
-                                children:
-                                  - id: '651:23478'
-                                    name: Emojis
-                                    type: FRAME
-                                    layout: layout_41X6CQ
-                                    children:
-                                      - id: '651:23479'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23480'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 💐
-                                          - id: '651:23481'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23482'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23483'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 🎶
-                                          - id: '651:23484'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23485'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23486'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🤗
-                                      - id: '651:23488'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23489'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🎈
-                                  - id: '651:23491'
-                                    name: Comment
-                                    type: FRAME
-                                    fills: fill_3D0FJJ
-                                    layout: layout_D2SBKE
-                                    borderRadius: 8px
-                                    children:
-                                      - id: '651:23492'
-                                        name: detail
-                                        type: FRAME
-                                        layout: layout_41X6CQ
-                                        children:
-                                          - id: '651:23493'
-                                            name: proflie
-                                            type: FRAME
-                                            layout: layout_XSU5NL
-                                            children:
-                                              - id: '651:23494'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_QUFODU
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23495'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_T2Z6R5
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23496'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_W56Y5M
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                          - id: '651:23497'
-                                            name: count
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 999개의 댓글
-                                            opacity: 0.800000011920929
-                                          - id: '651:23498'
-                                            name: timeAgo
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 24분 전
-                                            opacity: 0.4000000059604645
-                  - id: '651:23501'
-                    name: Post
-                    type: FRAME
-                    fills: fill_WYXZOI
-                    strokes: stroke_BT4200
-                    layout: layout_AO4NNY
-                    children:
-                      - id: '651:23502'
-                        name: Post Contents
-                        type: FRAME
-                        layout: layout_00GTH7
-                        children:
-                          - id: '651:23503'
-                            name: Avatar
-                            type: RECTANGLE
-                            fills: fill_TTA2FI
-                            strokes: stroke_7TQ140
-                            layout: layout_7J6CZQ
-                            borderRadius: 8px
-                          - id: '651:23504'
-                            name: Contents
-                            type: FRAME
-                            layout: layout_XAOKKI
-                            children:
-                              - id: '651:23505'
-                                name: Name + Timestamp + Score
-                                type: FRAME
-                                layout: layout_ZPIM5X
-                                children:
-                                  - id: '651:23506'
-                                    name: Name + Timestamp
-                                    type: FRAME
-                                    layout: layout_Z0UQ8C
-                                    children:
-                                      - id: '651:23507'
-                                        name: name
-                                        type: TEXT
-                                        textStyle: style_IV5ZSH
-                                        fills: fill_MH887E
-                                        layout: layout_T4U1TH
-                                        text: 윤주
-                                      - id: '651:23508'
-                                        name: Timestamp
-                                        type: FRAME
-                                        layout: layout_XSU5NL
-                                        children:
-                                          - id: '651:23509'
-                                            name: In/Out Label
-                                            type: FRAME
-                                            layout: layout_2NHJKP
-                                            children:
-                                              - id: '651:23510'
-                                                name: ri:poker-clubs-fill
-                                                type: FRAME
-                                                fills: fill_3D0FJJ
-                                                layout: layout_GBCTBG
-                                                children:
-                                                  - id: '651:23511'
-                                                    name: Vector
-                                                    type: IMAGE-SVG
-                                                    fills: fill_73KNNB
-                                                    layout: layout_5GSUHR
-                                              - id: '651:23512'
-                                                name: Label
-                                                type: TEXT
-                                                textStyle: style_DCDQP4
-                                                fills: fill_73KNNB
-                                                layout: layout_W9YDF6
-                                                text: 체크인
-                                          - id: '651:23513'
-                                            name: timestamp
-                                            type: TEXT
-                                            textStyle: style_MB4B4G
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 오전 11:02
-                                            opacity: 0.4000000059604645
-                                  - id: '651:23514'
-                                    name: Condition Score
-                                    type: FRAME
-                                    strokes: stroke_7TQ140
-                                    layout: layout_X23EMG
-                                    borderRadius: 4px
-                                    children:
-                                      - id: '651:23515'
-                                        name: score
-                                        type: TEXT
-                                        textStyle: style_2B5C7W
-                                        fills: fill_MH887E
-                                        layout: layout_W9YDF6
-                                        text: 💢 2점
-                                        opacity: 0.800000011920929
-                              - id: '651:23516'
-                                name: Contents (Text+IMG)
-                                type: FRAME
-                                layout: layout_KQ8KPQ
-                                children:
-                                  - id: '651:23517'
-                                    name: text
-                                    type: TEXT
-                                    textStyle: style_UDR5JR
-                                    fills: fill_MH887E
-                                    layout: layout_T4U1TH
-                                    text: >-
-                                      푸른 산 한나절 구름은 가고 고을 너머 뻐꾸기는 우는데 눈에 어려 흘러가는
-                                      물결 같은 사람 속 아우성쳐 흘러가는 물결 같은 사람 속에 난 그리노라.
-                                      청산도 산아 우뚝 솟은 푸른 산아.
-
-                                      숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고,
-                                      둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안 ...더보기
-                                  - id: '651:23518'
-                                    name: Image Section
-                                    type: FRAME
-                                    layout: layout_5DSVXI
-                                    children:
-                                      - id: '651:23519'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_IRY2ZA
-                                        borderRadius: 8px
-                                      - id: '651:23520'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_IRY2ZA
-                                        borderRadius: 8px
-                              - id: '651:23521'
-                                name: Reaction Set
-                                type: FRAME
-                                layout: layout_O7BVX2
-                                children:
-                                  - id: '651:23522'
-                                    name: Emojis
-                                    type: FRAME
-                                    layout: layout_41X6CQ
-                                    children:
-                                      - id: '651:23523'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23524'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 🌸
-                                          - id: '651:23525'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23526'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23527'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 😃
-                                          - id: '651:23528'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23529'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23530'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 😊
-                                      - id: '651:23532'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23533'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🌈
-                                  - id: '651:23535'
-                                    name: Comment
-                                    type: FRAME
-                                    fills: fill_3D0FJJ
-                                    layout: layout_D2SBKE
-                                    borderRadius: 8px
-                                    children:
-                                      - id: '651:23536'
-                                        name: detail
-                                        type: FRAME
-                                        layout: layout_41X6CQ
-                                        children:
-                                          - id: '651:23537'
-                                            name: proflie
-                                            type: FRAME
-                                            layout: layout_XSU5NL
-                                            children:
-                                              - id: '651:23538'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_6MDJTI
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23539'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_W4COOT
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23540'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_RYROBP
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                          - id: '651:23541'
-                                            name: count
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 999개의 댓글
-                                            opacity: 0.800000011920929
-                                          - id: '651:23542'
-                                            name: timeAgo
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 24분 전
-                                            opacity: 0.4000000059604645
-                  - id: '651:23545'
-                    name: Post
-                    type: FRAME
-                    fills: fill_WYXZOI
-                    strokes: stroke_BT4200
-                    layout: layout_AO4NNY
-                    children:
-                      - id: '651:23546'
-                        name: Post Contents
-                        type: FRAME
-                        layout: layout_00GTH7
-                        children:
-                          - id: '651:23547'
-                            name: Avatar
-                            type: RECTANGLE
-                            fills: fill_O31XDM
-                            strokes: stroke_7TQ140
-                            layout: layout_7J6CZQ
-                            borderRadius: 8px
-                          - id: '651:23548'
-                            name: Contents
-                            type: FRAME
-                            layout: layout_XAOKKI
-                            children:
-                              - id: '651:23549'
-                                name: Name + Timestamp + Score
-                                type: FRAME
-                                layout: layout_ZPIM5X
-                                children:
-                                  - id: '651:23550'
-                                    name: Name + Timestamp
-                                    type: FRAME
-                                    layout: layout_Z0UQ8C
-                                    children:
-                                      - id: '651:23551'
-                                        name: name
-                                        type: TEXT
-                                        textStyle: style_IV5ZSH
-                                        fills: fill_MH887E
-                                        layout: layout_T4U1TH
-                                        text: 최우
-                                      - id: '651:23552'
-                                        name: Timestamp
-                                        type: FRAME
-                                        layout: layout_XSU5NL
-                                        children:
-                                          - id: '651:23553'
-                                            name: In/Out Label
-                                            type: FRAME
-                                            layout: layout_2NHJKP
-                                            children:
-                                              - id: '651:23554'
-                                                name: ri:poker-clubs-fill
-                                                type: FRAME
-                                                fills: fill_3D0FJJ
-                                                layout: layout_GBCTBG
-                                                children:
-                                                  - id: '651:23555'
-                                                    name: Vector
-                                                    type: IMAGE-SVG
-                                                    fills: fill_73KNNB
-                                                    layout: layout_5GSUHR
-                                              - id: '651:23556'
-                                                name: Label
-                                                type: TEXT
-                                                textStyle: style_DCDQP4
-                                                fills: fill_73KNNB
-                                                layout: layout_W9YDF6
-                                                text: 체크인
-                                          - id: '651:23557'
-                                            name: timestamp
-                                            type: TEXT
-                                            textStyle: style_MB4B4G
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 오전 11:02
-                                            opacity: 0.4000000059604645
-                                  - id: '651:23558'
-                                    name: Condition Score
-                                    type: FRAME
-                                    strokes: stroke_7TQ140
-                                    layout: layout_X23EMG
-                                    borderRadius: 4px
-                                    children:
-                                      - id: '651:23559'
-                                        name: score
-                                        type: TEXT
-                                        textStyle: style_2B5C7W
-                                        fills: fill_MH887E
-                                        layout: layout_W9YDF6
-                                        text: 🪴 6점
-                                        opacity: 0.800000011920929
-                              - id: '651:23560'
-                                name: Contents (Text+IMG)
-                                type: FRAME
-                                layout: layout_KQ8KPQ
-                                children:
-                                  - id: '651:23561'
-                                    name: text
-                                    type: TEXT
-                                    textStyle: style_UDR5JR
-                                    fills: fill_MH887E
-                                    layout: layout_T4U1TH
-                                    text: >-
-                                      아득히 가 버린 것 잊어버린 하늘과 아른아른 오지 않고 보고 싶은 하늘에
-                                      어쩌면 만도 질 볼이 고운 사람이 난 혼자 그리워라. 숱한 나무들 무성히
-                                      무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고, 둥둥 산을 넘어 흰
-                                      구름 걷는 자리 씻기는 하늘 사슴도 안 오고 바람도 안 불고 너멋골 골짜기서
-                                      울어 오는 뻐꾸기.
-                                  - id: '651:23562'
-                                    name: Image Section
-                                    type: FRAME
-                                    layout: layout_5DSVXI
-                                    children:
-                                      - id: '651:23563'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_K6A7FK
-                                        borderRadius: 8px
-                                      - id: '651:23564'
-                                        name: "\bimage"
-                                        type: RECTANGLE
-                                        fills: fill_RF0MKJ
-                                        strokes: stroke_MYLSBV
-                                        layout: layout_K6A7FK
-                                        borderRadius: 8px
-                              - id: '651:23565'
-                                name: Reaction Set
-                                type: FRAME
-                                layout: layout_O7BVX2
-                                children:
-                                  - id: '651:23566'
-                                    name: Emojis
-                                    type: FRAME
-                                    layout: layout_41X6CQ
-                                    children:
-                                      - id: '651:23567'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23568'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 🥳
-                                          - id: '651:23569'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23570'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_CPSN2W
-                                        strokes: stroke_HGSUF3
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23571'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_T4U1TH
-                                            text: 🍭
-                                          - id: '651:23572'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_2SN32E
-                                            layout: layout_W9YDF6
-                                            text: '12'
-                                      - id: '651:23573'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23574'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🍀
-                                      - id: '651:23576'
-                                        name: Emoji
-                                        type: FRAME
-                                        fills: fill_2IQWBI
-                                        layout: layout_QJYUL2
-                                        borderRadius: 1000px
-                                        children:
-                                          - id: '651:23577'
-                                            name: '======='
-                                            type: TEXT
-                                            textStyle: style_4SWT4R
-                                            fills: fill_MH887E
-                                            layout: layout_T4U1TH
-                                            text: 🌻
-                                  - id: '651:23579'
-                                    name: Comment
-                                    type: FRAME
-                                    fills: fill_3D0FJJ
-                                    layout: layout_D2SBKE
-                                    borderRadius: 8px
-                                    children:
-                                      - id: '651:23580'
-                                        name: detail
-                                        type: FRAME
-                                        layout: layout_41X6CQ
-                                        children:
-                                          - id: '651:23581'
-                                            name: proflie
-                                            type: FRAME
-                                            layout: layout_XSU5NL
-                                            children:
-                                              - id: '651:23582'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_UTY74A
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23583'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_CVX1UT
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                              - id: '651:23584'
-                                                name: Avatar
-                                                type: RECTANGLE
-                                                fills: fill_3BZNS5
-                                                strokes: stroke_7TQ140
-                                                layout: layout_RN81L1
-                                                borderRadius: 8px
-                                          - id: '651:23585'
-                                            name: count
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 999개의 댓글
-                                            opacity: 0.800000011920929
-                                          - id: '651:23586'
-                                            name: timeAgo
-                                            type: TEXT
-                                            textStyle: style_HMBIGK
-                                            fills: fill_MH887E
-                                            layout: layout_W9YDF6
-                                            text: 24분 전
-                                            opacity: 0.4000000059604645
-                  - id: '651:23589'
-                    name: Post
-                    type: FRAME
-                    fills: fill_WYXZOI
-                    strokes: stroke_BT4200
-                    layout: layout_O26EAZ
-                    children:
-                      - id: '651:23590'
-                        name: text
-                        type: TEXT
-                        textStyle: style_W0WY8F
-                        fills: fill_MH887E
-                        layout: layout_T4U1TH
-                        text: 맨 위로 가기
-                        opacity: 0.800000011920929
-                      - id: '651:23591'
-                        name: text
-                        type: TEXT
-                        textStyle: style_GL52UZ
-                        fills: fill_MH887E
-                        layout: layout_T4U1TH
-                        text: 마지막 스크럼노트까지 읽었어요.
-                        opacity: 0.30000001192092896
-      - id: '651:23592'
-        name: Go to Focused Post
-        type: FRAME
-        fills: fill_OA9II2
-        effects: effect_URMEZR
-        layout: layout_0OFTGX
-        opacity: 0
-        borderRadius: 1000px
-        children:
-          - id: '651:23593'
-            name: ri:sparkling-2-fill
-            type: FRAME
-            fills: fill_3D0FJJ
-            layout: layout_XKW8K0
-            children:
-              - id: '651:23594'
-                name: Vector
-                type: IMAGE-SVG
-                fills: fill_3D0FJJ
-                layout: layout_G9WFR6
-          - id: '651:23595'
-            name: Frame 119
-            type: FRAME
-            layout: layout_WTR3M1
-            children:
-              - id: '651:23596'
-                name: '======='
-                type: TEXT
-                textStyle: style_XZ8MEC
-                fills: fill_3D0FJJ
-                layout: layout_W9YDF6
-                text: 3개
-              - id: '651:23597'
-                name: '======='
-                type: TEXT
-                textStyle: style_MB4B4G
-                fills: fill_3D0FJJ
-                layout: layout_W9YDF6
-                text: 의 새로운 노트!
-          - id: '651:23598'
-            name: ri:close-line
-            type: FRAME
-            fills: fill_3D0FJJ
-            layout: layout_XKW8K0
-            children:
-              - id: '651:23599'
-                name: Vector
-                type: IMAGE-SVG
-                fills: fill_3D0FJJ
-                layout: layout_6SKQIY
-      - id: '651:23600'
-        name: "\bToast messege"
-        type: FRAME
-        fills: fill_IUFVDH
-        effects: effect_9JJT15
-        layout: layout_K7FH9S
-        borderRadius: 8px
-        children:
-          - id: '651:23602'
-            name: '======='
-            type: TEXT
-            textStyle: style_MB4B4G
-            fills: fill_3D0FJJ
-            layout: layout_W9YDF6
-            text: 노트를 수정했습니다
-          - id: '651:23664'
-            name: '======='
-            type: TEXT
-            textStyle: style_XZ8MEC
-            fills: fill_3D0FJJ
-            layout: layout_W9YDF6
-            text: 보기
-      - id: '651:23603'
-        name: Summary Section
-        type: FRAME
-        fills: fill_3D0FJJ
-        strokes: stroke_7TQ140
-        layout: layout_OGNDNI
-        borderRadius: 16px
-        children:
-          - id: '651:23604'
-            name: Condition Score
-            type: FRAME
-            layout: layout_90KG7R
-            borderRadius: 8px
-            children:
-              - id: '651:23605'
-                name: Label
-                type: FRAME
-                layout: layout_2NHJKP
-                children:
-                  - id: '651:23606'
-                    name: Text
-                    type: TEXT
-                    textStyle: style_HZ7DJU
-                    fills: fill_MH887E
-                    layout: layout_W9YDF6
-                    text: 활동 요약 보기
-                  - id: '651:23607'
-                    name: ri:arrow-right-s-line
-                    type: FRAME
-                    fills: fill_3D0FJJ
-                    layout: layout_XKW8K0
-                    children:
-                      - id: '651:23608'
-                        name: Vector
-                        type: IMAGE-SVG
-                        fills: fill_MH887E
-                        layout: layout_CCAKB3
-          - id: '651:23609'
-            name: Condition Score
-            type: FRAME
-            layout: layout_90KG7R
-            children:
-              - id: '651:23610'
-                name: Frame 113
-                type: FRAME
-                layout: layout_KPLN17
-                children:
-                  - id: '651:23611'
-                    name: Label
-                    type: FRAME
-                    layout: layout_LVRO5J
-                    opacity: 0.5
-                    children:
-                      - id: '651:23612'
-                        name: Text
-                        type: TEXT
-                        textStyle: style_V9GD0B
-                        fills: fill_MH887E
-                        layout: layout_W9YDF6
-                        text: 팀 컨디션
-                      - id: '651:23613'
-                        name: ri:question-line
-                        type: FRAME
-                        fills: fill_3D0FJJ
-                        layout: layout_3V2MCM
-                        children:
-                          - id: '651:23614'
-                            name: Vector
-                            type: IMAGE-SVG
-                            fills: fill_MH887E
-                            layout: layout_81BXIM
-                  - id: '651:23615'
-                    name: Frame 115
-                    type: FRAME
-                    layout: layout_YO8H8E
-                    children:
-                      - id: '651:23616'
-                        name: ri:heart-3-fill
-                        type: FRAME
-                        fills: fill_3D0FJJ
-                        layout: layout_9ORGB6
-                        children:
-                          - id: '651:23617'
-                            name: Vector
-                            type: IMAGE-SVG
-                            fills: fill_2SN32E
-                            layout: layout_HYLUBN
-                      - id: '651:23618'
-                        name: Result
-                        type: TEXT
-                        textStyle: style_IV5ZSH
-                        fills: fill_MH887E
-                        layout: layout_W9YDF6
-                        text: 7.2점
-          - id: '651:23619'
-            name: Condition Score
-            type: FRAME
-            layout: layout_90KG7R
-            children:
-              - id: '651:23620'
-                name: Frame 113
-                type: FRAME
-                layout: layout_KPLN17
-                children:
-                  - id: '651:23621'
-                    name: Label
-                    type: FRAME
-                    layout: layout_LVRO5J
-                    opacity: 0.5
-                    children:
-                      - id: '651:23622'
-                        name: Text
-                        type: TEXT
-                        textStyle: style_V9GD0B
-                        fills: fill_MH887E
-                        layout: layout_W9YDF6
-                        text: 체크인
-                      - id: '651:23623'
-                        name: ri:question-line
-                        type: FRAME
-                        fills: fill_3D0FJJ
-                        layout: layout_3V2MCM
-                        children:
-                          - id: '651:23624'
-                            name: Vector
-                            type: IMAGE-SVG
-                            fills: fill_MH887E
-                            layout: layout_81BXIM
-                  - id: '651:23625'
-                    name: Frame 116
-                    type: FRAME
-                    layout: layout_YO8H8E
-                    children:
-                      - id: '651:23626'
-                        name: ri:poker-clubs-fill
-                        type: FRAME
-                        fills: fill_3D0FJJ
-                        layout: layout_9ORGB6
-                        children:
-                          - id: '651:23627'
-                            name: Vector
-                            type: IMAGE-SVG
-                            fills: fill_73KNNB
-                            layout: layout_1T16DJ
-                      - id: '651:23628'
-                        name: Result
-                        type: TEXT
-                        textStyle: style_IV5ZSH
-                        fills: fill_MH887E
-                        layout: layout_W9YDF6
-                        text: 모두 완료
-          - id: '651:23629'
-            name: Condition Score
-            type: FRAME
-            layout: layout_90KG7R
-            children:
-              - id: '651:23630'
-                name: Frame 113
-                type: FRAME
-                layout: layout_KPLN17
-                children:
-                  - id: '651:23631'
-                    name: Label
-                    type: FRAME
-                    layout: layout_LVRO5J
-                    opacity: 0.5
-                    children:
-                      - id: '651:23632'
-                        name: Text
-                        type: TEXT
-                        textStyle: style_V9GD0B
-                        fills: fill_MH887E
-                        layout: layout_W9YDF6
-                        text: 체크아웃
-                      - id: '651:23633'
-                        name: ri:question-line
-                        type: FRAME
-                        fills: fill_3D0FJJ
-                        layout: layout_3V2MCM
-                        children:
-                          - id: '651:23634'
-                            name: Vector
-                            type: IMAGE-SVG
-                            fills: fill_MH887E
-                            layout: layout_81BXIM
-                  - id: '651:23635'
-                    name: Frame 117
-                    type: FRAME
-                    layout: layout_YO8H8E
-                    children:
-                      - id: '651:23636'
-                        name: ri:poker-diamonds-fill
-                        type: FRAME
-                        fills: fill_3D0FJJ
-                        layout: layout_9ORGB6
-                        children:
-                          - id: '651:23637'
-                            name: Vector
-                            type: IMAGE-SVG
-                            fills: fill_IYBZEP
-                            layout: layout_C7QYLF
-                      - id: '651:23638'
-                        name: Result
-                        type: TEXT
-                        textStyle: style_IV5ZSH
-                        fills: fill_MH887E
-                        layout: layout_W9YDF6
-                        text: 26명
-      - id: '651:23639'
-        name: Menu Icon
+      - id: '794:7649'
+        name: C Score_Full
         type: INSTANCE
-        componentId: '387:19491'
-        componentProperties:
-          - name: Menu
-            value: Setting
-            type: VARIANT
-          - name: Hover
-            value: 'Off'
-            type: VARIANT
-          - name: Selected
-            value: 'Off'
-            type: VARIANT
-        layout: layout_THDQS5
-        opacity: 0.20000000298023224
-        borderRadius: 8px
-        children:
-          - id: I651:23639;387:19492
-            name: ri:settings-6-line
-            type: FRAME
-            fills: fill_3D0FJJ
-            layout: layout_RN81L1
-            opacity: 0.5
-            children:
-              - id: I651:23639;387:19512
-                name: Vector
-                type: IMAGE-SVG
-                fills: fill_G4BODU
-                layout: layout_CCSM8W
-      - id: '651:23640'
-        name: Menu
-        type: INSTANCE
-        componentId: '387:19678'
+        componentId: '641:19129'
         componentProperties:
           - name: 속성 1
-            value: Button 01
+            value: '1'
             type: VARIANT
-        layout: layout_S4FMTR
+        fills: fill_7XR36T
+        layout: layout_XDNCXI
         children:
-          - id: I651:23640;387:19541
-            name: Menu Icon
-            type: INSTANCE
-            componentId: '387:19411'
-            componentProperties:
-              - name: Menu
-                value: Home
-                type: VARIANT
-              - name: Hover
-                value: 'Off'
-                type: VARIANT
-              - name: Selected
-                value: 'On'
-                type: VARIANT
-            layout: layout_1JK01F
-            opacity: 0.800000011920929
-            borderRadius: 8px
+          - id: I794:7649;641:17893
+            name: Score
+            type: GROUP
+            layout: layout_1N8NF7
             children:
-              - id: I651:23640;387:19541;387:19426
-                name: ri:home-5-fill
+              - id: I794:7649;641:17894
+                name: bar
+                type: RECTANGLE
+                fills: fill_G3SNCC
+                layout: layout_49O4MO
+              - id: I794:7649;641:17895
+                name: Score Button
                 type: FRAME
-                fills: fill_3D0FJJ
-                layout: layout_RN81L1
+                layout: layout_06G8RY
                 children:
-                  - id: I651:23640;387:19541;387:19427
-                    name: Vector
-                    type: IMAGE-SVG
-                    fills: fill_G4BODU
-                    layout: layout_HX6MBW
-          - id: I651:23640;387:19554
-            name: Menu Icon
-            type: INSTANCE
-            componentId: '387:19506'
-            componentProperties:
-              - name: Menu
-                value: Activity
-                type: VARIANT
-              - name: Hover
-                value: 'Off'
-                type: VARIANT
-              - name: Selected
-                value: 'Off'
-                type: VARIANT
-            layout: layout_1JK01F
-            opacity: 0.30000001192092896
-            borderRadius: 8px
-            children:
-              - id: I651:23640;387:19554;387:19507
-                name: ri:heart-3-line
-                type: FRAME
-                fills: fill_3D0FJJ
-                layout: layout_RN81L1
-                children:
-                  - id: I651:23640;387:19554;387:19508
-                    name: Vector
-                    type: IMAGE-SVG
-                    fills: fill_G4BODU
-                    layout: layout_XD55RC
-          - id: I651:23640;404:20075
-            name: Menu Icon
-            type: INSTANCE
-            componentId: '404:20031'
-            componentProperties:
-              - name: Menu
-                value: States
-                type: VARIANT
-              - name: Hover
-                value: 'Off'
-                type: VARIANT
-              - name: Selected
-                value: 'Off'
-                type: VARIANT
-            layout: layout_1JK01F
-            opacity: 0.30000001192092896
-            borderRadius: 8px
-            children:
-              - id: I651:23640;404:20075;404:20037
-                name: ri:bar-chart-line
-                type: FRAME
-                fills: fill_3D0FJJ
-                layout: layout_RN81L1
-                children:
-                  - id: I651:23640;404:20075;404:20038
-                    name: Vector
-                    type: IMAGE-SVG
-                    fills: fill_G4BODU
-                    layout: layout_VFKFP6
-          - id: I651:23640;387:19557
-            name: Menu Icon
-            type: INSTANCE
-            componentId: '387:19453'
-            componentProperties:
-              - name: Menu
-                value: User
-                type: VARIANT
-              - name: Hover
-                value: 'Off'
-                type: VARIANT
-              - name: Selected
-                value: 'Off'
-                type: VARIANT
-            layout: layout_1JK01F
-            opacity: 0.30000001192092896
-            borderRadius: 8px
-            children:
-              - id: I651:23640;387:19557;387:19464
-                name: ri:user-6-line
-                type: FRAME
-                fills: fill_3D0FJJ
-                layout: layout_RN81L1
-                children:
-                  - id: I651:23640;387:19557;387:19465
-                    name: Vector
-                    type: IMAGE-SVG
-                    fills: fill_G4BODU
-                    layout: layout_3PA5Q6
-      - id: '651:23641'
-        name: Button_Checkout
-        type: INSTANCE
-        componentId: '360:11300'
-        componentProperties:
-          - name: 텍스트#135:39
-            value: 체크아웃하기
-            type: TEXT
-          - name: Hover+Click
-            value: 'Off'
-            type: VARIANT
-          - name: Direction
-            value: 우측
-            type: VARIANT
-          - name: Icon
-            value: 'On'
-            type: VARIANT
-        fills: fill_3D0FJJ
-        strokes: stroke_S8I6RR
-        layout: layout_J6Y6FR
-        borderRadius: 100px
-        children:
-          - id: I651:23641;360:11301
-            name: Button Name
-            type: TEXT
-            textStyle: style_A23SWR
-            fills: fill_MH887E
-            layout: layout_W9YDF6
-            text: 체크아웃하기
-          - id: I651:23641;360:11302
-            name: Icons
-            type: INSTANCE
-            componentId: '135:1038'
-            componentProperties:
-              - name: Icon
-                value: ri:arrow-right-line
-                type: VARIANT
-            fills: fill_3D0FJJ
-            layout: layout_SJOOPA
-            children:
-              - id: I651:23641;360:11302;135:1029
-                name: Vector
-                type: IMAGE-SVG
-                fills: fill_MH887E
-                layout: layout_GCM93P
+                  - id: I794:7649;641:17896
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17897
+                        name: Tooltip
+                        type: FRAME
+                        layout: layout_D1J01Y
+                        children:
+                          - id: I794:7649;641:17898
+                            name: Text
+                            type: FRAME
+                            fills: fill_Q33B5O
+                            effects: effect_VKMZVF
+                            layout: layout_7AMSYO
+                            borderRadius: 8px
+                            children:
+                              - id: I794:7649;641:17899
+                                name: detail
+                                type: TEXT
+                                textStyle: style_2GADP0
+                                fills: fill_6KBDS3
+                                layout: layout_QT9M86
+                                text: 😵‍💫
+                              - id: I794:7649;641:17900
+                                name: detail
+                                type: TEXT
+                                textStyle: style_2GADP0
+                                fills: fill_6KBDS3
+                                layout: layout_QT9M86
+                                text: 오늘은 완전히 방전
+                          - id: I794:7649;641:17901
+                            name: Frame 27
+                            type: FRAME
+                            layout: layout_1R2LDM
+                            children:
+                              - id: I794:7649;641:17902
+                                name: triangle
+                                type: IMAGE-SVG
+                                fills: fill_Q33B5O
+                                effects: effect_VKMZVF
+                                layout: layout_WQ8CCT
+                                borderRadius: 0px 0px 0px 0px
+                      - id: I794:7649;641:17905
+                        name: Score
+                        type: FRAME
+                        fills: fill_KPZLKM
+                        strokes: stroke_MTYD3J
+                        effects: effect_VKMZVF
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17906
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_QPP250
+                            fills: fill_7XR36T
+                            layout: layout_QT9M86
+                            text: '1'
+                  - id: I794:7649;641:17907
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17914
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17915
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '2'
+                            opacity: 0.5
+                  - id: I794:7649;641:17918
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17925
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17926
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '3'
+                            opacity: 0.5
+                  - id: I794:7649;641:17929
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17936
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17937
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '4'
+                            opacity: 0.5
+                  - id: I794:7649;641:17940
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17947
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17948
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '5'
+                            opacity: 0.5
+                  - id: I794:7649;641:17951
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17958
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17959
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '6'
+                            opacity: 0.5
+                  - id: I794:7649;641:17962
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17969
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17970
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '7'
+                            opacity: 0.5
+                  - id: I794:7649;641:17973
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17980
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17981
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '8'
+                            opacity: 0.5
+                  - id: I794:7649;641:17984
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:17991
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:17992
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '9'
+                            opacity: 0.5
+                  - id: I794:7649;641:17995
+                    name: Point
+                    type: FRAME
+                    layout: layout_LBMMZ6
+                    children:
+                      - id: I794:7649;641:18002
+                        name: Score
+                        type: FRAME
+                        fills: fill_7XR36T
+                        strokes: stroke_D5Q97F
+                        layout: layout_5Y3THA
+                        borderRadius: 100px
+                        children:
+                          - id: I794:7649;641:18003
+                            name: '00'
+                            type: TEXT
+                            textStyle: style_EZA3AC
+                            fills: fill_KQP83A
+                            layout: layout_QT9M86
+                            text: '10'
+                            opacity: 0.5
 components:
-  '387:19225':
-    id: '387:19225'
-    key: d3df5793ea648def0fbc8b71bb6575eec57e101a
-    name: Hover=Off, Fold=Off
-    componentSetId: '387:19224'
-  '387:19491':
-    id: '387:19491'
-    key: e67a2cbc25d8c41cc1013599c1296b831213ab37
-    name: Menu=Setting, Hover=Off, Selected=Off
-    componentSetId: '387:19407'
-  '387:19678':
-    id: '387:19678'
-    key: 2ec7b6f62d532b0646a4bf2465e9b99d0745403b
-    name: 속성 1=Button 01
-    componentSetId: '387:19679'
-  '387:19411':
-    id: '387:19411'
-    key: 1507cfc0a42dd681e87e5937aa18ce093f101ec6
-    name: Menu=Home, Hover=Off, Selected=On
-    componentSetId: '387:19407'
-  '387:19506':
-    id: '387:19506'
-    key: 8f239c2a4856688ae662283ad4458f5e4b0256b3
-    name: Menu=Activity, Hover=Off, Selected=Off
-    componentSetId: '387:19407'
-  '404:20031':
-    id: '404:20031'
-    key: dc760ebd1d477ae3a37477b5441d111ecd6832a7
-    name: Menu=States, Hover=Off, Selected=Off
-    componentSetId: '387:19407'
-  '387:19453':
-    id: '387:19453'
-    key: 1f334cea850c73368482cc5ce8587864c5d34263
-    name: Menu=User, Hover=Off, Selected=Off
-    componentSetId: '387:19407'
-  '360:11300':
-    id: '360:11300'
-    key: 5a38c2a38283d685a93901465a339737a52e0ed9
-    name: Hover+Click=Off, Direction=우측, Icon=On
-    componentSetId: '360:11275'
-  '135:1038':
-    id: '135:1038'
-    key: 003e619c63692d178ce21cb49783df14595a5417
-    name: Icon=ri:arrow-right-line
-    componentSetId: '135:1040'
+  '641:19129':
+    id: '641:19129'
+    key: e33d938b67be8f446d1f76250d780fc9f4bc58df
+    name: 속성 1=1
+    componentSetId: '641:19135'
 componentSets:
-  '387:19224':
-    id: '387:19224'
-    key: 1a38dd4ce6d594aeb6114397697782f73b3fc7ab
-    name: Arron Button
-    description: ''
-  '387:19407':
-    id: '387:19407'
-    key: 3fd916dcaa387d31765a2da69951ac727a2d6200
-    name: Menu Icon
-    description: ''
-  '387:19679':
-    id: '387:19679'
-    key: 2a2ed1b12b543fa4d477c595460ac34a4139729b
-    name: Menu
-    description: ''
-  '360:11275':
-    id: '360:11275'
-    key: dca0afa4fa2f1a2b8b74bcee30347b16bab915ba
-    name: Button_WH_color
-    description: ''
-  '135:1040':
-    id: '135:1040'
-    key: 590a5ccf3d2dd7216e6119589778d43982b17193
-    name: Icons
+  '641:19135':
+    id: '641:19135'
+    key: 7714d2ce09521f111d37f76bb846c6e39125d974
+    name: C Score_Full
     description: ''
 globalVars:
   styles:
-    fill_ERUOWX:
-      - '#FAFAFA'
-    layout_RH38FT:
-      mode: none
-      overflowScroll:
-        - 'y'
-      dimensions:
-        width: 1440
-        height: 1024
-    layout_8W3BSI:
+    fill_7XR36T:
+      - '#FFFFFF'
+    layout_IWK48D:
       mode: column
-      alignItems: center
-      gap: 22px
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      locationRelativeToParent:
-        x: 400
-        'y': 24
-      dimensions:
-        width: 640
-        height: 1000
-    layout_CQPGOY:
-      mode: row
       justifyContent: center
       alignItems: center
-      gap: 10px
+      gap: 16px
+      padding: 10px 30px
+      sizing:
+        horizontal: fixed
+        vertical: hug
+      dimensions:
+        width: 600
+    layout_XDNCXI:
+      mode: column
+      alignSelf: stretch
+      gap: 16px
       padding: 10px
       sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 153
-        height: 44
-    style_H17NRK:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 15
-      lineHeight: 1.2em
-      textAlignHorizontal: CENTER
-      textAlignVertical: CENTER
-    fill_MH887E:
-      - '#222222'
-    layout_W9YDF6:
+        horizontal: fill
+        vertical: hug
+    layout_1N8NF7:
       mode: none
       sizing:
-        horizontal: hug
-        vertical: hug
-    fill_NL0M0Q:
+        horizontal: fill
+        vertical: fixed
+      dimensions:
+        height: 106
+    fill_G3SNCC:
       - '#F1F1F1'
-    layout_1XJPPO:
+    layout_49O4MO:
+      mode: none
+      locationRelativeToParent:
+        x: 0
+        'y': 88
+      dimensions:
+        width: 520
+        height: 4
+    layout_06G8RY:
+      mode: row
+      justifyContent: space-between
+      alignItems: flex-end
+      gap: 12px
+      sizing:
+        horizontal: fixed
+        vertical: hug
+      locationRelativeToParent:
+        x: 0
+        'y': 0
+      dimensions:
+        width: 520
+    layout_LBMMZ6:
+      mode: column
+      justifyContent: center
+      alignItems: center
+      gap: 20px
+      sizing:
+        horizontal: fixed
+        vertical: hug
+      dimensions:
+        width: 32
+    layout_D1J01Y:
+      mode: column
+      alignSelf: stretch
+      sizing:
+        horizontal: fill
+        vertical: hug
+    fill_Q33B5O:
+      - rgba(244, 244, 244, 0.9)
+    effect_VKMZVF:
+      backdropFilter: blur(4px)
+    layout_7AMSYO:
       mode: row
       justifyContent: center
       alignItems: center
-      gap: 10px
-      padding: 8px
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 24
-        height: 24
-    fill_3D0FJJ:
-      - '#FFFFFF'
-    layout_SJOOPA:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 20
-        height: 20
-    fill_G4BODU:
-      - '#000000'
-    layout_6X2JLC:
-      mode: none
-      locationRelativeToParent:
-        x: 4.7
-        'y': 6.85
-      dimensions:
-        width: 10.61
-        height: 6.48
-    effect_HQD38M:
-      boxShadow: >-
-        -4px -4px 20px 0px rgba(160, 160, 160, 0.04), 4px 4px 20px 0px rgba(160,
-        160, 160, 0.04)
-    layout_AGFAXT:
-      mode: column
-      alignSelf: stretch
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_7QOMZQ:
-      mode: column
-      alignItems: center
-      alignSelf: stretch
-      sizing:
-        horizontal: fill
-        vertical: hug
-    stroke_BT4200:
-      colors:
-        - rgba(34, 34, 34, 0.08)
-      strokeWeight: 0px 0px 1px
-    layout_OLEXEA:
-      mode: row
-      justifyContent: space-between
-      alignItems: center
-      alignSelf: stretch
-      gap: 8px
-      padding: 20px 30px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_XSU5NL:
-      mode: row
-      alignItems: center
-      gap: 4px
-      sizing:
-        horizontal: hug
-        vertical: hug
-    style_RX4UUF:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 18
-      lineHeight: 1.2000000211927626em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    layout_4K6467:
-      mode: none
-      locationRelativeToParent:
-        x: 5
-        'y': 8.33
-      dimensions:
-        width: 10
-        height: 5
-    layout_3MAM9Q:
-      mode: row
-      justifyContent: flex-end
-      alignItems: center
       gap: 2px
+      padding: 12px 16px
       sizing:
         horizontal: hug
         vertical: hug
-    layout_GBCTBG:
+    style_2GADP0:
+      fontFamily: Pretendard
+      fontWeight: 400
+      fontSize: 13
+      lineHeight: 1.200000029343825em
+      textAlignHorizontal: CENTER
+      textAlignVertical: CENTER
+    fill_6KBDS3:
+      - '#000000'
+    layout_QT9M86:
+      mode: none
+      sizing:
+        horizontal: hug
+        vertical: hug
+    layout_1R2LDM:
+      mode: row
+      justifyContent: center
+      alignItems: center
+      alignSelf: stretch
+      gap: 10px
+      sizing:
+        horizontal: fill
+        vertical: hug
+    layout_WQ8CCT:
       mode: none
       sizing:
         horizontal: fixed
         vertical: fixed
       dimensions:
         width: 12
-        height: 12
-    layout_XKYWUO:
-      mode: none
-      locationRelativeToParent:
-        x: 2
-        'y': 0.5
-      dimensions:
-        width: 8
-        height: 11
-    style_4BLRQB:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 12
-      lineHeight: 1.2000000476837158em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    layout_JSQCY1:
-      mode: column
-      overflowScroll:
-        - 'y'
-      alignItems: center
-      alignSelf: stretch
-      sizing:
-        horizontal: fill
-        vertical: fixed
-      dimensions:
-        height: 872
-    fill_WYXZOI:
-      - '#FFFFFF'
-      - rgba(151, 71, 255, 0.04)
-    layout_AO4NNY:
-      mode: column
-      alignSelf: stretch
-      gap: 16px
-      padding: 30px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_00GTH7:
-      mode: row
-      alignSelf: stretch
-      gap: 10px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    fill_8UEYXS:
-      - type: IMAGE
-        imageRef: de256bb0f3d60c6863a370041ac5224193fb3ede
-        scaleMode: FILL
-    stroke_7TQ140:
+        height: 14
+    fill_KPZLKM:
+      - rgba(151, 71, 255, 0.9)
+    stroke_MTYD3J:
       colors:
-        - rgba(34, 34, 34, 0.08)
-      strokeWeight: 1px
-    layout_7J6CZQ:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 40
-        height: 40
-    layout_XAOKKI:
-      mode: column
-      gap: 10px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_ZPIM5X:
-      mode: row
-      justifyContent: space-between
-      alignItems: center
-      alignSelf: stretch
-      gap: 4px
-      sizing:
-        horizontal: fill
-        vertical: fixed
-    layout_Z0UQ8C:
+        - rgba(151, 71, 255, 0.2)
+      strokeWeight: 8px
+    layout_5Y3THA:
       mode: column
       justifyContent: center
-      alignSelf: stretch
-      gap: 4px
-      sizing:
-        horizontal: fill
-        vertical: fill
-    style_IV5ZSH:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 15
-      lineHeight: 1.2em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    layout_T4U1TH:
-      mode: none
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_2NHJKP:
-      mode: row
       alignItems: center
-      gap: 2px
-      sizing:
-        horizontal: hug
-        vertical: hug
-    fill_IYBZEP:
-      - '#009DFF'
-    layout_GLB08D:
-      mode: none
-      locationRelativeToParent:
-        x: 1.79
-        'y': 0.79
-      dimensions:
-        width: 8.42
-        height: 10.42
-    style_DCDQP4:
-      fontFamily: Pretendard
-      fontWeight: 500
-      fontSize: 13
-      lineHeight: 1.200000029343825em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    style_MB4B4G:
-      fontFamily: Pretendard
-      fontWeight: 400
-      fontSize: 13
-      lineHeight: 1.200000029343825em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    layout_KQ8KPQ:
-      mode: column
-      alignSelf: stretch
-      gap: 8px
-      padding: 8px 0px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_AHOEPQ:
-      mode: column
-      alignSelf: stretch
-      gap: 8px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    style_UDR5JR:
-      fontFamily: Pretendard
-      fontWeight: 400
-      fontSize: 15
-      lineHeight: 1.4em
-      textAlignHorizontal: LEFT
-      textAlignVertical: TOP
-    layout_O7BVX2:
-      mode: column
-      alignSelf: stretch
       gap: 10px
-      padding: 8px 0px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_41X6CQ:
-      mode: row
-      alignItems: center
-      gap: 8px
-      sizing:
-        horizontal: hug
-        vertical: hug
-    fill_CPSN2W:
-      - rgba(151, 71, 255, 0.1)
-    stroke_HGSUF3:
-      colors:
-        - '#9747FF'
-      strokeWeight: 1px
-    layout_QJYUL2:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      gap: 4px
-      padding: 6px 10px
-      sizing:
-        horizontal: hug
-        vertical: hug
-    style_4SWT4R:
-      fontFamily: Pretendard
-      fontWeight: 400
-      fontSize: 13
-      lineHeight: 1.200000029343825em
-      textAlignHorizontal: CENTER
-      textAlignVertical: CENTER
-    fill_2SN32E:
-      - '#9747FF'
-    fill_2IQWBI:
-      - rgba(241, 241, 241, 0.5)
-    layout_D2SBKE:
-      mode: row
-      alignItems: center
-      alignSelf: stretch
-      gap: 8px
-      padding: 4px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    fill_2A1BEA:
-      - type: IMAGE
-        imageRef: fc48cf6645edbe478026b37f853b7efc29564f60
-        scaleMode: FILL
-    layout_RN81L1:
-      mode: none
       sizing:
         horizontal: fixed
         vertical: fixed
       dimensions:
         width: 32
         height: 32
-    fill_BWNSWV:
-      - type: IMAGE
-        imageRef: cb970d34e26d7745016c445de0450f45f4a63ecb
-        scaleMode: FILL
-    fill_79LA23:
-      - type: IMAGE
-        imageRef: b709324eb2232e7d2d1997a366153b9cb977a44a
-        scaleMode: FILL
-    style_HMBIGK:
+    style_QPP250:
       fontFamily: Pretendard
-      fontWeight: 400
-      fontSize: 13
-      lineHeight: 1.5em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    fill_73KNNB:
-      - '#39CD32'
-    layout_5GSUHR:
-      mode: none
-      locationRelativeToParent:
-        x: 1
-        'y': 1
-      dimensions:
-        width: 10
-        height: 10
-    layout_X23EMG:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      gap: 4px
-      padding: 8px
-      sizing:
-        horizontal: hug
-        vertical: hug
-    style_2B5C7W:
-      fontFamily: Pretendard
-      fontWeight: 400
+      fontWeight: 700
       fontSize: 15
       lineHeight: 1.2em
       textAlignHorizontal: CENTER
       textAlignVertical: CENTER
-    fill_UTY74A:
-      - type: IMAGE
-        imageRef: b45cdbf9ddb00d30275c027c616ccea46eb274a6
-        scaleMode: FILL
-    fill_CVX1UT:
-      - type: IMAGE
-        imageRef: 52478e9a298c82fc0d13330e9db994275e20ea44
-        scaleMode: FILL
-    fill_3BZNS5:
-      - type: IMAGE
-        imageRef: 67981a8824d7544c1de43f69fcbfc435c62dda31
-        scaleMode: FILL
-    fill_TTA2FI:
-      - type: IMAGE
-        imageRef: b91d9d987f39c5a63238adffbc0ca7c99e870f23
-        scaleMode: FILL
-    fill_MX8LOI:
-      - type: IMAGE
-        imageRef: 6e725f159b360ff2be39ed8482ed7002e4e73835
-        scaleMode: FILL
-    fill_QTI0NS:
-      - type: IMAGE
-        imageRef: 279e5665eb6b9ce3226d310bdd07aa426c675387
-        scaleMode: FILL
-    layout_P5KBQW:
-      mode: column
-      justifyContent: space-between
-      alignSelf: stretch
-      gap: 4px
-      sizing:
-        horizontal: fill
-        vertical: fill
-    layout_5DSVXI:
-      mode: row
-      overflowScroll:
-        - x
-      alignSelf: stretch
-      gap: 8px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    fill_RF0MKJ:
-      - '#FFFFFF'
-      - type: IMAGE
-        imageRef: 7f12ea1300756f144a0fb5daaf68dbfc01103a46
-        scaleMode: FILL
-    stroke_MYLSBV:
+    stroke_D5Q97F:
       colors:
-        - '#F1F1F1'
+        - rgba(34, 34, 34, 0.08)
       strokeWeight: 1px
-    layout_ZKTA5N:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 320
-        height: 400
-    fill_QUFODU:
-      - type: IMAGE
-        imageRef: 93250b625a7beda0a5409cdbc9a9b862f50c3baa
-        scaleMode: FILL
-    fill_T2Z6R5:
-      - type: IMAGE
-        imageRef: dcbb9af4f028ed8c4c174293f2870714a1e48d82
-        scaleMode: FILL
-    fill_W56Y5M:
-      - type: IMAGE
-        imageRef: 3613efa64bc2cdfdbc9cfa95c6b0bac57a47f723
-        scaleMode: FILL
-    layout_IRY2ZA:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 530
-        height: 353
-    fill_6MDJTI:
-      - type: IMAGE
-        imageRef: 8910580899d739b8ac220535d51fa024ad7b670a
-        scaleMode: FILL
-    fill_W4COOT:
-      - type: IMAGE
-        imageRef: 47a069199f7e867734876c0dcbd81761e2fdb551
-        scaleMode: FILL
-    fill_RYROBP:
-      - type: IMAGE
-        imageRef: 0059570eced1075c545ee31cdb6e5cd7ad4c2d04
-        scaleMode: FILL
-    fill_O31XDM:
-      - type: IMAGE
-        imageRef: 5278d96cfb239e9ac3a6da3cb389f166227e1ac6
-        scaleMode: FILL
-    layout_K6A7FK:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 320
-        height: 320
-    layout_O26EAZ:
-      mode: column
-      justifyContent: center
-      alignItems: center
-      alignSelf: stretch
-      gap: 8px
-      padding: 30px
-      sizing:
-        horizontal: fill
-        vertical: fixed
-      dimensions:
-        height: 140
-    style_W0WY8F:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 13
-      lineHeight: 1.3999999119685247em
-      textAlignHorizontal: CENTER
-      textAlignVertical: CENTER
-    style_GL52UZ:
+    style_EZA3AC:
       fontFamily: Pretendard
       fontWeight: 400
-      fontSize: 13
-      lineHeight: 1.3999999119685247em
+      fontSize: 11
+      lineHeight: 1.200000069358132em
       textAlignHorizontal: CENTER
       textAlignVertical: CENTER
-    fill_OA9II2:
-      - rgba(151, 71, 255, 0.9)
-    effect_URMEZR:
-      boxShadow: 0px 4px 10px 0px rgba(151, 71, 255, 0.25)
-      backdropFilter: blur(4px)
-    layout_0OFTGX:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      gap: 4px
-      padding: 10px 16px
-      sizing:
-        horizontal: hug
-        vertical: hug
-      locationRelativeToParent:
-        x: 635.5
-        'y': 196
-    layout_XKW8K0:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 16
-        height: 16
-    layout_G9WFR6:
-      mode: none
-      locationRelativeToParent:
-        x: 0.22
-        'y': 0.81
-      dimensions:
-        width: 14.97
-        height: 14.39
-    layout_WTR3M1:
-      mode: row
-      alignItems: center
-      sizing:
-        horizontal: hug
-        vertical: hug
-    style_XZ8MEC:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 13
-      lineHeight: 1.200000029343825em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    layout_6SKQIY:
-      mode: none
-      locationRelativeToParent:
-        x: 3.76
-        'y': 3.76
-      dimensions:
-        width: 8.49
-        height: 8.49
-    fill_IUFVDH:
-      - rgba(34, 34, 34, 0.9)
-    effect_9JJT15:
-      backdropFilter: blur(4px)
-    layout_K7FH9S:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      gap: 10px
-      padding: 10px 16px
-      sizing:
-        horizontal: hug
-        vertical: hug
-      locationRelativeToParent:
-        x: 635.5
-        'y': 958
-    layout_OGNDNI:
-      mode: column
-      alignItems: center
-      gap: 4px
-      padding: 10px
-      sizing:
-        horizontal: hug
-        vertical: hug
-      locationRelativeToParent:
-        x: 1060
-        'y': 90
-    layout_90KG7R:
-      mode: column
-      justifyContent: center
-      gap: 4px
-      padding: 10px 8px
-      sizing:
-        horizontal: fixed
-        vertical: hug
-      dimensions:
-        width: 140
-    style_HZ7DJU:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 12
-      lineHeight: 1.2000000476837158em
-      textAlignHorizontal: CENTER
-      textAlignVertical: CENTER
-    layout_CCAKB3:
-      mode: none
-      locationRelativeToParent:
-        x: 5.48
-        'y': 3.76
-      dimensions:
-        width: 5.19
-        height: 8.48
-    layout_KPLN17:
-      mode: column
-      justifyContent: center
-      alignSelf: stretch
-      gap: 4px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_LVRO5J:
-      mode: row
-      alignItems: center
-      alignSelf: stretch
-      gap: 2px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    style_V9GD0B:
-      fontFamily: Pretendard
-      fontWeight: 400
-      fontSize: 12
-      lineHeight: 1.2000000476837158em
-      textAlignHorizontal: LEFT
-      textAlignVertical: CENTER
-    layout_3V2MCM:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 10
-        height: 10
-    layout_81BXIM:
-      mode: none
-      locationRelativeToParent:
-        x: 0.84
-        'y': 0.83
-      dimensions:
-        width: 8.33
-        height: 8.33
-    layout_YO8H8E:
-      mode: row
-      alignItems: center
-      alignSelf: stretch
-      gap: 4px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_9ORGB6:
-      mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      dimensions:
-        width: 14
-        height: 14
-    layout_HYLUBN:
-      mode: none
-      locationRelativeToParent:
-        x: 1.16
-        'y': 1.75
-      dimensions:
-        width: 11.67
-        height: 10.79
-    layout_1T16DJ:
-      mode: none
-      locationRelativeToParent:
-        x: 1.16
-        'y': 1.17
-      dimensions:
-        width: 11.67
-        height: 11.67
-    layout_C7QYLF:
-      mode: none
-      locationRelativeToParent:
-        x: 2.09
-        'y': 0.92
-      dimensions:
-        width: 9.82
-        height: 12.16
-    layout_THDQS5:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      gap: 10px
-      padding: 8px
-      sizing:
-        horizontal: fixed
-        vertical: fixed
-      locationRelativeToParent:
-        x: 10
-        'y': 934
-      dimensions:
-        width: 60
-        height: 60
-    layout_CCSM8W:
-      mode: none
-      locationRelativeToParent:
-        x: 1.33
-        'y': 3.3
-      dimensions:
-        width: 29.33
-        height: 25.4
-    layout_S4FMTR:
-      mode: column
-      gap: 7px
-      sizing:
-        horizontal: fixed
-        vertical: hug
-      locationRelativeToParent:
-        x: 10
-        'y': 348
-      dimensions:
-        width: 60
-    layout_1JK01F:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      alignSelf: stretch
-      gap: 10px
-      padding: 8px
-      sizing:
-        horizontal: fill
-        vertical: fixed
-    layout_HX6MBW:
-      mode: none
-      locationRelativeToParent:
-        x: 4
-        'y': 3.02
-      dimensions:
-        width: 24
-        height: 24.98
-    layout_XD55RC:
-      mode: none
-      locationRelativeToParent:
-        x: 2.67
-        'y': 4
-      dimensions:
-        width: 26.67
-        height: 24.67
-    layout_VFKFP6:
-      mode: none
-      locationRelativeToParent:
-        x: 4
-        'y': 2.67
-      dimensions:
-        width: 24
-        height: 25.33
-    layout_3PA5Q6:
-      mode: none
-      locationRelativeToParent:
-        x: 4.52
-        'y': 2.67
-      dimensions:
-        width: 22.95
-        height: 26.39
-    stroke_S8I6RR:
-      colors:
-        - rgba(34, 34, 34, 0.2)
-      strokeWeight: 1px
-    layout_J6Y6FR:
-      mode: row
-      justifyContent: flex-end
-      alignItems: center
-      gap: 4px
-      padding: 16px 24px
-      sizing:
-        horizontal: hug
-        vertical: fixed
-      locationRelativeToParent:
-        x: 1230
-        'y': 937
-      dimensions:
-        height: 54
-    style_A23SWR:
-      fontFamily: Pretendard
-      fontWeight: 500
-      fontSize: 15
-      lineHeight: 1.2001953125em
-      textAlignHorizontal: RIGHT
-      textAlignVertical: CENTER
-    layout_GCM93P:
-      mode: none
-      locationRelativeToParent:
-        x: 3.33
-        'y': 3.52
-      dimensions:
-        width: 13.33
-        height: 12.96
+    fill_KQP83A:
+      - '#222222'
