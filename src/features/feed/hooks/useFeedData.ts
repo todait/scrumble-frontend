@@ -1,15 +1,16 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
+
 import { mockPosts, mockTeamSummary } from '../data/mockData';
 import type { FilterType, Post, TeamSummary } from '../types/feed.types';
 // TODO: API 연동 시 feedService import
 // import { feedService } from '../services';
 
-export const useFeedData = (spaceId?: string) => {
+export const useFeedData = (_spaceId?: string) => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [posts, setPosts] = useState<Post[]>(mockPosts);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading] = useState(false);
+  const [error] = useState<string | null>(null);
 
   // TODO: API 연동 시 실제 데이터 가져오기
   // useEffect(() => {

@@ -1,5 +1,6 @@
 import { ApiResponse, PaginatedResponse, ID } from '@/shared/types';
-import { Post, PostCreateRequest, Reaction } from '../types/feed.types';
+
+import { Post, PostCreateRequest, PostUpdateRequest, Reaction, Comment } from '../types/feed.types';
 
 /**
  * 피드 관련 API 서비스
@@ -203,7 +204,7 @@ export class FeedService {
    * @param content - 댓글 내용
    * @returns 생성된 댓글
    */
-  async addComment(postId: ID, content: string): Promise<ApiResponse<any>> {
+  async addComment(postId: ID, content: string): Promise<ApiResponse<Comment>> {
     try {
       // TODO: 실제 API 호출로 교체
       const response = await fetch(`${this.baseURL}/posts/${postId}/comments`, {
@@ -239,7 +240,7 @@ export class FeedService {
    * @param updateData - 수정할 데이터
    * @returns 수정된 포스트
    */
-  async updatePost(postId: ID, updateData: Partial<PostCreateRequest>): Promise<ApiResponse<Post>> {
+  async updatePost(postId: ID, updateData: PostUpdateRequest): Promise<ApiResponse<Post>> {
     try {
       // TODO: 실제 API 호출로 교체
       const response = await fetch(`${this.baseURL}/posts/${postId}`, {

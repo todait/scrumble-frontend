@@ -58,3 +58,16 @@ export interface TeamSummary {
   totalMembers: number;
   checkedOutCount: number;
 }
+
+// API 요청/응답 타입들
+export interface PostCreateRequest {
+  content: string;
+  images?: string[];
+  conditionScore?: number; // 체크인 전용
+}
+
+export interface PostUpdateRequest {
+  content?: string;
+  images?: string[];
+  conditionScore?: number; // 체크인 전용
+}

@@ -1,6 +1,8 @@
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/shared/stores/auth.store';
+
 import { ROUTES } from '@/shared/constants';
+import { useAuthStore } from '@/shared/stores/auth.store';
+
 import type { Post } from '../types/feed.types';
 // TODO: API 연동 시 feedService import
 // import { feedService } from '../services';

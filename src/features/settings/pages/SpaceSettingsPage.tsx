@@ -322,7 +322,7 @@ export default function SpaceSettingsPage() {
               
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  확인을 위해 스페이스 이름 <span className="font-semibold text-gray-900">"{localSpaceName}"</span>을 정확히 입력하세요:
+                  확인을 위해 스페이스 이름 <span className="font-semibold text-gray-900">&quot;{localSpaceName}&quot;</span>을 정확히 입력하세요:
                 </label>
                 <input
                   type="text"

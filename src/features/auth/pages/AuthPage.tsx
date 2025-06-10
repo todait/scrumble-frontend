@@ -3,12 +3,12 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
+import { ROUTES, TEMP_SPACE_ID } from '@/shared/constants';
 import { LoadingScreen } from '@/shared/components/feedback';
 import { IntroLayout } from '@/shared/components/layout';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
 import { startGoogleOAuth } from '@/shared/lib/api';
-import { ROUTES, TEMP_SPACE_ID } from '@/shared/constants';
 
 import { AuthHeader, GoogleButton } from '../components';
 // TODO: API 연동 시 authService 사용
