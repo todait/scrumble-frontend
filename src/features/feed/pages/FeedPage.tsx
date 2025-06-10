@@ -13,7 +13,7 @@ import {
 import { useFeedActions, useFeedData } from '@/features/feed/hooks';
 import { useAuthStore } from '@/shared/stores/auth.store';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface FeedPageProps {
   spaceId: string;
@@ -21,6 +21,8 @@ interface FeedPageProps {
 
 export function FeedPage({ spaceId }: FeedPageProps) {
   const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { posts, setPosts, filteredPosts, teamSummary, filterType, setFilterType, selectedDate } = useFeedData();
   const { handleReaction, handleCommentClick, handleViewSummaryClick, handleDateClick } =
     useFeedActions(spaceId, posts, setPosts);
@@ -41,6 +43,31 @@ export function FeedPage({ spaceId }: FeedPageProps) {
       avatarURL: '',
     });
   }, [login]);
+
+  // 스크롤 가능 여부 체크
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (scrollContainerRef.current) {
+        const { scrollHeight, clientHeight } = scrollContainerRef.current;
+        setShowScrollToTop(scrollHeight > clientHeight);
+      }
+    };
+
+    // 초기 체크
+    checkScrollable();
+
+    // ResizeObserver로 컨테이너 크기 변경 감지
+    const resizeObserver = new ResizeObserver(checkScrollable);
+    if (scrollContainerRef.current) {
+      resizeObserver.observe(scrollContainerRef.current);
+    }
+
+    return () => {
+      if (scrollContainerRef.current) {
+        resizeObserver.unobserve(scrollContainerRef.current);
+      }
+    };
+  }, [filteredPosts]);
 
   const scrollToTop = () => {
     // 포스트 목록 스크롤 영역을 찾아서 스크롤
@@ -119,7 +146,7 @@ export function FeedPage({ spaceId }: FeedPageProps) {
               </div>
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
-              <div className="flex-1 overflow-y-auto scrollbar-hide">
+              <div ref={scrollContainerRef} className="flex-1 overflow-y-auto scrollbar-hide">
                 {filteredPosts.map(post => (
                   <div
                     key={post.id}
@@ -136,18 +163,20 @@ export function FeedPage({ spaceId }: FeedPageProps) {
                   </div>
                 ))}
 
-                {/* 마지막 메시지 */}
-                <div className="flex flex-col items-center justify-center gap-2 bg-white pb-[40px] pt-[30px]">
-                  <button
-                    onClick={scrollToTop}
-                    className="text-[13px] font-bold text-[#222222] opacity-80 hover:opacity-100"
-                  >
-                    맨 위로 가기
-                  </button>
-                  <p className="text-[13px] text-[#222222] opacity-30">
-                    마지막 스크럼노트까지 읽었어요.
-                  </p>
-                </div>
+                {/* 마지막 메시지 - 스크롤이 필요한 경우에만 표시 */}
+                {showScrollToTop && (
+                  <div className="flex flex-col items-center justify-center gap-2 bg-white pb-[40px] pt-[30px]">
+                    <button
+                      onClick={scrollToTop}
+                      className="text-[13px] font-bold text-[#222222] opacity-80 hover:opacity-100"
+                    >
+                      맨 위로 가기
+                    </button>
+                    <p className="text-[13px] text-[#222222] opacity-30">
+                      마지막 스크럼노트까지 읽었어요.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

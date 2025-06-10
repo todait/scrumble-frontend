@@ -1,5 +1,6 @@
 'use client';
 
+import { IconButton } from '@/shared/components/ui';
 import { RiAtLine, RiAttachment2, RiImageLine, RiSendPlaneFill } from '@remixicon/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -73,29 +74,21 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
       <div className="flex items-center justify-between">
         {/* 왼쪽 액션 버튼들 */}
         <div className="flex items-center gap-1">
-          {/* 이미지 첨부 버튼 */}
-          <button
-            className="flex h-8 w-8 items-center justify-center rounded bg-[#F1F1F1] transition-colors hover:bg-[#E5E5E5]"
+          <IconButton
+            icon={<RiImageLine className="h-4 w-4 text-[#222222] opacity-50" />}
             title="이미지 첨부"
-          >
-            <RiImageLine className="h-4 w-4 text-[#222222] opacity-50" />
-          </button>
-
-          {/* 파일 첨부 버튼 */}
-          <button
-            className="flex h-8 w-8 items-center justify-center rounded bg-[#F1F1F1] transition-colors hover:bg-[#E5E5E5]"
+            className="h-8 w-8 hover:bg-[#F1F1F1] active:bg-[#E5E5E5]"
+          />
+          <IconButton
+            icon={<RiAttachment2 className="h-4 w-4 text-[#222222] opacity-50" />}
             title="파일 첨부"
-          >
-            <RiAttachment2 className="h-4 w-4 text-[#222222] opacity-50" />
-          </button>
-
-          {/* 멘션 버튼 */}
-          <button
-            className="flex h-8 w-8 items-center justify-center rounded bg-[#F1F1F1] transition-colors hover:bg-[#E5E5E5]"
+            className="h-8 w-8 hover:bg-[#F1F1F1] active:bg-[#E5E5E5]"
+          />
+          <IconButton
+            icon={<RiAtLine className="h-4 w-4 text-[#222222] opacity-50" />}
             title="멘션"
-          >
-            <RiAtLine className="h-4 w-4 text-[#222222] opacity-50" />
-          </button>
+            className="h-8 w-8 hover:bg-[#F1F1F1] active:bg-[#E5E5E5]"
+          />
         </div>
 
         {/* 오른쪽 전송 버튼 */}

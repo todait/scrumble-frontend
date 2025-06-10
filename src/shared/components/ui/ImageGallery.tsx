@@ -75,7 +75,7 @@ export function ImageGallery({ images, size = 'medium', className = '', onClick 
   return (
     <>
       <div className={`overflow-hidden ${className}`}>
-        <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {images.map((image, index) => (
             <div
               key={index}

@@ -1,6 +1,7 @@
 export * from './Button';
 export * from './DeleteConfirmDialog';
 export * from './DropdownMenu';
+export * from './IconButton';
 export * from './ImageGallery';
 export * from './ImageViewer';
 export * from './PostForm';
