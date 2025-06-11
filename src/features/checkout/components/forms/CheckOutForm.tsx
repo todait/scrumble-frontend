@@ -12,7 +12,7 @@ export const CheckOutForm = ({ onSubmit, disabled = false }: CheckOutFormProps) 
     <PostForm
       onSubmit={onSubmit}
       disabled={disabled}
-      placeholder="오늘 하루를 마무리하며 남기고 싶은 이야기가 있나요? 오늘의 Keep, Problem, Try를 중심으로 회고를 가볍게 남겨보세요."
+      placeholder="오늘 하루 고생하셨어요! 🌙 오늘의 성과나 배운 점, 내일을 위한 개선사항을 팀과 나눠보세요. 간단한 KPT 회고로 우리 팀의 성장을 만들어가요."
     />
   );
 };
