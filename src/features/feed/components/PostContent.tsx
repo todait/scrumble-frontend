@@ -1,21 +1,27 @@
 'use client';
 
 import { CheckInEditModal } from '@/features/checkin/components';
+import { CheckOutEditModal } from '@/features/checkout/components';
 import { SimpleToast } from '@/shared/components/feedback';
-import { DeleteConfirmDialog, ImageGallery, ImageViewer, ProfileImage, StatusBadge } from '@/shared/components/ui';
-import { useAuthStore } from '@/shared/stores/auth.store';
-import { formatTime, getConditionLabel } from '@/shared/utils';
 import {
-  RiArrowRightSLine,
-  RiDeleteBinLine,
-  RiEdit2Line,
-} from '@remixicon/react';
+  DeleteConfirmDialog,
+  ImageGallery,
+  ImageViewer,
+  ProfileImage,
+  StatusBadge,
+} from '@/shared/components/ui';
+import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useDeleteCheckIn, useDeleteCheckOut } from '@/shared/hooks/queries';
+import { formatTime, getConditionLabel } from '@/shared/utils';
+import { RiArrowRightSLine, RiDeleteBinLine, RiEdit2Line } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useState } from 'react';
 import type { Post } from '../types/feed.types';
+import { getPostContent } from '../types/feed.types';
 
 interface PostContentProps {
+  spaceSlug: string;
   post: Post;
   isSelected?: boolean;
   isDetailView?: boolean;
@@ -24,6 +30,7 @@ interface PostContentProps {
 }
 
 export function PostContent({
+  spaceSlug,
   post,
   isSelected = false,
   isDetailView = false,
@@ -36,17 +43,17 @@ export function PostContent({
   const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const user = useAuthStore(state => state.user);
+  const { user } = useAuth();
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
-  const contentPreview =
-    post.content.length > 200 ? post.content.slice(0, 200) + '...' : post.content;
+  const isCheckOut = post.type === 'checkout';
+  const content = getPostContent(post) || '';
+  const contentPreview = content && content.length > 200 ? content.slice(0, 200) + '...' : content;
+  const { mutate: deleteCheckIn } = useDeleteCheckIn();
+  const { mutate: deleteCheckOut } = useDeleteCheckOut();
 
   const handleEdit = () => {
-    if (isCheckIn) {
-      setShowEditModal(true);
-    }
-    // TODO: 체크아웃 수정 기능 구현
+    setShowEditModal(true);
   };
 
   const handleDelete = () => {
@@ -54,9 +61,30 @@ export function PostContent({
   };
 
   const handleConfirmDelete = () => {
-    // TODO: API 호출로 게시물 삭제
-    setShowDeleteDialog(false);
-    setShowToast({ message: '해당 게시물이 삭제되었습니다' });
+    const onSuccess = () => {
+      setShowDeleteDialog(false);
+      setShowToast({ message: '해당 게시물이 삭제되었습니다' });
+    };
+
+    if (isCheckIn) {
+      deleteCheckIn(
+        {
+          spaceSlug,
+          postId: post.id,
+        },
+        { onSuccess }
+      );
+    }
+
+    if (isCheckOut) {
+      deleteCheckOut(
+        {
+          spaceSlug,
+          postId: post.id,
+        },
+        { onSuccess }
+      );
+    }
   };
 
   const handleEditSubmit = () => {
@@ -70,7 +98,6 @@ export function PostContent({
   const handleToastAction = () => {
     setShowToast(null);
   };
-
 
   const profileImageSize = isDetailView ? 48 : 40;
   const nameTextSize = isDetailView ? 'text-[17px]' : 'text-[15px]';
@@ -95,7 +122,7 @@ export function PostContent({
 
         {/* 내 포스트일 때 수정/삭제 버튼 - 호버 시 표시 (카드 뷰에서만) */}
         {isMyPost && !isDetailView && (
-          <div className="absolute right-[30px] top-0 z-10 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="absolute right-[10px] top-[10px] z-10 opacity-0 transition-opacity group-hover:opacity-100">
             <div className="flex h-[50px] w-[150px] items-center justify-center gap-[10px] rounded-lg bg-white p-2 shadow-[0px_2px_8px_rgba(0,0,0,0.08)]">
               <button
                 onClick={e => {
@@ -151,7 +178,10 @@ export function PostContent({
                 <StatusBadge type={isCheckIn ? 'checkin' : 'checkout'} />
                 <span className="text-[13px] leading-none text-[#222222] opacity-40">
                   {formatTime(post.createdAt)}
-                  {post.updatedAt && ' (수정됨)'}
+                  {post.updatedAt &&
+                    new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() >
+                      1000 &&
+                    ' (수정됨)'}
                 </span>
               </div>
             </div>
@@ -168,9 +198,9 @@ export function PostContent({
           {/* 본문 */}
           <div className="py-2">
             <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
-              {showFullContent ? post.content : contentPreview}
+              {showFullContent ? content : contentPreview}
             </p>
-            {post.content.length > 200 && !showFullContent && (
+            {content.length > 200 && !showFullContent && (
               <button
                 onClick={() => setShowFullContent(true)}
                 className={`mt-1 font-medium text-[#222222] opacity-80 hover:opacity-100 ${contentTextSize}`}
@@ -210,7 +240,7 @@ export function PostContent({
                     e.stopPropagation();
                     onReaction?.(post.id, reaction.emoji);
                   }}
-                  className={`flex items-center gap-1 rounded-full px-[10px] py-[6px] text-[13px] transition-colors border ${
+                  className={`flex items-center gap-1 rounded-full border px-[10px] py-[6px] text-[13px] transition-colors ${
                     reaction.userIds.includes(user?.id || '')
                       ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
                       : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
@@ -276,6 +306,18 @@ export function PostContent({
       {/* 체크인 수정 모달 */}
       {isCheckIn && 'conditionScore' in post && (
         <CheckInEditModal
+          spaceSlug={spaceSlug}
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          post={post}
+          onSubmit={handleEditSubmit}
+        />
+      )}
+
+      {/* 체크아웃 수정 모달 */}
+      {isCheckOut && 'reflectionText' in post && (
+        <CheckOutEditModal
+          spaceSlug={spaceSlug}
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
           post={post}

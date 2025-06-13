@@ -16,7 +16,7 @@ export const MemberDropdownMenu: React.FC<MemberDropdownMenuProps> = ({
   isOpen,
   onClose,
   onDelete,
-  memberName,
+  memberName: _memberName,
   position,
 }) => {
   const handleDeleteClick = () => {

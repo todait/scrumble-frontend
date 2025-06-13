@@ -96,22 +96,21 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
             {defaultAvatar.initials}
           </div>
         )}
-        <img
+        <Image
           src={src}
           alt={alt}
+          width={size}
+          height={size}
           className={`
             rounded-full object-cover 
             ${className}
             ${isLoaded ? 'opacity-100' : 'opacity-0'}
           `}
           style={{ 
-            width: size, 
-            height: size,
             transition: 'opacity 0.3s ease-in-out'
           }}
           onLoad={handleLoad}
           onError={handleError}
-          loading="lazy"
         />
       </div>
     );

@@ -38,8 +38,8 @@ const CreateSpacePage = () => {
 
         // 팀 초대 페이지로 이동
         // TODO: 실제 API 응답에서 스페이스 ID를 받아와서 사용
-        const spaceId = 'temp-space-id'; // 임시 ID, 추후 API 응답에서 받아올 예정
-        router.push(`/spaces/${spaceId}/invite`);
+        const spaceSlug = 'temp-space-id'; // 임시 ID, 추후 API 응답에서 받아올 예정
+        router.push(`/spaces/${spaceSlug}/invite`);
       } catch {
         error({
           title: '생성 실패',

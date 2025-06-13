@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       'randomuser.me',
       'images.unsplash.com',
       'api.dicebear.com',
+      'lh3.googleusercontent.com',
     ],
     // 새로운 방식: remotePatterns 사용 (더 안전함)
     remotePatterns: [
@@ -27,6 +28,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'api.dicebear.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
         pathname: '/**',
       },
     ],

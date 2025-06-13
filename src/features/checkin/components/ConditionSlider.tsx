@@ -21,11 +21,6 @@ const getConditionColor = (score: number): string => {
   return 'text-green-500';
 };
 
-const getConditionBgColor = (score: number): string => {
-  if (score <= 3) return 'bg-red-500';
-  if (score <= 6) return 'bg-yellow-500';
-  return 'bg-green-500';
-};
 
 const getSliderThumbColor = (score: number): string => {
   if (score <= 3) return '#ef4444';
@@ -44,7 +39,6 @@ const getConditionText = (score: number): string => {
 export function ConditionSlider({ value, onChange }: ConditionSliderProps) {
   const emoji = useMemo(() => getConditionEmoji(value), [value]);
   const colorClass = useMemo(() => getConditionColor(value), [value]);
-  const bgColorClass = useMemo(() => getConditionBgColor(value), [value]);
   const conditionText = useMemo(() => getConditionText(value), [value]);
   const thumbColor = useMemo(() => getSliderThumbColor(value), [value]);
 
