@@ -27,7 +27,7 @@ interface MemberTableProps {
 export const MemberTable: React.FC<MemberTableProps> = ({
   members,
   onCopyEmail,
-  onMemberAction,
+  onMemberAction: _onMemberAction,
 }) => {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -72,8 +72,7 @@ export const MemberTable: React.FC<MemberTableProps> = ({
     setOpenMenuId(memberId);
   };
 
-  const handleDeleteMember = (memberId: string, memberName: string) => {
-    console.log('멤버 삭제:', { memberId, memberName });
+  const handleDeleteMember = (_memberId: string, _memberName: string) => {
     // TODO: 실제 삭제 API 호출
   };
 

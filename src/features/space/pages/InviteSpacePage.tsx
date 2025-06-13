@@ -12,12 +12,12 @@ import { InviteHeader } from '../components/layout';
 import { CopyLinkButton } from '../components/ui';
 
 interface InviteSpacePageProps {
-  spaceId?: string; // 스페이스 ID
+  spaceSlug?: string; // 스페이스 ID
   spaceName?: string; // 추후 API로 받아올 예정
 }
 
 export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
-  spaceId,
+  spaceSlug,
   spaceName = '스페이스 이름',
 }) => {
   const router = useRouter();
@@ -34,11 +34,11 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
     onSubmit: async data => {
       try {
         // TODO: API 호출로 팀 멤버 초대
-        console.warn('스페이스 ID:', spaceId);
+        console.warn('스페이스 ID:', spaceSlug);
         console.warn('초대할 이메일 목록:', data.emails);
 
         // 성공 시 다음 페이지로 이동 (추후 구현)
-        router.push(`/${spaceId}/settings/members`);
+        router.push(`/${spaceSlug}/settings/members`);
       } catch (error) {
         console.error('팀 초대 중 오류 발생:', error);
       }
@@ -48,7 +48,7 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
   const handleCopyInviteLink = async () => {
     try {
       // TODO: 초대 링크 생성 API 호출
-      const inviteLink = `${window.location.origin}/invite/${spaceId}`;
+      const inviteLink = `${window.location.origin}/invite/${spaceSlug}`;
 
       await navigator.clipboard.writeText(inviteLink);
 
@@ -60,7 +60,7 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
   };
 
   const handleSkip = () => {
-    router.push(`/${spaceId}/settings/members`);
+    router.push(`/${spaceSlug}/settings/members`);
   };
 
   return (

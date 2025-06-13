@@ -1,63 +1,89 @@
 import { useState, useMemo } from 'react';
+import { useExistsCheckin, usePosts } from '@/shared/hooks/queries/usePosts';
+import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
+import { useMockPosts } from './useMockPosts';
+import type { FilterType } from '../types/feed.types';
+import { convertApiPostsToFeedPosts } from '../utils/postTransform.utils';
+import type { Post as ApiPost } from '@/shared/types/post';
+import { getErrorMessage } from '@/shared/utils';
 
-import { mockPosts, mockTeamSummary } from '../data/mockData';
-import type { FilterType, Post, TeamSummary } from '../types/feed.types';
-// TODO: API 연동 시 feedService import
-// import { feedService } from '../services';
-
-export const useFeedData = (_spaceId?: string) => {
+export const useFeedData = (spaceSlug: string) => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [posts, setPosts] = useState<Post[]>(mockPosts);
-  const [isLoading] = useState(false);
-  const [error] = useState<string | null>(null);
 
-  // TODO: API 연동 시 실제 데이터 가져오기
-  // useEffect(() => {
-  //   const fetchFeedData = async () => {
-  //     if (!spaceId) return;
-  //     
-  //     setIsLoading(true);
-  //     setError(null);
-  //     
-  //     try {
-  //       const result = await feedService.getFeedPosts(spaceId, 1, 20, filterType);
-  //       if (result.success && result.data) {
-  //         setPosts(result.data.items);
-  //       } else {
-  //         setError(result.error || 'Failed to fetch posts');
-  //       }
-  //     } catch (err) {
-  //       setError('네트워크 오류가 발생했습니다.');
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   
-  //   fetchFeedData();
-  // }, [spaceId, filterType]);
+  // temp-space-id일 때는 mock 데이터 사용
+  const useMockData = spaceSlug === 'temp-space-id';
 
-  // 현재는 mock 데이터 사용
-  const teamSummary: TeamSummary = mockTeamSummary;
+  const existsCheckinQuery = useExistsCheckin({
+    spaceSlug,
+    date: selectedDate.toISOString().split('T')[0],
+  });
 
-  // 필터링된 포스트
-  const filteredPosts = useMemo(() => {
-    return posts.filter(post => {
-      if (filterType === 'all') return true;
-      return post.type === filterType;
-    });
-  }, [posts, filterType]);
+  // 실제 API 또는 Mock 데이터 사용
+  const realPostsQuery = usePosts({
+    spaceSlug,
+    filterType,
+    selectedDate,
+    enabled: !useMockData,
+  });
+
+  const mockPostsQuery = useMockPosts({
+    filterType,
+  });
+
+  const postsQuery = useMockData ? mockPostsQuery : realPostsQuery;
+
+  // 팀 요약 정보
+  const teamSummaryQuery = useTeamSummary({
+    spaceSlug,
+    enabled: true, // 팀 요약은 항상 활성화
+  });
+  // 데이터 변환 및 계산된 값들
+  const { posts, isLoading, hasMore, nextCursor } = useMemo(() => {
+    if (useMockData) {
+      // Mock 데이터는 이미 Feed Post 타입으로 정의됨
+      return {
+        posts: postsQuery.data?.posts || [],
+        isLoading: postsQuery.isLoading,
+        hasMore: postsQuery.data?.hasMore || false,
+        nextCursor: postsQuery.data?.nextCursor,
+      };
+    }
+
+    // API 데이터는 변환 필요
+    const apiPosts = (postsQuery.data?.posts || []) as ApiPost[];
+    return {
+      posts: convertApiPostsToFeedPosts(apiPosts),
+      isLoading: postsQuery.isLoading,
+      hasMore: postsQuery.data?.hasMore || false,
+      nextCursor: postsQuery.data?.nextCursor,
+    };
+  }, [useMockData, postsQuery.data, postsQuery.isLoading]);
 
   return {
+    existsCheckinQuery,
+    // 데이터
     posts,
-    setPosts,
-    filteredPosts,
-    teamSummary,
+    teamSummary: teamSummaryQuery.data,
+
+    // 필터 상태
     filterType,
     setFilterType,
     selectedDate,
     setSelectedDate,
-    isLoading,
-    error,
+
+    // 로딩 및 에러 상태
+    isLoading: isLoading || teamSummaryQuery.isLoading,
+    error: postsQuery.error ? getErrorMessage(postsQuery.error) : 
+           teamSummaryQuery.error ? getErrorMessage(teamSummaryQuery.error) : null,
+    isError: postsQuery.isError || teamSummaryQuery.isError,
+
+    // 페이지네이션
+    hasMore,
+    nextCursor,
+    refetch: postsQuery.refetch,
+
+    // 디버깅
+    useMockData,
   };
 };

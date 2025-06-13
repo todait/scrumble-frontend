@@ -33,12 +33,13 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   // 프로덕션 환경에서 외부 이미지는 일반 img 태그 사용 (502 에러 방지)
   if (process.env.NODE_ENV === 'production' && typeof src === 'string' && src.startsWith('http')) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}
         alt={alt}
         className={hasError ? fallbackClassName || className : className}
         onError={handleError}
-        {...(props as any)}
+        {...(props as React.ImgHTMLAttributes<HTMLImageElement>)}
       />
     );
   }

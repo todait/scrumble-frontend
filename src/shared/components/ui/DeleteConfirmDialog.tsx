@@ -1,6 +1,7 @@
 'use client';
 
 import { RiDeleteBinLine } from '@remixicon/react';
+import { useEffect } from 'react';
 
 interface DeleteConfirmDialogProps {
   isOpen: boolean;
@@ -9,24 +10,37 @@ interface DeleteConfirmDialogProps {
 }
 
 export function DeleteConfirmDialog({ isOpen, onClose, onConfirm }: DeleteConfirmDialogProps) {
+  // ESC 키로 다이얼로그 닫기
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <>
       {/* 백드롭 */}
-      <div 
-        className="fixed inset-0 z-50 bg-black/50 transition-opacity"
-        onClick={onClose}
-      />
-      
+      <div className="fixed inset-0 z-50 bg-black/50 transition-opacity" onClick={onClose} />
+
       {/* 다이얼로그 */}
       <div className="fixed left-1/2 top-1/2 z-50 w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[rgba(34,34,34,0.08)] bg-white p-5 shadow-lg">
         {/* 콘텐츠 */}
         <div className="flex h-[100px] flex-col items-center justify-center gap-2 py-5">
           <h3 className="text-[16px] font-bold text-[#222222]">이 노트를 삭제하시겠어요?</h3>
-          <p className="text-[13px] text-[#222222] opacity-60">삭제한 게시물은 복원할 수 없습니다</p>
+          <p className="text-[13px] text-[#222222] opacity-60">
+            삭제한 게시물은 복원할 수 없습니다
+          </p>
         </div>
-        
+
         {/* 버튼 영역 */}
         <div className="flex gap-4">
           <button

@@ -49,12 +49,12 @@
 - **Styling**: Tailwind CSS + Pretendard Font
 - **State Management**: Zustand 5.0.5
 - **API Client**: Axios 1.9.0 + React Query 5.77.0
-- **Real-time**: WebSocket (native) - *planned*
+- **Real-time**: WebSocket (native) - _planned_
 - **Animations**: Framer Motion 12.12.2
 - **Forms**: React Hook Form 7.56.4 + Zod 3.25.28
 - **Icons**: Lucide React + React Icons
-- **PWA**: next-pwa 5.6.0 - *configured*
-- **Testing**: Jest 29.7.0 + React Testing Library 16.3.0 - *setup required*
+- **PWA**: next-pwa 5.6.0 - _configured_
+- **Testing**: Jest 29.7.0 + React Testing Library 16.3.0 - _setup required_
 
 ### Backend (별도 레포지토리)
 
@@ -76,7 +76,7 @@ scrumble-frontend/
 │   │   ├── spaces/            # 스페이스 페이지 (복수형 RESTful)
 │   │   │   ├── new/           # 스페이스 생성
 │   │   │   ├── welcome/       # 환영 페이지
-│   │   │   └── [spaceId]/     # 동적 스페이스 라우트
+│   │   │   └── [spaceSlug]/     # 동적 스페이스 라우트
 │   │   │       ├── invite/    # 팀원 초대
 │   │   │       ├── checkin/   # 체크인 작성
 │   │   │       └── settings/  # 스페이스 설정
@@ -132,6 +132,7 @@ npm run dev
 ### 백엔드 연동
 
 백엔드 서버가 `http://localhost:8080`에서 실행 중이어야 합니다.
+
 - [Scrumble Backend Repository](https://github.com/your-username/scrumble-backend)
 
 ### 환경 변수
@@ -280,6 +281,7 @@ chore: 빌드 관련 파일 수정
 ## 🚧 개발 현황
 
 ### ✅ 완료된 기능
+
 - Google OAuth 인증 플로우
 - 로그인/로그아웃 기능
 - 토스트 알림 시스템
@@ -289,11 +291,13 @@ chore: 빌드 관련 파일 수정
 - Pretendard 폰트 적용
 
 ### 🔄 진행 중
+
 - 스페이스 관리 기능
 - 팀 초대 시스템
 - 백엔드 API 연동
 
 ### 📋 예정된 기능
+
 - 체크인 시스템
 - 팀 피드
 - 실시간 WebSocket 연동

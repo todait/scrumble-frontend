@@ -24,7 +24,6 @@ export interface Comment {
 export interface BasePost {
   id: string;
   author: User;
-  content: string;
   createdAt: Date;
   updatedAt?: Date;
   reactions: Reaction[];
@@ -38,13 +37,36 @@ export interface CheckinPost extends BasePost {
   type: 'checkin';
   conditionScore: number;
   conditionEmoji: string;
+  conditionText: string;
 }
 
 export interface CheckoutPost extends BasePost {
   type: 'checkout';
+  reflectionText: string;
 }
 
 export type Post = CheckinPost | CheckoutPost;
+
+// 방법 1: 유틸리티 함수 사용 (가장 실용적)
+export const getPostContent = (post: Post): string => {
+  switch (post.type) {
+    case 'checkin':
+      return post.conditionText || '';
+    case 'checkout':
+      return post.reflectionText || '';
+    default:
+      return '';
+  }
+};
+
+// 방법 2: 타입 가드와 함께 사용
+export const isCheckinPost = (post: Post): post is CheckinPost => {
+  return post.type === 'checkin';
+};
+
+export const isCheckoutPost = (post: Post): post is CheckoutPost => {
+  return post.type === 'checkout';
+};
 
 export interface FeedData {
   posts: Post[];
@@ -57,17 +79,4 @@ export interface TeamSummary {
   checkedInCount: number;
   totalMembers: number;
   checkedOutCount: number;
-}
-
-// API 요청/응답 타입들
-export interface PostCreateRequest {
-  content: string;
-  images?: string[];
-  conditionScore?: number; // 체크인 전용
-}
-
-export interface PostUpdateRequest {
-  content?: string;
-  images?: string[];
-  conditionScore?: number; // 체크인 전용
 }

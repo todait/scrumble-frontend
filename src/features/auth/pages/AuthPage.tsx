@@ -1,69 +1,25 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { ROUTES, TEMP_SPACE_ID } from '@/shared/constants';
 import { LoadingScreen } from '@/shared/components/feedback';
 import { IntroLayout } from '@/shared/components/layout';
-import { useAuth } from '@/shared/hooks/useAuth';
-import { useToast } from '@/shared/hooks/useToast';
-import { startGoogleOAuth } from '@/shared/lib/api';
+import { useAuth } from '@/shared/hooks/auth/useAuth';
 
 import { AuthHeader, GoogleButton } from '../components';
-// TODO: API 연동 시 authService 사용
-// import { authService } from '../services';
+import { useGoogleAuth, useAuthRedirect, useAuthErrorHandling } from '../hooks';
 
 const AuthPage = () => {
-  const router = useRouter();
-  const { isAuthenticated, user, logout, isLoading } = useAuth();
-  const { error } = useToast();
-
-  // 로그인된 상태면 피드 페이지로 리다이렉트
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      // TODO: API 연동 시 사용자의 기본 스페이스로 리다이렉트
-      // 현재는 임시 스페이스 ID 사용
-      router.push(ROUTES.SPACE_FEED(TEMP_SPACE_ID));
-    }
-  }, [isAuthenticated, isLoading, router]);
-
-  const handleGoogleLogin = () => {
-    try {
-      // TODO: API 연동 시 authService.loginWithGoogle() 사용
-      // const result = await authService.loginWithGoogle(code);
-      // if (result.success) {
-      //   // 토큰 저장 및 사용자 정보 업데이트
-      // }
-      startGoogleOAuth();
-    } catch (err) {
-      console.error('Google login error:', err);
-      error({
-        title: '로그인 오류',
-        message: '로그인을 시작할 수 없습니다. 다시 시도해주세요.',
-      });
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      // TODO: API 연동 시 authService.logout() 호출
-      // const result = await authService.logout(accessToken);
-      // if (result.success) {
-      //   // 로컬 스토리지 정리 및 상태 초기화
-      // }
-      await logout();
-    } catch (err) {
-      console.error('Logout error:', err);
-      error({
-        title: '로그아웃 오류',
-        message: '로그아웃 중 문제가 발생했습니다.',
-      });
-    }
-  };
+  // 커스텀 훅들
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const { handleGoogleLogin, handleLogout } = useGoogleAuth();
+  const { isLoading: isRedirecting } = useAuthRedirect();
+  
+  // URL 파라미터로부터 에러 처리
+  useAuthErrorHandling();
 
   // 로딩 중일 때 표시
-  if (isLoading) {
+  if (isLoading || isRedirecting) {
     return <LoadingScreen message="로딩 중..." />;
   }
 

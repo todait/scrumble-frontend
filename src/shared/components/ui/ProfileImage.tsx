@@ -103,6 +103,7 @@ export function ProfileImage({
       
       {/* 프로덕션 환경에서 randomuser.me 이미지는 일반 img 태그 사용 */}
       {process.env.NODE_ENV === 'production' && src.includes('randomuser.me') ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
           alt={alt}
