@@ -6,7 +6,7 @@ scrumble-frontend/
 │ │ │ │ └── page.tsx
 │ │ │ └── layout.tsx
 │ │ ├── (space)/ # Route Group - 스페이스
-│ │ │ ├── [spaceId]/
+│ │ │ ├── [spaceSlug]/
 │ │ │ │ ├── page.tsx # 팀 피드
 │ │ │ │ ├── checkin/
 │ │ │ │ │ └── page.tsx

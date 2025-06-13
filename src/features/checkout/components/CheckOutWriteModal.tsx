@@ -1,26 +1,52 @@
 'use client';
 
 import { CheckInModalLayout } from '@/features/checkin/components/layout';
+import { useCreateCheckOut } from '@/shared/hooks/queries';
 import { formatDate } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 import { CheckOutForm } from './forms';
 
 interface CheckOutWriteModalProps {
+  spaceSlug: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps) {
+export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWriteModalProps) {
+  const { mutate: createCheckOut } = useCreateCheckOut();
   const [dateString, setDateString] = useState('');
 
   useEffect(() => {
     setDateString(formatDate());
   }, []);
 
-  const handleSubmit = () => {
-    // TODO: API 연동
-    onClose();
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  const handleSubmit = (data: { message: string; images: string[] }) => {
+    createCheckOut(
+      {
+        spaceSlug,
+        reflectionText: data.message,
+      },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      }
+    );
   };
 
   return (

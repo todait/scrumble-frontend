@@ -10,132 +10,79 @@ import {
   PostDetail,
   TeamSummaryCard,
 } from '@/features/feed/components';
-import { useFeedActions, useFeedData } from '@/features/feed/hooks';
-import { useAuthStore } from '@/shared/stores/auth.store';
+import {
+  useFeedActions,
+  useFeedData,
+  useFeedModal,
+  useFeedNavigation,
+  useFeedScroll,
+} from '@/features/feed/hooks';
+import type { Post as FeedPost } from '@/features/feed/types/feed.types';
+import { ROUTES } from '@/shared/constants';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 
 interface FeedPageProps {
-  spaceId: string;
+  spaceSlug: string;
 }
 
-export function FeedPage({ spaceId }: FeedPageProps) {
-  const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
-  const [showScrollToTop, setShowScrollToTop] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { posts, setPosts, filteredPosts, teamSummary, filterType, setFilterType, selectedDate } = useFeedData();
-  const { handleReaction, handleCommentClick, handleViewSummaryClick, handleDateClick } =
-    useFeedActions(spaceId, posts, setPosts);
-  const login = useAuthStore(state => state.login);
+export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  // 데이터 및 상태 관리
+  const { posts, teamSummary, filterType, setFilterType, selectedDate, existsCheckinQuery } =
+    useFeedData(spaceSlug);
+  const { handleReaction, handleCommentClick, handleViewSummaryClick, handleDateClick } =
+    useFeedActions(spaceSlug, posts as FeedPost[], () => {});
+  const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
+  const { handlePostClick, handleClosePostDetail } = useFeedNavigation(spaceSlug);
+  const { scrollContainerRef, showScrollToTop, scrollToTop, scrollToSelectedPost } = useFeedScroll(
+    posts.length
+  );
+
+  useEffect(() => {
+    if (
+      !existsCheckinQuery.isLoading &&
+      existsCheckinQuery.data &&
+      existsCheckinQuery.data.exists === false
+    ) {
+      router.replace(ROUTES.SPACE_CHECKIN(spaceSlug));
+    }
+  }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug]);
+
+  // URL 파라미터 처리
   const searchParams = useSearchParams();
   const selectedPostId = searchParams.get('post');
-  const selectedPost = selectedPostId
-    ? filteredPosts.find(post => post.id === selectedPostId)
-    : null;
-
-  // 개발 중 임시로 이선우를 현재 사용자로 설정
-  useEffect(() => {
-    login({
-      id: '2',
-      name: '이선우',
-      email: 'lee@example.com',
-      avatarURL: '',
-    });
-  }, [login]);
-
-  // 스크롤 가능 여부 체크
-  useEffect(() => {
-    const checkScrollable = () => {
-      if (scrollContainerRef.current) {
-        const { scrollHeight, clientHeight } = scrollContainerRef.current;
-        setShowScrollToTop(scrollHeight > clientHeight);
-      }
-    };
-
-    // 초기 체크
-    checkScrollable();
-
-    // ResizeObserver로 컨테이너 크기 변경 감지
-    const resizeObserver = new ResizeObserver(checkScrollable);
-    if (scrollContainerRef.current) {
-      resizeObserver.observe(scrollContainerRef.current);
-    }
-
-    return () => {
-      if (scrollContainerRef.current) {
-        resizeObserver.unobserve(scrollContainerRef.current);
-      }
-    };
-  }, [filteredPosts]);
-
-  const scrollToTop = () => {
-    // 포스트 목록 스크롤 영역을 찾아서 스크롤
-    const postListElement = document.querySelector('.scrollbar-hide');
-    if (postListElement) {
-      postListElement.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const scrollToSelectedPost = () => {
-    if (!selectedPostId) return;
-    
-    // 선택된 포스트 요소 찾기
-    const selectedPostElement = document.querySelector(`[data-post-id="${selectedPostId}"]`);
-    const postListElement = document.querySelector('.scrollbar-hide');
-    
-    if (selectedPostElement && postListElement) {
-      // FeedHeader 높이 계산 (대략 80px)
-      const headerHeight = 80;
-      
-      // 선택된 포스트의 상대적 위치 계산
-      const postListRect = postListElement.getBoundingClientRect();
-      const selectedPostRect = selectedPostElement.getBoundingClientRect();
-      
-      // 현재 스크롤 위치에서 선택된 포스트까지의 거리 계산
-      const scrollOffset = postListElement.scrollTop + (selectedPostRect.top - postListRect.top) - headerHeight;
-      
-      postListElement.scrollTo({
-        top: scrollOffset,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const openCheckOutModal = () => {
-    setIsCheckOutModalOpen(true);
-  };
-
-  const closeCheckOutModal = () => {
-    setIsCheckOutModalOpen(false);
-  };
-
-  const handlePostClick = (postId: string) => {
-    router.push(`/${spaceId}/feed?post=${postId}`, { scroll: false });
-  };
-
-  const handleClosePostDetail = () => {
-    router.push(`/${spaceId}/feed`, { scroll: false });
-  };
+  const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
+  const existsMyCheckin = existsCheckinQuery.data?.exists;
+  const existsMyCheckout = (posts as FeedPost[]).some(
+    post => post.type === 'checkout' && post.author.id === user?.id
+  );
+  const isCheckoutAvailable = existsMyCheckin && !existsMyCheckout;
 
   return (
     <>
       <div className="flex h-screen justify-center overflow-hidden">
         {/* 통합 컨테이너 - 중앙 피드와 PostDetail을 하나로 묶어서 중앙 정렬 */}
-        <div className={`flex pt-6 transition-all duration-300 ${
-          selectedPost ? 'w-[1196px]' : 'w-[672px]'
-        }`}>
+        <div
+          className={`flex pt-6 transition-all duration-300 ${
+            selectedPost ? 'w-[1196px]' : 'w-[672px]'
+          }`}
+        >
           {/* 중앙 피드 영역 */}
-          <div className={`flex flex-col transition-all duration-300 relative ${
-            selectedPost ? 'w-[496px] pl-4 pr-0' : 'w-[672px] px-4'
-          }`}>
+          <div
+            className={`relative flex flex-col transition-all duration-300 ${
+              selectedPost ? 'w-[496px] pl-4 pr-0' : 'w-[672px] px-4'
+            }`}
+          >
             {/* 필터 드롭다운 - 고정 */}
-            <div className="mb-[22px] flex justify-center flex-shrink-0">
+            <div className="mb-[22px] flex flex-shrink-0 justify-center">
               <FilterDropdown value={filterType} onChange={setFilterType} />
             </div>
 
             {/* 피드 컨테이너 */}
-            <div className="flex flex-col overflow-hidden rounded-2xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] flex-1">
+            <div className="flex flex-col overflow-hidden rounded-2xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)]">
               {/* 헤더 - 고정 */}
               <div className="flex-shrink-0">
                 <FeedHeader
@@ -146,8 +93,8 @@ export function FeedPage({ spaceId }: FeedPageProps) {
               </div>
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
-              <div ref={scrollContainerRef} className="flex-1 overflow-y-auto scrollbar-hide">
-                {filteredPosts.map(post => (
+              <div ref={scrollContainerRef} className="scrollbar-hide overflow-y-auto">
+                {posts.map(post => (
                   <div
                     key={post.id}
                     data-post-id={post.id}
@@ -155,7 +102,8 @@ export function FeedPage({ spaceId }: FeedPageProps) {
                     className="cursor-pointer"
                   >
                     <PostCard
-                      post={post}
+                      spaceSlug={spaceSlug}
+                      post={post as FeedPost}
                       onReaction={handleReaction}
                       onCommentClick={handleCommentClick}
                       isSelected={selectedPostId === post.id}
@@ -182,9 +130,9 @@ export function FeedPage({ spaceId }: FeedPageProps) {
 
             {/* PostDetail 활성화 시 선택된 포스트로 이동하는 플로팅 버튼 */}
             {selectedPost && (
-              <GoToFocusedPostButton 
-                selectedPostId={selectedPostId || ''} 
-                onScrollToPost={scrollToSelectedPost}
+              <GoToFocusedPostButton
+                selectedPostId={selectedPostId || ''}
+                onScrollToPost={() => scrollToSelectedPost(selectedPostId)}
               />
             )}
           </div>
@@ -194,13 +142,14 @@ export function FeedPage({ spaceId }: FeedPageProps) {
             <>
               {/* Divider */}
               <div className="mx-5 w-[1px] bg-[#222222] opacity-10" />
-              
+
               {/* PostDetail */}
               <div className="w-[640px]">
                 <div className="sticky top-6 h-[calc(100vh-48px)] overflow-hidden rounded-2xl bg-white shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)]">
-                  <PostDetail 
+                  <PostDetail
+                    spaceSlug={spaceSlug}
                     key={selectedPost.id}
-                    post={selectedPost} 
+                    post={selectedPost as FeedPost}
                     onClose={handleClosePostDetail}
                     onReaction={handleReaction}
                   />
@@ -216,15 +165,23 @@ export function FeedPage({ spaceId }: FeedPageProps) {
             selectedPost ? 'pointer-events-none opacity-0' : 'opacity-100'
           }`}
         >
-          <TeamSummaryCard summary={teamSummary} onViewSummaryClick={handleViewSummaryClick} />
+          {teamSummary && (
+            <TeamSummaryCard summary={teamSummary} onViewSummaryClick={handleViewSummaryClick} />
+          )}
         </div>
       </div>
 
       {/* 플로팅 체크아웃 버튼 */}
-      {!selectedPost && <FloatingCheckoutButton onClick={openCheckOutModal} />}
+      {!selectedPost && isCheckoutAvailable && (
+        <FloatingCheckoutButton onClick={openCheckOutModal} />
+      )}
 
       {/* 체크아웃 작성 모달 */}
-      <CheckOutWriteModal isOpen={isCheckOutModalOpen} onClose={closeCheckOutModal} />
+      <CheckOutWriteModal
+        spaceSlug={spaceSlug}
+        isOpen={isCheckOutModalOpen}
+        onClose={closeCheckOutModal}
+      />
     </>
   );
 }

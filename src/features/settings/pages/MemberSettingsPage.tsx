@@ -127,8 +127,8 @@ export default function MemberSettingsPage() {
   const handleCopyInviteLink = async () => {
     try {
       // TODO: 실제 스페이스 ID를 사용해야 함
-      const spaceId = 'current-space-id';
-      const inviteLink = `${window.location.origin}/invite/${spaceId}`;
+      const spaceSlug = 'current-space-id';
+      const inviteLink = `${window.location.origin}/invite/${spaceSlug}`;
 
       await navigator.clipboard.writeText(inviteLink);
 

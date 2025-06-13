@@ -1,448 +1,206 @@
 name: Scrumble
-lastModified: '2025-06-10T08:48:10Z'
+lastModified: '2025-06-12T10:27:44Z'
 thumbnailUrl: >-
-  https://s3-alpha.figma.com/thumbnails/837b1146-d646-430e-ba35-94eb3fd80d31?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC2S47B3L5%2F20250608%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250608T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=3ade1831eeb0649d4f923987dd5eacb7a187ef4db997b503d9104680673bb515
+  https://s3-alpha.figma.com/thumbnails/3b7c9b82-0800-4341-bc79-5ce0e848f6a6?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC2S47B3L5%2F20250612%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250612T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=f829efb2c5cac434eafacc3d9c53c8303f39b54e262a09575212b6585fbeb6df
 nodes:
-  - id: '794:7648'
-    name: Note Section
+  - id: '916:3906'
+    name: Note Feed
     type: FRAME
-    fills: fill_7XR36T
-    layout: layout_IWK48D
+    fills: fill_OCB8RI
+    strokes: stroke_Z6Q6NW
+    effects: effect_I6D1VD
+    layout: layout_WFM31U
+    borderRadius: 16px
     children:
-      - id: '794:7649'
-        name: C Score_Full
-        type: INSTANCE
-        componentId: '641:19129'
-        componentProperties:
-          - name: 속성 1
-            value: '1'
-            type: VARIANT
-        fills: fill_7XR36T
-        layout: layout_XDNCXI
+      - id: '916:3907'
+        name: Menu
+        type: FRAME
+        fills: fill_V9J0ZC
+        layout: layout_7Z7126
+        borderRadius: 8px
         children:
-          - id: I794:7649;641:17893
-            name: Score
-            type: GROUP
-            layout: layout_1N8NF7
+          - id: '916:3908'
+            name: ri:planet-line
+            type: FRAME
+            fills: fill_OCB8RI
+            layout: layout_V3X267
             children:
-              - id: I794:7649;641:17894
-                name: bar
-                type: RECTANGLE
-                fills: fill_G3SNCC
-                layout: layout_49O4MO
-              - id: I794:7649;641:17895
-                name: Score Button
-                type: FRAME
-                layout: layout_06G8RY
-                children:
-                  - id: I794:7649;641:17896
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17897
-                        name: Tooltip
-                        type: FRAME
-                        layout: layout_D1J01Y
-                        children:
-                          - id: I794:7649;641:17898
-                            name: Text
-                            type: FRAME
-                            fills: fill_Q33B5O
-                            effects: effect_VKMZVF
-                            layout: layout_7AMSYO
-                            borderRadius: 8px
-                            children:
-                              - id: I794:7649;641:17899
-                                name: detail
-                                type: TEXT
-                                textStyle: style_2GADP0
-                                fills: fill_6KBDS3
-                                layout: layout_QT9M86
-                                text: 😵‍💫
-                              - id: I794:7649;641:17900
-                                name: detail
-                                type: TEXT
-                                textStyle: style_2GADP0
-                                fills: fill_6KBDS3
-                                layout: layout_QT9M86
-                                text: 오늘은 완전히 방전
-                          - id: I794:7649;641:17901
-                            name: Frame 27
-                            type: FRAME
-                            layout: layout_1R2LDM
-                            children:
-                              - id: I794:7649;641:17902
-                                name: triangle
-                                type: IMAGE-SVG
-                                fills: fill_Q33B5O
-                                effects: effect_VKMZVF
-                                layout: layout_WQ8CCT
-                                borderRadius: 0px 0px 0px 0px
-                      - id: I794:7649;641:17905
-                        name: Score
-                        type: FRAME
-                        fills: fill_KPZLKM
-                        strokes: stroke_MTYD3J
-                        effects: effect_VKMZVF
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17906
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_QPP250
-                            fills: fill_7XR36T
-                            layout: layout_QT9M86
-                            text: '1'
-                  - id: I794:7649;641:17907
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17914
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17915
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '2'
-                            opacity: 0.5
-                  - id: I794:7649;641:17918
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17925
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17926
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '3'
-                            opacity: 0.5
-                  - id: I794:7649;641:17929
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17936
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17937
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '4'
-                            opacity: 0.5
-                  - id: I794:7649;641:17940
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17947
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17948
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '5'
-                            opacity: 0.5
-                  - id: I794:7649;641:17951
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17958
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17959
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '6'
-                            opacity: 0.5
-                  - id: I794:7649;641:17962
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17969
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17970
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '7'
-                            opacity: 0.5
-                  - id: I794:7649;641:17973
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17980
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17981
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '8'
-                            opacity: 0.5
-                  - id: I794:7649;641:17984
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:17991
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:17992
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '9'
-                            opacity: 0.5
-                  - id: I794:7649;641:17995
-                    name: Point
-                    type: FRAME
-                    layout: layout_LBMMZ6
-                    children:
-                      - id: I794:7649;641:18002
-                        name: Score
-                        type: FRAME
-                        fills: fill_7XR36T
-                        strokes: stroke_D5Q97F
-                        layout: layout_5Y3THA
-                        borderRadius: 100px
-                        children:
-                          - id: I794:7649;641:18003
-                            name: '00'
-                            type: TEXT
-                            textStyle: style_EZA3AC
-                            fills: fill_KQP83A
-                            layout: layout_QT9M86
-                            text: '10'
-                            opacity: 0.5
-components:
-  '641:19129':
-    id: '641:19129'
-    key: e33d938b67be8f446d1f76250d780fc9f4bc58df
-    name: 속성 1=1
-    componentSetId: '641:19135'
-componentSets:
-  '641:19135':
-    id: '641:19135'
-    key: 7714d2ce09521f111d37f76bb846c6e39125d974
-    name: C Score_Full
-    description: ''
+              - id: '916:3909'
+                name: Vector
+                type: IMAGE-SVG
+                fills: fill_HX55JX
+                layout: layout_E8GFG1
+          - id: '916:3910'
+            name: Text
+            type: TEXT
+            textStyle: style_S1EKEP
+            fills: fill_HX55JX
+            layout: layout_0VRZUO
+            text: 스페이스 정보
+      - id: '916:3911'
+        name: Menu
+        type: FRAME
+        fills: fill_V9J0ZC
+        layout: layout_7Z7126
+        borderRadius: 8px
+        children:
+          - id: '916:3912'
+            name: ri:equalizer-2-line
+            type: FRAME
+            fills: fill_OCB8RI
+            layout: layout_V3X267
+            children:
+              - id: '916:3913'
+                name: Vector
+                type: IMAGE-SVG
+                fills: fill_HX55JX
+                layout: layout_3B7AHL
+          - id: '916:3914'
+            name: Text
+            type: TEXT
+            textStyle: style_S1EKEP
+            fills: fill_HX55JX
+            layout: layout_0VRZUO
+            text: 설정
+      - id: '916:3915'
+        name: Line 4
+        type: LINE
+        fills: fill_V9J0ZC
+        strokes: stroke_Z6Q6NW
+        layout: layout_50W9JN
+      - id: '916:3916'
+        name: Menu
+        type: FRAME
+        fills: fill_V9J0ZC
+        layout: layout_7Z7126
+        borderRadius: 8px
+        children:
+          - id: '916:3917'
+            name: ri:mail-line
+            type: FRAME
+            fills: fill_OCB8RI
+            layout: layout_V3X267
+            children:
+              - id: '916:3918'
+                name: Vector
+                type: IMAGE-SVG
+                fills: fill_HX55JX
+                layout: layout_4ID6HQ
+          - id: '916:3919'
+            name: Text
+            type: TEXT
+            textStyle: style_S1EKEP
+            fills: fill_HX55JX
+            layout: layout_0VRZUO
+            text: 피드백
+      - id: '916:3920'
+        name: Menu
+        type: FRAME
+        fills: fill_V9J0ZC
+        layout: layout_7Z7126
+        borderRadius: 8px
+        children:
+          - id: '916:3921'
+            name: Text
+            type: TEXT
+            textStyle: style_LT644T
+            fills: fill_ATYTWM
+            layout: layout_0VRZUO
+            text: 로그아웃
 globalVars:
   styles:
-    fill_7XR36T:
+    fill_OCB8RI:
       - '#FFFFFF'
-    layout_IWK48D:
+    stroke_Z6Q6NW:
+      colors:
+        - rgba(34, 34, 34, 0.08)
+      strokeWeight: 1px
+    effect_I6D1VD:
+      boxShadow: >-
+        4px 4px 20px 0px rgba(160, 160, 160, 0.04), -4px -4px 20px 0px rgba(160,
+        160, 160, 0.04)
+    layout_WFM31U:
       mode: column
+      overflowScroll:
+        - 'y'
       justifyContent: center
-      alignItems: center
-      gap: 16px
-      padding: 10px 30px
+      gap: 8px
+      padding: 10px
       sizing:
         horizontal: fixed
         vertical: hug
       dimensions:
-        width: 600
-    layout_XDNCXI:
-      mode: column
+        width: 200
+    fill_V9J0ZC:
+      - rgba(34, 34, 34, 0.04)
+    layout_7Z7126:
+      mode: row
+      alignItems: center
       alignSelf: stretch
-      gap: 16px
+      gap: 10px
       padding: 10px
       sizing:
         horizontal: fill
         vertical: hug
-    layout_1N8NF7:
+    layout_V3X267:
       mode: none
       sizing:
-        horizontal: fill
+        horizontal: fixed
         vertical: fixed
       dimensions:
-        height: 106
-    fill_G3SNCC:
-      - '#F1F1F1'
-    layout_49O4MO:
+        width: 16
+        height: 16
+    fill_HX55JX:
+      - '#222222'
+    layout_E8GFG1:
       mode: none
       locationRelativeToParent:
-        x: 0
-        'y': 88
+        x: 2
+        'y': 1.48
       dimensions:
-        width: 520
-        height: 4
-    layout_06G8RY:
-      mode: row
-      justifyContent: space-between
-      alignItems: flex-end
-      gap: 12px
-      sizing:
-        horizontal: fixed
-        vertical: hug
-      locationRelativeToParent:
-        x: 0
-        'y': 0
-      dimensions:
-        width: 520
-    layout_LBMMZ6:
-      mode: column
-      justifyContent: center
-      alignItems: center
-      gap: 20px
-      sizing:
-        horizontal: fixed
-        vertical: hug
-      dimensions:
-        width: 32
-    layout_D1J01Y:
-      mode: column
-      alignSelf: stretch
-      sizing:
-        horizontal: fill
-        vertical: hug
-    fill_Q33B5O:
-      - rgba(244, 244, 244, 0.9)
-    effect_VKMZVF:
-      backdropFilter: blur(4px)
-    layout_7AMSYO:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      gap: 2px
-      padding: 12px 16px
-      sizing:
-        horizontal: hug
-        vertical: hug
-    style_2GADP0:
+        width: 12.52
+        height: 12.52
+    style_S1EKEP:
       fontFamily: Pretendard
-      fontWeight: 400
-      fontSize: 13
-      lineHeight: 1.200000029343825em
+      fontWeight: 600
+      fontSize: 12
+      lineHeight: 1.2000000476837158em
       textAlignHorizontal: CENTER
       textAlignVertical: CENTER
-    fill_6KBDS3:
-      - '#000000'
-    layout_QT9M86:
+    layout_0VRZUO:
       mode: none
       sizing:
         horizontal: hug
         vertical: hug
-    layout_1R2LDM:
-      mode: row
-      justifyContent: center
-      alignItems: center
-      alignSelf: stretch
-      gap: 10px
-      sizing:
-        horizontal: fill
-        vertical: hug
-    layout_WQ8CCT:
+    layout_3B7AHL:
       mode: none
-      sizing:
-        horizontal: fixed
-        vertical: fixed
+      locationRelativeToParent:
+        x: 2
+        'y': 2.33
       dimensions:
         width: 12
-        height: 14
-    fill_KPZLKM:
-      - rgba(151, 71, 255, 0.9)
-    stroke_MTYD3J:
-      colors:
-        - rgba(151, 71, 255, 0.2)
-      strokeWeight: 8px
-    layout_5Y3THA:
-      mode: column
-      justifyContent: center
-      alignItems: center
-      gap: 10px
+        height: 11.33
+    layout_50W9JN:
+      mode: none
       sizing:
-        horizontal: fixed
+        horizontal: fill
         vertical: fixed
       dimensions:
-        width: 32
-        height: 32
-    style_QPP250:
+        height: 0
+    layout_4ID6HQ:
+      mode: none
+      locationRelativeToParent:
+        x: 1.33
+        'y': 2
+      dimensions:
+        width: 13.33
+        height: 12
+    style_LT644T:
       fontFamily: Pretendard
       fontWeight: 700
-      fontSize: 15
-      lineHeight: 1.2em
+      fontSize: 12
+      lineHeight: 1.2000000476837158em
       textAlignHorizontal: CENTER
       textAlignVertical: CENTER
-    stroke_D5Q97F:
-      colors:
-        - rgba(34, 34, 34, 0.08)
-      strokeWeight: 1px
-    style_EZA3AC:
-      fontFamily: Pretendard
-      fontWeight: 400
-      fontSize: 11
-      lineHeight: 1.200000069358132em
-      textAlignHorizontal: CENTER
-      textAlignVertical: CENTER
-    fill_KQP83A:
-      - '#222222'
+    fill_ATYTWM:
+      - '#E04646'

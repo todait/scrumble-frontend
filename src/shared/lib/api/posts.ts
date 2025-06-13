@@ -1,0 +1,222 @@
+/**
+ * 포스트 관련 API 함수들
+ * 체크인/체크아웃 포스트 목록 조회, 생성, 수정, 삭제 등
+ */
+
+import type {
+  CreateCheckInApiResponse,
+  CreateCheckOutApiResponse,
+  DeleteCheckInApiResponse,
+  DeleteCheckOutApiResponse,
+  ExistsCheckinApiResponse,
+  GetPostsApiResponse,
+  UpdateCheckInApiResponse,
+  UpdateCheckOutApiResponse,
+} from '@/shared/types/api';
+import type {
+  CreateCheckInRequest,
+  CreateCheckInResponse,
+  CreateCheckOutRequest,
+  CreateCheckOutResponse,
+  DeleteCheckInRequest,
+  DeleteCheckInResponse,
+  DeleteCheckOutRequest,
+  DeleteCheckOutResponse,
+  ExistsCheckinParams,
+  ExistsCheckinResponse,
+  GetPostsParams,
+  GetPostsResponse,
+  Post,
+  UpdateCheckInRequest,
+  UpdateCheckInResponse,
+  UpdateCheckOutRequest,
+  UpdateCheckOutResponse,
+} from '@/shared/types/post';
+import { apiClient } from '../api';
+
+/**
+ * 백엔드 API 응답을 프론트엔드 타입으로 변환하는 함수
+ * snake_case에서 camelCase로 변환하고 필요한 필드 추가
+ */
+const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post => {
+  return {
+    id: apiPost.id,
+    postType: apiPost.post_type,
+    postedAt: apiPost.posted_at,
+    createdAt: apiPost.created_at,
+    updatedAt: apiPost.updated_at,
+    userId: apiPost.user_id,
+    spaceSlug: apiPost.space_slug,
+    author: {
+      id: apiPost.author.id,
+      name: apiPost.author.name,
+      email: apiPost.author.email,
+      avatarURL: apiPost.author.avatar_url || '',
+    },
+    conditionScore: apiPost.condition_score,
+    conditionText: apiPost.condition_text,
+    reflectionText: apiPost.reflection_text,
+  };
+};
+
+/**
+ * 포스트 관련 API 함수들
+ */
+export const postsApi = {
+  /**
+   * 포스트 목록 조회
+   * @param params 조회 파라미터 (스페이스, 날짜, 타입 등)
+   * @returns 변환된 포스트 목록과 페이지네이션 정보
+   */
+  getPosts: async (params: GetPostsParams): Promise<GetPostsResponse> => {
+    const queryParams = new URLSearchParams();
+
+    queryParams.append('spaceSlug', params.spaceSlug);
+
+    if (params.date) {
+      queryParams.append('date', params.date);
+    }
+
+    if (params.types) {
+      queryParams.append('types', params.types);
+    }
+
+    if (params.cursor) {
+      queryParams.append('cursor', params.cursor);
+    }
+
+    if (params.limit) {
+      queryParams.append('limit', params.limit.toString());
+    }
+
+    const { data } = await apiClient.get<GetPostsApiResponse>(
+      `/api/v1/posts?${queryParams.toString()}`
+    );
+
+    return {
+      posts: data.posts.map(convertApiPostToPost),
+      nextCursor: data.nextCursor,
+      hasMore: data.hasMore,
+    };
+  },
+
+  existsCheckin: async (params: ExistsCheckinParams): Promise<ExistsCheckinResponse> => {
+    const queryParams = new URLSearchParams();
+
+    queryParams.append('date', params.date);
+
+    const { data } = await apiClient.get<ExistsCheckinApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/checkin/exists?${queryParams.toString()}`
+    );
+
+    return {
+      exists: data.exists,
+    };
+  },
+
+  createCheckIn: async (params: CreateCheckInRequest): Promise<CreateCheckInResponse> => {
+    const { data } = await apiClient.post<CreateCheckInApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/checkin`,
+      {
+        condition_score: params.conditionScore,
+        condition_text: params.conditionText,
+        ...(params.postedDate ? { posted_date: params.postedDate } : {}),
+      }
+    );
+
+    return {
+      message: data.message,
+      post: {
+        id: data.post.id,
+        conditionScore: data.post.condition_score,
+        conditionText: data.post.condition_text,
+        postedAt: data.post.posted_at,
+        createdAt: data.post.created_at,
+        updatedAt: data.post.updated_at,
+      },
+    };
+  },
+
+  createCheckOut: async (params: CreateCheckOutRequest): Promise<CreateCheckOutResponse> => {
+    const { data } = await apiClient.post<CreateCheckOutApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/checkout`,
+      {
+        reflection_text: params.reflectionText,
+        ...(params.postedDate ? { posted_date: params.postedDate } : {}),
+      }
+    );
+
+    return {
+      message: data.message,
+      post: {
+        id: data.post.id,
+        reflectionText: data.post.reflection_text,
+        postedAt: data.post.posted_at,
+        createdAt: data.post.created_at,
+        updatedAt: data.post.updated_at,
+      },
+    };
+  },
+
+  updateCheckIn: async (params: UpdateCheckInRequest): Promise<UpdateCheckInResponse> => {
+    const { data } = await apiClient.patch<UpdateCheckInApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/checkin/${params.postId}`,
+      {
+        condition_score: params.conditionScore,
+        condition_text: params.conditionText,
+      }
+    );
+
+    return {
+      message: data.message,
+      post: {
+        id: data.post.id,
+        conditionScore: data.post.condition_score,
+        conditionText: data.post.condition_text,
+        postedAt: data.post.posted_at,
+        createdAt: data.post.created_at,
+        updatedAt: data.post.updated_at,
+      },
+    };
+  },
+
+  updateCheckOut: async (params: UpdateCheckOutRequest): Promise<UpdateCheckOutResponse> => {
+    const { data } = await apiClient.patch<UpdateCheckOutApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/checkout/${params.postId}`,
+      {
+        reflection_text: params.reflectionText,
+      }
+    );
+
+    return {
+      message: data.message,
+      post: {
+        id: data.post.id,
+        reflectionText: data.post.reflection_text,
+        postedAt: data.post.posted_at,
+        createdAt: data.post.created_at,
+        updatedAt: data.post.updated_at,
+      },
+    };
+  },
+
+  deleteCheckIn: async (params: DeleteCheckInRequest): Promise<DeleteCheckInResponse> => {
+    const { data } = await apiClient.delete<DeleteCheckInApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/checkin/${params.postId}`
+    );
+
+    return {
+      message: data.message,
+    };
+  },
+
+  deleteCheckOut: async (params: DeleteCheckOutRequest): Promise<DeleteCheckOutResponse> => {
+    const { data } = await apiClient.delete<DeleteCheckOutApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/checkout/${params.postId}`
+    );
+
+    return {
+      message: data.message,
+    };
+  },
+};

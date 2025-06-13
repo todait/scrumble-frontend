@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ToastProvider } from "@/shared/components/feedback/ToastProvider";
 import { getFontClassNames } from "@/shared/lib/fonts";
+import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,8 +21,10 @@ export default function RootLayout({
         className={getFontClassNames()}
         suppressHydrationWarning={true}
       >
-        {children}
-        <ToastProvider />
+        <Providers>
+          {children}
+          <ToastProvider />
+        </Providers>
       </body>
     </html>
   );

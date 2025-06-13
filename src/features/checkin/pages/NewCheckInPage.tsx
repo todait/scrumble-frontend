@@ -1,16 +1,16 @@
 'use client';
 
+import { formatDateForPage } from '@/shared/utils';
 import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckInWriteModal } from '../components/CheckInWriteModal';
 import { TeamStatusCard } from '../components/ui';
-import { formatDateForPage } from '@/shared/utils';
 
 export function NewCheckInPage() {
   const router = useRouter();
   const params = useParams();
-  const spaceId = params.spaceId as string;
+  const spaceSlug = params.spaceSlug as string;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dateString, setDateString] = useState('');
@@ -32,7 +32,7 @@ export function NewCheckInPage() {
   };
 
   const handleBack = () => {
-    router.push(`/${spaceId}`);
+    router.push(`/${spaceSlug}`);
   };
 
   return (

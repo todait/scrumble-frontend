@@ -1,6 +1,8 @@
 'use client';
 
-import { formatDate } from '@/shared/utils';
+import { useCreateCheckIn } from '@/shared/hooks/queries/usePosts';
+import { ErrorCode } from '@/shared/types/api';
+import { formatDate, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,16 +17,36 @@ interface CheckInWriteModalProps {
 export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const router = useRouter();
   const params = useParams();
-  const spaceId = params.spaceId as string;
+  const spaceSlug = params.spaceSlug as string;
   const [dateString, setDateString] = useState('');
+
+  const { mutate: createCheckInMutation } = useCreateCheckIn();
 
   useEffect(() => {
     setDateString(formatDate());
   }, []);
 
   const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
-    // TODO: API 연동
-    router.push(`/${spaceId}/feed`);
+    createCheckInMutation(
+      {
+        spaceSlug,
+        conditionScore: data.score,
+        conditionText: data.message,
+      },
+      {
+        onSuccess: async () => {
+          // 쿼리 무효화가 완료될 때까지 잠시 대기
+          await new Promise(resolve => setTimeout(resolve, 100));
+          router.push(`/${spaceSlug}/feed`);
+        },
+        onError: (err: unknown) => {
+          // CHECKIN_ALREADY_EXISTS 에러의 경우에만 피드로 라우팅
+          if (isErrorCode(err, ErrorCode.CHECKIN_ALREADY_EXISTS)) {
+            router.replace(`/${spaceSlug}/feed`);
+          }
+        },
+      }
+    );
   };
 
   return (

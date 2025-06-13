@@ -2,7 +2,7 @@
 
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine } from '@remixicon/react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ImageViewerProps {
@@ -36,15 +36,15 @@ export function ImageViewer({ images, initialIndex = 0, isOpen, onClose }: Image
     };
   }, [isOpen]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
+  }, [images.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
+  }, [images.length]);
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
     } else if (e.key === 'ArrowLeft') {
@@ -52,14 +52,14 @@ export function ImageViewer({ images, initialIndex = 0, isOpen, onClose }: Image
     } else if (e.key === 'ArrowRight') {
       handleNext();
     }
-  };
+  }, [onClose, handlePrevious, handleNext]);
 
   useEffect(() => {
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isOpen]);
+  }, [isOpen, handleKeyDown]);
 
   if (!isOpen || !mounted) return null;
 

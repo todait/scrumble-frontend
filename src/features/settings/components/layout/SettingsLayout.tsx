@@ -7,7 +7,7 @@ import React from 'react';
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
-  spaceId: string;
+  spaceSlug: string;
 }
 
 interface MenuItem {
@@ -16,18 +16,18 @@ interface MenuItem {
   icon: React.ReactNode;
 }
 
-export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceId }) => {
+export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceSlug }) => {
   const pathname = usePathname();
 
   const menuItems: MenuItem[] = [
     {
       label: '스페이스 설정',
-      href: `/${spaceId}/settings/space`,
+      href: `/${spaceSlug}/settings/space`,
       icon: <Settings className="h-5 w-5" />,
     },
     {
       label: '멤버 관리',
-      href: `/${spaceId}/settings/members`,
+      href: `/${spaceSlug}/settings/members`,
       icon: <Users className="h-5 w-5" />,
     },
   ];

@@ -11,12 +11,13 @@ import { CommentInput } from './CommentInput';
 import { PostContent } from './PostContent';
 
 interface PostDetailProps {
+  spaceSlug: string;
   post: Post;
   onClose: () => void;
   onReaction?: (postId: string, emoji: string) => void;
 }
 
-export function PostDetail({ post, onClose, onReaction }: PostDetailProps) {
+export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailProps) {
   const isCheckIn = post.type === 'checkin';
   const commentInputRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +74,7 @@ export function PostDetail({ post, onClose, onReaction }: PostDetailProps) {
       {/* 포스트 내용 */}
       <div ref={scrollableAreaRef} className="flex-1 overflow-y-auto">
         <PostContent
+          spaceSlug={spaceSlug}
           post={post}
           isDetailView={true}
           onReaction={onReaction}

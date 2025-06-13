@@ -7,29 +7,29 @@ export const ROUTES = {
   // 인증
   AUTH: '/auth',
   AUTH_CALLBACK: '/auth/callback',
-  
+
   // 스페이스
   SPACES: '/spaces',
   SPACE_NEW: '/spaces/new',
   SPACE_WELCOME: '/spaces/welcome',
-  SPACE_INVITE: (spaceId: string) => `/spaces/${spaceId}/invite`,
-  
+  SPACE_INVITE: (spaceSlug: string) => `/spaces/${spaceSlug}/invite`,
+
   // 스페이스 내부 페이지
-  SPACE_DASHBOARD: (spaceId: string) => `/${spaceId}`,
-  SPACE_FEED: (spaceId: string) => `/${spaceId}/feed`,
-  SPACE_CHECKIN: (spaceId: string) => `/${spaceId}/checkin`,
-  SPACE_MY_PAGE: (spaceId: string) => `/${spaceId}/my-page`,
-  SPACE_ACTIVITY: (spaceId: string) => `/${spaceId}/activity`,
-  SPACE_REPORTS: (spaceId: string) => `/${spaceId}/reports`,
-  
+  SPACE_DASHBOARD: (spaceSlug: string) => `/${spaceSlug}`,
+  SPACE_FEED: (spaceSlug: string) => `/${spaceSlug}/feed`,
+  SPACE_CHECKIN: (spaceSlug: string) => `/${spaceSlug}/posts/checkins/new`,
+  SPACE_MY_PAGE: (spaceSlug: string) => `/${spaceSlug}/my-page`,
+  SPACE_ACTIVITY: (spaceSlug: string) => `/${spaceSlug}/activity`,
+  SPACE_REPORTS: (spaceSlug: string) => `/${spaceSlug}/reports`,
+
   // 포스트 작성
-  POST_CHECKIN_NEW: (spaceId: string) => `/${spaceId}/posts/checkins/new`,
-  POST_CHECKOUT_NEW: (spaceId: string) => `/${spaceId}/posts/checkouts/new`,
-  
+  POST_CHECKIN_NEW: (spaceSlug: string) => `/${spaceSlug}/posts/checkins/new`,
+  POST_CHECKOUT_NEW: (spaceSlug: string) => `/${spaceSlug}/posts/checkouts/new`,
+
   // 설정
-  SETTINGS: (spaceId: string) => `/${spaceId}/settings`,
-  SETTINGS_SPACE: (spaceId: string) => `/${spaceId}/settings/space`,
-  SETTINGS_MEMBERS: (spaceId: string) => `/${spaceId}/settings/members`,
+  SETTINGS: (spaceSlug: string) => `/${spaceSlug}/settings`,
+  SETTINGS_SPACE: (spaceSlug: string) => `/${spaceSlug}/settings/space`,
+  SETTINGS_MEMBERS: (spaceSlug: string) => `/${spaceSlug}/settings/members`,
 } as const;
 
 // 임시 스페이스 ID (개발용)

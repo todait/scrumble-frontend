@@ -9,6 +9,7 @@ Scrumble 프론트엔드는 RESTful 원칙을 따르는 일관된 라우팅 구�
 ### 1. 복수형 리소스명 사용
 
 **✅ 올바른 예:**
+
 ```
 /spaces          # 스페이스 목록
 /spaces/new      # 새 스페이스 생성
@@ -16,6 +17,7 @@ Scrumble 프론트엔드는 RESTful 원칙을 따르는 일관된 라우팅 구�
 ```
 
 **❌ 잘못된 예:**
+
 ```
 /space           # 단수형 사용하지 말것
 /space/create    # create 대신 new 사용
@@ -32,13 +34,14 @@ Scrumble 프론트엔드는 RESTful 원칙을 따르는 일관된 라우팅 구�
 
 ```
 /[resource]/[id]/[action]
-/spaces/[spaceId]/invite
-/spaces/[spaceId]/settings
+/spaces/[spaceSlug]/invite
+/spaces/[spaceSlug]/settings
 ```
 
 ## 현재 라우팅 구조
 
 ### 인증 관련
+
 ```
 /auth                    # 로그인 페이지
 ├── page.tsx            # 인증 메인 페이지
@@ -47,13 +50,14 @@ Scrumble 프론트엔드는 RESTful 원칙을 따르는 일관된 라우팅 구�
 ```
 
 ### 스페이스 관련
+
 ```
 /spaces                 # 스페이스 관련 라우트
 ├── new/               # 스페이스 생성
 │   └── page.tsx       # 생성 폼 페이지
 ├── welcome/           # 환영 페이지
 │   └── page.tsx       # 로그인 후 환영 화면
-└── [spaceId]/         # 동적 스페이스 라우트
+└── [spaceSlug]/         # 동적 스페이스 라우트
     ├── page.tsx       # 스페이스 대시보드 (팀 피드)
     ├── invite/        # 팀원 초대
     │   └── page.tsx   # 초대 폼 페이지
@@ -103,7 +107,7 @@ interface ProjectRouteProps {
 
 export default function ProjectRoute({ params }: ProjectRouteProps) {
   const { projectId } = React.use(params);
-  
+
   return <ProjectDetailPage projectId={projectId} />;
 }
 ```
@@ -115,7 +119,7 @@ export default function ProjectRoute({ params }: ProjectRouteProps) {
 ```typescript
 // src/shared/types/routing.ts
 export interface SpaceRouteParams {
-  spaceId: string;
+  spaceSlug: string;
 }
 
 export interface ProjectRouteParams {
@@ -123,8 +127,8 @@ export interface ProjectRouteParams {
 }
 
 // 라우트 파라미터 검증
-export const validateSpaceId = (spaceId: string): boolean => {
-  return /^[a-zA-Z0-9_-]+$/.test(spaceId);
+export const validatespaceSlug = (spaceSlug: string): boolean => {
+  return /^[a-zA-Z0-9_-]+$/.test(spaceSlug);
 };
 ```
 
@@ -139,12 +143,12 @@ const router = useRouter();
 
 // ✅ 올바른 사용
 router.push('/spaces/new');
-router.push(`/spaces/${spaceId}/invite`);
+router.push(`/spaces/${spaceSlug}/invite`);
 router.push('/spaces/welcome');
 
 // ❌ 잘못된 사용 (구 버전)
 router.push('/space/create');
-router.push(`/space/${spaceId}/invite-team`);
+router.push(`/space/${spaceSlug}/invite-team`);
 ```
 
 ### 2. 링크 컴포넌트
@@ -158,7 +162,7 @@ import Link from 'next/link';
 </Link>
 
 // ✅ 동적 링크
-<Link href={`/spaces/${spaceId}/settings`}>
+<Link href={`/spaces/${spaceSlug}/settings`}>
   스페이스 설정
 </Link>
 ```
@@ -181,22 +185,22 @@ useEffect(() => {
 ### 1. 동적 라우트 파라미터
 
 ```typescript
-// app/spaces/[spaceId]/page.tsx
+// app/spaces/[spaceSlug]/page.tsx
 interface SpacePageProps {
   params: Promise<{
-    spaceId: string;
+    spaceSlug: string;
   }>;
 }
 
 export default function SpacePage({ params }: SpacePageProps) {
-  const { spaceId } = React.use(params);
-  
-  // spaceId 검증
-  if (!validateSpaceId(spaceId)) {
+  const { spaceSlug } = React.use(params);
+
+  // spaceSlug 검증
+  if (!validatespaceSlug(spaceSlug)) {
     notFound();
   }
-  
-  return <SpaceDetailPage spaceId={spaceId} />;
+
+  return <SpaceDetailPage spaceSlug={spaceSlug} />;
 }
 ```
 
@@ -219,16 +223,16 @@ if (authStatus === 'success') {
 각 페이지에는 적절한 메타데이터를 설정합니다:
 
 ```typescript
-// app/spaces/[spaceId]/page.tsx
+// app/spaces/[spaceSlug]/page.tsx
 import { Metadata } from 'next';
 
 interface Props {
-  params: Promise<{ spaceId: string }>;
+  params: Promise<{ spaceSlug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { spaceId } = await params;
-  
+  const { spaceSlug } = await params;
+
   return {
     title: `스페이스 대시보드 - Scrumble`,
     description: '팀원들의 일일 체크인을 확인하고 소통하세요',
@@ -268,13 +272,13 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 ```typescript
 // 스페이스 접근 권한 확인
-export function useSpaceAccess(spaceId: string) {
+export function useSpaceAccess(spaceSlug: string) {
   const { user } = useAuth();
-  
+
   const { data: hasAccess, isLoading } = useQuery({
-    queryKey: ['space-access', spaceId, user?.id],
-    queryFn: () => spaceService.checkAccess(spaceId),
-    enabled: !!user?.id && !!spaceId,
+    queryKey: ['space-access', spaceSlug, user?.id],
+    queryFn: () => spaceService.checkAccess(spaceSlug),
+    enabled: !!user?.id && !!spaceSlug,
   });
 
   return { hasAccess, isLoading };
@@ -286,7 +290,7 @@ export function useSpaceAccess(spaceId: string) {
 ### 1. 404 페이지
 
 ```typescript
-// app/spaces/[spaceId]/not-found.tsx
+// app/spaces/[spaceSlug]/not-found.tsx
 export default function SpaceNotFound() {
   return (
     <div className="text-center">
@@ -302,7 +306,7 @@ export default function SpaceNotFound() {
 ### 2. 에러 바운더리
 
 ```typescript
-// app/spaces/[spaceId]/error.tsx
+// app/spaces/[spaceSlug]/error.tsx
 'use client';
 
 export default function SpaceError({
@@ -401,26 +405,30 @@ export default function robots() {
 ## 자주 하는 실수
 
 ### ❌ 단수형 리소스명
+
 ```typescript
 router.push('/space/create'); // 잘못됨
 ```
 
 ### ❌ 불일치한 액션명
+
 ```typescript
-router.push('/spaces/create');      // create 사용
+router.push('/spaces/create'); // create 사용
 router.push('/spaces/invite-team'); // kebab-case 사용
 ```
 
 ### ❌ 중첩되지 않은 관련 액션
+
 ```typescript
 router.push('/invite-team/space-id'); // 잘못된 구조
 ```
 
 ### ✅ 올바른 사용
+
 ```typescript
-router.push('/spaces/new');              // 복수형 + new
-router.push('/spaces/[id]/invite');      // 일관된 패턴
-router.push('/spaces/[id]/settings');    // 명확한 의미
+router.push('/spaces/new'); // 복수형 + new
+router.push('/spaces/[id]/invite'); // 일관된 패턴
+router.push('/spaces/[id]/settings'); // 명확한 의미
 ```
 
 ## 참고 자료
