@@ -15,7 +15,7 @@ import {
   RiUser6Line,
 } from '@remixicon/react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { SettingsDropdown } from './SettingsDropdown';
@@ -33,6 +33,8 @@ interface SidebarNavProps {
 
 export function SidebarNav({ spaceSlug }: SidebarNavProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isPostDetailOpen = !!searchParams.get('post');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
@@ -115,8 +117,8 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
 
   return (
     <>
-      {/* 데스크톱 사이드바 - 768px 이상에서만 표시 */}
-      <div className="fixed left-2.5 top-0 z-10 hidden h-screen flex-col justify-between py-8 md:flex">
+      {/* 데스크톱 사이드바 - 1024px 이상에서만 표시 */}
+      <div className="fixed left-2.5 top-0 z-10 hidden h-screen flex-col justify-between py-8 lg:flex">
         {/* 메인 네비게이션 아이템들 - 중앙에 위치 */}
         <div className="flex flex-1 items-center">
           <nav className="flex flex-col gap-[7px]">
@@ -162,8 +164,10 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
         </div>
       </div>
 
-      {/* 모바일 바텀 네비게이션 - 768px 미만에서만 표시 */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white md:hidden">
+      {/* 모바일 바텀 네비게이션 - PostDetail 열렸을 때는 숨김, 1024px 이상에서도 숨김 */}
+      <div className={`fixed bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white ${
+        isPostDetailOpen ? 'hidden' : 'lg:hidden'
+      }`}>
         <nav className="flex items-center justify-around px-4 py-2">
           {navItems.map(item => {
             const Icon = isActive(item.href) ? item.activeIcon : item.icon;
@@ -187,26 +191,6 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
         </nav>
       </div>
 
-      {/* 모바일 상단 헤더 네비게이션 - 768px 미만에서만 표시 */}
-      <div className="fixed left-0 right-0 top-0 z-20 border-b border-gray-200 bg-white md:hidden">
-        <div className="flex items-center justify-end p-4">
-          <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-            <button className="flex h-10 w-10 items-center justify-center rounded-lg transition-all hover:bg-[rgba(34,34,34,0.08)]">
-              <SettingsIcon className="h-6 w-6 text-[#222222] opacity-30" />
-            </button>
-
-            {/* 모바일 드롭다운 메뉴 */}
-            {isDropdownOpen && (
-              <SettingsDropdown
-                ref={dropdownRef}
-                spaceSlug={spaceSlug}
-                onLogout={handleLogout}
-                className="absolute right-0 top-full mt-2"
-              />
-            )}
-          </div>
-        </div>
-      </div>
     </>
   );
 }

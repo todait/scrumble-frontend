@@ -21,8 +21,11 @@ import {
 import type { Post as FeedPost } from '@/features/feed/types/feed.types';
 import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
+import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
+import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
+import { RiSettings6Fill, RiSettings6Line } from '@remixicon/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface FeedPageProps {
   spaceSlug: string;
@@ -31,6 +34,13 @@ interface FeedPageProps {
 export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const { logout } = useAuthHook();
+  
+  // 설정 드롭다운 상태
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   // 데이터 및 상태 관리
   const {
     posts,
@@ -49,6 +59,26 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     posts.length
   );
 
+  // 설정 드롭다운 핸들러
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200);
+  };
+
+  const handleLogout = () => {
+    setIsDropdownOpen(false);
+    logout();
+  };
+
   useEffect(() => {
     if (
       !existsCheckinQuery.isLoading &&
@@ -59,6 +89,15 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     }
   }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug]);
 
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // URL 파라미터 처리
   const searchParams = useSearchParams();
   const selectedPostId = searchParams.get('post');
@@ -68,29 +107,54 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     post => post.type === 'checkout' && post.author.id === user?.id
   );
   const isCheckoutAvailable = existsMyCheckin && !existsMyCheckout;
+  
+  // 설정 아이콘 상태
+  const SettingsIcon = RiSettings6Line;
 
   return (
     <>
       <div className="flex h-screen justify-center overflow-hidden">
         {/* 통합 컨테이너 - 중앙 피드와 PostDetail을 하나로 묶어서 중앙 정렬 */}
         <div
-          className={`flex pt-6 transition-all duration-300 ${
-            selectedPost ? 'w-[1196px]' : 'w-[672px]'
+          className={`flex w-full transition-all duration-300 ${
+            selectedPost 
+              ? 'pt-2 lg:w-[1196px] lg:pt-6' 
+              : 'pt-4 md:w-[672px] md:pt-6'
           }`}
         >
-          {/* 중앙 피드 영역 */}
+          {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
-            className={`relative flex flex-col transition-all duration-300 ${
-              selectedPost ? 'w-[496px] pl-4 pr-0' : 'w-[672px] px-4'
+            className={`relative flex w-full flex-col px-2 transition-all duration-300 md:px-4 ${
+              selectedPost ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0' : 'md:w-[672px]'
             }`}
           >
-            {/* 필터 드롭다운 - 고정 */}
-            <div className="mb-[22px] flex flex-shrink-0 justify-center">
+            {/* 필터 드롭다운과 설정 아이콘 - 고정 */}
+            <div className="mb-4 flex flex-shrink-0 items-center justify-between px-2 md:mb-[22px] md:justify-center md:px-0">
+              {/* 모바일에서만 보이는 빈 공간 */}
+              <div className="w-10 md:hidden"></div>
+              
               <FilterDropdown value={filterType} onChange={setFilterType} />
+              
+              {/* 모바일 설정 아이콘 */}
+              <div className="relative md:hidden" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                <button className="flex h-10 w-10 items-center justify-center rounded-lg transition-all hover:bg-[rgba(34,34,34,0.08)]">
+                  <SettingsIcon className="h-6 w-6 text-[#222222] opacity-30" />
+                </button>
+
+                {/* 모바일 드롭다운 메뉴 */}
+                {isDropdownOpen && (
+                  <SettingsDropdown
+                    ref={dropdownRef}
+                    spaceSlug={spaceSlug}
+                    onLogout={handleLogout}
+                    className="absolute right-0 top-full mt-2"
+                  />
+                )}
+              </div>
             </div>
 
             {/* 피드 컨테이너 */}
-            <div className="flex flex-col overflow-hidden rounded-2xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)]">
+            <div className="flex flex-col overflow-hidden rounded-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-2xl">
               {/* 헤더 - 고정 */}
               <div className="flex-shrink-0">
                 <FeedHeader
@@ -101,7 +165,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
               </div>
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
-              <div ref={scrollContainerRef} className="scrollbar-hide overflow-y-auto">
+              <div ref={scrollContainerRef} className="scrollbar-hide overflow-y-auto pb-20 md:pb-0">
                 {isLoading ? (
                   <FeedListSkeleton count={6} />
                 ) : (
@@ -125,14 +189,14 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
                     {/* 마지막 메시지 - 스크롤이 필요한 경우에만 표시 */}
                     {showScrollToTop && (
-                      <div className="flex flex-col items-center justify-center gap-2 bg-white pb-[40px] pt-[30px]">
+                      <div className="flex flex-col items-center justify-center gap-2 bg-white pb-6 pt-6 md:pb-[40px] md:pt-[30px]">
                         <button
                           onClick={scrollToTop}
-                          className="text-[13px] font-bold text-[#222222] opacity-80 hover:opacity-100"
+                          className="text-xs font-bold text-[#222222] opacity-80 hover:opacity-100 md:text-[13px]"
                         >
                           맨 위로 가기
                         </button>
-                        <p className="text-[13px] text-[#222222] opacity-30">
+                        <p className="text-xs text-[#222222] opacity-30 md:text-[13px]">
                           마지막 스크럼노트까지 읽었어요.
                         </p>
                       </div>
@@ -151,15 +215,12 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             )}
           </div>
 
-          {/* PostDetail 영역 - 고정 위치 */}
+          {/* PostDetail 영역 */}
           {selectedPost && (
             <>
-              {/* Divider */}
-              <div className="mx-5 w-[1px] bg-[#222222] opacity-10" />
-
-              {/* PostDetail */}
-              <div className="w-[640px]">
-                <div className="sticky top-6 h-[calc(100vh-48px)] overflow-hidden rounded-2xl bg-white shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)]">
+              {/* 모바일 PostDetail - 전체 화면 */}
+              <div className="flex w-full flex-col px-2 lg:hidden">
+                <div className="h-[calc(100vh-16px)] overflow-hidden rounded-xl bg-white shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-2xl">
                   <PostDetail
                     spaceSlug={spaceSlug}
                     key={selectedPost.id}
@@ -169,13 +230,32 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                   />
                 </div>
               </div>
+
+              {/* 데스크톱 PostDetail */}
+              <div className="hidden lg:flex">
+                {/* Divider */}
+                <div className="mx-5 w-[1px] bg-[#222222] opacity-10" />
+
+                {/* PostDetail */}
+                <div className="w-[640px]">
+                  <div className="sticky top-6 h-[calc(100vh-48px)] overflow-hidden rounded-2xl bg-white shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)]">
+                    <PostDetail
+                      spaceSlug={spaceSlug}
+                      key={selectedPost.id}
+                      post={selectedPost as FeedPost}
+                      onClose={handleClosePostDetail}
+                      onReaction={handleReaction}
+                    />
+                  </div>
+                </div>
+              </div>
             </>
           )}
         </div>
 
-        {/* 오른쪽 요약 카드 - 고정 위치 */}
+        {/* 오른쪽 요약 카드 - 데스크톱에서만 표시 */}
         <div
-          className={`fixed left-[calc(50%+320px+24px)] top-[90px] hidden transition-all duration-300 lg:block ${
+          className={`fixed left-[calc(50%+320px+24px)] top-[90px] hidden transition-all duration-300 xl:block ${
             selectedPost ? 'pointer-events-none opacity-0' : 'opacity-100'
           }`}
         >
@@ -185,9 +265,15 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         </div>
       </div>
 
-      {/* 플로팅 체크아웃 버튼 */}
+      {/* 플로팅 체크아웃 버튼 - 모바일에서 위치 조정 */}
       {!selectedPost && isCheckoutAvailable && (
-        <FloatingCheckoutButton onClick={openCheckOutModal} />
+        <div className="fixed bottom-24 left-0 right-0 z-50 flex justify-center px-4 md:bottom-8 md:px-8">
+          <div className="w-full max-w-[1200px]">
+            <div className="flex justify-end">
+              <FloatingCheckoutButton onClick={openCheckOutModal} />
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 체크아웃 작성 모달 */}

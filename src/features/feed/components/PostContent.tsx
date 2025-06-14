@@ -13,11 +13,11 @@ import {
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
-import { RiArrowRightSLine, RiDeleteBinLine, RiEdit2Line } from '@remixicon/react';
+import { RiArrowRightSLine, RiDeleteBinLine, RiEdit2Line, RiMore2Line } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import router from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import type { Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
 
@@ -44,6 +44,8 @@ export function PostContent({
   const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
@@ -56,6 +58,20 @@ export function PostContent({
     spaceSlug,
     date: formatDateToAPIString(new Date()),
   });
+
+  // 모바일 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setShowMobileMenu(false);
+      }
+    };
+
+    if (showMobileMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showMobileMenu]);
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -119,10 +135,71 @@ export function PostContent({
     setShowToast(null);
   };
 
+  const handleMobileMenuToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMobileMenu(!showMobileMenu);
+  };
+
+  const handleMobileEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMobileMenu(false);
+    handleEdit();
+  };
+
+  const handleMobileDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMobileMenu(false);
+    handleDelete();
+  };
+
   const profileImageSize = isDetailView ? 48 : 40;
-  const nameTextSize = isDetailView ? 'text-[17px]' : 'text-[15px]';
-  const contentTextSize = isDetailView ? 'text-[16px] leading-[1.5]' : 'text-[15px] leading-[1.4]';
-  const padding = isDetailView ? 'p-6' : 'p-[30px]';
+  const nameTextSize = isDetailView ? 'text-lg md:text-[17px]' : 'text-base md:text-[15px]';
+  const contentTextSize = isDetailView 
+    ? 'text-base leading-[1.5] md:text-[16px] md:leading-[1.5]' 
+    : 'text-base leading-[1.4] md:text-[15px] md:leading-[1.4]';
+  const padding = isDetailView ? 'p-4 md:p-6' : 'p-5 md:p-[30px]';
+
+  // 모바일 더보기 메뉴 컴포넌트
+  const MobileMoreMenu = forwardRef<HTMLDivElement, {
+    showMenu: boolean;
+    onMenuToggle: (e: React.MouseEvent) => void;
+    onEdit: (e: React.MouseEvent) => void;
+    onDelete: (e: React.MouseEvent) => void;
+  }>(({ showMenu, onMenuToggle, onEdit, onDelete }, ref) => (
+    <div ref={ref} className="relative md:hidden">
+      <button
+        onClick={onMenuToggle}
+        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[rgba(34,34,34,0.08)]"
+      >
+        <RiMore2Line className="h-5 w-5 text-[#222222] opacity-60" />
+      </button>
+      
+      {/* 모바일 드롭다운 메뉴 */}
+      {showMenu && (
+        <div className="absolute right-0 top-full z-30 mt-1 flex min-w-[120px] flex-col rounded-lg bg-white p-1 shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
+          <button
+            onClick={onEdit}
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-[#F1F1F1]"
+          >
+            <RiEdit2Line className="h-4 w-4 text-[#222222]" />
+            <span className="font-medium text-[#222222]">수정</span>
+          </button>
+          <button
+            onClick={onDelete}
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[#E04646] transition-colors hover:bg-[rgba(224,70,70,0.04)]"
+          >
+            <RiDeleteBinLine className="h-4 w-4" />
+            <span className="font-medium">삭제</span>
+          </button>
+        </div>
+      )}
+    </div>
+  ));
+
+  MobileMoreMenu.displayName = 'MobileMoreMenu';
 
   return (
     <>
@@ -140,9 +217,9 @@ export function PostContent({
           <div className="absolute left-0 top-0 h-full w-1 bg-[#9747FF]" />
         )}
 
-        {/* 내 포스트일 때 수정/삭제 버튼 - 호버 시 표시 (카드 뷰에서만) */}
+        {/* 내 포스트일 때 수정/삭제 버튼 - 데스크톱 호버 메뉴 (카드 뷰에서만) */}
         {isMyPost && !isDetailView && (
-          <div className="absolute right-[10px] top-[10px] z-10 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="absolute right-[10px] top-[10px] z-10 hidden opacity-0 transition-opacity group-hover:opacity-100 md:block">
             <div className="flex h-[50px] w-[150px] items-center justify-center gap-[10px] rounded-lg bg-white p-2 shadow-[0px_2px_8px_rgba(0,0,0,0.08)]">
               <button
                 onClick={e => {
@@ -196,7 +273,7 @@ export function PostContent({
               {/* 타입과 시간 - 프로필 이미지 하단에서 0.5px 위 */}
               <div className="flex items-center gap-1" style={{ transform: 'translateY(-1px)' }}>
                 <StatusBadge type={isCheckIn ? 'checkin' : 'checkout'} />
-                <span className="text-[13px] leading-none text-[#222222] opacity-40">
+                <span className="text-sm leading-none text-[#222222] opacity-40 md:text-[13px]">
                   {formatTime(post.createdAt)}
                   {post.updatedAt &&
                     new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() >
@@ -205,28 +282,70 @@ export function PostContent({
                 </span>
               </div>
             </div>
+            
+            {/* 체크인 점수 + 더보기 메뉴 */}
             {isCheckIn && 'conditionScore' in post && (
-              <div className="flex-shrink-0 rounded border border-[rgba(34,34,34,0.08)] px-2 py-2">
-                <span className="text-[15px] text-[#222222] opacity-80">
-                  {post.conditionEmoji || getConditionLabel(post.conditionScore)}{' '}
-                  {post.conditionScore}점
-                </span>
+              <div className="flex flex-shrink-0 items-center gap-2">
+                <div className="rounded border border-[rgba(34,34,34,0.08)] px-2 py-2">
+                  <span className="text-base text-[#222222] opacity-80 md:text-[15px]">
+                    {post.conditionEmoji || getConditionLabel(post.conditionScore)}{' '}
+                    {post.conditionScore}점
+                  </span>
+                </div>
+                
+                {/* 모바일 더보기 메뉴 - 내 포스트일 때만 표시 */}
+                {isMyPost && !isDetailView && (
+                  <MobileMoreMenu
+                    ref={mobileMenuRef}
+                    showMenu={showMobileMenu}
+                    onMenuToggle={handleMobileMenuToggle}
+                    onEdit={handleMobileEdit}
+                    onDelete={handleMobileDelete}
+                  />
+                )}
+              </div>
+            )}
+            
+            {/* 체크아웃 더보기 메뉴 - 체크인 점수가 없을 때 */}
+            {isCheckOut && isMyPost && !isDetailView && (
+              <div className="flex-shrink-0">
+                <MobileMoreMenu
+                  ref={mobileMenuRef}
+                  showMenu={showMobileMenu}
+                  onMenuToggle={handleMobileMenuToggle}
+                  onEdit={handleMobileEdit}
+                  onDelete={handleMobileDelete}
+                />
               </div>
             )}
           </div>
 
           {/* 본문 */}
           <div className="py-2">
-            <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
-              {showFullContent ? content : contentPreview}
-            </p>
-            {content.length > 200 && !showFullContent && (
-              <button
-                onClick={() => setShowFullContent(true)}
-                className={`mt-1 font-medium text-[#222222] opacity-80 hover:opacity-100 ${contentTextSize}`}
-              >
-                ...더보기
-              </button>
+            {showFullContent ? (
+              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
+                {content}
+              </p>
+            ) : (
+              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
+                {content.length > 200 ? (
+                  <>
+                    {contentPreview.replace(/\.\.\.$/, '')}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowFullContent(true);
+                      }}
+                      className="ml-1 text-base font-medium text-[#A0A0A0] hover:text-[#808080] md:text-[15px]"
+                    >
+                      ...더보기
+                    </button>
+                  </>
+                ) : (
+                  content
+                )}
+              </p>
             )}
           </div>
 
@@ -260,7 +379,7 @@ export function PostContent({
                     e.stopPropagation();
                     onReaction?.(post.id, reaction.emoji);
                   }}
-                  className={`flex items-center gap-1 rounded-full border px-[10px] py-[6px] text-[13px] transition-colors ${
+                  className={`flex items-center gap-1 rounded-full border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
                     reaction.userIds.includes(user?.id || '')
                       ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
                       : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
@@ -296,15 +415,15 @@ export function PostContent({
                       />
                     ))}
                 </div>
-                <span className="text-[13px] leading-[1.5] text-[#222222] opacity-80">
+                <span className="text-sm leading-[1.5] text-[#222222] opacity-80 md:text-[13px]">
                   {post.commentCount}개의 댓글
                 </span>
                 {post.lastCommentTime && (
                   <>
-                    <span className="text-[13px] leading-[1.5] text-[#222222] opacity-40 group-hover:hidden">
+                    <span className="text-sm leading-[1.5] text-[#222222] opacity-40 group-hover:hidden md:text-[13px]">
                       {formatDistanceToNow(post.lastCommentTime, { addSuffix: true, locale: ko })}
                     </span>
-                    <span className="hidden text-[13px] leading-[1.5] text-[#222222] opacity-40 group-hover:block">
+                    <span className="hidden text-sm leading-[1.5] text-[#222222] opacity-40 group-hover:block md:text-[13px]">
                       보기
                     </span>
                   </>

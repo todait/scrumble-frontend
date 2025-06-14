@@ -142,17 +142,17 @@ export default function SpaceSettingsPage() {
   };
 
   return (
-    <div className="px-8 py-8">
-      <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold text-[#181818]">스페이스 설정</h1>
-        <p className="text-gray-600">스페이스의 기본 정보와 설정을 관리하세요</p>
+    <div className="px-4 py-4 md:px-8 md:py-8">
+      <div className="mb-6 md:mb-8">
+        <h1 className="mb-2 text-2xl font-bold text-[#181818] md:text-3xl">스페이스 설정</h1>
+        <p className="text-sm text-gray-600 md:text-base">스페이스의 기본 정보와 설정을 관리하세요</p>
       </div>
 
       <div className="space-y-8">
         {/* 변경사항 저장 버튼 */}
         {hasChanges && (
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center space-x-2">
                 <svg
                   className="h-5 w-5 text-blue-600"
@@ -172,13 +172,13 @@ export default function SpaceSettingsPage() {
               <div className="flex space-x-2">
                 <button
                   onClick={handleCancelChanges}
-                  className="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600"
+                  className="flex-1 rounded-lg bg-gray-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600 md:flex-none md:px-4"
                 >
                   취소
                 </button>
                 <button
                   onClick={handleSaveChanges}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                  className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 md:flex-none md:px-4"
                 >
                   변경사항 저장
                 </button>
@@ -188,9 +188,9 @@ export default function SpaceSettingsPage() {
         )}
 
         {/* 스페이스 아이콘 설정 */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">스페이스 아이콘</h2>
-          <div className="flex items-start space-x-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 md:p-6">
+          <h2 className="mb-4 text-base font-semibold text-gray-900 md:text-lg">스페이스 아이콘</h2>
+          <div className="flex flex-col items-start space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
             <div className="relative">
               <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-2 border-gray-200 bg-gray-100">
                 {localSpaceIconPreview ? (
@@ -238,8 +238,8 @@ export default function SpaceSettingsPage() {
                 </div>
               )}
             </div>
-            <div>
-              <label className="inline-flex cursor-pointer items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
+            <div className="w-full sm:w-auto">
+              <label className="inline-flex cursor-pointer items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 md:px-4">
                 <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -257,7 +257,7 @@ export default function SpaceSettingsPage() {
                 />
               </label>
               <div className="mt-3 text-sm text-gray-500">
-                <p className="mb-1 font-medium">권장사항:</p>
+                <p className="mb-1 text-xs font-medium md:text-sm">권장사항:</p>
                 <ul className="space-y-1 text-xs">
                   <li>• 최소 132x132px 이상의 정사각형 이미지</li>
                   <li>• 단색 배경과 명확한 그래픽/로고 사용</li>
@@ -270,8 +270,8 @@ export default function SpaceSettingsPage() {
         </div>
 
         {/* 스페이스 이름 설정 */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">스페이스 이름</h2>
+        <div className="rounded-lg border border-gray-200 bg-white p-4 md:p-6">
+          <h2 className="mb-4 text-base font-semibold text-gray-900 md:text-lg">스페이스 이름</h2>
           <div className="flex items-center space-x-4">
             {isEditingName ? (
               <div className="flex flex-1 items-center space-x-3">
@@ -304,10 +304,10 @@ export default function SpaceSettingsPage() {
               </div>
             ) : (
               <div className="flex flex-1 items-center justify-between">
-                <span className="text-lg font-medium text-gray-900">{localSpaceName}</span>
+                <span className="text-base font-medium text-gray-900 md:text-lg">{localSpaceName}</span>
                 <button
                   onClick={handleNameEdit}
-                  className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                  className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 md:px-4"
                 >
                   수정
                 </button>
@@ -317,18 +317,18 @@ export default function SpaceSettingsPage() {
         </div>
 
         {/* 스페이스 삭제 */}
-        <div className="rounded-lg border border-red-200 bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-red-900">위험 구역</h2>
-          <div className="flex items-center justify-between">
+        <div className="rounded-lg border border-red-200 bg-white p-4 md:p-6">
+          <h2 className="mb-4 text-base font-semibold text-red-900 md:text-lg">위험 구역</h2>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-sm font-medium text-red-900">스페이스 삭제</h3>
-              <p className="text-sm text-red-700">
+              <p className="text-xs text-red-700 md:text-sm">
                 이 작업은 되돌릴 수 없습니다. 모든 데이터가 영구적으로 삭제됩니다.
               </p>
             </div>
             <button
               onClick={handleDeleteSpace}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+              className="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 sm:w-auto md:px-4"
             >
               스페이스 삭제
             </button>
@@ -338,8 +338,8 @@ export default function SpaceSettingsPage() {
 
       {/* 스페이스 삭제 확인 다이얼로그 */}
       {showDeleteDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-4 md:p-6">
             <div className="mb-4 flex items-center">
               <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
                 <svg
@@ -360,8 +360,8 @@ export default function SpaceSettingsPage() {
             </div>
 
             <div className="mb-4">
-              <p className="mb-2 text-gray-600">정말로 이 스페이스를 삭제하시겠습니까?</p>
-              <p className="mb-4 text-sm text-red-600">
+              <p className="mb-2 text-sm text-gray-600 md:text-base">정말로 이 스페이스를 삭제하시겠습니까?</p>
+              <p className="mb-4 text-xs text-red-600 md:text-sm">
                 이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.
               </p>
 

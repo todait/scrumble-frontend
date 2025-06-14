@@ -11,6 +11,8 @@ interface PostFormProps {
   placeholder?: string;
   initialMessage?: string;
   children?: React.ReactNode; // ScoreSelector 등 추가 컴포넌트를 위한 slot
+  onTextAreaClick?: () => void; // 텍스트 영역 클릭 콜백
+  submitDisabled?: boolean; // 추가 제출 비활성화 조건
 }
 
 export const PostForm = ({
@@ -20,6 +22,8 @@ export const PostForm = ({
   placeholder = '오늘 하루는 어떠셨나요? 팀원들과 나누고 싶은 이야기를 들려주세요.',
   initialMessage = '',
   children,
+  onTextAreaClick,
+  submitDisabled = false,
 }: PostFormProps) => {
   const [message, setMessage] = useState(initialMessage);
 
@@ -33,14 +37,17 @@ export const PostForm = ({
     }
   };
 
-  const isSubmitDisabled = !message.trim() || disabled || isLoading;
+  const isSubmitDisabled = !message.trim() || disabled || isLoading || submitDisabled;
 
   return (
     <>
       {children}
 
-      <div className="px-7">
-        <div className="rounded-xl p-3">
+      <div className="px-2 md:px-7">
+        <div 
+          className="rounded-xl p-3 cursor-text"
+          onClick={onTextAreaClick}
+        >
           <textarea
             value={message}
             onChange={e => setMessage(e.target.value)}

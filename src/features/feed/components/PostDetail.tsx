@@ -59,8 +59,8 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* 헤더 */}
-      <div className="flex items-center justify-between border-b border-[rgba(34,34,34,0.08)] px-[30px] py-5">
-        <h2 className="text-lg font-bold text-[#222222]">
+      <div className="flex items-center justify-between border-b border-[rgba(34,34,34,0.08)] px-4 py-4 md:px-[30px] md:py-5">
+        <h2 className="text-base font-bold text-[#222222] md:text-lg">
           {post.author.name}님의 {isCheckIn ? '체크인' : '체크아웃'}
         </h2>
         <button
@@ -82,14 +82,14 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
 
         {/* 댓글 섹션 */}
         {post.commentCount > 0 && (
-          <div ref={commentsContainerRef} className="overflow-hidden px-[30px] pb-[30px]">
+          <div ref={commentsContainerRef} className="overflow-hidden px-4 pb-6 md:px-[30px] md:pb-[30px]">
             {/* Divider with text */}
-            <div className="relative -mx-[30px] flex items-center py-4">
+            <div className="relative -mx-4 flex items-center py-4 md:-mx-[30px]">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-[rgba(34,34,34,0.08)]"></div>
               </div>
-              <div className="relative ml-[18px] bg-white px-3">
-                <span className="text-[11px] font-medium text-[#222222] opacity-40">
+              <div className="relative ml-3 bg-white px-2 md:ml-[18px] md:px-3">
+                <span className="text-xs font-medium text-[#222222] opacity-40 md:text-[11px]">
                   댓글 {post.commentCount}
                 </span>
               </div>
@@ -105,14 +105,14 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
                   />
                   <div className="min-w-0 flex-1 overflow-hidden">
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="text-[14px] font-bold text-[#222222]">
+                      <span className="text-sm font-bold text-[#222222] md:text-[14px]">
                         {comment.author.name}
                       </span>
-                      <span className="text-[13px] text-[#222222] opacity-40">
+                      <span className="text-xs text-[#222222] opacity-40 md:text-[13px]">
                         {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko })}
                       </span>
                     </div>
-                    <p className="text-[14px] text-[#222222]">{comment.content}</p>
+                    <p className="text-sm text-[#222222] md:text-[14px]">{comment.content}</p>
                     {/* 댓글 이미지 */}
                     {comment.images && comment.images.length > 0 && (
                       <ImageGallery images={comment.images} size="small" className="mt-2" />
@@ -126,7 +126,7 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
       </div>
 
       {/* 댓글 입력 영역 */}
-      <div ref={commentInputRef} className="bg-white px-[30px] pb-5 pt-2">
+      <div ref={commentInputRef} className="bg-white px-4 pb-4 pt-2 md:px-[30px] md:pb-5">
         <CommentInput authorName={post.author.name} onSubmit={handleCommentSubmit} />
       </div>
     </div>

@@ -9,9 +9,10 @@ interface CheckInFormProps {
   disabled?: boolean;
   isLoading?: boolean;
   initialData?: { score: number; message: string; images: string[] };
+  onScoreRequiredToast?: () => void; // 점수 선택 요구 Toast 콜백
 }
 
-export const CheckInForm = ({ onSubmit, disabled = false, isLoading = false, initialData }: CheckInFormProps) => {
+export const CheckInForm = ({ onSubmit, disabled = false, isLoading = false, initialData, onScoreRequiredToast }: CheckInFormProps) => {
   const [selectedScore, setSelectedScore] = useState<number | null>(initialData?.score || null);
 
   useEffect(() => {
@@ -21,8 +22,20 @@ export const CheckInForm = ({ onSubmit, disabled = false, isLoading = false, ini
   }, [initialData]);
 
   const handleSubmit = (data: { message: string; images: string[] }) => {
+    if (!selectedScore) {
+      if (onScoreRequiredToast) {
+        onScoreRequiredToast();
+      }
+      return;
+    }
     if (selectedScore && data.message.trim()) {
       onSubmit({ score: selectedScore, message: data.message, images: data.images });
+    }
+  };
+
+  const handleTextAreaClick = () => {
+    if (!selectedScore && onScoreRequiredToast) {
+      onScoreRequiredToast();
     }
   };
 
@@ -33,10 +46,12 @@ export const CheckInForm = ({ onSubmit, disabled = false, isLoading = false, ini
   return (
     <PostForm
       onSubmit={handleSubmit}
-      disabled={disabled || !selectedScore}
+      disabled={disabled}
+      submitDisabled={!selectedScore}
       isLoading={isLoading}
       initialMessage={initialData?.message}
       placeholder={placeholder}
+      onTextAreaClick={handleTextAreaClick}
     >
       <ScoreSelector value={selectedScore} onChange={score => setSelectedScore(score || null)} />
     </PostForm>
