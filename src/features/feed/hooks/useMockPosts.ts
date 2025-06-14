@@ -27,6 +27,7 @@ export const useMockPosts = (options: UseMockPostsOptions) => {
       nextCursor: undefined,
     },
     isLoading: false,
+    isFetching: false,
     isError: false,
     error: null,
     refetch: () => Promise.resolve(),

@@ -14,7 +14,7 @@ interface CheckOutWriteModalProps {
 }
 
 export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWriteModalProps) {
-  const { mutate: createCheckOut } = useCreateCheckOut();
+  const { mutate: createCheckOut, isPending } = useCreateCheckOut();
   const [dateString, setDateString] = useState('');
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
           유연하게 만들어줄 수 있답니다.
         </p>
       </div>
-      <CheckOutForm onSubmit={handleSubmit} />
+      <CheckOutForm onSubmit={handleSubmit} disabled={isPending} isLoading={isPending} />
     </CheckInModalLayout>
   );
 }

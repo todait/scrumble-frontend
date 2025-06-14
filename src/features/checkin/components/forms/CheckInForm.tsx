@@ -7,10 +7,11 @@ import { PostForm } from '@/shared/components/ui';
 interface CheckInFormProps {
   onSubmit: (data: { score: number; message: string; images: string[] }) => void;
   disabled?: boolean;
+  isLoading?: boolean;
   initialData?: { score: number; message: string; images: string[] };
 }
 
-export const CheckInForm = ({ onSubmit, disabled = false, initialData }: CheckInFormProps) => {
+export const CheckInForm = ({ onSubmit, disabled = false, isLoading = false, initialData }: CheckInFormProps) => {
   const [selectedScore, setSelectedScore] = useState<number | null>(initialData?.score || null);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export const CheckInForm = ({ onSubmit, disabled = false, initialData }: CheckIn
     <PostForm
       onSubmit={handleSubmit}
       disabled={disabled || !selectedScore}
+      isLoading={isLoading}
       initialMessage={initialData?.message}
       placeholder={placeholder}
     >

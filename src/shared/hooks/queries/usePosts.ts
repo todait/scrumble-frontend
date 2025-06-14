@@ -1,5 +1,6 @@
 import type { FilterType } from '@/features/feed/types/feed.types';
 import { postsApi } from '@/shared/lib/api/posts';
+import { ErrorCode } from '@/shared/types/api';
 import type {
   CreateCheckInRequest,
   CreateCheckInResponse,
@@ -15,12 +16,11 @@ import type {
   UpdateCheckOutRequest,
   UpdateCheckOutResponse,
 } from '@/shared/types/post';
+import { formatDateToAPIString, getErrorMessage, isErrorCode } from '@/shared/utils';
 import { defaultRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { postsKeys } from './postsKeys';
 import { useToast } from '../useToast';
-import { ErrorCode } from '@/shared/types/api';
-import { getErrorMessage, isErrorCode } from '@/shared/utils';
+import { postsKeys } from './postsKeys';
 
 interface UsePostsOptions {
   spaceSlug: string;
@@ -46,7 +46,7 @@ export const usePosts = (options: UsePostsOptions) => {
 
   // 날짜 필터 적용
   if (selectedDate) {
-    apiParams.date = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+    apiParams.date = formatDateToAPIString(selectedDate); // YYYY-MM-DD 형식
   }
 
   // 타입 필터 적용
@@ -93,7 +93,7 @@ export const useCreateCheckIn = () => {
       // 포스트 목록 무효화
       queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
       // existsCheckin 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
-      const targetDate = variables.postedDate || new Date().toISOString().split('T')[0];
+      const targetDate = variables.postedDate || formatDateToAPIString(new Date());
       queryClient.invalidateQueries({
         queryKey: postsKeys.existsCheckin(variables.spaceSlug, targetDate),
       });

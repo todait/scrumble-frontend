@@ -24,7 +24,7 @@ export function CheckInEditModal({
   post,
   onSubmit,
 }: CheckInEditModalProps) {
-  const { mutate: updateCheckIn } = useUpdateCheckIn();
+  const { mutate: updateCheckIn, isPending } = useUpdateCheckIn();
   const { error } = useToast();
 
   const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
@@ -84,7 +84,7 @@ export function CheckInEditModal({
           <h2 className="text-2xl font-bold text-black">체크인 노트 수정</h2>
         </div>
       </div>
-      <CheckInForm onSubmit={handleSubmit} initialData={initialData} />
+      <CheckInForm onSubmit={handleSubmit} initialData={initialData} disabled={isPending} isLoading={isPending} />
     </CheckInModalLayout>
   );
 }

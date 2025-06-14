@@ -3,6 +3,7 @@
 import { CheckOutWriteModal } from '@/features/checkout/components';
 import {
   FeedHeader,
+  FeedListSkeleton,
   FilterDropdown,
   FloatingCheckoutButton,
   GoToFocusedPostButton,
@@ -31,8 +32,15 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
   const { user } = useAuth();
   // 데이터 및 상태 관리
-  const { posts, teamSummary, filterType, setFilterType, selectedDate, existsCheckinQuery } =
-    useFeedData(spaceSlug);
+  const {
+    posts,
+    teamSummary,
+    filterType,
+    setFilterType,
+    selectedDate,
+    existsCheckinQuery,
+    isLoading,
+  } = useFeedData(spaceSlug);
   const { handleReaction, handleCommentClick, handleViewSummaryClick, handleDateClick } =
     useFeedActions(spaceSlug, posts as FeedPost[], () => {});
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
@@ -94,36 +102,42 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
               <div ref={scrollContainerRef} className="scrollbar-hide overflow-y-auto">
-                {posts.map(post => (
-                  <div
-                    key={post.id}
-                    data-post-id={post.id}
-                    onClick={() => handlePostClick(post.id)}
-                    className="cursor-pointer"
-                  >
-                    <PostCard
-                      spaceSlug={spaceSlug}
-                      post={post as FeedPost}
-                      onReaction={handleReaction}
-                      onCommentClick={handleCommentClick}
-                      isSelected={selectedPostId === post.id}
-                    />
-                  </div>
-                ))}
+                {isLoading ? (
+                  <FeedListSkeleton count={6} />
+                ) : (
+                  <>
+                    {posts.map(post => (
+                      <div
+                        key={post.id}
+                        data-post-id={post.id}
+                        onClick={() => handlePostClick(post.id)}
+                        className="cursor-pointer"
+                      >
+                        <PostCard
+                          spaceSlug={spaceSlug}
+                          post={post as FeedPost}
+                          onReaction={handleReaction}
+                          onCommentClick={handleCommentClick}
+                          isSelected={selectedPostId === post.id}
+                        />
+                      </div>
+                    ))}
 
-                {/* 마지막 메시지 - 스크롤이 필요한 경우에만 표시 */}
-                {showScrollToTop && (
-                  <div className="flex flex-col items-center justify-center gap-2 bg-white pb-[40px] pt-[30px]">
-                    <button
-                      onClick={scrollToTop}
-                      className="text-[13px] font-bold text-[#222222] opacity-80 hover:opacity-100"
-                    >
-                      맨 위로 가기
-                    </button>
-                    <p className="text-[13px] text-[#222222] opacity-30">
-                      마지막 스크럼노트까지 읽었어요.
-                    </p>
-                  </div>
+                    {/* 마지막 메시지 - 스크롤이 필요한 경우에만 표시 */}
+                    {showScrollToTop && (
+                      <div className="flex flex-col items-center justify-center gap-2 bg-white pb-[40px] pt-[30px]">
+                        <button
+                          onClick={scrollToTop}
+                          className="text-[13px] font-bold text-[#222222] opacity-80 hover:opacity-100"
+                        >
+                          맨 위로 가기
+                        </button>
+                        <p className="text-[13px] text-[#222222] opacity-30">
+                          마지막 스크럼노트까지 읽었어요.
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

@@ -2,10 +2,12 @@
 
 import { RiCheckLine, RiImageLine } from '@remixicon/react';
 import { useEffect, useState } from 'react';
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface PostFormProps {
   onSubmit: (data: { message: string; images: string[] }) => void;
   disabled?: boolean;
+  isLoading?: boolean;
   placeholder?: string;
   initialMessage?: string;
   children?: React.ReactNode; // ScoreSelector 등 추가 컴포넌트를 위한 slot
@@ -14,6 +16,7 @@ interface PostFormProps {
 export const PostForm = ({
   onSubmit,
   disabled = false,
+  isLoading = false,
   placeholder = '오늘 하루는 어떠셨나요? 팀원들과 나누고 싶은 이야기를 들려주세요.',
   initialMessage = '',
   children,
@@ -30,7 +33,7 @@ export const PostForm = ({
     }
   };
 
-  const isSubmitDisabled = !message.trim() || disabled;
+  const isSubmitDisabled = !message.trim() || disabled || isLoading;
 
   return (
     <>
@@ -63,8 +66,17 @@ export const PostForm = ({
           disabled={isSubmitDisabled}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/20 bg-white py-4 text-center font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          <RiCheckLine className="h-5 w-5" />
-          저장
+          {isLoading ? (
+            <>
+              <LoadingSpinner size="sm" className="text-gray-900" />
+              저장 중...
+            </>
+          ) : (
+            <>
+              <RiCheckLine className="h-5 w-5" />
+              저장
+            </>
+          )}
         </button>
       </div>
     </>
