@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
 import { useExistsCheckin, usePosts } from '@/shared/hooks/queries/usePosts';
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
-import { useMockPosts } from './useMockPosts';
+import type { Post as ApiPost } from '@/shared/types/post';
+import { formatDateToAPIString, getErrorMessage } from '@/shared/utils';
+import { useMemo, useState } from 'react';
 import type { FilterType } from '../types/feed.types';
 import { convertApiPostsToFeedPosts } from '../utils/postTransform.utils';
-import type { Post as ApiPost } from '@/shared/types/post';
-import { getErrorMessage } from '@/shared/utils';
+import { useMockPosts } from './useMockPosts';
 
 export const useFeedData = (spaceSlug: string) => {
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -16,7 +16,7 @@ export const useFeedData = (spaceSlug: string) => {
 
   const existsCheckinQuery = useExistsCheckin({
     spaceSlug,
-    date: selectedDate.toISOString().split('T')[0],
+    date: formatDateToAPIString(selectedDate),
   });
 
   // 실제 API 또는 Mock 데이터 사용
@@ -52,9 +52,12 @@ export const useFeedData = (spaceSlug: string) => {
 
     // API 데이터는 변환 필요
     const apiPosts = (postsQuery.data?.posts || []) as ApiPost[];
+    // invalidation 후 새로운 데이터를 가져오는 중이거나 초기 로딩 중일 때
+    const shouldShowLoading = postsQuery.isLoading;
+
     return {
       posts: convertApiPostsToFeedPosts(apiPosts),
-      isLoading: postsQuery.isLoading,
+      isLoading: shouldShowLoading,
       hasMore: postsQuery.data?.hasMore || false,
       nextCursor: postsQuery.data?.nextCursor,
     };
@@ -74,8 +77,11 @@ export const useFeedData = (spaceSlug: string) => {
 
     // 로딩 및 에러 상태
     isLoading: isLoading || teamSummaryQuery.isLoading,
-    error: postsQuery.error ? getErrorMessage(postsQuery.error) : 
-           teamSummaryQuery.error ? getErrorMessage(teamSummaryQuery.error) : null,
+    error: postsQuery.error
+      ? getErrorMessage(postsQuery.error)
+      : teamSummaryQuery.error
+        ? getErrorMessage(teamSummaryQuery.error)
+        : null,
     isError: postsQuery.isError || teamSummaryQuery.isError,
 
     // 페이지네이션

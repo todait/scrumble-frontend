@@ -11,11 +11,12 @@ import {
   StatusBadge,
 } from '@/shared/components/ui';
 import { useAuth } from '@/shared/hooks/auth/useAuth';
-import { useDeleteCheckIn, useDeleteCheckOut } from '@/shared/hooks/queries';
-import { formatTime, getConditionLabel } from '@/shared/utils';
+import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
+import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
 import { RiArrowRightSLine, RiDeleteBinLine, RiEdit2Line } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import router from 'next/router';
 import { useState } from 'react';
 import type { Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
@@ -49,8 +50,12 @@ export function PostContent({
   const isCheckOut = post.type === 'checkout';
   const content = getPostContent(post) || '';
   const contentPreview = content && content.length > 200 ? content.slice(0, 200) + '...' : content;
-  const { mutate: deleteCheckIn } = useDeleteCheckIn();
-  const { mutate: deleteCheckOut } = useDeleteCheckOut();
+  const { mutate: deleteCheckIn, isPending: isDeleteCheckInPending } = useDeleteCheckIn();
+  const { mutate: deleteCheckOut, isPending: isDeleteCheckOutPending } = useDeleteCheckOut();
+  const { refetch: refetchExistsCheckin } = useExistsCheckin({
+    spaceSlug,
+    date: formatDateToAPIString(new Date()),
+  });
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -72,7 +77,22 @@ export function PostContent({
           spaceSlug,
           postId: post.id,
         },
-        { onSuccess }
+        {
+          onSuccess: async () => {
+            let success = false;
+            for (let i = 0; i < 5; i++) {
+              const { data: existsCheckin } = await refetchExistsCheckin();
+              if (existsCheckin?.exists === true) {
+                success = true;
+                break;
+              }
+              await new Promise(res => setTimeout(res, 200)); // 200ms 대기 후 재시도
+            }
+            if (success) {
+              router.replace(`/${spaceSlug}/posts/checkins/new`);
+            }
+          },
+        }
       );
     }
 
@@ -301,6 +321,7 @@ export function PostContent({
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={handleConfirmDelete}
+        isLoading={isDeleteCheckInPending || isDeleteCheckOutPending}
       />
 
       {/* 체크인 수정 모달 */}

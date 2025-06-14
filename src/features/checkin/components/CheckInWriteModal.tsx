@@ -1,8 +1,9 @@
 'use client';
 
-import { useCreateCheckIn } from '@/shared/hooks/queries/usePosts';
+import { useCreateCheckIn, useExistsCheckin } from '@/shared/hooks/queries/usePosts';
+import { useToast } from '@/shared/hooks/useToast';
 import { ErrorCode } from '@/shared/types/api';
-import { formatDate, isErrorCode } from '@/shared/utils';
+import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -19,14 +20,21 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const params = useParams();
   const spaceSlug = params.spaceSlug as string;
   const [dateString, setDateString] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { error } = useToast();
 
-  const { mutate: createCheckInMutation } = useCreateCheckIn();
+  const { mutate: createCheckInMutation, isPending } = useCreateCheckIn();
+  const { refetch: refetchExistsCheckin } = useExistsCheckin({
+    spaceSlug,
+    date: formatDateToAPIString(new Date()),
+  });
 
   useEffect(() => {
     setDateString(formatDate());
   }, []);
 
   const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
+    setIsProcessing(true);
     createCheckInMutation(
       {
         spaceSlug,
@@ -35,11 +43,27 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       },
       {
         onSuccess: async () => {
-          // 쿼리 무효화가 완료될 때까지 잠시 대기
-          await new Promise(resolve => setTimeout(resolve, 100));
-          router.push(`/${spaceSlug}/feed`);
+          let success = false;
+          for (let i = 0; i < 5; i++) {
+            const { data: existsCheckin } = await refetchExistsCheckin();
+            if (existsCheckin?.exists === true) {
+              success = true;
+              break;
+            }
+            await new Promise(res => setTimeout(res, 200)); // 200ms 대기 후 재시도
+          }
+          if (success) {
+            router.replace(`/${spaceSlug}/feed`);
+          } else {
+            setIsProcessing(false);
+            error({
+              title: '체크인 작성 실패',
+              message: '체크인 작성 중 오류가 발생했습니다. 다시 시도해주세요.',
+            });
+          }
         },
         onError: (err: unknown) => {
+          setIsProcessing(false);
           // CHECKIN_ALREADY_EXISTS 에러의 경우에만 피드로 라우팅
           if (isErrorCode(err, ErrorCode.CHECKIN_ALREADY_EXISTS)) {
             router.replace(`/${spaceSlug}/feed`);
@@ -62,7 +86,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
           팀워크의 흐름을 만드는 신호가 될 수 있답니다.
         </p>
       </div>
-      <CheckInForm onSubmit={handleSubmit} />
+      <CheckInForm onSubmit={handleSubmit} disabled={isPending || isProcessing} isLoading={isPending || isProcessing} />
     </CheckInModalLayout>
   );
 }

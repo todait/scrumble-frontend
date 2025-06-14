@@ -4,6 +4,8 @@ export * from './DropdownMenu';
 export * from './IconButton';
 export * from './ImageGallery';
 export * from './ImageViewer';
+export * from './LoadingOverlay';
+export * from './LoadingSpinner';
 export * from './PostForm';
 export * from './ProfileDropdownMenu';
 export * from './ProfileImage';

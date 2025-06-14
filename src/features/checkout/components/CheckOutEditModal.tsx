@@ -24,7 +24,7 @@ export function CheckOutEditModal({
   post,
   onSubmit,
 }: CheckOutEditModalProps) {
-  const { mutate: updateCheckOut } = useUpdateCheckOut();
+  const { mutate: updateCheckOut, isPending } = useUpdateCheckOut();
   const { error } = useToast();
 
   // ESC 키로 모달 닫기
@@ -85,7 +85,7 @@ export function CheckOutEditModal({
           유연하게 만들어줄 수 있답니다.
         </p>
       </div>
-      <CheckOutForm onSubmit={handleSubmit} initialData={initialData} />
+      <CheckOutForm onSubmit={handleSubmit} initialData={initialData} disabled={isPending} isLoading={isPending} />
     </CheckInModalLayout>
   );
 }
