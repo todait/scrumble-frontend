@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { ScoreSelector } from '../ui';
 import { PostForm } from '@/shared/components/ui';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 
 interface CheckInFormProps {
-  onSubmit: (data: { score: number; message: string; images: string[] }) => void;
+  onSubmit: (data: { score: number; message: string; images: ImageMetadata[] }) => void;
   disabled?: boolean;
   isLoading?: boolean;
-  initialData?: { score: number; message: string; images: string[] };
+  initialData?: { score: number; message: string; images: ImageMetadata[] };
   onScoreRequiredToast?: () => void; // 점수 선택 요구 Toast 콜백
 }
 
@@ -21,7 +22,7 @@ export const CheckInForm = ({ onSubmit, disabled = false, isLoading = false, ini
     }
   }, [initialData]);
 
-  const handleSubmit = (data: { message: string; images: string[] }) => {
+  const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
     if (!selectedScore) {
       if (onScoreRequiredToast) {
         onScoreRequiredToast();

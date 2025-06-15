@@ -4,6 +4,7 @@ import { CheckInModalLayout } from '@/features/checkin/components/layout';
 import type { CheckoutPost } from '@/features/feed/types/feed.types';
 import { useToast } from '@/shared/hooks';
 import { useUpdateCheckOut } from '@/shared/hooks/queries';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
 import { useEffect } from 'react';
@@ -41,7 +42,7 @@ export function CheckOutEditModal({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const handleSubmit = (data: { message: string; images: string[] }) => {
+  const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
     data.message = data.message.trim();
     if (data.message === '') {
       error({
@@ -65,9 +66,10 @@ export function CheckOutEditModal({
     );
   };
 
+  // TODO: 이미지 편집 기능 추가 시 string[]을 ImageMetadata[]로 변환 필요
   const initialData = {
     message: post.reflectionText,
-    images: post.images || [],
+    images: [] as ImageMetadata[], // 현재는 이미지 편집을 지원하지 않으므로 빈 배열
   };
 
   return (

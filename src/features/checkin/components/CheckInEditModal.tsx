@@ -3,6 +3,7 @@
 import type { CheckinPost } from '@/features/feed/types/feed.types';
 import { useToast } from '@/shared/hooks';
 import { useUpdateCheckIn } from '@/shared/hooks/queries';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useEffect } from 'react';
@@ -27,7 +28,7 @@ export function CheckInEditModal({
   const { mutate: updateCheckIn, isPending } = useUpdateCheckIn();
   const { error } = useToast();
 
-  const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
+  const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     data.message = data.message.trim();
     if (data.message === '') {
       error({
@@ -67,10 +68,11 @@ export function CheckInEditModal({
   }, [isOpen, onClose]);
 
   // 기존 포스트 데이터를 초기값으로 설정
+  // TODO: 이미지 편집 기능 추가 시 string[]을 ImageMetadata[]로 변환 필요
   const initialData = {
     score: post.conditionScore,
     message: post.conditionText,
-    images: post.images || [],
+    images: [] as ImageMetadata[], // 현재는 이미지 편집을 지원하지 않으므로 빈 배열
   };
 
   return (

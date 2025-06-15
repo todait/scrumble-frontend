@@ -3,6 +3,7 @@
 import { useCreateCheckIn, useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
 import { ErrorCode } from '@/shared/types/api';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
@@ -33,8 +34,9 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     setDateString(formatDate());
   }, []);
 
-  const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
+  const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
+    // TODO: 백엔드 API가 이미지를 지원하면 images 필드 추가
     createCheckInMutation(
       {
         spaceSlug,
