@@ -25,11 +25,35 @@ uploadApiClient.interceptors.request.use(
 class R2Service {
   // Presigned URL 요청
   async getPresignedUrl(fileName: string, contentType: string): Promise<PresignedUrlResponse> {
-    const { data } = await uploadApiClient.post<PresignedUrlResponse>('/upload/presigned-url', {
-      fileName,
-      contentType,
-    });
-    return data;
+    try {
+      console.log('=== Presigned URL 요청 시작 ===');
+      console.log('파일명:', fileName, '타입:', contentType);
+      
+      const { data } = await uploadApiClient.post<PresignedUrlResponse>('/upload/presigned-url', {
+        fileName,
+        contentType,
+      });
+      
+      console.log('=== Presigned URL 응답 ===', data);
+      return data;
+    } catch (error) {
+      console.error('=== Presigned URL 요청 실패 ===');
+      console.error('Error:', error);
+      
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+      }
+      
+      // axios 에러인 경우 응답 상세 정보 로깅
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as any;
+        console.error('Response status:', axiosError.response?.status);
+        console.error('Response data:', axiosError.response?.data);
+        console.error('Response headers:', axiosError.response?.headers);
+      }
+      
+      throw error;
+    }
   }
 
   // R2에 직접 업로드 (진행률 콜백 포함)
