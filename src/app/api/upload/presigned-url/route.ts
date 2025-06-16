@@ -42,26 +42,20 @@ function getR2Client() {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('=== Presigned URL API 시작 ===');
-    
     // 환경변수 검증
     validateEnvironment();
-    console.log('환경변수 검증 완료');
 
     // 인증 확인 (선택사항)
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
-      console.log('인증 헤더 누락');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { fileName, contentType } = await request.json();
-    console.log('요청 데이터:', { fileName, contentType });
 
     // 파일 검증
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(contentType)) {
-      console.log('허용되지 않는 파일 타입:', contentType);
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
@@ -70,11 +64,9 @@ export async function POST(request: NextRequest) {
     const uuid = uuidv4();
     const extension = fileName.split('.').pop();
     const key = `uploads/${timestamp}/${uuid}.${extension}`;
-    console.log('생성된 키:', key);
 
     // R2 클라이언트 가져오기
     const client = getR2Client();
-    console.log('R2 클라이언트 초기화 완료');
 
     // Presigned URL 생성
     const command = new PutObjectCommand({
@@ -88,32 +80,20 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log('PutObjectCommand 생성 완료');
-
     const uploadUrl = await getSignedUrl(client, command, {
       expiresIn: 3600, // 1시간
     });
 
-    console.log('Presigned URL 생성 완료');
-
     // Public URL
     const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
 
-    const response = {
+    return NextResponse.json({
       uploadUrl,
       publicUrl,
       key,
-    };
-
-    console.log('=== API 응답 ===', response);
-
-    return NextResponse.json(response);
+    });
   } catch (error) {
-    console.error('=== Presigned URL 생성 에러 ===');
-    console.error('Error details:', error);
-    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
+    console.error('Presigned URL generation error:', error);
     return NextResponse.json({ 
       error: 'Failed to generate presigned URL',
       details: error instanceof Error ? error.message : 'Unknown error'
