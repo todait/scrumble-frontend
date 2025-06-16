@@ -23,7 +23,7 @@ import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
-import { RiSettings6Fill, RiSettings6Line } from '@remixicon/react';
+import { RiSettings6Line } from '@remixicon/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 
@@ -35,12 +35,12 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { logout } = useAuthHook();
-  
+
   // 설정 드롭다운 상태
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // 데이터 및 상태 관리
   const {
     posts,
@@ -107,7 +107,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     post => post.type === 'checkout' && post.author.id === user?.id
   );
   const isCheckoutAvailable = existsMyCheckin && !existsMyCheckout;
-  
+
   // 설정 아이콘 상태
   const SettingsIcon = RiSettings6Line;
 
@@ -117,9 +117,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         {/* 통합 컨테이너 - 중앙 피드와 PostDetail을 하나로 묶어서 중앙 정렬 */}
         <div
           className={`flex w-full transition-all duration-300 ${
-            selectedPost 
-              ? 'pt-2 lg:w-[1196px] lg:pt-6' 
-              : 'pt-4 md:w-[672px] md:pt-6'
+            selectedPost ? 'pt-2 lg:w-[1196px] lg:pt-6' : 'pt-4 md:w-[672px] md:pt-6'
           }`}
         >
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
@@ -132,11 +130,15 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             <div className="mb-4 flex flex-shrink-0 items-center justify-between px-2 md:mb-[22px] md:justify-center md:px-0">
               {/* 모바일에서만 보이는 빈 공간 */}
               <div className="w-10 md:hidden"></div>
-              
+
               <FilterDropdown value={filterType} onChange={setFilterType} />
-              
+
               {/* 모바일 설정 아이콘 */}
-              <div className="relative md:hidden" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              <div
+                className="relative md:hidden"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
                 <button className="flex h-10 w-10 items-center justify-center rounded-lg transition-all hover:bg-[rgba(34,34,34,0.08)]">
                   <SettingsIcon className="h-6 w-6 text-[#222222] opacity-30" />
                 </button>
@@ -165,7 +167,10 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
               </div>
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
-              <div ref={scrollContainerRef} className="scrollbar-hide overflow-y-auto pb-20 md:pb-0">
+              <div
+                ref={scrollContainerRef}
+                className="scrollbar-hide overflow-y-auto pb-20 md:pb-0"
+              >
                 {isLoading ? (
                   <FeedListSkeleton count={6} />
                 ) : (

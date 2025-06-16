@@ -1,3 +1,5 @@
+import type { ImageMetadata } from '@/shared/types/upload.types';
+
 export type PostType = 'checkin' | 'checkout';
 export type FilterType = 'all' | 'checkin' | 'checkout';
 
@@ -18,7 +20,7 @@ export interface Comment {
   author: User;
   content: string;
   createdAt: Date;
-  images?: string[];
+  images?: ImageMetadata[];
 }
 
 export interface BasePost {
@@ -30,7 +32,7 @@ export interface BasePost {
   comments: Comment[];
   commentCount: number;
   lastCommentTime?: Date;
-  images?: string[];
+  images?: ImageMetadata[];
 }
 
 export interface CheckinPost extends BasePost {

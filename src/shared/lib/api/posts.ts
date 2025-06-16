@@ -56,6 +56,7 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     conditionScore: apiPost.condition_score,
     conditionText: apiPost.condition_text,
     reflectionText: apiPost.reflection_text,
+    images: apiPost.images,
   };
 };
 
@@ -121,6 +122,7 @@ export const postsApi = {
         condition_score: params.conditionScore,
         condition_text: params.conditionText,
         ...(params.postedDate ? { posted_date: params.postedDate } : {}),
+        images: params.images,
       }
     );
 
@@ -143,6 +145,7 @@ export const postsApi = {
       {
         reflection_text: params.reflectionText,
         ...(params.postedDate ? { posted_date: params.postedDate } : {}),
+        images: params.images,
       }
     );
 
@@ -164,6 +167,7 @@ export const postsApi = {
       {
         condition_score: params.conditionScore,
         condition_text: params.conditionText,
+        images: params.images,
       }
     );
 
@@ -185,6 +189,7 @@ export const postsApi = {
       `/api/v1/spaces/${params.spaceSlug}/posts/checkout/${params.postId}`,
       {
         reflection_text: params.reflectionText,
+        images: params.images,
       }
     );
 

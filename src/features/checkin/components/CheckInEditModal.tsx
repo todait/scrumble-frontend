@@ -3,6 +3,7 @@
 import type { CheckinPost } from '@/features/feed/types/feed.types';
 import { useToast } from '@/shared/hooks';
 import { useUpdateCheckIn } from '@/shared/hooks/queries';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useEffect } from 'react';
@@ -27,7 +28,7 @@ export function CheckInEditModal({
   const { mutate: updateCheckIn, isPending } = useUpdateCheckIn();
   const { error } = useToast();
 
-  const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
+  const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     data.message = data.message.trim();
     if (data.message === '') {
       error({
@@ -42,6 +43,7 @@ export function CheckInEditModal({
         postId: post.id,
         conditionScore: data.score,
         conditionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: () => {
@@ -66,11 +68,10 @@ export function CheckInEditModal({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // 기존 포스트 데이터를 초기값으로 설정
   const initialData = {
     score: post.conditionScore,
     message: post.conditionText,
-    images: post.images || [],
+    images: post.images,
   };
 
   return (
@@ -84,7 +85,12 @@ export function CheckInEditModal({
           <h2 className="text-2xl font-bold text-black">체크인 노트 수정</h2>
         </div>
       </div>
-      <CheckInForm onSubmit={handleSubmit} initialData={initialData} disabled={isPending} isLoading={isPending} />
+      <CheckInForm
+        onSubmit={handleSubmit}
+        initialData={initialData}
+        disabled={isPending}
+        isLoading={isPending}
+      />
     </CheckInModalLayout>
   );
 }

@@ -3,15 +3,111 @@
 import Image from 'next/image';
 import { useState, useRef, useCallback } from 'react';
 import { ImageViewer } from './ImageViewer';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 
 interface ImageGalleryProps {
-  images: string[];
-  size?: 'small' | 'medium' | 'large';
+  images: ImageMetadata[];
   className?: string;
   onClick?: (index: number, event: React.MouseEvent) => void;
 }
 
-export function ImageGallery({ images, size = 'medium', className = '', onClick }: ImageGalleryProps) {
+// 크기 제한 상수
+const SIZE_LIMITS = {
+  MIN_WIDTH: 320,
+  MAX_WIDTH: 530,
+  MIN_HEIGHT: 320,
+  MAX_HEIGHT: 420,
+};
+
+// 단일 이미지 크기 계산 - 범위 내에서 최대한 크게 표시
+function calculateSingleImageSize(originalWidth: number, originalHeight: number) {
+  if (originalWidth === 0 || originalHeight === 0) {
+    return { width: SIZE_LIMITS.MIN_WIDTH, height: SIZE_LIMITS.MIN_HEIGHT };
+  }
+  
+  const aspectRatio = originalWidth / originalHeight;
+  let width: number;
+  let height: number;
+  
+  // 세로형 이미지 (비율 < 1)
+  if (aspectRatio < 1) {
+    // 높이를 최대로 설정하고 너비 계산
+    height = SIZE_LIMITS.MAX_HEIGHT;
+    width = height * aspectRatio;
+    
+    // 너비가 최소값보다 작으면 너비 기준으로 재계산
+    if (width < SIZE_LIMITS.MIN_WIDTH) {
+      width = SIZE_LIMITS.MIN_WIDTH;
+      height = width / aspectRatio;
+    }
+  } 
+  // 가로형 이미지 (비율 >= 1)
+  else {
+    // 너비를 최대로 설정하고 높이 계산
+    width = SIZE_LIMITS.MAX_WIDTH;
+    height = width / aspectRatio;
+    
+    // 높이가 최소값보다 작으면 높이 기준으로 재계산
+    if (height < SIZE_LIMITS.MIN_HEIGHT) {
+      height = SIZE_LIMITS.MIN_HEIGHT;
+      width = height * aspectRatio;
+    }
+    
+    // 높이가 최대값을 초과하면 높이 기준으로 재계산
+    if (height > SIZE_LIMITS.MAX_HEIGHT) {
+      height = SIZE_LIMITS.MAX_HEIGHT;
+      width = height * aspectRatio;
+    }
+  }
+  
+  return {
+    width: Math.round(width),
+    height: Math.round(height)
+  };
+}
+
+
+// 여러 이미지의 공통 높이 계산
+function calculateCommonHeight(images: ImageMetadata[]): number {
+  // 모든 이미지가 세로형인지 확인 (비율 < 1)
+  const allPortrait = images.every(img => {
+    if (img.width === 0 || img.height === 0) return false;
+    return img.width / img.height < 1;
+  });
+  
+  if (allPortrait) {
+    // 모든 이미지가 세로형이면 최대 높이 사용
+    return SIZE_LIMITS.MAX_HEIGHT;
+  }
+  
+  // 가로형 이미지가 하나라도 있으면 최소 높이 사용
+  return SIZE_LIMITS.MIN_HEIGHT;
+}
+
+// 여러 이미지 크기 계산 (높이 통일)
+function calculateMultipleImageSizes(images: ImageMetadata[]) {
+  const targetHeight = calculateCommonHeight(images);
+  
+  return images.map(img => {
+    if (img.width === 0 || img.height === 0) {
+      return { width: SIZE_LIMITS.MIN_WIDTH, height: targetHeight };
+    }
+    
+    const aspectRatio = img.width / img.height;
+    const width = Math.round(targetHeight * aspectRatio);
+    
+    // 너비가 범위를 벗어나는 경우 처리
+    // 최소/최대 너비로 제한하고, object-fit: cover로 크롭됨
+    const finalWidth = Math.max(SIZE_LIMITS.MIN_WIDTH, Math.min(SIZE_LIMITS.MAX_WIDTH, width));
+    
+    return {
+      width: finalWidth,
+      height: targetHeight
+    };
+  });
+}
+
+export function ImageGallery({ images, className = '', onClick }: ImageGalleryProps) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -76,43 +172,36 @@ export function ImageGallery({ images, size = 'medium', className = '', onClick 
   }, [isDragging, startX, scrollLeft]);
   if (!images || images.length === 0) return null;
 
-  // 크기별 설정
-  const sizeConfig = {
-    small: {
-      single: { width: 320, height: 240, maxWidth: 'max-w-xs' },
-      multiple: { width: 96, height: 96, className: 'h-24 w-24' },
-    },
-    medium: {
-      single: { width: 320, height: 240, maxWidth: 'max-w-sm' },
-      multiple: { width: 128, height: 128, className: 'h-32 w-32' },
-    },
-    large: {
-      single: { width: 400, height: 300, maxWidth: 'max-w-md' },
-      multiple: { width: 160, height: 160, className: 'h-40 w-40' },
-    },
-  };
+  const imageUrls = images.map(img => img.url);
+  const isMultiple = images.length > 1;
 
-  const config = sizeConfig[size];
+  // 크기 계산
+  const imageSizes = isMultiple 
+    ? calculateMultipleImageSizes(images)
+    : [calculateSingleImageSize(images[0].width, images[0].height)];
 
   // 단일 이미지
-  if (images.length === 1) {
+  if (!isMultiple) {
+    const image = images[0];
+    const { width, height } = imageSizes[0];
+    
     return (
       <>
         <div 
-          className={`${config.single.maxWidth} overflow-hidden rounded-lg border border-[#F1F1F1] cursor-pointer hover:opacity-90 transition-opacity ${className}`}
+          className={`overflow-hidden rounded-lg border border-[#F1F1F1] cursor-pointer hover:opacity-90 transition-opacity ${className}`}
           onClick={(e) => handleImageClick(0, e)}
+          style={{ width, height }}
         >
           <Image
-            src={images[0]}
-            alt="첨부 이미지"
-            width={config.single.width}
-            height={config.single.height}
-            className="h-auto w-full object-cover"
-            style={{ aspectRatio: '4/3' }}
+            src={image.url}
+            alt={image.name || '첨부 이미지'}
+            width={width}
+            height={height}
+            className="h-full w-full object-cover"
           />
         </div>
         <ImageViewer
-          images={images}
+          images={imageUrls}
           initialIndex={selectedImageIndex}
           isOpen={viewerOpen}
           onClose={() => setViewerOpen(false)}
@@ -141,27 +230,32 @@ export function ImageGallery({ images, size = 'medium', className = '', onClick 
           }}
           style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
         >
-          {images.map((image, index) => (
-            <div
-              key={index}
-              className={`${config.multiple.className} flex-shrink-0 overflow-hidden rounded-lg border border-[#F1F1F1] cursor-pointer hover:opacity-90 transition-opacity`}
-              onClick={(e) => handleImageClick(index, e)}
-              onDragStart={(e) => e.preventDefault()} // 이미지 드래그 방지
-            >
-              <Image
-                src={image}
-                alt={`첨부 이미지 ${index + 1}`}
-                width={config.multiple.width}
-                height={config.multiple.height}
-                className="h-full w-full object-cover"
-                draggable={false} // 이미지 드래그 방지
-              />
-            </div>
-          ))}
+          {images.map((image, index) => {
+            const { width, height } = imageSizes[index];
+            
+            return (
+              <div
+                key={index}
+                className="flex-shrink-0 overflow-hidden rounded-lg border border-[#F1F1F1] cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={(e) => handleImageClick(index, e)}
+                onDragStart={(e) => e.preventDefault()}
+                style={{ width, height }}
+              >
+                <Image
+                  src={image.url}
+                  alt={image.name || `첨부 이미지 ${index + 1}`}
+                  width={width}
+                  height={height}
+                  className="h-full w-full object-cover"
+                  draggable={false}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
       <ImageViewer
-        images={images}
+        images={imageUrls}
         initialIndex={selectedImageIndex}
         isOpen={viewerOpen}
         onClose={() => setViewerOpen(false)}
