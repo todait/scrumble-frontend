@@ -4,8 +4,8 @@ import { TokenManager } from '@/shared/lib/token';
 
 // Next.js API 라우트용 별도 axios 인스턴스
 const uploadApiClient = axios.create({
-  baseURL: '/api', // Next.js API 라우트 사용
-  timeout: 30000, // 업로드는 시간이 걸릴 수 있으므로 30초로 설정
+  baseURL: process.env.NEXT_PUBLIC_UPLOAD_API_URL || '/api',
+  timeout: 30000,
 });
 
 // 인증 토큰 추가
