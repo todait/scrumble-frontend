@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       'images.unsplash.com',
       'api.dicebear.com',
       'lh3.googleusercontent.com',
+      'pub-0a6acdb7198b49dfb5327a9e83fc2bfb.r2.dev',
     ],
     // 새로운 방식: remotePatterns 사용 (더 안전함)
     remotePatterns: [
@@ -33,6 +34,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pub-0a6acdb7198b49dfb5327a9e83fc2bfb.r2.dev',
         pathname: '/**',
       },
     ],

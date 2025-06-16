@@ -4,6 +4,7 @@
  */
 
 import type { DateString, ID } from './api';
+import type { ImageMetadata } from './upload.types';
 
 /**
  * 포스트 유형
@@ -42,6 +43,7 @@ export interface Post {
   conditionScore?: number; // 체크인 전용 (1-10)
   conditionText?: string; // 체크인 메시지
   reflectionText?: string; // 체크아웃 메시지
+  images: ImageMetadata[];
 }
 
 /**
@@ -66,7 +68,7 @@ export interface PostComment {
   createdAt: DateString;
   updatedAt?: DateString;
   parentId?: ID; // 대댓글용
-  images?: string[];
+  images?: ImageMetadata[];
 }
 
 /**
@@ -78,7 +80,6 @@ export interface PostWithDetails extends Post {
   comments: PostComment[];
   commentCount: number;
   lastCommentTime?: DateString;
-  images?: string[];
 }
 
 /**
@@ -86,7 +87,7 @@ export interface PostWithDetails extends Post {
  */
 export interface CreatePostRequest {
   content: string;
-  images?: string[];
+  images?: ImageMetadata[];
   conditionScore?: number; // 체크인 전용
 }
 
@@ -95,7 +96,7 @@ export interface CreatePostRequest {
  */
 export interface UpdatePostRequest {
   content?: string;
-  images?: string[];
+  images?: ImageMetadata[];
   conditionScore?: number; // 체크인 전용
 }
 
@@ -133,6 +134,7 @@ export interface CreateCheckInRequest {
   postedDate?: string; // YYYY-MM-DD
   conditionScore: number; // 1-10
   conditionText: string;
+  images: ImageMetadata[];
 }
 
 export type CheckInPostResponse = Required<
@@ -149,6 +151,7 @@ export interface UpdateCheckInRequest {
   postId: string;
   conditionScore: number;
   conditionText: string;
+  images: ImageMetadata[];
 }
 
 export interface UpdateCheckInResponse {
@@ -169,6 +172,7 @@ export interface CreateCheckOutRequest {
   spaceSlug: string;
   postedDate?: string; // YYYY-MM-DD
   reflectionText?: string;
+  images: ImageMetadata[];
 }
 
 export type CheckOutPostResponse = Required<
@@ -184,6 +188,7 @@ export interface UpdateCheckOutRequest {
   spaceSlug: string;
   postId: string;
   reflectionText: string;
+  images: ImageMetadata[];
 }
 
 export interface UpdateCheckOutResponse {

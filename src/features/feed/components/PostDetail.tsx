@@ -115,7 +115,7 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
                     <p className="text-sm text-[#222222] md:text-[14px]">{comment.content}</p>
                     {/* 댓글 이미지 */}
                     {comment.images && comment.images.length > 0 && (
-                      <ImageGallery images={comment.images} size="small" className="mt-2" />
+                      <ImageGallery images={comment.images} className="mt-2" />
                     )}
                   </div>
                 </div>

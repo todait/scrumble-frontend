@@ -2,6 +2,7 @@
 
 import { CheckInModalLayout } from '@/features/checkin/components/layout';
 import { useCreateCheckOut } from '@/shared/hooks/queries';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
 import { useEffect, useState } from 'react';
@@ -35,11 +36,12 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const handleSubmit = (data: { message: string; images: string[] }) => {
+  const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
     createCheckOut(
       {
         spaceSlug,
         reflectionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: () => {

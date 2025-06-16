@@ -3,6 +3,7 @@
 import { useCreateCheckIn, useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
 import { ErrorCode } from '@/shared/types/api';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
@@ -23,7 +24,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { error, info } = useToast();
 
-  const { mutate: createCheckInMutation, isPending } = useCreateCheckIn();
+  const { mutate: createCheckIn, isPending } = useCreateCheckIn();
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
     spaceSlug,
     date: formatDateToAPIString(new Date()),
@@ -33,13 +34,14 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     setDateString(formatDate());
   }, []);
 
-  const handleSubmit = (data: { score: number; message: string; images: string[] }) => {
+  const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
-    createCheckInMutation(
+    createCheckIn(
       {
         spaceSlug,
         conditionScore: data.score,
         conditionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: async () => {
@@ -76,7 +78,8 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const handleScoreRequiredToast = () => {
     info({
       title: '점수를 먼저 선택해주세요 😊',
-      message: '오늘의 컴디션 점수를 먼저 선택한 후 메시지를 작성해주세요. 점수를 매기면 마음을 더 잘 정리할 수 있어요!',
+      message:
+        '오늘의 컴디션 점수를 먼저 선택한 후 메시지를 작성해주세요. 점수를 매기면 마음을 더 잘 정리할 수 있어요!',
     });
   };
 
@@ -93,10 +96,10 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
           팀워크의 흐름을 만드는 신호가 될 수 있답니다.
         </p>
       </div>
-      <CheckInForm 
-        onSubmit={handleSubmit} 
-        disabled={isPending || isProcessing} 
-        isLoading={isPending || isProcessing} 
+      <CheckInForm
+        onSubmit={handleSubmit}
+        disabled={isPending || isProcessing}
+        isLoading={isPending || isProcessing}
         onScoreRequiredToast={handleScoreRequiredToast}
       />
     </CheckInModalLayout>

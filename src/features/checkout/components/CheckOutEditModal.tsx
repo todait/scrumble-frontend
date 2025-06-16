@@ -4,6 +4,7 @@ import { CheckInModalLayout } from '@/features/checkin/components/layout';
 import type { CheckoutPost } from '@/features/feed/types/feed.types';
 import { useToast } from '@/shared/hooks';
 import { useUpdateCheckOut } from '@/shared/hooks/queries';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
 import { useEffect } from 'react';
@@ -41,7 +42,7 @@ export function CheckOutEditModal({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const handleSubmit = (data: { message: string; images: string[] }) => {
+  const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
     data.message = data.message.trim();
     if (data.message === '') {
       error({
@@ -55,6 +56,7 @@ export function CheckOutEditModal({
         spaceSlug,
         postId: post.id,
         reflectionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: () => {
@@ -67,7 +69,7 @@ export function CheckOutEditModal({
 
   const initialData = {
     message: post.reflectionText,
-    images: post.images || [],
+    images: post.images,
   };
 
   return (
@@ -85,7 +87,12 @@ export function CheckOutEditModal({
           유연하게 만들어줄 수 있답니다.
         </p>
       </div>
-      <CheckOutForm onSubmit={handleSubmit} initialData={initialData} disabled={isPending} isLoading={isPending} />
+      <CheckOutForm
+        onSubmit={handleSubmit}
+        initialData={initialData}
+        disabled={isPending}
+        isLoading={isPending}
+      />
     </CheckInModalLayout>
   );
 }
