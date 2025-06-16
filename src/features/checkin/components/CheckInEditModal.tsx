@@ -43,6 +43,7 @@ export function CheckInEditModal({
         postId: post.id,
         conditionScore: data.score,
         conditionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: () => {
@@ -67,12 +68,10 @@ export function CheckInEditModal({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // 기존 포스트 데이터를 초기값으로 설정
-  // TODO: 이미지 편집 기능 추가 시 string[]을 ImageMetadata[]로 변환 필요
   const initialData = {
     score: post.conditionScore,
     message: post.conditionText,
-    images: [] as ImageMetadata[], // 현재는 이미지 편집을 지원하지 않으므로 빈 배열
+    images: post.images,
   };
 
   return (
@@ -86,7 +85,12 @@ export function CheckInEditModal({
           <h2 className="text-2xl font-bold text-black">체크인 노트 수정</h2>
         </div>
       </div>
-      <CheckInForm onSubmit={handleSubmit} initialData={initialData} disabled={isPending} isLoading={isPending} />
+      <CheckInForm
+        onSubmit={handleSubmit}
+        initialData={initialData}
+        disabled={isPending}
+        isLoading={isPending}
+      />
     </CheckInModalLayout>
   );
 }

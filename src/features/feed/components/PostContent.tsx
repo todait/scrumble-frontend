@@ -17,7 +17,7 @@ import { RiArrowRightSLine, RiDeleteBinLine, RiEdit2Line, RiMore2Line } from '@r
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import router from 'next/router';
-import { useState, useEffect, useRef, forwardRef } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import type { Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
 
@@ -58,6 +58,7 @@ export function PostContent({
     spaceSlug,
     date: formatDateToAPIString(new Date()),
   });
+  const imageUrls = post.images?.map(image => image.url);
 
   // 모바일 메뉴 외부 클릭 시 닫기
   useEffect(() => {
@@ -157,18 +158,21 @@ export function PostContent({
 
   const profileImageSize = isDetailView ? 48 : 40;
   const nameTextSize = isDetailView ? 'text-lg md:text-[17px]' : 'text-base md:text-[15px]';
-  const contentTextSize = isDetailView 
-    ? 'text-base leading-[1.5] md:text-[16px] md:leading-[1.5]' 
+  const contentTextSize = isDetailView
+    ? 'text-base leading-[1.5] md:text-[16px] md:leading-[1.5]'
     : 'text-base leading-[1.4] md:text-[15px] md:leading-[1.4]';
   const padding = isDetailView ? 'p-4 md:p-6' : 'p-5 md:p-[30px]';
 
   // 모바일 더보기 메뉴 컴포넌트
-  const MobileMoreMenu = forwardRef<HTMLDivElement, {
-    showMenu: boolean;
-    onMenuToggle: (e: React.MouseEvent) => void;
-    onEdit: (e: React.MouseEvent) => void;
-    onDelete: (e: React.MouseEvent) => void;
-  }>(({ showMenu, onMenuToggle, onEdit, onDelete }, ref) => (
+  const MobileMoreMenu = forwardRef<
+    HTMLDivElement,
+    {
+      showMenu: boolean;
+      onMenuToggle: (e: React.MouseEvent) => void;
+      onEdit: (e: React.MouseEvent) => void;
+      onDelete: (e: React.MouseEvent) => void;
+    }
+  >(({ showMenu, onMenuToggle, onEdit, onDelete }, ref) => (
     <div ref={ref} className="relative md:hidden">
       <button
         onClick={onMenuToggle}
@@ -176,7 +180,7 @@ export function PostContent({
       >
         <RiMore2Line className="h-5 w-5 text-[#222222] opacity-60" />
       </button>
-      
+
       {/* 모바일 드롭다운 메뉴 */}
       {showMenu && (
         <div className="absolute right-0 top-full z-30 mt-1 flex min-w-[120px] flex-col rounded-lg bg-white p-1 shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
@@ -282,7 +286,7 @@ export function PostContent({
                 </span>
               </div>
             </div>
-            
+
             {/* 체크인 점수 + 더보기 메뉴 */}
             {isCheckIn && 'conditionScore' in post && (
               <div className="flex flex-shrink-0 items-center gap-2">
@@ -292,7 +296,7 @@ export function PostContent({
                     {post.conditionScore}점
                   </span>
                 </div>
-                
+
                 {/* 모바일 더보기 메뉴 - 내 포스트일 때만 표시 */}
                 {isMyPost && !isDetailView && (
                   <MobileMoreMenu
@@ -305,7 +309,7 @@ export function PostContent({
                 )}
               </div>
             )}
-            
+
             {/* 체크아웃 더보기 메뉴 - 체크인 점수가 없을 때 */}
             {isCheckOut && isMyPost && !isDetailView && (
               <div className="flex-shrink-0">
@@ -323,16 +327,14 @@ export function PostContent({
           {/* 본문 */}
           <div className="py-2">
             {showFullContent ? (
-              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
-                {content}
-              </p>
+              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>{content}</p>
             ) : (
               <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
                 {content.length > 200 ? (
                   <>
                     {contentPreview.replace(/\.\.\.$/, '')}
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         setShowFullContent(true);
@@ -353,7 +355,6 @@ export function PostContent({
           {post.images && post.images.length > 0 && (
             <ImageGallery
               images={post.images}
-              size={isDetailView ? 'large' : 'medium'}
               className="mt-2"
               onClick={(index, event) => {
                 // 이벤트 전파를 막고 이미지 뷰어 열기
@@ -476,9 +477,9 @@ export function PostContent({
       )}
 
       {/* 이미지 뷰어 */}
-      {post.images && post.images.length > 0 && (
+      {imageUrls && imageUrls.length > 0 && (
         <ImageViewer
-          images={post.images}
+          images={imageUrls}
           initialIndex={selectedImageIndex}
           isOpen={imageViewerOpen}
           onClose={() => setImageViewerOpen(false)}

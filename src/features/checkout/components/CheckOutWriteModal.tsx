@@ -41,6 +41,7 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
       {
         spaceSlug,
         reflectionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: () => {

@@ -14,6 +14,7 @@ interface PostFormProps {
   isLoading?: boolean;
   placeholder?: string;
   initialMessage?: string;
+  initialImages?: ImageMetadata[];
   children?: React.ReactNode;
   onTextAreaClick?: () => void;
   submitDisabled?: boolean;
@@ -25,6 +26,7 @@ export const PostForm = ({
   isLoading = false,
   placeholder = '오늘 하루는 어떠셨나요? 팀원들과 나누고 싶은 이야기를 들려주세요.',
   initialMessage = '',
+  initialImages = [],
   children,
   onTextAreaClick,
   submitDisabled = false,
@@ -39,6 +41,7 @@ export const PostForm = ({
 
   const { uploadImages, uploadingImages, completedImages, removeImage, clearImages, isUploading } =
     useImageUpload({
+      initialImages,
       onError: error => {
         alert(error);
       },

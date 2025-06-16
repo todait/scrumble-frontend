@@ -1,4 +1,5 @@
 export interface ImageMetadata {
+  id?: string;
   url: string;
   key: string;
   size: number;

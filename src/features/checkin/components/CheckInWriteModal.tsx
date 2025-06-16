@@ -24,7 +24,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { error, info } = useToast();
 
-  const { mutate: createCheckInMutation, isPending } = useCreateCheckIn();
+  const { mutate: createCheckIn, isPending } = useCreateCheckIn();
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
     spaceSlug,
     date: formatDateToAPIString(new Date()),
@@ -36,12 +36,12 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
-    // TODO: 백엔드 API가 이미지를 지원하면 images 필드 추가
-    createCheckInMutation(
+    createCheckIn(
       {
         spaceSlug,
         conditionScore: data.score,
         conditionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: async () => {
@@ -78,7 +78,8 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const handleScoreRequiredToast = () => {
     info({
       title: '점수를 먼저 선택해주세요 😊',
-      message: '오늘의 컴디션 점수를 먼저 선택한 후 메시지를 작성해주세요. 점수를 매기면 마음을 더 잘 정리할 수 있어요!',
+      message:
+        '오늘의 컴디션 점수를 먼저 선택한 후 메시지를 작성해주세요. 점수를 매기면 마음을 더 잘 정리할 수 있어요!',
     });
   };
 
@@ -95,10 +96,10 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
           팀워크의 흐름을 만드는 신호가 될 수 있답니다.
         </p>
       </div>
-      <CheckInForm 
-        onSubmit={handleSubmit} 
-        disabled={isPending || isProcessing} 
-        isLoading={isPending || isProcessing} 
+      <CheckInForm
+        onSubmit={handleSubmit}
+        disabled={isPending || isProcessing}
+        isLoading={isPending || isProcessing}
         onScoreRequiredToast={handleScoreRequiredToast}
       />
     </CheckInModalLayout>

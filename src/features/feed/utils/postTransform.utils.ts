@@ -1,5 +1,5 @@
 import type { Post as ApiPost } from '@/shared/types/post';
-import type { Post as FeedPost, CheckinPost, CheckoutPost } from '../types/feed.types';
+import type { CheckinPost, CheckoutPost, Post as FeedPost } from '../types/feed.types';
 
 /**
  * 컨디션 점수에 따른 이모지 반환
@@ -25,7 +25,7 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
     reactions: [],
     comments: [],
     commentCount: 0,
-    images: [],
+    images: apiPost.images,
     author: {
       id: apiPost.author.id,
       name: apiPost.author.name,

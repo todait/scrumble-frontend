@@ -6,6 +6,7 @@ interface UseImageUploadOptions {
   maxSize?: number;
   maxFiles?: number;
   acceptedFormats?: string[];
+  initialImages?: ImageMetadata[];
   onUploadComplete?: (images: ImageMetadata[]) => void;
   onError?: (error: string) => void;
 }
@@ -14,10 +15,20 @@ export function useImageUpload({
   maxSize = 10 * 1024 * 1024, // 10MB
   maxFiles = 10,
   acceptedFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  initialImages = [],
   onUploadComplete,
   onError,
 }: UseImageUploadOptions = {}) {
-  const [uploadingImages, setUploadingImages] = useState<UploadingImage[]>([]);
+  const [uploadingImages, setUploadingImages] = useState<UploadingImage[]>(() => {
+    // 초기 이미지들을 UploadingImage 형태로 변환
+    return initialImages.map((img, index) => ({
+      id: `initial-${index}`,
+      file: new File([], img.name, { type: img.format }),
+      preview: img.url,
+      progress: 100,
+      metadata: img,
+    }));
+  });
   const uploadIdCounter = useRef(0);
 
   // 파일 유효성 검사

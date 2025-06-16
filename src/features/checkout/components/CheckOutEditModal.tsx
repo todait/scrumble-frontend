@@ -56,6 +56,7 @@ export function CheckOutEditModal({
         spaceSlug,
         postId: post.id,
         reflectionText: data.message,
+        images: data.images,
       },
       {
         onSuccess: () => {
@@ -66,10 +67,9 @@ export function CheckOutEditModal({
     );
   };
 
-  // TODO: 이미지 편집 기능 추가 시 string[]을 ImageMetadata[]로 변환 필요
   const initialData = {
     message: post.reflectionText,
-    images: [] as ImageMetadata[], // 현재는 이미지 편집을 지원하지 않으므로 빈 배열
+    images: post.images,
   };
 
   return (
@@ -87,7 +87,12 @@ export function CheckOutEditModal({
           유연하게 만들어줄 수 있답니다.
         </p>
       </div>
-      <CheckOutForm onSubmit={handleSubmit} initialData={initialData} disabled={isPending} isLoading={isPending} />
+      <CheckOutForm
+        onSubmit={handleSubmit}
+        initialData={initialData}
+        disabled={isPending}
+        isLoading={isPending}
+      />
     </CheckInModalLayout>
   );
 }

@@ -1,4 +1,18 @@
 import type { CheckinPost, CheckoutPost, Post, TeamSummary } from '../types/feed.types';
+import type { ImageMetadata } from '@/shared/types/upload.types';
+
+// 헬퍼 함수: URL을 ImageMetadata로 변환
+const createMockImageMetadata = (urls: string[]): ImageMetadata[] => {
+  return urls.map((url, index) => ({
+    url,
+    key: `mock-image-${index}-${Date.now()}`,
+    size: 1024 * 1024, // 1MB
+    width: 800,
+    height: 600,
+    format: 'jpg',
+    name: `mock-image-${index}.jpg`,
+  }));
+};
 
 const createMockPosts = (): Post[] => {
   const posts: (Omit<CheckinPost, 'commentCount'> | Omit<CheckoutPost, 'commentCount'>)[] = [
@@ -94,9 +108,9 @@ const createMockPosts = (): Post[] => {
           },
           content: '추억이 담긴 이야기네요. 그때 그 순간이 떠오르는 것 같아요.',
           createdAt: new Date(Date.now() - 15 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '3',
@@ -108,10 +122,10 @@ const createMockPosts = (): Post[] => {
           content:
             '도랑을 건너던 그 날의 기억이 생생하게 전해지네요.\n물이 옮은 이야기도 재미있어요! 😊',
           createdAt: new Date(Date.now() - 30 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '4',
@@ -133,11 +147,11 @@ const createMockPosts = (): Post[] => {
           },
           content: '비탈진 곳에서도 꿋꿋하게 피어나는 꽃들을 보면 대단하다는 생각이 들어요.',
           createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '6',
@@ -159,9 +173,9 @@ const createMockPosts = (): Post[] => {
           },
           content: '물이 옮았다는 표현이 정말 재미있네요!',
           createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '8',
@@ -173,12 +187,12 @@ const createMockPosts = (): Post[] => {
           content:
             '칡덩굴이 엉킨 모습도 나름의 운치가 있죠.\n자연의 모습 그대로가 가장 아름다운 것 같아요.\n사진으로 담아보고 싶네요!',
           createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '9',
@@ -200,10 +214,10 @@ const createMockPosts = (): Post[] => {
           content:
             '어릴 적 추억이 떠오르네요.\n저도 친구들과 도랑을 건너며 놀던 기억이 있어요.\n그때가 그립습니다.',
           createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '11',
@@ -225,13 +239,13 @@ const createMockPosts = (): Post[] => {
           content:
             '비탈진 곳에서도 생명은 피어나네요.\n우리도 어려운 상황에서도 희망을 잃지 말아야겠어요.\n힘내세요! 💪',
           createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '13',
@@ -252,9 +266,9 @@ const createMockPosts = (): Post[] => {
           },
           content: '칡꽃의 향기가 여기까지 전해지는 것 같네요.\n봄날의 추억이 새록새록 떠오릅니다.',
           createdAt: new Date(Date.now() - 10 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '15',
@@ -276,11 +290,11 @@ const createMockPosts = (): Post[] => {
           },
           content: '자연과 함께한 추억이 가장 오래 남는 것 같아요.',
           createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '17',
@@ -303,10 +317,10 @@ const createMockPosts = (): Post[] => {
           content:
             '업혔던 기억까지 생생하게 전해지네요.\n친구와의 소중한 추억이었겠어요.\n그런 순간들이 우리를 더 가깝게 만들어주죠.',
           createdAt: new Date(Date.now() - 14 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '19',
@@ -328,12 +342,12 @@ const createMockPosts = (): Post[] => {
           content:
             '비탈진 곳의 칡덩굴이라니, 정말 특별한 발견이네요!\n자연은 언제나 우리에게 놀라움을 선사하는 것 같아요.\n내일도 좋은 발견이 있기를!',
           createdAt: new Date(Date.now() - 16 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '21',
@@ -365,9 +379,9 @@ const createMockPosts = (): Post[] => {
           content:
             '칡꽃을 보니 어머니가 해주시던 칡차가 생각나네요.\n건강에도 좋고 맛도 좋았던 기억이 있어요.\n오늘 저녁엔 칡차 한잔 해야겠어요! ☕',
           createdAt: new Date(Date.now() - 19 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
         {
           id: '24',
@@ -388,7 +402,7 @@ const createMockPosts = (): Post[] => {
           },
           content: '칡덩굴의 끈질긴 생명력처럼 우리도 강하게 살아가요!',
           createdAt: new Date(Date.now() - 21 * 60 * 60 * 1000),
-          images: [
+          images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=400&h=300&fit=crop',
             'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=500&h=200&fit=crop',
             'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
@@ -399,7 +413,7 @@ const createMockPosts = (): Post[] => {
             'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=300&fit=crop',
             'https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=400&h=1200&fit=crop',
             'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=400&h=300&fit=crop',
-          ],
+          ]),
         },
       ],
       lastCommentTime: new Date(Date.now() - 24 * 60 * 1000),
@@ -424,7 +438,7 @@ const createMockPosts = (): Post[] => {
         { emoji: '👍', count: 8, userIds: ['4', '5', '6'] },
       ],
       comments: [],
-      images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=300&fit=crop'],
+      images: createMockImageMetadata(['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=300&fit=crop']),
     },
     {
       id: '4',
@@ -477,7 +491,7 @@ const createMockPosts = (): Post[] => {
         },
       ],
       lastCommentTime: new Date(Date.now() - 24 * 60 * 1000),
-      images: [
+      images: createMockImageMetadata([
         'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
         'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop',
         'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=1200&h=400&fit=crop',
@@ -490,7 +504,7 @@ const createMockPosts = (): Post[] => {
         'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&h=1600&fit=crop',
         'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=3000&h=2000&fit=crop',
         'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=600&h=400&fit=crop',
-      ],
+      ]),
     },
     {
       id: '5',
@@ -544,12 +558,12 @@ const createMockPosts = (): Post[] => {
         },
       ],
       lastCommentTime: new Date(Date.now() - 24 * 60 * 1000),
-      images: [
+      images: createMockImageMetadata([
         'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
         'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop',
         'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop',
         'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop',
-      ],
+      ]),
     },
     {
       id: '6',
@@ -603,10 +617,10 @@ const createMockPosts = (): Post[] => {
         },
       ],
       lastCommentTime: new Date(Date.now() - 24 * 60 * 1000),
-      images: [
+      images: createMockImageMetadata([
         'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=300&fit=crop',
         'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
-      ],
+      ]),
     },
   ];
 

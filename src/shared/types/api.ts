@@ -167,6 +167,17 @@ export interface GetPostsApiResponse {
     condition_score?: number;
     condition_text?: string;
     reflection_text?: string;
+    images: {
+      id: string;
+      created_at: string;
+      url: string;
+      key: string;
+      size: number;
+      width: number;
+      height: number;
+      format: string;
+      name: string;
+    }[];
   }>;
   nextCursor?: string;
   hasMore: boolean;
