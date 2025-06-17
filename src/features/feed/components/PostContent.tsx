@@ -259,7 +259,7 @@ export function PostContent({
         </div>
 
         {/* 콘텐츠 영역 */}
-        <div className="min-w-0 flex-1 space-y-[10px]">
+        <div className="min-w-0 flex-1 space-y-[10px] overflow-hidden">
           {/* 헤더 */}
           <div className="flex items-start justify-between gap-2">
             <div

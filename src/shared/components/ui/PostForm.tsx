@@ -123,9 +123,16 @@ export const PostForm = ({
   // 제출 핸들러
   const handleSubmit = () => {
     if (message.trim() || completedImages.length > 0) {
-      onSubmit({ message, images: completedImages });
+      // 이미지 상태를 먼저 복사해서 안전하게 전달
+      const imagesToSubmit = [...completedImages];
+      const messageToSubmit = message;
+      
+      // 상태 초기화를 먼저 수행
       clearImages();
       setMessage('');
+      
+      // 복사된 데이터로 제출
+      onSubmit({ message: messageToSubmit, images: imagesToSubmit });
     }
   };
 
@@ -134,7 +141,8 @@ export const PostForm = ({
     disabled ||
     isLoading ||
     submitDisabled ||
-    isUploading;
+    isUploading ||
+    uploadingImages.some(img => img.progress > 0 && img.progress < 100); // 추가 업로드 체크
 
   return (
     <div

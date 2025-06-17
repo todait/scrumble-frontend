@@ -14,7 +14,7 @@ interface ImageGalleryProps {
 // 크기 제한 상수
 const SIZE_LIMITS = {
   MIN_WIDTH: 320,
-  MAX_WIDTH: 530,
+  MAX_WIDTH: 530, // PostContent 전체 너비까지 가능
   MIN_HEIGHT: 320,
   MAX_HEIGHT: 420,
 };
@@ -29,8 +29,18 @@ function calculateSingleImageSize(originalWidth: number, originalHeight: number)
   let width: number;
   let height: number;
   
+  // 극단적으로 가로가 긴 이미지 처리 (비율 > 5)
+  if (aspectRatio > 5) {
+    width = SIZE_LIMITS.MAX_WIDTH;
+    height = Math.max(SIZE_LIMITS.MIN_HEIGHT / 2, SIZE_LIMITS.MAX_WIDTH / aspectRatio);
+  }
+  // 극단적으로 세로가 긴 이미지 처리 (비율 < 0.2)
+  else if (aspectRatio < 0.2) {
+    height = SIZE_LIMITS.MAX_HEIGHT;
+    width = Math.max(SIZE_LIMITS.MIN_WIDTH / 2, SIZE_LIMITS.MAX_HEIGHT * aspectRatio);
+  }
   // 세로형 이미지 (비율 < 1)
-  if (aspectRatio < 1) {
+  else if (aspectRatio < 1) {
     // 높이를 최대로 설정하고 너비 계산
     height = SIZE_LIMITS.MAX_HEIGHT;
     width = height * aspectRatio;
@@ -59,6 +69,9 @@ function calculateSingleImageSize(originalWidth: number, originalHeight: number)
       width = height * aspectRatio;
     }
   }
+  
+  // 최종 안전 장치: 최대 너비 제한
+  width = Math.min(width, SIZE_LIMITS.MAX_WIDTH);
   
   return {
     width: Math.round(width),
@@ -94,11 +107,20 @@ function calculateMultipleImageSizes(images: ImageMetadata[]) {
     }
     
     const aspectRatio = img.width / img.height;
-    const width = Math.round(targetHeight * aspectRatio);
+    let width = Math.round(targetHeight * aspectRatio);
+    
+    // 극단적으로 가로가 긴 이미지 처리 (비율 > 5)
+    if (aspectRatio > 5) {
+      width = Math.min(400, targetHeight * aspectRatio); // 다중 이미지에서도 적당한 크기
+    }
+    // 극단적으로 세로가 긴 이미지 처리 (비율 < 0.2)
+    else if (aspectRatio < 0.2) {
+      width = Math.max(150, targetHeight * aspectRatio); // 최소 너비 보장
+    }
     
     // 너비가 범위를 벗어나는 경우 처리
     // 최소/최대 너비로 제한하고, object-fit: cover로 크롭됨
-    const finalWidth = Math.max(SIZE_LIMITS.MIN_WIDTH, Math.min(SIZE_LIMITS.MAX_WIDTH, width));
+    const finalWidth = Math.max(150, Math.min(400, width)); // 다중 이미지도 적당한 크기
     
     return {
       width: finalWidth,
@@ -190,7 +212,11 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
         <div 
           className={`overflow-hidden rounded-lg border border-[#F1F1F1] cursor-pointer hover:opacity-90 transition-opacity ${className}`}
           onClick={(e) => handleImageClick(0, e)}
-          style={{ width, height }}
+          style={{ 
+            width,
+            height,
+            maxWidth: '100%' // 부모 컨테이너 너비 초과 방지
+          }}
         >
           <Image
             src={image.url}
@@ -228,7 +254,10 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
               e.stopPropagation();
             }
           }}
-          style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          style={{ 
+            cursor: isDragging ? 'grabbing' : 'grab',
+            maxWidth: '100%' // 부모 컨테이너 너비 초과 방지
+          }}
         >
           {images.map((image, index) => {
             const { width, height } = imageSizes[index];
@@ -239,7 +268,10 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
                 className="flex-shrink-0 overflow-hidden rounded-lg border border-[#F1F1F1] cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={(e) => handleImageClick(index, e)}
                 onDragStart={(e) => e.preventDefault()}
-                style={{ width, height }}
+                style={{ 
+                  width,
+                  height
+                }}
               >
                 <Image
                   src={image.url}

@@ -5,4 +5,6 @@ export const postsKeys = {
     [...postsKeys.lists(), spaceSlug, filters] as const,
   existsCheckin: (spaceSlug: string, date: string) =>
     [...postsKeys.all, 'existsCheckin', spaceSlug, date] as const,
+  feedSummary: (spaceSlug: string, date: string) =>
+    [...postsKeys.all, 'feedSummary', spaceSlug, date] as const,
 };

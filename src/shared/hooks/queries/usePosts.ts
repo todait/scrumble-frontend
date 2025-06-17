@@ -30,6 +30,11 @@ interface UsePostsOptions {
   enabled?: boolean;
 }
 
+interface UseFeedSummaryOptions {
+  spaceSlug: string;
+  date: string;
+}
+
 /**
  * 포스트 목록을 가져오는 React Query 훅
  * @param options 쿼리 옵션
@@ -65,6 +70,20 @@ export const usePosts = (options: UsePostsOptions) => {
   });
 };
 
+export const useFeedSummary = (options: UseFeedSummaryOptions) => {
+  const { spaceSlug, date } = options;
+
+  return useQuery({
+    queryKey: postsKeys.feedSummary(spaceSlug, date),
+    queryFn: () => postsApi.getFeedSummary({ spaceSlug, date }),
+    enabled: !!spaceSlug && !!date,
+    staleTime: 1000 * 30, // 30초
+    gcTime: 1000 * 60 * 10, // 10분
+    refetchOnWindowFocus: true,
+    retry: defaultRetry,
+  });
+};
+
 interface UseExistsCheckinOptions {
   spaceSlug: string;
   date: string;
@@ -88,7 +107,12 @@ export const useCreateCheckIn = () => {
   const { error } = useToast();
 
   return useMutation<CreateCheckInResponse, Error, CreateCheckInRequest>({
-    mutationFn: params => postsApi.createCheckIn(params),
+    mutationFn: params => {
+      // 디버깅: 이미지 데이터 로깅
+      console.warn('CheckIn API call - Images count:', params.images?.length || 0);
+      console.warn('CheckIn API call - Images:', params.images);
+      return postsApi.createCheckIn(params);
+    },
     onSuccess: (data, variables) => {
       // 포스트 목록 무효화
       queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
@@ -96,6 +120,10 @@ export const useCreateCheckIn = () => {
       const targetDate = variables.postedDate || formatDateToAPIString(new Date());
       queryClient.invalidateQueries({
         queryKey: postsKeys.existsCheckin(variables.spaceSlug, targetDate),
+      });
+      // feedSummary 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
       });
     },
     onError: (err: unknown) => {
@@ -119,9 +147,19 @@ export const useCreateCheckOut = () => {
   const { error } = useToast();
 
   return useMutation<CreateCheckOutResponse, Error, CreateCheckOutRequest>({
-    mutationFn: params => postsApi.createCheckOut(params),
-    onSuccess: () => {
+    mutationFn: params => {
+      // 디버깅: 이미지 데이터 로깅
+      console.warn('CheckOut API call - Images count:', params.images?.length || 0);
+      console.warn('CheckOut API call - Images:', params.images);
+      return postsApi.createCheckOut(params);
+    },
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      // feedSummary 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
+      const targetDate = variables.postedDate || formatDateToAPIString(new Date());
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+      });
     },
     onError: (err: unknown) => {
       error({
@@ -138,8 +176,13 @@ export const useUpdateCheckIn = () => {
 
   return useMutation<UpdateCheckInResponse, Error, UpdateCheckInRequest>({
     mutationFn: params => postsApi.updateCheckIn(params),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      // feedSummary 쿼리 무효화 - 응답 데이터의 postedAt 날짜로
+      const targetDate = data.post.postedAt.split('T')[0]; // YYYY-MM-DD 형식 추출
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+      });
     },
     onError: (err: unknown) => {
       error({
@@ -156,8 +199,13 @@ export const useDeleteCheckIn = () => {
 
   return useMutation<DeleteCheckInResponse, Error, DeleteCheckInRequest>({
     mutationFn: params => postsApi.deleteCheckIn(params),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      // feedSummary 쿼리 무효화 - 오늘 날짜로 (delete는 날짜 정보가 없음)
+      const targetDate = formatDateToAPIString(new Date());
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+      });
     },
     onError: (err: unknown) => {
       error({
@@ -174,8 +222,13 @@ export const useUpdateCheckOut = () => {
 
   return useMutation<UpdateCheckOutResponse, Error, UpdateCheckOutRequest>({
     mutationFn: params => postsApi.updateCheckOut(params),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      // feedSummary 쿼리 무효화 - 응답 데이터의 postedAt 날짜로
+      const targetDate = data.post.postedAt.split('T')[0]; // YYYY-MM-DD 형식 추출
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+      });
     },
     onError: (err: unknown) => {
       error({
@@ -192,8 +245,13 @@ export const useDeleteCheckOut = () => {
 
   return useMutation<DeleteCheckOutResponse, Error, DeleteCheckOutRequest>({
     mutationFn: params => postsApi.deleteCheckOut(params),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      // feedSummary 쿼리 무효화 - 오늘 날짜로 (delete는 날짜 정보가 없음)
+      const targetDate = formatDateToAPIString(new Date());
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+      });
     },
     onError: (err: unknown) => {
       error({
