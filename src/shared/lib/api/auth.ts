@@ -3,13 +3,13 @@
  * Google OAuth, 토큰 갱신, 사용자 정보 조회 등
  */
 
-import { API_BASE_URL, apiClient } from '../api';
 import type {
-  TokenPair,
-  RefreshTokenApiResponse,
   GetUserWithLatestSpaceApiResponse,
+  RefreshTokenApiResponse,
+  TokenPair,
 } from '@/shared/types/api';
 import type { User, UserWithLatestSpace } from '@/shared/types/user';
+import { API_BASE_URL, apiClient, refreshApiClient } from '../api';
 
 /**
  * 인증 관련 API 함수들
@@ -30,7 +30,7 @@ export const authApi = {
    * @returns 새로운 토큰 쌍
    */
   refreshToken: async (refreshToken: string): Promise<TokenPair> => {
-    const { data } = await apiClient.post<RefreshTokenApiResponse>('/auth/refresh', {
+    const { data } = await refreshApiClient.post<RefreshTokenApiResponse>('/auth/refresh', {
       refresh_token: refreshToken,
     });
 

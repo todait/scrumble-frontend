@@ -1,8 +1,8 @@
 import { QueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
-import { TokenManager } from './token';
 import { getUserTimezone } from '../utils/timezone';
+import { TokenManager } from './token';
 
 // API 기본 URL 설정
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -33,6 +33,12 @@ export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   withCredentials: true, // 쿠키 포함
+});
+
+export const refreshApiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  withCredentials: true,
 });
 
 // 요청 인터셉터: 토큰 및 타임존 헤더 자동 추가
@@ -94,17 +100,20 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         } catch (refreshError) {
           // 리프레시 실패 - 로그아웃 처리
-          console.error('❌ Token refresh failed:', refreshError);
+
           TokenManager.clearTokens();
 
           if (queryClientInstance) {
+            queryClientInstance.cancelQueries();
             queryClientInstance.clear();
+            queryClientInstance.removeQueries();
           }
 
           window.dispatchEvent(new CustomEvent('tokenCleared'));
 
           if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
-            window.location.href = '/auth';
+            // window.location.href = '/auth';
+            window.location.replace('/auth');
           }
 
           return Promise.reject(refreshError);
