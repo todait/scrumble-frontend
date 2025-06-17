@@ -17,7 +17,7 @@ import type {
   UpdateCheckOutResponse,
 } from '@/shared/types/post';
 import { formatDateToAPIString, getErrorMessage, isErrorCode } from '@/shared/utils';
-import { defaultRetry } from '@/shared/utils/query';
+import { authRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../useToast';
 import { postsKeys } from './postsKeys';
@@ -66,7 +66,7 @@ export const usePosts = (options: UsePostsOptions) => {
     staleTime: 1000 * 60 * 2, // 2분
     gcTime: 1000 * 60 * 10, // 10분
     refetchOnWindowFocus: false,
-    retry: defaultRetry,
+    retry: authRetry,
   });
 };
 
@@ -80,7 +80,7 @@ export const useFeedSummary = (options: UseFeedSummaryOptions) => {
     staleTime: 1000 * 30, // 30초
     gcTime: 1000 * 60 * 10, // 10분
     refetchOnWindowFocus: true,
-    retry: defaultRetry,
+    retry: authRetry,
   });
 };
 
@@ -98,7 +98,7 @@ export const useExistsCheckin = (options: UseExistsCheckinOptions) => {
     enabled: !!spaceSlug && !!date,
     staleTime: 0,
     gcTime: 1000 * 60,
-    retry: defaultRetry,
+    retry: authRetry,
   });
 };
 

@@ -6,6 +6,7 @@ import { authKeys } from '@/shared/hooks/queries/authKeys';
 import { authApi } from '@/shared/lib/api/auth';
 import { TokenManager } from '@/shared/lib/token';
 import type { User, UserWithLatestSpace } from '@/shared/types/auth';
+import { authRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -78,13 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
     refetchOnWindowFocus: false,
-    retry: (failureCount, error: unknown) => {
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response: { status: number } };
-        if (axiosError.response?.status === 401) return false;
-      }
-      return failureCount < 2;
-    },
+    retry: authRetry,
   });
 
   // 최신 스페이스 정보 쿼리
@@ -95,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    retry: false,
+    retry: authRetry,
   });
 
   // 로그아웃 mutation
