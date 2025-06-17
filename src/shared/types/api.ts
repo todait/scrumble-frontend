@@ -183,6 +183,18 @@ export interface GetPostsApiResponse {
   hasMore: boolean;
 }
 
+export interface GetFeedSummaryApiResponse {
+  message: string;
+  summary: {
+    date: string;
+    space_slug: string;
+    check_in_count: number;
+    check_out_count: number;
+    total_workday_member_count: number;
+    average_condition_score: number;
+  };
+}
+
 /**
  * 최신 스페이스를 포함한 사용자 정보 API 응답 (백엔드)
  * 로그인 후 리다이렉트에 사용

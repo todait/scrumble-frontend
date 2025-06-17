@@ -161,7 +161,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
               <div className="flex-shrink-0">
                 <FeedHeader
                   selectedDate={selectedDate}
-                  activeUsers={22}
+                  activeUsers={teamSummary?.totalMembers || 0}
                   onDateClick={handleDateClick}
                 />
               </div>
