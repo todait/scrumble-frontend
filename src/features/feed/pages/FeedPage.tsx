@@ -272,10 +272,12 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
       {/* 플로팅 체크아웃 버튼 - 모바일에서 위치 조정 */}
       {!selectedPost && isCheckoutAvailable && (
-        <div className="fixed bottom-24 left-0 right-0 z-50 flex justify-center px-4 md:bottom-8 md:px-8">
+        <div className="pointer-events-none fixed bottom-24 left-0 right-0 z-10 flex justify-center px-4 md:bottom-8 md:px-8">
           <div className="w-full max-w-[1200px]">
             <div className="flex justify-end">
-              <FloatingCheckoutButton onClick={openCheckOutModal} />
+              <div className="pointer-events-auto">
+                <FloatingCheckoutButton onClick={openCheckOutModal} />
+              </div>
             </div>
           </div>
         </div>

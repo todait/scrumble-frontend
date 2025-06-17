@@ -3,7 +3,7 @@ import { mockTeamSummary } from '@/features/feed/data/mockData';
 import type { TeamSummary } from '@/features/feed/types/feed.types';
 import { postsApi } from '@/shared/lib/api/posts';
 import { postsKeys } from './postsKeys';
-import { defaultRetry } from '@/shared/utils/query';
+import { authRetry } from '@/shared/utils/query';
 import { formatDateToAPIString } from '@/shared/utils';
 import type { GetFeedSummaryResponse } from '@/shared/types/post';
 
@@ -53,6 +53,6 @@ export const useTeamSummary = (options: UseTeamSummaryOptions) => {
     staleTime: 1000 * 30, // 30초 (실시간 데이터이므로 짧게)
     gcTime: 1000 * 60 * 10, // 10분
     refetchOnWindowFocus: true,
-    retry: defaultRetry,
+    retry: authRetry,
   });
 };
