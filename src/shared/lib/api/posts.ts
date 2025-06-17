@@ -9,6 +9,7 @@ import type {
   DeleteCheckInApiResponse,
   DeleteCheckOutApiResponse,
   ExistsCheckinApiResponse,
+  GetFeedSummaryApiResponse,
   GetPostsApiResponse,
   UpdateCheckInApiResponse,
   UpdateCheckOutApiResponse,
@@ -24,6 +25,8 @@ import type {
   DeleteCheckOutResponse,
   ExistsCheckinParams,
   ExistsCheckinResponse,
+  GetFeedSummaryParams,
+  GetFeedSummaryResponse,
   GetPostsParams,
   GetPostsResponse,
   Post,
@@ -98,6 +101,27 @@ export const postsApi = {
       posts: data.posts.map(convertApiPostToPost),
       nextCursor: data.nextCursor,
       hasMore: data.hasMore,
+    };
+  },
+
+  getFeedSummary: async (params: GetFeedSummaryParams): Promise<GetFeedSummaryResponse> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('date', params.date);
+    
+    const { data } = await apiClient.get<GetFeedSummaryApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/summary?${queryParams.toString()}`
+    );
+
+    return {
+      message: data.message,
+      summary: {
+        date: data.summary.date,
+        spaceSlug: data.summary.space_slug,
+        checkinCount: data.summary.check_in_count,
+        checkOutCount: data.summary.check_out_count,
+        totalWorkdayMemberCount: data.summary.total_workday_member_count,
+        averageConditionScore: data.summary.average_condition_score,
+      },
     };
   },
 

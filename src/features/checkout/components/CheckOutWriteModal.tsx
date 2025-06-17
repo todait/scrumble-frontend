@@ -37,11 +37,15 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
   }, [isOpen, onClose]);
 
   const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
+    // 디버깅: 제출 데이터 로깅
+    console.warn('CheckOut Submit - Images count:', data.images?.length || 0);
+    console.warn('CheckOut Submit - Images:', data.images);
+    
     createCheckOut(
       {
         spaceSlug,
         reflectionText: data.message,
-        images: data.images,
+        images: data.images || [], // 기본값 대비
       },
       {
         onSuccess: () => {

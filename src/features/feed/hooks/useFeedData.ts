@@ -19,6 +19,7 @@ export const useFeedData = (spaceSlug: string) => {
     date: formatDateToAPIString(selectedDate),
   });
 
+
   // 실제 API 또는 Mock 데이터 사용
   const realPostsQuery = usePosts({
     spaceSlug,
@@ -36,6 +37,7 @@ export const useFeedData = (spaceSlug: string) => {
   // 팀 요약 정보
   const teamSummaryQuery = useTeamSummary({
     spaceSlug,
+    date: selectedDate,
     enabled: true, // 팀 요약은 항상 활성화
   });
   // 데이터 변환 및 계산된 값들
@@ -65,6 +67,7 @@ export const useFeedData = (spaceSlug: string) => {
 
   return {
     existsCheckinQuery,
+    teamSummaryQuery,
     // 데이터
     posts,
     teamSummary: teamSummaryQuery.data,

@@ -36,12 +36,17 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
+    
+    // 디버깅: 제출 데이터 로깅
+    console.warn('CheckIn Submit - Images count:', data.images?.length || 0);
+    console.warn('CheckIn Submit - Images:', data.images);
+    
     createCheckIn(
       {
         spaceSlug,
         conditionScore: data.score,
         conditionText: data.message,
-        images: data.images,
+        images: data.images || [], // 기본값 대비
       },
       {
         onSuccess: async () => {

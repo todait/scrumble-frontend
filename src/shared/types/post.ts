@@ -129,6 +129,23 @@ export interface ExistsCheckinParams {
   date: string;
 }
 
+export interface GetFeedSummaryParams {
+  spaceSlug: string;
+  date: string;
+}
+
+export interface GetFeedSummaryResponse {
+  message: string;
+  summary: {
+    date: string;
+    spaceSlug: string;
+    checkinCount: number;
+    checkOutCount: number;
+    totalWorkdayMemberCount: number;
+    averageConditionScore: number;
+  };
+}
+
 export interface CreateCheckInRequest {
   spaceSlug: string;
   postedDate?: string; // YYYY-MM-DD

@@ -1,6 +1,7 @@
 'use client';
 
 import { formatDateForPage } from '@/shared/utils';
+import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
 import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,11 +15,20 @@ export function NewCheckInPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dateString, setDateString] = useState('');
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     const today = new Date();
+    setCurrentDate(today);
     setDateString(formatDateForPage(today));
   }, []);
+
+  // 팀 요약 정보 가져오기
+  const { data: teamSummary, isLoading } = useTeamSummary({
+    spaceSlug,
+    date: currentDate,
+    enabled: !!spaceSlug,
+  });
 
   // 체크인 가능 횟수 (임시로 15로 설정)
   const remainingCheckins = 15;
@@ -62,7 +72,24 @@ export function NewCheckInPage() {
                 {remainingCheckins}번째 체크인을 남길 수 있습니다
               </p>
 
-              <TeamStatusCard teamCondition={7.2} checkedInCount={14} checkedOutCount={6} />
+              {isLoading ? (
+                <div className="flex gap-4 py-[10px]">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex-1 rounded-lg bg-[#FAFAFA] p-4">
+                      <div className="animate-pulse">
+                        <div className="mb-2 h-3 w-16 rounded bg-gray-200"></div>
+                        <div className="h-4 w-12 rounded bg-gray-200"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <TeamStatusCard 
+                  teamCondition={teamSummary?.teamCondition ?? 0}
+                  checkedInCount={teamSummary?.checkedInCount ?? 0}
+                  checkedOutCount={teamSummary?.checkedOutCount ?? 0}
+                />
+              )}
             </div>
 
             {/* 하단 섹션 - 버튼 */}
