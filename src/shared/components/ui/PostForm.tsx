@@ -126,15 +126,20 @@ export const PostForm = ({
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
       const messageToSubmit = message;
-      
+
       // 상태 초기화를 먼저 수행
       clearImages();
       setMessage('');
-      
+
       // 복사된 데이터로 제출
       onSubmit({ message: messageToSubmit, images: imagesToSubmit });
     }
   };
+
+  // 업로드 중인 이미지가 있는지 확인
+  const hasUploadingImages = uploadingImages.some(
+    img => (img.progress > 0 && img.progress < 100) || !img.metadata
+  );
 
   const isSubmitDisabled =
     (!message.trim() && completedImages.length === 0) ||
@@ -142,7 +147,7 @@ export const PostForm = ({
     isLoading ||
     submitDisabled ||
     isUploading ||
-    uploadingImages.some(img => img.progress > 0 && img.progress < 100); // 추가 업로드 체크
+    hasUploadingImages; // 업로드 중인 이미지가 있으면 submit 방지
 
   return (
     <div
@@ -189,57 +194,70 @@ export const PostForm = ({
           </button>
 
           {/* 이미지 미리보기 */}
-          {uploadingImages.map(img => (
-            <div key={img.id} className="group relative flex-shrink-0">
-              <div
-                className={`relative h-[80px] w-[80px] overflow-hidden rounded-lg bg-gray-100 ${
-                  !img.error && img.metadata ? 'cursor-pointer' : ''
-                }`}
-                onClick={() => {
-                  if (!img.error && img.metadata) {
-                    handleImageClick(img.metadata.url);
-                  }
-                }}
-              >
-                <Image
-                  src={img.preview}
-                  alt={img.file.name}
-                  width={80}
-                  height={80}
-                  className="h-full w-full object-cover"
-                  draggable={false}
-                />
+          {uploadingImages.map(img => {
+            const isUploading = img.progress > 0 && img.progress < 100 && !img.error;
+            const isCompleted = img.progress === 100 && img.metadata && !img.error;
 
-                {/* 업로드 진행률 */}
-                {img.progress > 0 && img.progress < 100 && !img.error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="text-sm font-medium text-white">
-                      {Math.round(img.progress)}%
-                    </div>
-                  </div>
-                )}
-
-                {/* 에러 상태 */}
-                {img.error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-red-500 bg-opacity-75 p-2">
-                    <div className="text-center text-xs text-white">{img.error}</div>
-                  </div>
-                )}
-
-                {/* 삭제 버튼 */}
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    removeImage(img.id);
+            return (
+              <div key={img.id} className="group relative flex-shrink-0">
+                <div
+                  className={`relative h-[80px] w-[80px] overflow-hidden rounded-lg bg-gray-100 transition-opacity ${
+                    isCompleted ? 'cursor-pointer' : ''
+                  } ${isUploading ? 'opacity-60' : 'opacity-100'}`}
+                  onClick={() => {
+                    if (isCompleted && img.metadata) {
+                      handleImageClick(img.metadata.url);
+                    }
                   }}
-                  className="absolute right-2 top-2 rounded-full bg-black bg-opacity-50 p-1.5 opacity-0 transition-opacity group-hover:opacity-100"
-                  disabled={img.progress > 0 && img.progress < 100}
                 >
-                  <RiCloseLine className="h-4 w-4 text-white" />
-                </button>
+                  <Image
+                    src={img.preview}
+                    alt={img.file.name}
+                    width={80}
+                    height={80}
+                    className={`h-full w-full object-cover transition-all ${
+                      isUploading ? 'blur-[1px] brightness-75' : ''
+                    }`}
+                    draggable={false}
+                  />
+
+                  {/* 업로드 진행률 */}
+                  {isUploading && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-40">
+                      <div className="mb-2 h-1.5 w-12 rounded-full bg-white bg-opacity-30">
+                        <div
+                          className="h-full rounded-full bg-white transition-all duration-300"
+                          style={{ width: `${Math.round(img.progress)}%` }}
+                        />
+                      </div>
+                      <div className="text-xs font-medium text-white">
+                        {Math.round(img.progress)}%
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 에러 상태 */}
+                  {img.error && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-500 bg-opacity-75 p-2">
+                      <div className="text-center text-xs text-white">{img.error}</div>
+                    </div>
+                  )}
+
+                  {/* 삭제 버튼 */}
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      removeImage(img.id);
+                    }}
+                    className="absolute right-2 top-2 rounded-full bg-black bg-opacity-50 p-1.5 opacity-0 transition-opacity group-hover:opacity-100"
+                    disabled={isUploading}
+                  >
+                    <RiCloseLine className="h-4 w-4 text-white" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
