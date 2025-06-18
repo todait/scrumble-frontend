@@ -1,5 +1,6 @@
 'use client';
 
+import { TiptapEditor } from '@/shared/components/tiptap/TiptapEditor';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCheckLine, RiCloseLine, RiImageLine } from '@remixicon/react';
@@ -18,6 +19,7 @@ interface PostFormProps {
   children?: React.ReactNode;
   onTextAreaClick?: () => void;
   submitDisabled?: boolean;
+  enableRichText?: boolean; // 리치 텍스트 에디터 사용 여부
 }
 
 export const PostForm = ({
@@ -30,6 +32,7 @@ export const PostForm = ({
   children,
   onTextAreaClick,
   submitDisabled = false,
+  enableRichText = true, // 기본값을 true로 설정
 }: PostFormProps) => {
   const [message, setMessage] = useState(initialMessage);
   const [isDragging, setIsDragging] = useState(false);
@@ -122,14 +125,31 @@ export const PostForm = ({
 
   // 제출 핸들러
   const handleSubmit = () => {
-    if (message.trim() || completedImages.length > 0) {
+    // 컨텐츠 유효성 검사
+    let hasContent = false;
+
+    if (enableRichText) {
+      // Tiptap JSON 형식인 경우
+      try {
+        const content =
+          typeof message === 'string' && message.startsWith('{') ? JSON.parse(message) : message;
+        hasContent = content && content.content && content.content.length > 0;
+      } catch {
+        hasContent = !!message;
+      }
+    } else {
+      // 일반 텍스트인 경우
+      hasContent = message.trim().length > 0;
+    }
+
+    if (hasContent || completedImages.length > 0) {
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
       const messageToSubmit = message;
 
       // 상태 초기화를 먼저 수행
       clearImages();
-      setMessage('');
+      setMessage(enableRichText ? '{"type":"doc","content":[]}' : '');
 
       // 복사된 데이터로 제출
       onSubmit({ message: messageToSubmit, images: imagesToSubmit });
@@ -141,13 +161,28 @@ export const PostForm = ({
     img => (img.progress > 0 && img.progress < 100) || !img.metadata
   );
 
+  // 컨텐츠가 비어있는지 확인
+  const isContentEmpty = () => {
+    if (enableRichText) {
+      try {
+        const content =
+          typeof message === 'string' && message.startsWith('{') ? JSON.parse(message) : message;
+        return !content || !content.content || content.content.length === 0;
+      } catch {
+        return !message;
+      }
+    } else {
+      return !message.trim();
+    }
+  };
+
   const isSubmitDisabled =
-    (!message.trim() && completedImages.length === 0) ||
+    (isContentEmpty() && completedImages.length === 0) ||
     disabled ||
     isLoading ||
     submitDisabled ||
     isUploading ||
-    hasUploadingImages; // 업로드 중인 이미지가 있으면 submit 방지
+    hasUploadingImages;
 
   return (
     <div
@@ -161,15 +196,28 @@ export const PostForm = ({
       {children}
 
       <div className={`px-2 transition-colors md:px-7 ${isDragging ? 'bg-blue-50' : ''}`}>
-        <div className="cursor-text rounded-xl p-3" onClick={onTextAreaClick}>
-          <textarea
-            value={message}
-            onChange={e => setMessage(e.target.value)}
-            placeholder={placeholder}
-            className="h-[240px] w-full resize-none border-none p-[10px] text-[15px] text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
-            disabled={disabled}
-          />
-        </div>
+        {enableRichText ? (
+          <div className="rounded-xl bg-white">
+            <TiptapEditor
+              content={message}
+              onChange={setMessage}
+              placeholder={placeholder}
+              disabled={disabled}
+              className="min-h-[240px]"
+              onTextAreaClick={onTextAreaClick}
+            />
+          </div>
+        ) : (
+          <div className="cursor-text rounded-xl p-3" onClick={onTextAreaClick}>
+            <textarea
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              placeholder={placeholder}
+              className="h-[240px] w-full resize-none border-none p-[10px] text-[15px] text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+              disabled={disabled}
+            />
+          </div>
+        )}
 
         {/* 이미지 업로드 버튼과 미리보기 */}
         <div className="scrollbar-hide mt-3 flex gap-3 overflow-x-auto py-1">

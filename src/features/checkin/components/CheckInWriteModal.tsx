@@ -2,7 +2,7 @@
 
 import { useCreateCheckIn, useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
-import { ErrorCode } from '@/shared/types/api';
+import { ErrorCode, createTiptapDocumentFromText } from '@/shared/types/api';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
@@ -36,16 +36,12 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
-    
-    // 디버깅: 제출 데이터 로깅
-    console.warn('CheckIn Submit - Images count:', data.images?.length || 0);
-    console.warn('CheckIn Submit - Images:', data.images);
-    
+
     createCheckIn(
       {
         spaceSlug,
         conditionScore: data.score,
-        conditionText: data.message,
+        conditionContent: createTiptapDocumentFromText(data.message),
         images: data.images || [], // 기본값 대비
       },
       {

@@ -1,0 +1,280 @@
+/* styles/tiptap.css */
+
+/* Base editor styles */
+.ProseMirror {
+  @apply prose max-w-none focus:outline-none;
+  color: #111827 !important;
+}
+
+.ProseMirror p,
+.ProseMirror li,
+.ProseMirror div,
+.ProseMirror strong,
+.ProseMirror b,
+.ProseMirror em,
+.ProseMirror i,
+.ProseMirror u,
+.ProseMirror s {
+  color: inherit !important;
+}
+
+.ProseMirror p {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+/* Placeholder styles */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #9ca3af;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+/* Placeholder가 다른 요소와 겹치지 않도록 숨김 */
+.ProseMirror:not(:empty) p.is-editor-empty:first-child::before {
+  display: none;
+}
+
+/* Heading styles */
+.ProseMirror h1 {
+  @apply mb-4 mt-6 text-3xl font-bold;
+}
+
+.ProseMirror h2 {
+  @apply mb-3 mt-5 text-2xl font-bold;
+}
+
+.ProseMirror h3 {
+  @apply mb-2 mt-4 text-xl font-bold;
+}
+
+/* List styles */
+.ProseMirror ul {
+  @apply mb-3 list-disc;
+  margin-left: 0 !important;
+  padding-left: 1.5rem !important;
+  list-style-position: outside !important;
+}
+
+.ProseMirror ol {
+  @apply mb-3 list-decimal;
+  margin-left: 0 !important;
+  padding-left: 1.5rem !important;
+  list-style-position: outside !important;
+}
+
+.ProseMirror li {
+  @apply mb-0;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  min-height: auto !important;
+  color: inherit !important;
+}
+
+/* 불릿/숫자 리스트 내부 p 태그 마진 조정 */
+.ProseMirror ul:not([data-type='taskList']) li p,
+.ProseMirror ol li p {
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+  padding: 0 !important;
+}
+
+/* 리스트 마커 색상 조정 */
+.ProseMirror ul:not([data-type='taskList']) li::marker,
+.ProseMirror ol li::marker {
+  color: #111827 !important;
+}
+
+/* Task list styles */
+.ProseMirror ul[data-type='taskList'] {
+  @apply mb-3 list-none;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.ProseMirror ul[data-type='taskList'] li {
+  @apply flex items-center;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  min-height: auto !important;
+}
+
+.ProseMirror ul[data-type='taskList'] li > label {
+  @apply mr-2;
+  margin-top: 0 !important;
+  display: flex;
+  align-items: center;
+}
+
+.ProseMirror ul[data-type='taskList'] li > label input[type='checkbox'] {
+  @apply rounded border-gray-300 text-blue-600 focus:ring-blue-500;
+  margin: 0 !important;
+}
+
+.ProseMirror ul[data-type='taskList'] li > div {
+  @apply flex-1;
+  color: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 체크리스트 내부 p 태그 마진 조정 */
+.ProseMirror ul[data-type='taskList'] li p {
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+  padding: 0 !important;
+}
+
+/* Blockquote styles */
+.ProseMirror blockquote {
+  @apply my-4 border-l-4 border-gray-300 pl-4 italic;
+}
+
+/* Code block styles */
+.ProseMirror pre {
+  @apply my-4 overflow-x-auto rounded-md bg-gray-100 p-4;
+  color: #1f2937 !important;
+}
+
+.ProseMirror pre code {
+  @apply bg-transparent p-0 text-sm;
+  color: inherit !important;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+/* Inline code styles */
+.ProseMirror code {
+  @apply rounded bg-gray-100 px-1 py-0.5 text-sm;
+}
+
+/* Link styles */
+.ProseMirror a {
+  @apply cursor-pointer text-blue-600 underline hover:text-blue-800;
+}
+
+/* Table styles */
+.ProseMirror table {
+  @apply my-4 w-full border-collapse;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  @apply border border-gray-300 px-4 py-2;
+}
+
+.ProseMirror th {
+  @apply bg-gray-50 font-semibold;
+}
+
+/* Highlight styles */
+.ProseMirror mark {
+  @apply rounded bg-yellow-200 px-1;
+}
+
+/* Selection styles */
+.ProseMirror ::selection {
+  @apply bg-blue-100;
+}
+
+/* Focus styles */
+.ProseMirror:focus {
+  @apply outline-none;
+}
+
+/* Horizontal rule */
+.ProseMirror hr {
+  @apply my-6 border-gray-300;
+}
+
+/* Image styles (if you add image support later) */
+.ProseMirror img {
+  @apply my-4 h-auto max-w-full rounded-lg;
+}
+
+/* Bubble menu animations */
+.tippy-box {
+  @apply transition-all duration-100;
+}
+
+/* Code highlighting (with lowlight) */
+.ProseMirror pre code .hljs-comment,
+.ProseMirror pre code .hljs-quote {
+  @apply italic text-gray-600;
+}
+
+.ProseMirror pre code .hljs-keyword,
+.ProseMirror pre code .hljs-selector-tag,
+.ProseMirror pre code .hljs-subst {
+  @apply font-semibold text-blue-600;
+}
+
+.ProseMirror pre code .hljs-number,
+.ProseMirror pre code .hljs-literal,
+.ProseMirror pre code .hljs-variable,
+.ProseMirror pre code .hljs-template-variable,
+.ProseMirror pre code .hljs-tag .hljs-attr {
+  @apply text-orange-600;
+}
+
+.ProseMirror pre code .hljs-string,
+.ProseMirror pre code .hljs-doctag {
+  @apply text-green-600;
+}
+
+.ProseMirror pre code .hljs-title,
+.ProseMirror pre code .hljs-section,
+.ProseMirror pre code .hljs-selector-id {
+  @apply font-bold text-purple-600;
+}
+
+.ProseMirror pre code .hljs-type,
+.ProseMirror pre code .hljs-class .hljs-title {
+  @apply text-teal-600;
+}
+
+.ProseMirror pre code .hljs-tag,
+.ProseMirror pre code .hljs-name,
+.ProseMirror pre code .hljs-attribute {
+  @apply text-red-600;
+}
+
+.ProseMirror pre code .hljs-regexp,
+.ProseMirror pre code .hljs-link {
+  @apply text-cyan-600;
+}
+
+.ProseMirror pre code .hljs-symbol,
+.ProseMirror pre code .hljs-bullet {
+  @apply text-pink-600;
+}
+
+.ProseMirror pre code .hljs-built_in,
+.ProseMirror pre code .hljs-builtin-name {
+  @apply text-indigo-600;
+}
+
+.ProseMirror pre code .hljs-meta {
+  @apply font-bold text-gray-700;
+}
+
+.ProseMirror pre code .hljs-deletion {
+  @apply bg-red-100;
+}
+
+.ProseMirror pre code .hljs-addition {
+  @apply bg-green-100;
+}
+
+.ProseMirror pre code .hljs-emphasis {
+  @apply italic;
+}
+
+.ProseMirror pre code .hljs-strong {
+  @apply font-bold;
+}

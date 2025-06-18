@@ -1,4 +1,5 @@
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import type { TiptapDocument } from '@/shared/types/api';
 
 export type PostType = 'checkin' | 'checkout';
 export type FilterType = 'all' | 'checkin' | 'checkout';
@@ -39,25 +40,25 @@ export interface CheckinPost extends BasePost {
   type: 'checkin';
   conditionScore: number;
   conditionEmoji: string;
-  conditionText: string;
+  conditionContent: TiptapDocument;
 }
 
 export interface CheckoutPost extends BasePost {
   type: 'checkout';
-  reflectionText: string;
+  reflectionContent: TiptapDocument;
 }
 
 export type Post = CheckinPost | CheckoutPost;
 
 // 방법 1: 유틸리티 함수 사용 (가장 실용적)
-export const getPostContent = (post: Post): string => {
+export const getPostContent = (post: Post): TiptapDocument | null => {
   switch (post.type) {
     case 'checkin':
-      return post.conditionText || '';
+      return post.conditionContent || null;
     case 'checkout':
-      return post.reflectionText || '';
+      return post.reflectionContent || null;
     default:
-      return '';
+      return null;
   }
 };
 

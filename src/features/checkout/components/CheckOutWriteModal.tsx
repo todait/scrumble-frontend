@@ -3,6 +3,7 @@
 import { CheckInModalLayout } from '@/features/checkin/components/layout';
 import { useCreateCheckOut } from '@/shared/hooks/queries';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import { createTiptapDocumentFromText } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
 import { useEffect, useState } from 'react';
@@ -44,7 +45,7 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
     createCheckOut(
       {
         spaceSlug,
-        reflectionText: data.message,
+        reflectionContent: createTiptapDocumentFromText(data.message),
         images: data.images || [], // 기본값 대비
       },
       {

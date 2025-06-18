@@ -1,5 +1,6 @@
 import type { CheckinPost, CheckoutPost, Post, TeamSummary } from '../types/feed.types';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import { createTiptapDocumentFromText } from '@/shared/types/api';
 
 // 헬퍼 함수: URL을 ImageMetadata로 변환
 const createMockImageMetadata = (urls: string[]): ImageMetadata[] => {
@@ -24,8 +25,9 @@ const createMockPosts = (): Post[] => {
         name: '강지은',
         profileImage: 'https://randomuser.me/api/portraits/women/1.jpg',
       },
-      reflectionText:
-        '숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고, 둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안 오고 바람도 안 불고 너멋골 골짜기서 울어 오는 뻐꾸기. 아득히 가 버린 것 잊어버린 하늘과 아른아른 오지 않고 보고 싶은 하늘에 어쩌면 만도 질 볼이 고운 사람이 난 혼자 그리워라.',
+      reflectionContent: createTiptapDocumentFromText(
+        '숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고, 둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안 오고 바람도 안 불고 너멋골 골짜기서 울어 오는 뻐꾸기. 아득히 가 버린 것 잊어버린 하늘과 아른아른 오지 않고 보고 싶은 하늘에 어쩌면 만도 질 볼이 고운 사람이 난 혼자 그리워라.'
+      ),
       createdAt: new Date('2024-06-22T11:02:00'),
       updatedAt: new Date('2024-06-22T11:05:00'),
       reactions: [
@@ -76,8 +78,9 @@ const createMockPosts = (): Post[] => {
         name: '이선우',
         profileImage: 'https://randomuser.me/api/portraits/men/2.jpg',
       },
-      conditionText:
-        '저건 또 무슨 꽃이지. 적잖이 비탈진 곳에 칡덩굴이 엉키어 꽃을 달고 있었다. 그 날, 도랑을 건너면서 내가 업힌 일이 있지. 그 때, 네 등에서 옮은 물이다.',
+      conditionContent: createTiptapDocumentFromText(
+        '저건 또 무슨 꽃이지. 적잖이 비탈진 곳에 칡덩굴이 엉키어 꽃을 달고 있었다. 그 날, 도랑을 건너면서 내가 업힌 일이 있지. 그 때, 네 등에서 옮은 물이다.'
+      ),
       createdAt: new Date('2024-06-22T11:02:00'),
       conditionScore: 10,
       conditionEmoji: '🦄',
@@ -426,8 +429,9 @@ const createMockPosts = (): Post[] => {
         name: '김유진',
         profileImage: 'https://randomuser.me/api/portraits/women/7.jpg',
       },
-      conditionText:
-        '소년은 공연히 열없어, 책보를 집어던지고는 외양간으로 가, 쇠잔등을 한 번 철썩 갈겼다. 그리고는, 안고 온 꽃묶음 속에서 가지가 꺾이고 꽃이 일그러진 송이를 골라 발 밑에 버린다.',
+      conditionContent: createTiptapDocumentFromText(
+        '소년은 공연히 열없어, 책보를 집어던지고는 외양간으로 가, 쇠잔등을 한 번 철썩 갈겼다. 그리고는, 안고 온 꽃묶음 속에서 가지가 꺾이고 꽃이 일그러진 송이를 골라 발 밑에 버린다.'
+      ),
       createdAt: new Date('2024-06-22T11:02:00'),
       conditionScore: 7,
       conditionEmoji: '🎵',
@@ -448,7 +452,9 @@ const createMockPosts = (): Post[] => {
         name: '이영준',
         profileImage: 'https://randomuser.me/api/portraits/men/8.jpg',
       },
-      conditionText: '티끌 부는 세상에도 벌레 같은 세상에도 눈 맑은 가슴 맑은 보고 지운 나의 사람.',
+      conditionContent: createTiptapDocumentFromText(
+        '티끌 부는 세상에도 벌레 같은 세상에도 눈 맑은 가슴 맑은 보고 지운 나의 사람.'
+      ),
       createdAt: new Date('2024-06-22T11:02:00'),
       conditionScore: 4,
       conditionEmoji: '🐌',
@@ -514,8 +520,9 @@ const createMockPosts = (): Post[] => {
         name: '윤주',
         profileImage: 'https://randomuser.me/api/portraits/women/9.jpg',
       },
-      conditionText:
-        '푸른 산 한나절 구름은 가고 고을 너머 뻐꾸기는 우는데 눈에 어려 흘러가는 물결 같은 사람 속 아우성쳐 흘러가는 물결 같은 사람 속에 난 그리노라. 청산도 산아 우뚝 솟은 푸른 산아.\n\n숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고, 둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안',
+      conditionContent: createTiptapDocumentFromText(
+        '푸른 산 한나절 구름은 가고 고을 너머 뻐꾸기는 우는데 눈에 어려 흘러가는 물결 같은 사람 속 아우성쳐 흘러가는 물결 같은 사람 속에 난 그리노라. 청산도 산아 우뚝 솟은 푸른 산아.\n\n숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고, 둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안 오고 바람도 안 불고 너멋골 골짜기서 울어 오는 뻐꾸기.'
+      ),
       createdAt: new Date('2024-06-22T11:02:00'),
       conditionScore: 2,
       conditionEmoji: '💢',
@@ -573,8 +580,9 @@ const createMockPosts = (): Post[] => {
         name: '최우',
         profileImage: 'https://randomuser.me/api/portraits/men/10.jpg',
       },
-      conditionText:
-        '아득히 가 버린 것 잊어버린 하늘과 아른아른 오지 않고 보고 싶은 하늘에 어쩌면 만도 질 볼이 고운 사람이 난 혼자 그리워라. 숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고, 둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안 오고 바람도 안 불고 너멋골 골짜기서 울어 오는 뻐꾸기.',
+      conditionContent: createTiptapDocumentFromText(
+        '아득히 가 버린 것 잊어버린 하늘과 아른아른 오지 않고 보고 싶은 하늘에 어쩌면 만도 질 볼이 고운 사람이 난 혼자 그리워라. 숱한 나무들 무성히 무성히 우거진 산마루에 금빛 기름진 햇살은 내려오고, 둥둥 산을 넘어 흰 구름 걷는 자리 씻기는 하늘 사슴도 안 오고 바람도 안 불고 너멋골 골짜기서 울어 오는 뻐꾸기.'
+      ),
       createdAt: new Date('2024-06-22T11:02:00'),
       conditionScore: 6,
       conditionEmoji: '🪴',

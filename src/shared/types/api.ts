@@ -3,6 +3,62 @@
  * 백엔드 API 응답과 전체 애플리케이션에서 공통으로 사용되는 타입들
  */
 
+// Tiptap JSON 타입 정의
+export interface TiptapNode {
+  type: string;
+  content?: TiptapNode[];
+  text?: string;
+  marks?: Array<{
+    type: string;
+    attrs?: Record<string, unknown>;
+  }>;
+  attrs?: Record<string, unknown>;
+}
+
+export interface TiptapDocument {
+  type: 'doc';
+  content: TiptapNode[];
+}
+
+// 임시 유틸리티: 일반 텍스트를 TiptapDocument로 변환
+export const createTiptapDocumentFromText = (text: string): TiptapDocument => {
+  return {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: text,
+          },
+        ],
+      },
+    ],
+  };
+};
+
+// 유틸리티: TiptapDocument를 일반 텍스트로 변환
+export const extractTextFromTiptapDocument = (doc: TiptapDocument): string => {
+  if (!doc || !doc.content) return '';
+  
+  const extractTextFromNodes = (nodes: TiptapNode[]): string => {
+    return nodes
+      .map(node => {
+        if (node.text) {
+          return node.text;
+        }
+        if (node.content) {
+          return extractTextFromNodes(node.content);
+        }
+        return '';
+      })
+      .join('\n');
+  };
+  
+  return extractTextFromNodes(doc.content);
+};
+
 /**
  * 공통 ID 타입
  * 전체 애플리케이션에서 사용되는 식별자
@@ -165,8 +221,10 @@ export interface GetPostsApiResponse {
       avatar_url: string;
     };
     condition_score?: number;
-    condition_text?: string;
-    reflection_text?: string;
+    condition_content?: TiptapDocument;
+    condition_text_plain?: string;
+    reflection_content?: TiptapDocument;
+    reflection_text_plain?: string;
     images: {
       id: string;
       created_at: string;
@@ -226,7 +284,8 @@ export interface CreateCheckInApiResponse {
   post: {
     id: string;
     condition_score: number;
-    condition_text: string;
+    condition_content: TiptapDocument;
+    condition_text_plain: string;
     posted_at: string;
     created_at: string;
     updated_at: string;
@@ -237,7 +296,8 @@ export interface CreateCheckOutApiResponse {
   message: string;
   post: {
     id: string;
-    reflection_text: string;
+    reflection_content: TiptapDocument;
+    reflection_text_plain: string;
     posted_at: string;
     created_at: string;
     updated_at: string;
@@ -249,7 +309,8 @@ export interface UpdateCheckInApiResponse {
   post: {
     id: string;
     condition_score: number;
-    condition_text: string;
+    condition_content: TiptapDocument;
+    condition_text_plain: string;
     posted_at: string;
     created_at: string;
     updated_at: string;
@@ -260,7 +321,8 @@ export interface UpdateCheckOutApiResponse {
   message: string;
   post: {
     id: string;
-    reflection_text: string;
+    reflection_content: TiptapDocument;
+    reflection_text_plain: string;
     posted_at: string;
     created_at: string;
     updated_at: string;

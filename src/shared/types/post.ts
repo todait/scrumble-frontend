@@ -3,7 +3,7 @@
  * 체크인/체크아웃 포스트, 댓글, 반응 등 포스트 도메인 타입들
  */
 
-import type { DateString, ID } from './api';
+import type { DateString, ID, TiptapDocument } from './api';
 import type { ImageMetadata } from './upload.types';
 
 /**
@@ -41,8 +41,10 @@ export interface Post {
   spaceSlug: string;
   author: PostAuthor;
   conditionScore?: number; // 체크인 전용 (1-10)
-  conditionText?: string; // 체크인 메시지
-  reflectionText?: string; // 체크아웃 메시지
+  conditionContent?: TiptapDocument; // 체크인 메시지 (tiptap JSON)
+  conditionTextPlain?: string; // 체크인 메시지 (plain text)
+  reflectionContent?: TiptapDocument; // 체크아웃 메시지 (tiptap JSON)
+  reflectionTextPlain?: string; // 체크아웃 메시지 (plain text)
   images: ImageMetadata[];
 }
 
@@ -150,12 +152,12 @@ export interface CreateCheckInRequest {
   spaceSlug: string;
   postedDate?: string; // YYYY-MM-DD
   conditionScore: number; // 1-10
-  conditionText: string;
+  conditionContent: TiptapDocument;
   images: ImageMetadata[];
 }
 
 export type CheckInPostResponse = Required<
-  Pick<Post, 'id' | 'conditionScore' | 'conditionText' | 'postedAt' | 'createdAt' | 'updatedAt'>
+  Pick<Post, 'id' | 'conditionScore' | 'conditionContent' | 'conditionTextPlain' | 'postedAt' | 'createdAt' | 'updatedAt'>
 >;
 
 export interface CreateCheckInResponse {
@@ -167,7 +169,7 @@ export interface UpdateCheckInRequest {
   spaceSlug: string;
   postId: string;
   conditionScore: number;
-  conditionText: string;
+  conditionContent: TiptapDocument;
   images: ImageMetadata[];
 }
 
@@ -188,12 +190,12 @@ export interface DeleteCheckInResponse {
 export interface CreateCheckOutRequest {
   spaceSlug: string;
   postedDate?: string; // YYYY-MM-DD
-  reflectionText?: string;
+  reflectionContent?: TiptapDocument;
   images: ImageMetadata[];
 }
 
 export type CheckOutPostResponse = Required<
-  Pick<Post, 'id' | 'reflectionText' | 'postedAt' | 'createdAt' | 'updatedAt'>
+  Pick<Post, 'id' | 'reflectionContent' | 'reflectionTextPlain' | 'postedAt' | 'createdAt' | 'updatedAt'>
 >;
 
 export interface CreateCheckOutResponse {
@@ -204,7 +206,7 @@ export interface CreateCheckOutResponse {
 export interface UpdateCheckOutRequest {
   spaceSlug: string;
   postId: string;
-  reflectionText: string;
+  reflectionContent: TiptapDocument;
   images: ImageMetadata[];
 }
 

@@ -12,23 +12,21 @@ import {
   RiListOrdered2,
   RiListUnordered,
   RiMarkPenLine,
+  RiPaletteLine,
   RiQuoteText,
   RiStrikethrough,
-  RiTable2,
   RiUnderline,
 } from '@remixicon/react';
 import { CharacterCount } from '@tiptap/extension-character-count';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import Table from '@tiptap/extension-table';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
-import TableRow from '@tiptap/extension-table-row';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import TextAlign from '@tiptap/extension-text-align';
+import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 import { BubbleMenu, EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -45,6 +43,7 @@ interface TiptapEditorProps {
   disabled?: boolean;
   className?: string;
   minHeight?: string;
+  onTextAreaClick?: () => void;
 }
 
 // MenuButton component for toolbar buttons
@@ -61,15 +60,15 @@ const MenuButton: React.FC<{
     disabled={disabled}
     title={title}
     className={`rounded p-1.5 transition-colors ${
-      isActive ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
-    } ${disabled ? 'cursor-not-allowed opacity-50' : ''} `}
+      isActive ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-100'
+    } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
   >
     {children}
   </button>
 );
 
 // Separator component
-const Separator = () => <div className="mx-1 h-6 w-px bg-gray-300" />;
+const Separator = () => <div className="mx-1 h-5 w-px bg-gray-300" />;
 
 export const TiptapEditor: React.FC<TiptapEditorProps> = ({
   content,
@@ -78,6 +77,7 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
   disabled = false,
   className = '',
   minHeight = '240px',
+  onTextAreaClick,
 }) => {
   const editor = useEditor({
     extensions: [
@@ -92,51 +92,36 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
       }),
       CodeBlockLowlight.configure({
         lowlight,
+        defaultLanguage: 'javascript',
         HTMLAttributes: {
           class: 'bg-gray-100 rounded-md p-4 my-4 overflow-x-auto font-mono text-sm',
         },
       }),
       Placeholder.configure({
         placeholder,
+        showOnlyWhenEditable: true,
+        showOnlyCurrent: false,
         emptyEditorClass:
-          'cursor-text before:content-[attr(data-placeholder)] before:absolute before:top-[1rem] before:left-[1rem] before:text-gray-400 before:pointer-events-none',
+          'cursor-text before:content-[attr(data-placeholder)] before:float-left before:text-gray-400 before:pointer-events-none before:h-0',
       }),
       Highlight.configure({
         multicolor: true,
-        HTMLAttributes: {
-          class: 'bg-yellow-200',
-        },
       }),
+      TextStyle,
+      Color,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
       Underline,
-      Table.configure({
-        resizable: true,
-        HTMLAttributes: {
-          class: 'border-collapse table-auto w-full',
-        },
-      }),
-      TableRow,
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: 'border border-gray-300 px-4 py-2 bg-gray-50 font-semibold',
-        },
-      }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: 'border border-gray-300 px-4 py-2',
-        },
-      }),
       TaskList.configure({
         HTMLAttributes: {
-          class: 'space-y-2',
+          class: '',
         },
       }),
       TaskItem.configure({
         nested: true,
         HTMLAttributes: {
-          class: 'flex items-start',
+          class: '',
         },
       }),
       CharacterCount,
@@ -144,8 +129,8 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
     content: content ? JSON.parse(content) : '',
     editorProps: {
       attributes: {
-        class: `prose prose-sm sm:prose lg:prose-lg focus:outline-none ${minHeight}`,
-        style: `min-height: ${minHeight}`,
+        class: `prose focus:outline-none relative text-gray-900`,
+        style: `padding: 1rem; color: #111827; height: 100%; box-sizing: border-box; font-size: 15px;`,
       },
     },
     onUpdate: ({ editor }) => {
@@ -153,6 +138,7 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
       onChange(JSON.stringify(json));
     },
     editable: !disabled,
+    immediatelyRender: false, // SSR 오류 해결
   });
 
   // Update content when prop changes
@@ -197,8 +183,12 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
       {/* Bubble Menu */}
       <BubbleMenu
         editor={editor}
-        tippyOptions={{ duration: 100, placement: 'top' }}
-        className="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+        tippyOptions={{
+          duration: 100,
+          placement: 'top',
+          maxWidth: 'none',
+        }}
+        className="flex items-center gap-1 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-2 py-1 shadow-lg"
       >
         {/* Text formatting */}
         <MenuButton
@@ -241,6 +231,25 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
           <RiMarkPenLine size={18} />
         </MenuButton>
 
+        {editor.isActive('highlight') && (
+          <select
+            value={editor.getAttributes('highlight').color || '#fef08a'}
+            onChange={e => {
+              if (e.target.value === 'none') {
+                editor.chain().focus().unsetHighlight().run();
+              } else {
+                editor.chain().focus().setHighlight({ color: e.target.value }).run();
+              }
+            }}
+            className="ml-1 rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900"
+          >
+            <option value="#fef08a">🟡 노란색</option>
+            <option value="#86efac">🟢 초록색</option>
+            <option value="#fbbf24">🟠 주황색</option>
+            <option value="none">❌ 제거</option>
+          </select>
+        )}
+
         <MenuButton
           onClick={() => editor.chain().focus().toggleCode().run()}
           isActive={editor.isActive('code')}
@@ -248,6 +257,32 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
         >
           <RiCodeLine size={18} />
         </MenuButton>
+
+        <Separator />
+
+        <MenuButton onClick={() => {}} isActive={false} title="텍스트 색상">
+          <RiPaletteLine
+            size={18}
+            style={{ color: editor.getAttributes('textStyle').color || '#000000' }}
+          />
+        </MenuButton>
+
+        <select
+          value={editor.getAttributes('textStyle').color || 'default'}
+          onChange={e => {
+            if (e.target.value === 'default') {
+              editor.chain().focus().unsetColor().run();
+            } else {
+              editor.chain().focus().setMark('textStyle', { color: e.target.value }).run();
+            }
+          }}
+          className="ml-1 rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900"
+        >
+          <option value="default">⚫ 기본</option>
+          <option value="#dc2626">🔴 빨강</option>
+          <option value="#2563eb">🔵 파랑</option>
+          <option value="#16a34a">🟢 초록</option>
+        </select>
 
         <Separator />
 
@@ -319,34 +354,49 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
           <RiCodeLine size={18} />
         </MenuButton>
 
+        {editor.isActive('codeBlock') && (
+          <select
+            value={editor.getAttributes('codeBlock').language || 'javascript'}
+            onChange={e => {
+              editor
+                .chain()
+                .focus()
+                .updateAttributes('codeBlock', { language: e.target.value })
+                .run();
+            }}
+            className="ml-2 rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900"
+          >
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="go">Go</option>
+            <option value="rust">Rust</option>
+            <option value="cpp">C++</option>
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="sql">SQL</option>
+            <option value="bash">Bash</option>
+            <option value="json">JSON</option>
+            <option value="xml">XML</option>
+            <option value="yaml">YAML</option>
+          </select>
+        )}
+
         <Separator />
 
-        {/* Links and tables */}
         <MenuButton onClick={setLink} isActive={editor.isActive('link')} title="링크">
           <RiLinkM size={18} />
-        </MenuButton>
-
-        <MenuButton
-          onClick={() =>
-            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-          }
-          title="표 삽입"
-        >
-          <RiTable2 size={18} />
         </MenuButton>
       </BubbleMenu>
 
       {/* Editor content */}
       <div
-        className={`rounded-lg border bg-white ${disabled ? 'cursor-not-allowed bg-gray-50' : ''} `}
+        className={`rounded-lg bg-white ${disabled ? 'cursor-not-allowed bg-gray-50' : ''} `}
+        style={{ height: minHeight }}
+        onClick={onTextAreaClick}
       >
-        <EditorContent editor={editor} className="p-4" />
-      </div>
-
-      {/* Character count */}
-      <div className="mt-2 flex justify-end text-sm text-gray-500">
-        {editor.storage.characterCount?.characters() || 0}자 /{' '}
-        {editor.storage.characterCount?.words() || 0}단어
+        <EditorContent editor={editor} className="h-full overflow-y-auto" />
       </div>
     </div>
   );

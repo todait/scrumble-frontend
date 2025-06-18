@@ -3,6 +3,7 @@
 import type { CheckinPost } from '@/features/feed/types/feed.types';
 import { useToast } from '@/shared/hooks';
 import { useUpdateCheckIn } from '@/shared/hooks/queries';
+import { createTiptapDocumentFromText, extractTextFromTiptapDocument } from '@/shared/types/api';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
@@ -42,7 +43,7 @@ export function CheckInEditModal({
         spaceSlug,
         postId: post.id,
         conditionScore: data.score,
-        conditionText: data.message,
+        conditionContent: createTiptapDocumentFromText(data.message),
         images: data.images,
       },
       {
@@ -70,7 +71,7 @@ export function CheckInEditModal({
 
   const initialData = {
     score: post.conditionScore,
-    message: post.conditionText,
+    message: extractTextFromTiptapDocument(post.conditionContent),
     images: post.images,
   };
 

@@ -57,8 +57,10 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
       avatarURL: apiPost.author.avatar_url || '',
     },
     conditionScore: apiPost.condition_score,
-    conditionText: apiPost.condition_text,
-    reflectionText: apiPost.reflection_text,
+    conditionContent: apiPost.condition_content,
+    conditionTextPlain: apiPost.condition_text_plain,
+    reflectionContent: apiPost.reflection_content,
+    reflectionTextPlain: apiPost.reflection_text_plain,
     images: apiPost.images,
   };
 };
@@ -144,7 +146,7 @@ export const postsApi = {
       `/api/v1/spaces/${params.spaceSlug}/posts/checkin`,
       {
         condition_score: params.conditionScore,
-        condition_text: params.conditionText,
+        condition_content: params.conditionContent,
         ...(params.postedDate ? { posted_date: params.postedDate } : {}),
         images: params.images,
       }
@@ -155,7 +157,8 @@ export const postsApi = {
       post: {
         id: data.post.id,
         conditionScore: data.post.condition_score,
-        conditionText: data.post.condition_text,
+        conditionContent: data.post.condition_content,
+        conditionTextPlain: data.post.condition_text_plain,
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,
@@ -167,7 +170,7 @@ export const postsApi = {
     const { data } = await apiClient.post<CreateCheckOutApiResponse>(
       `/api/v1/spaces/${params.spaceSlug}/posts/checkout`,
       {
-        reflection_text: params.reflectionText,
+        reflection_content: params.reflectionContent,
         ...(params.postedDate ? { posted_date: params.postedDate } : {}),
         images: params.images,
       }
@@ -177,7 +180,8 @@ export const postsApi = {
       message: data.message,
       post: {
         id: data.post.id,
-        reflectionText: data.post.reflection_text,
+        reflectionContent: data.post.reflection_content,
+        reflectionTextPlain: data.post.reflection_text_plain,
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,
@@ -190,7 +194,7 @@ export const postsApi = {
       `/api/v1/spaces/${params.spaceSlug}/posts/checkin/${params.postId}`,
       {
         condition_score: params.conditionScore,
-        condition_text: params.conditionText,
+        condition_content: params.conditionContent,
         images: params.images,
       }
     );
@@ -200,7 +204,8 @@ export const postsApi = {
       post: {
         id: data.post.id,
         conditionScore: data.post.condition_score,
-        conditionText: data.post.condition_text,
+        conditionContent: data.post.condition_content,
+        conditionTextPlain: data.post.condition_text_plain,
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,
@@ -212,7 +217,7 @@ export const postsApi = {
     const { data } = await apiClient.patch<UpdateCheckOutApiResponse>(
       `/api/v1/spaces/${params.spaceSlug}/posts/checkout/${params.postId}`,
       {
-        reflection_text: params.reflectionText,
+        reflection_content: params.reflectionContent,
         images: params.images,
       }
     );
@@ -221,7 +226,8 @@ export const postsApi = {
       message: data.message,
       post: {
         id: data.post.id,
-        reflectionText: data.post.reflection_text,
+        reflectionContent: data.post.reflection_content,
+        reflectionTextPlain: data.post.reflection_text_plain,
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,

@@ -3,6 +3,7 @@
 import { CheckInEditModal } from '@/features/checkin/components';
 import { CheckOutEditModal } from '@/features/checkout/components';
 import { SimpleToast } from '@/shared/components/feedback';
+import { TiptapViewer } from '@/shared/components/tiptap/TiptapViewer';
 import {
   DeleteConfirmDialog,
   ImageGallery,
@@ -13,6 +14,7 @@ import {
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
+import { extractTextFromTiptapDocument } from '@/shared/types/api';
 import { RiArrowRightSLine, RiDeleteBinLine, RiEdit2Line, RiMore2Line } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -38,7 +40,6 @@ export function PostContent({
   onReaction,
   onCommentClick,
 }: PostContentProps) {
-  const [showFullContent, setShowFullContent] = useState(isDetailView);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
@@ -50,8 +51,8 @@ export function PostContent({
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
   const isCheckOut = post.type === 'checkout';
-  const content = getPostContent(post) || '';
-  const contentPreview = content && content.length > 200 ? content.slice(0, 200) + '...' : content;
+  const contentDocument = getPostContent(post);
+
   const { mutate: deleteCheckIn, isPending: isDeleteCheckInPending } = useDeleteCheckIn();
   const { mutate: deleteCheckOut, isPending: isDeleteCheckOutPending } = useDeleteCheckOut();
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
@@ -326,28 +327,11 @@ export function PostContent({
 
           {/* 본문 */}
           <div className="py-2">
-            {showFullContent ? (
-              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>{content}</p>
-            ) : (
-              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
-                {content.length > 200 ? (
-                  <>
-                    {contentPreview.replace(/\.\.\.$/, '')}
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowFullContent(true);
-                      }}
-                      className="ml-1 text-base font-medium text-[#A0A0A0] hover:text-[#808080] md:text-[15px]"
-                    >
-                      ...더보기
-                    </button>
-                  </>
-                ) : (
-                  content
-                )}
-              </p>
+            {contentDocument && (
+              <TiptapViewer 
+                content={extractTextFromTiptapDocument(contentDocument)} 
+                className={`prose max-w-none text-[#222222] ${contentTextSize}`}
+              />
             )}
           </div>
 
@@ -456,7 +440,7 @@ export function PostContent({
       )}
 
       {/* 체크아웃 수정 모달 */}
-      {isCheckOut && 'reflectionText' in post && (
+      {isCheckOut && 'reflectionContent' in post && (
         <CheckOutEditModal
           spaceSlug={spaceSlug}
           isOpen={showEditModal}

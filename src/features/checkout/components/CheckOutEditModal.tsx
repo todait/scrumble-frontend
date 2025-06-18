@@ -4,6 +4,7 @@ import { CheckInModalLayout } from '@/features/checkin/components/layout';
 import type { CheckoutPost } from '@/features/feed/types/feed.types';
 import { useToast } from '@/shared/hooks';
 import { useUpdateCheckOut } from '@/shared/hooks/queries';
+import { createTiptapDocumentFromText, extractTextFromTiptapDocument } from '@/shared/types/api';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
@@ -55,7 +56,7 @@ export function CheckOutEditModal({
       {
         spaceSlug,
         postId: post.id,
-        reflectionText: data.message,
+        reflectionContent: createTiptapDocumentFromText(data.message),
         images: data.images,
       },
       {
@@ -68,7 +69,7 @@ export function CheckOutEditModal({
   };
 
   const initialData = {
-    message: post.reflectionText,
+    message: extractTextFromTiptapDocument(post.reflectionContent),
     images: post.images,
   };
 

@@ -39,13 +39,13 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
       type: 'checkin' as const,
       conditionScore: apiPost.conditionScore || 5,
       conditionEmoji: getConditionEmoji(apiPost.conditionScore || 5),
-      conditionText: apiPost.conditionText || '',
+      conditionContent: apiPost.conditionContent || { type: 'doc', content: [] },
     } satisfies CheckinPost;
   } else {
     return {
       ...basePost,
       type: 'checkout' as const,
-      reflectionText: apiPost.reflectionText || '',
+      reflectionContent: apiPost.reflectionContent || { type: 'doc', content: [] },
     } satisfies CheckoutPost;
   }
 };
