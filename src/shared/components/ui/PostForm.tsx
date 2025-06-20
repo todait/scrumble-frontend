@@ -1,10 +1,13 @@
 'use client';
 
+import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
+import { useImageViewer } from '@/shared/hooks/useImageViewer';
 import type { ImageMetadata } from '@/shared/types/upload.types';
-import { RiCheckLine, RiCloseLine, RiImageLine } from '@remixicon/react';
-import Image from 'next/image';
-import { DragEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { handleFileInputChange } from '@/shared/utils/image.utils';
+import { RiCheckLine, RiImageLine } from '@remixicon/react';
+import { useEffect, useRef, useState } from 'react';
+import { ImagePreview } from './ImagePreview';
 import { ImageViewer } from './ImageViewer';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -32,11 +35,7 @@ export const PostForm = ({
   submitDisabled = false,
 }: PostFormProps) => {
   const [message, setMessage] = useState(initialMessage);
-  const [isDragging, setIsDragging] = useState(false);
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dragCounter = useRef(0);
   const formRef = useRef<HTMLDivElement>(null);
 
   const { uploadImages, uploadingImages, completedImages, removeImage, clearImages, isUploading } =
@@ -47,78 +46,16 @@ export const PostForm = ({
       },
     });
 
+  const { isDragging, dragHandlers } = useDragAndDrop({
+    onDrop: uploadImages,
+    acceptedFileTypes: ['image/'],
+  });
+
+  const imageViewer = useImageViewer();
+
   useEffect(() => {
     setMessage(initialMessage);
   }, [initialMessage]);
-
-  // 드래그 이벤트 핸들러
-  const handleDragEnter = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current++;
-
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-      const hasImages = Array.from(e.dataTransfer.items).some(item =>
-        item.type.startsWith('image/')
-      );
-      if (hasImages) {
-        setIsDragging(true);
-      }
-    }
-  }, []);
-
-  const handleDragLeave = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current--;
-
-    if (dragCounter.current === 0) {
-      setIsDragging(false);
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-      dragCounter.current = 0;
-
-      const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
-
-      if (files.length > 0) {
-        uploadImages(files);
-      }
-    },
-    [uploadImages]
-  );
-
-  // 파일 선택 핸들러
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      uploadImages(files);
-    }
-    // 같은 파일 재선택 가능하도록 초기화
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  // 이미지 클릭 핸들러 (완료된 이미지의 인덱스 기준)
-  const handleImageClick = (imageUrl: string) => {
-    const completedImageUrls = completedImages.map(img => img.url);
-    const index = completedImageUrls.indexOf(imageUrl);
-    if (index !== -1) {
-      setSelectedImageIndex(index);
-      setViewerOpen(true);
-    }
-  };
 
   // 제출 핸들러
   const handleSubmit = () => {
@@ -126,15 +63,20 @@ export const PostForm = ({
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
       const messageToSubmit = message;
-      
+
       // 상태 초기화를 먼저 수행
       clearImages();
       setMessage('');
-      
+
       // 복사된 데이터로 제출
       onSubmit({ message: messageToSubmit, images: imagesToSubmit });
     }
   };
+
+  // 업로드 중인 이미지가 있는지 확인
+  const hasUploadingImages = uploadingImages.some(
+    img => (img.progress > 0 && img.progress < 100) || !img.metadata
+  );
 
   const isSubmitDisabled =
     (!message.trim() && completedImages.length === 0) ||
@@ -142,16 +84,13 @@ export const PostForm = ({
     isLoading ||
     submitDisabled ||
     isUploading ||
-    uploadingImages.some(img => img.progress > 0 && img.progress < 100); // 추가 업로드 체크
+    hasUploadingImages; // 업로드 중인 이미지가 있으면 submit 방지
 
   return (
     <div
       ref={formRef}
       className="relative"
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
+      {...dragHandlers}
     >
       {children}
 
@@ -173,7 +112,7 @@ export const PostForm = ({
             type="file"
             multiple
             accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={handleFileSelect}
+            onChange={e => handleFileInputChange(e, uploadImages, fileInputRef)}
             className="hidden"
             disabled={disabled || isUploading}
           />
@@ -189,57 +128,23 @@ export const PostForm = ({
           </button>
 
           {/* 이미지 미리보기 */}
-          {uploadingImages.map(img => (
-            <div key={img.id} className="group relative flex-shrink-0">
-              <div
-                className={`relative h-[80px] w-[80px] overflow-hidden rounded-lg bg-gray-100 ${
-                  !img.error && img.metadata ? 'cursor-pointer' : ''
-                }`}
-                onClick={() => {
-                  if (!img.error && img.metadata) {
-                    handleImageClick(img.metadata.url);
-                  }
-                }}
-              >
-                <Image
-                  src={img.preview}
-                  alt={img.file.name}
-                  width={80}
-                  height={80}
-                  className="h-full w-full object-cover"
-                  draggable={false}
-                />
+          {uploadingImages.map(img => {
+            const isCompleted = img.progress === 100 && img.metadata && !img.error;
 
-                {/* 업로드 진행률 */}
-                {img.progress > 0 && img.progress < 100 && !img.error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="text-sm font-medium text-white">
-                      {Math.round(img.progress)}%
-                    </div>
-                  </div>
-                )}
-
-                {/* 에러 상태 */}
-                {img.error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-red-500 bg-opacity-75 p-2">
-                    <div className="text-center text-xs text-white">{img.error}</div>
-                  </div>
-                )}
-
-                {/* 삭제 버튼 */}
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    removeImage(img.id);
-                  }}
-                  className="absolute right-2 top-2 rounded-full bg-black bg-opacity-50 p-1.5 opacity-0 transition-opacity group-hover:opacity-100"
-                  disabled={img.progress > 0 && img.progress < 100}
-                >
-                  <RiCloseLine className="h-4 w-4 text-white" />
-                </button>
-              </div>
-            </div>
-          ))}
+            return (
+              <ImagePreview
+                key={img.id}
+                image={img}
+                onRemove={removeImage}
+                onClick={
+                  isCompleted && img.metadata
+                    ? () => imageViewer.handleImageClick(img.metadata!.url, completedImages.map(i => i.url))
+                    : undefined
+                }
+                disabled={disabled}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -275,9 +180,9 @@ export const PostForm = ({
       {/* 이미지 뷰어 */}
       <ImageViewer
         images={completedImages.map(img => img.url)}
-        initialIndex={selectedImageIndex}
-        isOpen={viewerOpen}
-        onClose={() => setViewerOpen(false)}
+        initialIndex={imageViewer.selectedIndex}
+        isOpen={imageViewer.isOpen}
+        onClose={imageViewer.closeViewer}
       />
     </div>
   );
