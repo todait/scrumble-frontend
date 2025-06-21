@@ -8,6 +8,15 @@ export interface CommentAuthor {
   avatarURL: string;
 }
 
+/**
+ * 댓글에서 사용하는 이미지 정보
+ * ImageMetadata를 확장하여 createdAt 필드 추가
+ */
+export interface CommentImage extends ImageMetadata {
+  id: string; // Comment에서는 id가 필수
+  createdAt: DateString;
+}
+
 export interface Comment {
   id: ID;
   postId: ID;
@@ -15,7 +24,7 @@ export interface Comment {
   content: string;
   createdAt: DateString;
   updatedAt?: DateString;
-  images?: ImageMetadata[];
+  images?: CommentImage[];
 }
 
 export interface CreateCommentRequest {

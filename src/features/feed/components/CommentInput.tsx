@@ -2,6 +2,7 @@
 
 import { IconButton, ImageViewer, LoadingSpinner } from '@/shared/components/ui';
 import { ImagePreview } from '@/shared/components/ui/ImagePreview';
+import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import { useImageViewer } from '@/shared/hooks/useImageViewer';
 import type { ImageMetadata } from '@/shared/types/upload.types';
@@ -13,11 +14,18 @@ interface CommentInputProps {
   authorName: string;
   placeholder?: string;
   onSubmit: (content: string, images: ImageMetadata[]) => void;
+  isSubmitting?: boolean;
 }
 
-export function CommentInput({ authorName, placeholder, onSubmit }: CommentInputProps) {
+export function CommentInput({
+  authorName,
+  placeholder,
+  onSubmit,
+  isSubmitting = false,
+}: CommentInputProps) {
   const [content, setContent] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -27,6 +35,11 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
         alert(error);
       },
     });
+
+  const { isDragging, dragHandlers } = useDragAndDrop({
+    onDrop: uploadImages,
+    acceptedFileTypes: ['image/'],
+  });
 
   const imageViewer = useImageViewer();
 
@@ -40,7 +53,7 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
   }, [content]);
 
   const handleSubmit = () => {
-    if (content.trim() || completedImages.length > 0) {
+    if (content.trim() && !isSubmitting) {
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
       const contentToSubmit = content.trim();
@@ -55,7 +68,8 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // 한글 조합 중이거나 isComposing이 true인 경우 Enter 처리 방지
+    if (e.key === 'Enter' && !e.shiftKey && !isComposing && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSubmit();
     }
@@ -67,14 +81,17 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
   );
 
   const isSubmitEnabled =
-    (content.trim().length > 0 || completedImages.length > 0) &&
-    !isUploading &&
-    !hasUploadingImages;
+    content.trim().length > 0 && !isUploading && !hasUploadingImages && !isSubmitting;
 
   const displayPlaceholder = placeholder || `${authorName}님의 체크인에 가볍게 코멘트를 남겨보세요`;
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-[rgba(34,34,34,0.08)] bg-white p-4">
+    <div
+      className={`relative flex flex-col gap-4 rounded-xl border border-[rgba(34,34,34,0.08)] bg-white p-4 transition-colors ${
+        isDragging ? 'bg-blue-50' : ''
+      }`}
+      {...dragHandlers}
+    >
       {/* 텍스트 입력 영역 */}
       <div className="flex items-start gap-2">
         <div className="relative flex-1">
@@ -85,8 +102,11 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             onKeyDown={handleKeyDown}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
             className="w-full resize-none overflow-y-auto border-none bg-transparent text-[15px] leading-[1.4] text-[#181818] focus:outline-none"
             style={{ minHeight: '22px', maxHeight: '150px' }}
+            disabled={isSubmitting}
           />
           {/* 커서 애니메이션 - 빈 상태일 때만 */}
           {!content && !isFocused && (
@@ -137,14 +157,14 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
             accept="image/jpeg,image/png,image/webp,image/gif"
             onChange={e => handleFileInputChange(e, uploadImages, fileInputRef)}
             className="hidden"
-            disabled={isUploading}
+            disabled={isUploading || isSubmitting}
           />
           <IconButton
             icon={<RiImageLine className="h-4 w-4 text-[#222222] opacity-50" />}
             title="이미지 첨부"
             className="h-8 w-8 hover:bg-[#F1F1F1] active:bg-[#E5E5E5]"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
+            disabled={isUploading || isSubmitting}
           />
           {/* <IconButton
             icon={<RiAttachment2 className="h-4 w-4 text-[#222222] opacity-50" />}
@@ -174,11 +194,25 @@ export function CommentInput({ authorName, placeholder, onSubmit }: CommentInput
               <LoadingSpinner size="sm" className="mr-2 text-white" />
               <span className="text-sm text-white">업로드 중...</span>
             </>
+          ) : isSubmitting ? (
+            <>
+              <LoadingSpinner size="sm" className="mr-2 text-white" />
+              <span className="text-sm text-white">전송 중...</span>
+            </>
           ) : (
             <RiSendPlaneFill className="h-4 w-4 text-white" />
           )}
         </button>
       </div>
+
+      {/* 드래그 오버레이 */}
+      {isDragging && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-blue-50 bg-opacity-90">
+          <div className="rounded-lg bg-white p-4 shadow-lg">
+            <p className="text-sm font-medium text-blue-600">이미지를 여기에 놓으세요</p>
+          </div>
+        </div>
+      )}
 
       {/* 이미지 뷰어 */}
       <ImageViewer

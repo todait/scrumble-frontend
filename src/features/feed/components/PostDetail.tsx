@@ -1,6 +1,7 @@
 'use client';
 
 import { ImageGallery, ProfileImage } from '@/shared/components/ui';
+import { useCreateComment } from '@/shared/hooks/queries/useComments';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
@@ -25,6 +26,7 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   const scrollableAreaRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
+  const { mutate: createComment, isPending: isCreatingComment } = useCreateComment();
 
   useEffect(() => {
     if (commentsParam) {
@@ -53,9 +55,12 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
     };
   }, [onClose]);
 
-  const handleCommentSubmit = (_content: string, _images: ImageMetadata[]) => {
-    // TODO: API 호출로 댓글 생성
-    // content와 images를 사용하여 서버에 댓글 생성 요청
+  const handleCommentSubmit = (content: string, images: ImageMetadata[]) => {
+    createComment({
+      postId: post.id,
+      content,
+      images,
+    });
   };
 
   return (
@@ -84,7 +89,10 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
 
         {/* 댓글 섹션 */}
         {post.commentCount > 0 && (
-          <div ref={commentsContainerRef} className="overflow-hidden px-4 pb-6 md:px-[30px] md:pb-[30px]">
+          <div
+            ref={commentsContainerRef}
+            className="overflow-hidden px-4 pb-6 md:px-[30px] md:pb-[30px]"
+          >
             {/* Divider with text */}
             <div className="relative -mx-4 flex items-center py-4 md:-mx-[30px]">
               <div className="absolute inset-0 flex items-center">
@@ -129,7 +137,11 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
 
       {/* 댓글 입력 영역 */}
       <div ref={commentInputRef} className="bg-white px-4 pb-4 pt-2 md:px-[30px] md:pb-5">
-        <CommentInput authorName={post.author.name} onSubmit={handleCommentSubmit} />
+        <CommentInput
+          authorName={post.author.name}
+          onSubmit={handleCommentSubmit}
+          isSubmitting={isCreatingComment}
+        />
       </div>
     </div>
   );

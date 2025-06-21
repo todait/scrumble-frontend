@@ -178,9 +178,89 @@ export interface GetPostsApiResponse {
       format: string;
       name: string;
     }[];
+    comments: {
+      id: string;
+      post_id: string;
+      author: {
+        id: string;
+        email: string;
+        name: string;
+        avatar_url: string;
+      };
+      content: string;
+      created_at: string;
+      updated_at: string;
+      images?: {
+        id: string;
+        created_at: string;
+        url: string;
+        key: string;
+        size: number;
+        width: number;
+        height: number;
+        format: string;
+        name: string;
+      }[];
+    }[];
   }>;
   nextCursor?: string;
   hasMore: boolean;
+}
+
+/**
+ * API 댓글 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 재사용성을 위해 별도로 정의
+ */
+export interface ApiComment {
+  id: string;
+  post_id: string;
+  author: {
+    id: string;
+    email: string;
+    name: string;
+    avatar_url: string;
+  };
+  content: string;
+  created_at: string;
+  updated_at: string;
+  images?: {
+    id: string;
+    created_at: string;
+    url: string;
+    key: string;
+    size: number;
+    width: number;
+    height: number;
+    format: string;
+    name: string;
+  }[];
+}
+
+/**
+ * API 이미지 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 재사용성을 위해 별도로 정의
+ */
+export interface ApiImage {
+  id: string;
+  created_at: string;
+  url: string;
+  key: string;
+  size: number;
+  width: number;
+  height: number;
+  format: string;
+  name: string;
+}
+
+/**
+ * API 사용자 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 재사용성을 위해 별도로 정의
+ */
+export interface ApiUser {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url: string;
 }
 
 export interface GetFeedSummaryApiResponse {
