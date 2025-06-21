@@ -19,13 +19,13 @@ import {
   useFeedScroll,
 } from '@/features/feed/hooks';
 import type { Post as FeedPost } from '@/features/feed/types/feed.types';
+import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
-import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
 import { RiSettings6Line } from '@remixicon/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface FeedPageProps {
   spaceSlug: string;
@@ -58,6 +58,8 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const { scrollContainerRef, showScrollToTop, scrollToTop, scrollToSelectedPost } = useFeedScroll(
     posts.length
   );
+
+  console.log('posts', posts);
 
   // 설정 드롭다운 핸들러
   const handleMouseEnter = () => {

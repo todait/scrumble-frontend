@@ -36,6 +36,7 @@ import type {
   UpdateCheckOutResponse,
 } from '@/shared/types/post';
 import { apiClient } from '../api';
+import { convertApiCommentToComment } from './comments';
 
 /**
  * 백엔드 API 응답을 프론트엔드 타입으로 변환하는 함수
@@ -59,7 +60,8 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     conditionScore: apiPost.condition_score,
     conditionText: apiPost.condition_text,
     reflectionText: apiPost.reflection_text,
-    images: apiPost.images,
+    images: apiPost.images || [],
+    comments: apiPost.comments ? apiPost.comments.map(convertApiCommentToComment) : [],
   };
 };
 
@@ -98,16 +100,16 @@ export const postsApi = {
     );
 
     return {
-      posts: data.posts.map(convertApiPostToPost),
+      posts: data.posts?.map(convertApiPostToPost) || [],
       nextCursor: data.nextCursor,
-      hasMore: data.hasMore,
+      hasMore: data.hasMore || false,
     };
   },
 
   getFeedSummary: async (params: GetFeedSummaryParams): Promise<GetFeedSummaryResponse> => {
     const queryParams = new URLSearchParams();
     queryParams.append('date', params.date);
-    
+
     const { data } = await apiClient.get<GetFeedSummaryApiResponse>(
       `/api/v1/spaces/${params.spaceSlug}/posts/summary?${queryParams.toString()}`
     );
