@@ -1,6 +1,7 @@
 'use client';
 
 import { ImageGallery, ProfileImage } from '@/shared/components/ui';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -52,8 +53,9 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
     };
   }, [onClose]);
 
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = (_content: string, _images: ImageMetadata[]) => {
     // TODO: API 호출로 댓글 생성
+    // content와 images를 사용하여 서버에 댓글 생성 요청
   };
 
   return (

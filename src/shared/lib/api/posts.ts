@@ -60,6 +60,7 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     conditionText: apiPost.condition_text,
     reflectionText: apiPost.reflection_text,
     images: apiPost.images,
+    // comments: apiPost.comments.map(convertApiCommentToComment),
   };
 };
 
@@ -107,7 +108,7 @@ export const postsApi = {
   getFeedSummary: async (params: GetFeedSummaryParams): Promise<GetFeedSummaryResponse> => {
     const queryParams = new URLSearchParams();
     queryParams.append('date', params.date);
-    
+
     const { data } = await apiClient.get<GetFeedSummaryApiResponse>(
       `/api/v1/spaces/${params.spaceSlug}/posts/summary?${queryParams.toString()}`
     );

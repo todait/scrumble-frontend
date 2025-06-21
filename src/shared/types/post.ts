@@ -4,6 +4,7 @@
  */
 
 import type { DateString, ID } from './api';
+import { Comment } from './comment';
 import type { ImageMetadata } from './upload.types';
 
 /**
@@ -44,6 +45,7 @@ export interface Post {
   conditionText?: string; // 체크인 메시지
   reflectionText?: string; // 체크아웃 메시지
   images: ImageMetadata[];
+  comments: Comment[];
 }
 
 /**
@@ -58,26 +60,12 @@ export interface PostReaction {
 }
 
 /**
- * 포스트 댓글
- */
-export interface PostComment {
-  id: ID;
-  postId: ID;
-  author: PostAuthor;
-  content: string;
-  createdAt: DateString;
-  updatedAt?: DateString;
-  parentId?: ID; // 대댓글용
-  images?: ImageMetadata[];
-}
-
-/**
  * 확장된 포스트 정보 (댓글, 반응 포함)
  * 포스트 상세 페이지에서 사용
  */
 export interface PostWithDetails extends Post {
   reactions: PostReaction[];
-  comments: PostComment[];
+  comments: Comment[];
   commentCount: number;
   lastCommentTime?: DateString;
 }
