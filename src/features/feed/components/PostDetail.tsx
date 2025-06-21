@@ -56,11 +56,31 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   }, [onClose]);
 
   const handleCommentSubmit = (content: string, images: ImageMetadata[]) => {
-    createComment({
-      postId: post.id,
-      content,
-      images,
-    });
+    createComment(
+      {
+        postId: post.id,
+        content,
+        images,
+      },
+      {
+        onSuccess: () => {
+          // 1. 댓글 제출 성공 후 textarea에 다시 포커스
+          setTimeout(() => {
+            const textarea = commentInputRef.current?.querySelector('textarea');
+            if (textarea) {
+              textarea.focus();
+            }
+          }, 100);
+
+          // 2. 스크롤을 맨 아래로 이동
+          setTimeout(() => {
+            if (scrollableAreaRef.current) {
+              scrollableAreaRef.current.scrollTop = scrollableAreaRef.current.scrollHeight;
+            }
+          }, 200); // 댓글이 DOM에 추가된 후 스크롤하기 위해 약간의 지연
+        },
+      }
+    );
   };
 
   return (
