@@ -23,8 +23,23 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
     createdAt: new Date(apiPost.createdAt),
     updatedAt: apiPost.updatedAt ? new Date(apiPost.updatedAt) : undefined,
     reactions: [],
-    comments: [],
-    commentCount: 0,
+    comments:
+      apiPost.comments?.map(comment => ({
+        id: comment.id,
+        author: {
+          id: comment.author.id,
+          name: comment.author.name,
+          profileImage: comment.author.avatarURL,
+        },
+        content: comment.content,
+        createdAt: new Date(comment.createdAt),
+        images: comment.images,
+      })) || [],
+    commentCount: apiPost.comments?.length || 0,
+    lastCommentTime:
+      apiPost.comments?.length > 0
+        ? new Date(apiPost.comments[apiPost.comments.length - 1].createdAt)
+        : undefined,
     images: apiPost.images,
     author: {
       id: apiPost.author.id,

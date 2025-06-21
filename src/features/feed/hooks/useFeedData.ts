@@ -19,7 +19,6 @@ export const useFeedData = (spaceSlug: string) => {
     date: formatDateToAPIString(selectedDate),
   });
 
-
   // 실제 API 또는 Mock 데이터 사용
   const realPostsQuery = usePosts({
     spaceSlug,
@@ -51,6 +50,8 @@ export const useFeedData = (spaceSlug: string) => {
         nextCursor: postsQuery.data?.nextCursor,
       };
     }
+
+    console.log('postsQuery.data', postsQuery.data);
 
     // API 데이터는 변환 필요
     const apiPosts = (postsQuery.data?.posts || []) as ApiPost[];
