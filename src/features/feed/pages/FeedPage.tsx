@@ -23,6 +23,7 @@ import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
+import { useWebSocket } from '@/shared/hooks/useWebSocket';
 import { RiSettings6Line } from '@remixicon/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -40,6 +41,9 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // WebSocket 연결 관리
+  const { connected: wsConnected } = useWebSocket({ spaceSlug });
 
   // 데이터 및 상태 관리
   const {
@@ -59,7 +63,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     posts.length
   );
 
-  console.log('posts', posts);
 
   // 설정 드롭다운 핸들러
   const handleMouseEnter = () => {
