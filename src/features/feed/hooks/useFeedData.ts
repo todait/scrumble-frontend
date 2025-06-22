@@ -51,7 +51,6 @@ export const useFeedData = (spaceSlug: string) => {
       };
     }
 
-    console.log('postsQuery.data', postsQuery.data);
 
     // API 데이터는 변환 필요
     const apiPosts = (postsQuery.data?.posts || []) as ApiPost[];

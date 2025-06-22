@@ -2,12 +2,13 @@
 
 import { ImageGallery, ProfileImage } from '@/shared/components/ui';
 import { useCreateComment } from '@/shared/hooks/queries/useComments';
+import { useCommentWebSocket } from '@/shared/hooks/useWebSocket';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Post } from '../types/feed.types';
 import { CommentInput } from './CommentInput';
 import { PostContent } from './PostContent';
@@ -27,6 +28,30 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
   const { mutate: createComment, isPending: isCreatingComment } = useCreateComment();
+  const [isClosing, setIsClosing] = useState(false);
+  const prevCommentCountRef = useRef(post.commentCount);
+
+  // WebSocket을 통한 실시간 댓글 업데이트 구독
+  const { connected } = useCommentWebSocket(spaceSlug, post.id);
+
+  // 실시간 댓글 추가 시 자동 스크롤
+  useEffect(() => {
+    // 댓글 수가 증가했을 때만 스크롤 (실시간 댓글 추가 감지)
+    if (post.commentCount > prevCommentCountRef.current) {
+      setTimeout(() => {
+        if (scrollableAreaRef.current) {
+          // 부드러운 스크롤로 최하단 이동
+          scrollableAreaRef.current.scrollTo({
+            top: scrollableAreaRef.current.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }, 150); // DOM 업데이트와 렌더링 완료 후 스크롤
+    }
+    
+    // 현재 댓글 수를 저장
+    prevCommentCountRef.current = post.commentCount;
+  }, [post.commentCount]);
 
   useEffect(() => {
     if (commentsParam) {
@@ -45,7 +70,10 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        // 즉시 UI 숨기기
+        setIsClosing(true);
+        // 백그라운드에서 실제 닫기 처리
+        setTimeout(() => onClose(), 0);
       }
     };
 
@@ -72,10 +100,13 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
             }
           }, 100);
 
-          // 2. 스크롤을 맨 아래로 이동
+          // 2. 부드러운 스크롤로 맨 아래로 이동
           setTimeout(() => {
             if (scrollableAreaRef.current) {
-              scrollableAreaRef.current.scrollTop = scrollableAreaRef.current.scrollHeight;
+              scrollableAreaRef.current.scrollTo({
+                top: scrollableAreaRef.current.scrollHeight,
+                behavior: 'smooth'
+              });
             }
           }, 200); // 댓글이 DOM에 추가된 후 스크롤하기 위해 약간의 지연
         },
@@ -84,14 +115,19 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className={`flex h-full flex-col overflow-hidden transition-opacity duration-150 ${
+      isClosing ? 'opacity-0 pointer-events-none' : 'opacity-100'
+    }`}>
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-[rgba(34,34,34,0.08)] px-4 py-4 md:px-[30px] md:py-5">
         <h2 className="text-base font-bold text-[#222222] md:text-lg">
           {post.author.name}님의 {isCheckIn ? '체크인' : '체크아웃'}
         </h2>
         <button
-          onClick={onClose}
+          onClick={() => {
+            setIsClosing(true);
+            setTimeout(() => onClose(), 0);
+          }}
           className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[rgba(34,34,34,0.08)]"
         >
           <RiCloseLine className="h-5 w-5 text-[#222222]" />
