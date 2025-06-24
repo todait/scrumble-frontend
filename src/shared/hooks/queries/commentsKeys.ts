@@ -7,6 +7,6 @@ export const commentsKeys = {
   lists: () => [...commentsKeys.all, 'list'] as const,
   list: (postId: string) => [...commentsKeys.lists(), { postId }] as const,
   details: () => [...commentsKeys.all, 'detail'] as const,
-  detail: (postId: string, commentId: string) => 
+  detail: (postId: string, commentId: string) =>
     [...commentsKeys.details(), { postId, commentId }] as const,
 };

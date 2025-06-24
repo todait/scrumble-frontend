@@ -82,3 +82,52 @@ export interface TeamSummary {
   totalMembers: number;
   checkedOutCount: number;
 }
+
+// WebSocket에서 받는 댓글 데이터
+export interface WebSocketComment {
+  id: string;
+  author: {
+    id: string;
+    name: string;
+    avatarURL: string; // WebSocket에서는 avatarURL
+  };
+  content: string;
+  createdAt: string; // WebSocket에서는 string
+  images?: ImageMetadata[];
+}
+
+// 댓글 변환 유틸리티
+export const transformWebSocketComment = (wsComment: WebSocketComment): Comment => ({
+  id: wsComment.id,
+  author: {
+    id: wsComment.author.id,
+    name: wsComment.author.name,
+    profileImage: wsComment.author.avatarURL, // avatarURL -> profileImage
+  },
+  content: wsComment.content,
+  createdAt: new Date(wsComment.createdAt), // string -> Date
+  images: wsComment.images || [],
+});
+
+// 포스트 가시성 상태
+export interface PostVisibilityState {
+  postId: string;
+  isVisible: boolean;
+  lastVisibleAt?: Date;
+  subscriptionStatus: 'subscribed' | 'pending' | 'unsubscribed';
+}
+
+// 실시간 업데이트 액션
+export interface RealtimeUpdateAction {
+  type: 'ADD_COMMENT' | 'DELETE_COMMENT' | 'UPDATE_REACTION' | 'UPDATE_COMMENT';
+  postId: string;
+  payload: Comment | Reaction | { commentId: string } | unknown;
+  timestamp: Date;
+}
+
+// 포스트 구독 상태
+export interface PostSubscriptionState {
+  visiblePostIds: string[];
+  subscribedPostIds: string[];
+  pendingUnsubscribe: Map<string, NodeJS.Timeout>;
+}

@@ -4,6 +4,37 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+# 패키지 관련 규칙
+
+- 최신 버전 패키지의 Breaking Changes 주의
+- 코드 작업 전 반드시 공식 문서 확인
+- 가짜 솔루션(모킹, 임시 데이터) 생성 금지
+- 실제 문제 해결에만 집중
+
+# 🎯 프로젝트 개요
+
+Scrumble은 데일리 스크럼 기반의 팀 커뮤니케이션 플랫폼으로, 팀원들의 일상적인 체크인/아웃과 감정적 교류를 지원하는 서비스입니다.
+
+# 💪 주요 강점
+
+1. 우수한 아키텍처 설계
+
+   - Feature-based 모듈 구조로 도메인별 관심사 분리가 명확함
+   - Service Layer 패턴으로 API 호출이 체계적으로 관리됨
+   - TypeScript 활용으로 타입 안정성 확보
+
+2. 모던한 기술 스택
+
+   - Next.js 15.1.8 App Router 활용
+   - Zustand + React Query v5로 효율적인 상태 관리
+   - WebSocket을 통한 실시간 기능 구현
+
+3. 사용자 중심 기능
+
+   - 직관적인 1-10점 컨디션 체크 시스템
+   - 이모지 리액션으로 감정적 교류 촉진
+   - 실시간 업데이트로 팀 연결성 강화
+
 ## Development Commands
 
 ### Core Commands
