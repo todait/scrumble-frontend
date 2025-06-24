@@ -17,6 +17,7 @@ import {
   useFeedModal,
   useFeedNavigation,
   useFeedScroll,
+  useVisiblePosts,
 } from '@/features/feed/hooks';
 import type { Post as FeedPost } from '@/features/feed/types/feed.types';
 import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
@@ -42,8 +43,18 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // 가시성 추적
+  const { visiblePostIds, observePost, unobservePost, unobserveAll } = useVisiblePosts();
+
   // WebSocket 연결 관리
-  const { connected: wsConnected } = useWebSocket({ spaceSlug });
+  const {
+    connected: wsConnected,
+    addEventListener,
+    removeEventListener,
+  } = useWebSocket({
+    spaceSlug,
+    visiblePostIds, // 현재 보이는 포스트 ID들 전달
+  });
 
   // 데이터 및 상태 관리
   const {
@@ -54,6 +65,8 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     selectedDate,
     existsCheckinQuery,
     isLoading,
+    handleCommentAdded,
+    handleCommentDeleted,
   } = useFeedData(spaceSlug);
   const { handleReaction, handleCommentClick, handleViewSummaryClick, handleDateClick } =
     useFeedActions(spaceSlug, posts as FeedPost[], () => {});
@@ -62,7 +75,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const { scrollContainerRef, showScrollToTop, scrollToTop, scrollToSelectedPost } = useFeedScroll(
     posts.length
   );
-
 
   // 설정 드롭다운 핸들러
   const handleMouseEnter = () => {
@@ -94,14 +106,59 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     }
   }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug]);
 
-  // 컴포넌트 언마운트 시 타이머 정리
+  // 컴포넌트 언마운트 시 타이머 정리 및 관찰 중지
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
       }
+      unobserveAll();
     };
-  }, []);
+  }, [unobserveAll]);
+
+  // 전역 댓글 웹소켓 이벤트 핸들러 등록
+  useEffect(() => {
+    if (!wsConnected) return;
+
+    // 댓글 이벤트 핸들러들
+    const handleCommentCreated = (message: any) => {
+      if (message.postId && message.comment) {
+        handleCommentAdded(message.postId, {
+          id: message.comment.id,
+          author: {
+            id: message.comment.author.id,
+            name: message.comment.author.name,
+            profileImage: message.comment.author.avatarURL,
+          },
+          content: message.comment.content,
+          createdAt: new Date(message.comment.createdAt),
+          images: message.comment.images || [],
+        });
+      }
+    };
+
+    const handleCommentDeletedEvent = (message: any) => {
+      if (message.postId && message.commentId) {
+        handleCommentDeleted(message.postId, message.commentId);
+      }
+    };
+
+    // 이벤트 리스너 등록
+    addEventListener('comment.created', handleCommentCreated);
+    addEventListener('comment.deleted', handleCommentDeletedEvent);
+
+    // 정리 함수
+    return () => {
+      removeEventListener('comment.created', handleCommentCreated);
+      removeEventListener('comment.deleted', handleCommentDeletedEvent);
+    };
+  }, [
+    wsConnected,
+    addEventListener,
+    removeEventListener,
+    handleCommentAdded,
+    handleCommentDeleted,
+  ]);
 
   // URL 파라미터 처리
   const searchParams = useSearchParams();
@@ -184,6 +241,13 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                       <div
                         key={post.id}
                         data-post-id={post.id}
+                        ref={el => {
+                          if (el) {
+                            observePost(post.id, el);
+                          } else {
+                            unobservePost(post.id);
+                          }
+                        }}
                         onClick={() => handlePostClick(post.id)}
                         className="cursor-pointer"
                       >
