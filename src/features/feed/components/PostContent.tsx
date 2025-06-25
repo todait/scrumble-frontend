@@ -275,9 +275,6 @@ export function PostContent({
     // ② Shift가 눌리지 않았을 때만 픽커 닫기
     if (!shiftPressed) {
       setShowEmojiPicker(false);
-    } else {
-      // 여러 개를 연속으로 고를 때 포커스 유지 + 스크롤 보정용(선택)
-      calculateEmojiPickerPosition();
     }
   };
 
