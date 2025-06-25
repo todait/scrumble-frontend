@@ -504,7 +504,7 @@ export function PostContent({
             <div className="flex items-center gap-2">
               {post.reactions.map((reaction, index) => (
                 <button
-                  key={index}
+                  key={`${post.id}-${reaction.emoji}-${index}`}
                   onClick={e => {
                     e.stopPropagation();
                     // 상위 컴포넌트에서 리액션 처리를 원하는 경우
@@ -623,7 +623,7 @@ export function PostContent({
                     .reverse() // 최신순으로 정렬
                     .map((comment, index) => (
                       <ProfileImage
-                        key={index}
+                        key={`${post.id}-comment-${comment.id}-${index}`}
                         src={comment.author.profileImage}
                         alt={comment.author.name}
                         size={32}
