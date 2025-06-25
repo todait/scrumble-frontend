@@ -569,6 +569,10 @@ export function PostContent({
                         left: `${emojiPickerPosition.left}px`,
                       }),
                     }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
                   >
                     <div className="overflow-hidden rounded-lg shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
                       <Picker
