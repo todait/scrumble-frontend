@@ -3,5 +3,10 @@
     "src/app/api/upload/presigned-url/route.ts": {
       "maxDuration": 30
     }
+  },
+  "build": {
+    "env": {
+      "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+    }
   }
 }
