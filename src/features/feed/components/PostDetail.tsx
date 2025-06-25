@@ -192,7 +192,6 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
                   </div>
                 ))}
             </div>
-            </div>
           </div>
         )}
       </div>

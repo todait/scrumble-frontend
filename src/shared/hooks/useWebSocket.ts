@@ -183,21 +183,25 @@ export function useWebSocket({
 
   // Viewport 기반 자동 구독 관리
   useEffect(() => {
-    console.log('[useWebSocket] Viewport subscription effect triggered', {
-      wsConnected,
-      websocketServiceConnected: websocketService.connected,
-      subscribeToAllComments,
-      visiblePostIdsLength: visiblePostIds.length,
-      visiblePostIds
-    });
-
-    if (!wsConnected || subscribeToAllComments || visiblePostIds.length === 0) {
-      console.log('[useWebSocket] Subscription skipped:', {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[useWebSocket] Viewport subscription effect triggered', {
         wsConnected,
         websocketServiceConnected: websocketService.connected,
         subscribeToAllComments,
-        visiblePostIdsLength: visiblePostIds.length
+        visiblePostIdsLength: visiblePostIds.length,
+        visiblePostIds
       });
+    }
+
+    if (!wsConnected || subscribeToAllComments || visiblePostIds.length === 0) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[useWebSocket] Subscription skipped:', {
+          wsConnected,
+          websocketServiceConnected: websocketService.connected,
+          subscribeToAllComments,
+          visiblePostIdsLength: visiblePostIds.length
+        });
+      }
       return;
     }
 
@@ -231,12 +235,14 @@ export function useWebSocket({
       // 새로 구독할 포스트가 있을 때만 구독 시도
       if (newCommentSubscriptions.length > 0 || newReactionSubscriptions.length > 0) {
         try {
-          console.log('[useWebSocket] Attempting batch subscribe for posts:', {
-            newCommentSubscriptions,
-            newReactionSubscriptions,
-            alreadySubscribedComments: subscribedComments,
-            alreadySubscribedReactions: subscribedReactions
-          });
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[useWebSocket] Attempting batch subscribe for posts:', {
+              newCommentSubscriptions,
+              newReactionSubscriptions,
+              alreadySubscribedComments: subscribedComments,
+              alreadySubscribedReactions: subscribedReactions
+            });
+          }
           
           // 배치 구독 (중복 방지됨)
           if (newCommentSubscriptions.length > 0) {
@@ -250,7 +256,7 @@ export function useWebSocket({
           newCommentSubscriptions.forEach(postId => subscribeToComments(postId));
           newReactionSubscriptions.forEach(postId => subscribeToReactions(postId));
         }
-      } else {
+      } else if (process.env.NODE_ENV === 'development') {
         console.log('[useWebSocket] All newly visible posts already subscribed, skipping subscription');
       }
     }
@@ -285,11 +291,13 @@ export function useWebSocket({
 
   // WebSocket 연결 상태 변화 감지하여 재구독 (중복 방지)
   useEffect(() => {
-    console.log('[useWebSocket] Connection state changed:', {
-      wsConnected,
-      websocketServiceConnected: websocketService.connected,
-      visiblePostIdsLength: visiblePostIds.length
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[useWebSocket] Connection state changed:', {
+        wsConnected,
+        websocketServiceConnected: websocketService.connected,
+        visiblePostIdsLength: visiblePostIds.length
+      });
+    }
 
     // 연결이 완료되고 처음으로 보이는 포스트가 있을 때만 구독
     if (wsConnected && visiblePostIds.length > 0 && !subscribeToAllComments) {
@@ -302,12 +310,14 @@ export function useWebSocket({
       const newReactionSubscriptions = visiblePostIds.filter(postId => !subscribedReactions.includes(postId));
 
       if (newCommentSubscriptions.length > 0 || newReactionSubscriptions.length > 0) {
-        console.log('[useWebSocket] Subscribing to new posts:', {
-          newCommentSubscriptions,
-          newReactionSubscriptions,
-          alreadySubscribedComments: subscribedComments,
-          alreadySubscribedReactions: subscribedReactions
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[useWebSocket] Subscribing to new posts:', {
+            newCommentSubscriptions,
+            newReactionSubscriptions,
+            alreadySubscribedComments: subscribedComments,
+            alreadySubscribedReactions: subscribedReactions
+          });
+        }
 
         try {
           // 배치 구독만 사용 (중복 방지)
@@ -371,13 +381,24 @@ export function useWebSocket({
       // 토큰이 있는지 확인 후 연결
       const token = TokenManager.getAccessToken();
       if (token) {
-        // 초기 로드 완료 후 WebSocket 연결 시작 (100ms 지연)
+        // 프로덕션에서는 더 긴 지연으로 초기 로드 완료 보장 (500ms)
+        const delay = process.env.NODE_ENV === 'production' ? 500 : 100;
         connectionTimeout = setTimeout(() => {
           // 연결 및 핸들러 등록
           const setupConnection = async () => {
             try {
-              console.log('[useWebSocket] Starting WebSocket connection after initial load');
-              await websocketService.connect(user.id, spaceSlug);
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[useWebSocket] Starting WebSocket connection after initial load');
+              }
+              
+              // 프로덕션에서는 연결 Promise를 즉시 resolve하여 UI 블로킹 방지
+              if (process.env.NODE_ENV === 'production') {
+                websocketService.connect(user.id, spaceSlug).catch(error => {
+                  console.warn('[useWebSocket] WebSocket 연결 실패 (백그라운드에서 재시도):', error);
+                });
+              } else {
+                await websocketService.connect(user.id, spaceSlug);
+              }
 
               // 기본 이벤트 핸들러 등록
               websocketService.addEventListener('connection.established', handleConnectionEstablished);
@@ -418,7 +439,7 @@ export function useWebSocket({
           };
 
           setupConnection();
-        }, 100); // 100ms 지연으로 초기 로드 완료 후 연결
+        }, delay);
       } else {
         console.warn('[useWebSocket] 인증 토큰이 없어 WebSocket 연결을 건너뜁니다.');
       }

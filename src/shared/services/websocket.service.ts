@@ -724,8 +724,22 @@ export class WebSocketService {
         this.ws.send(messageStr);
       } catch (error) {
         console.error('[WebSocket] 메시지 전송 중 오류:', error, message);
+        
+        // 전송 실패 시 에러 이벤트 발생
+        const errorMessage: IncomingWebSocketMessage = {
+          type: 'message.error',
+          spaceSlug: this.spaceSlug || '',
+          timestamp: new Date().toISOString(),
+          error: error instanceof Error ? error : new Error(String(error)),
+        };
+        this.emit('message.error', errorMessage);
       }
     } else {
+      // 프로덕션에서는 재연결 시도
+      if (process.env.NODE_ENV === 'production' && !this.isConnected) {
+        this.scheduleReconnect();
+      }
+      
       // 개발 환경에서만 상세한 경고 로그
       if (process.env.NODE_ENV === 'development') {
         console.warn('[WebSocket] 메시지 전송 실패 - 연결되지 않음:', {
@@ -742,39 +756,41 @@ export class WebSocketService {
    * 백엔드로부터 받은 메시지를 처리합니다
    */
   private handleMessage(data: string): void {
-    // 안전한 메시지 파싱
-    const message = safeParseWebSocketMessage(data);
-    
-    if (!message) {
-      console.error('[WebSocket] Failed to parse message:', data);
-      const errorMessage: IncomingWebSocketMessage = {
-        type: 'message.error',
-        spaceSlug: this.spaceSlug || '',
-        timestamp: new Date().toISOString(),
-        error: 'Invalid message format',
-        rawData: data,
-      };
-      this.emit('message.error', errorMessage);
-      return;
-    }
+    // 비동기로 메시지 처리하여 WebSocket 스레드 블로킹 방지
+    setTimeout(() => {
+      // 안전한 메시지 파싱
+      const message = safeParseWebSocketMessage(data);
+      
+      if (!message) {
+        console.error('[WebSocket] Failed to parse message:', data);
+        const errorMessage: IncomingWebSocketMessage = {
+          type: 'message.error',
+          spaceSlug: this.spaceSlug || '',
+          timestamp: new Date().toISOString(),
+          error: 'Invalid message format',
+          rawData: data,
+        };
+        this.emit('message.error', errorMessage);
+        return;
+      }
 
-    // 개발 환경에서만 상세 로깅
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[WebSocket] Parsed message:', message);
-      debugWebSocketMessage(message);
-    }
+      // 개발 환경에서만 상세 로깅
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[WebSocket] Parsed message:', message);
+        debugWebSocketMessage(message);
+      }
 
-    // 핑/퐁 메시지 처리 (빠른 리턴)
-    if (message.type === 'pong') {
-      this.lastPongTime = Date.now();
-      return;
-    }
+      // 핑/퐁 메시지 처리 (빠른 리턴)
+      if (message.type === 'pong') {
+        this.lastPongTime = Date.now();
+        return;
+      }
 
-    // connection.established 이벤트 처리
-    if (message.type === 'connection.established') {
-      this.isConnected = true;
-      this.connectionState = 'connected';
-      this.reconnectAttempts = 0;
+      // connection.established 이벤트 처리
+      if (message.type === 'connection.established') {
+        this.isConnected = true;
+        this.connectionState = 'connected';
+        this.reconnectAttempts = 0;
       
       // 개발 환경에서만 상태 로깅
       if (process.env.NODE_ENV === 'development') {
@@ -794,30 +810,29 @@ export class WebSocketService {
         console.log(`[WebSocket] Found ${handlers.length} handlers for message type: ${message.type}`);
       }
       
-      // 핸들러 실행을 다음 틱으로 지연하여 메시지 처리 성능 향상
-      setTimeout(() => {
-        handlers.forEach(handler => {
-          try {
-            handler(message);
-          } catch (error) {
-            console.error('[WebSocket] 핸들러 실행 에러:', error);
-            // 개별 핸들러 에러가 전체 시스템에 영향을 주지 않도록
-            const errorMessage: IncomingWebSocketMessage = {
-              type: 'message.error',
-              spaceSlug: this.spaceSlug || '',
-              timestamp: new Date().toISOString(),
-              error: error instanceof Error ? error : new Error(String(error)),
-              message,
-            };
-            this.emit('message.error', errorMessage);
-          }
-        });
-      }, 0);
+      // 핸들러들을 비동기로 실행하여 블로킹 방지
+      handlers.forEach(handler => {
+        try {
+          handler(message);
+        } catch (error) {
+          console.error('[WebSocket] 핸들러 실행 에러:', error);
+          // 개별 핸들러 에러가 전체 시스템에 영향을 주지 않도록
+          const errorMessage: IncomingWebSocketMessage = {
+            type: 'message.error',
+            spaceSlug: this.spaceSlug || '',
+            timestamp: new Date().toISOString(),
+            error: error instanceof Error ? error : new Error(String(error)),
+            message,
+          };
+          this.emit('message.error', errorMessage);
+        }
+      });
     } else {
       if (process.env.NODE_ENV === 'development' && (message.type as string) !== 'pong') {
         console.warn(`[WebSocket] No handlers found for message type: ${message.type}`);
       }
     }
+    }, 0);
   }
 
 
