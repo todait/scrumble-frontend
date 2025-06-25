@@ -246,10 +246,14 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                         data-post-id={post.id}
                         ref={el => {
                           if (el) {
-                            console.log('[FeedPage] Observing post:', post.id);
+                            if (process.env.NODE_ENV === 'development') {
+                              console.log('[FeedPage] Observing post:', post.id);
+                            }
                             observePost(post.id, el);
                           } else {
-                            console.log('[FeedPage] Unobserving post:', post.id);
+                            if (process.env.NODE_ENV === 'development') {
+                              console.log('[FeedPage] Unobserving post:', post.id);
+                            }
                             unobservePost(post.id);
                           }
                         }}

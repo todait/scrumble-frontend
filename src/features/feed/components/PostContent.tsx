@@ -75,7 +75,7 @@ export function PostContent({
     spaceSlug,
     date: formatDateToAPIString(new Date()),
   });
-  const { mutate: toggleReaction, isPending: isReactionPending } = useToggleReaction(spaceSlug);
+  const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
   const imageUrls = post.images?.map(image => image.url);
 
   const calculateEmojiPickerPosition = useCallback(() => {
@@ -253,7 +253,9 @@ export function PostContent({
       onReaction(post.id, emoji.native);
     } else {
       // 컴포넌트에서 직접 리액션 API 호출
-      console.log(emoji);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(emoji);
+      }
       toggleReaction(
         {
           targetType: 'posts',
@@ -530,12 +532,11 @@ export function PostContent({
                       );
                     }
                   }}
-                  disabled={isReactionPending}
                   className={`flex items-center gap-1 rounded-2xl border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
                     reaction.userIds.includes(user?.id || '')
                       ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
                       : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
-                  } ${isReactionPending ? 'cursor-not-allowed opacity-50' : ''}`}
+                  } `}
                 >
                   <span>{reaction.emoji}</span>
                   {reaction.count > 0 && <span>{reaction.count}</span>}
@@ -547,10 +548,7 @@ export function PostContent({
                 <button
                   ref={emojiButtonRef}
                   onClick={handleEmojiPickerToggle}
-                  disabled={isReactionPending}
-                  className={`flex h-[26px] w-[36px] items-center justify-center rounded-2xl bg-[rgba(241,241,241,0.5)] text-[#222222] opacity-50 transition-all hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100 ${
-                    isReactionPending ? 'cursor-not-allowed' : ''
-                  }`}
+                  className={`flex h-[26px] w-[36px] items-center justify-center rounded-2xl bg-[rgba(241,241,241,0.5)] text-[#222222] opacity-50 transition-all hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100`}
                 >
                   <RiEmojiStickerLine className="h-4 w-4" />
                 </button>

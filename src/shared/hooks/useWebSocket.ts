@@ -393,8 +393,8 @@ export function useWebSocket({
               
               // 프로덕션에서는 연결 Promise를 즉시 resolve하여 UI 블로킹 방지
               if (process.env.NODE_ENV === 'production') {
-                websocketService.connect(user.id, spaceSlug).catch(error => {
-                  console.warn('[useWebSocket] WebSocket 연결 실패 (백그라운드에서 재시도):', error);
+                websocketService.connect(user.id, spaceSlug).catch(() => {
+                  // 프로덕션에서는 조용히 처리 (재연결은 WebSocket 서비스가 자동으로 처리)
                 });
               } else {
                 await websocketService.connect(user.id, spaceSlug);

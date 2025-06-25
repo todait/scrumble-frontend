@@ -29,10 +29,14 @@ export function useVisiblePosts(threshold = 0.1) {
           updates.forEach((isVisible, postId) => {
             if (isVisible) {
               newVisible.add(postId);
-              console.log('[useVisiblePosts] Post became visible:', postId);
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[useVisiblePosts] Post became visible:', postId);
+              }
             } else {
               newVisible.delete(postId);
-              console.log('[useVisiblePosts] Post became hidden:', postId);
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[useVisiblePosts] Post became hidden:', postId);
+              }
             }
           });
 
@@ -42,10 +46,12 @@ export function useVisiblePosts(threshold = 0.1) {
             return prev;
           }
 
-          console.log('[useVisiblePosts] Visible posts changed:', {
-            before: prev,
-            after: newArray
-          });
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[useVisiblePosts] Visible posts changed:', {
+              before: prev,
+              after: newArray
+            });
+          }
 
           return newArray;
         });

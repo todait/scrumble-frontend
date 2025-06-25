@@ -23,9 +23,11 @@ export const useCreateComment = (spaceSlug: string) => {
 
   return useMutation<CreateCommentResponse, Error, CreateCommentRequest>({
     mutationFn: params => {
-      // 디버깅: 이미지 데이터 로깅
-      console.warn('Comment API call - Images count:', params.images?.length || 0);
-      console.warn('Comment API call - Images:', params.images);
+      // 디버깅: 이미지 데이터 로깅 (개발 환경에서만)
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Comment API call - Images count:', params.images?.length || 0);
+        console.warn('Comment API call - Images:', params.images);
+      }
       return commentsApi.createComment(params);
     },
     onSuccess: (data, variables) => {

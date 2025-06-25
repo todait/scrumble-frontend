@@ -36,8 +36,8 @@ export class WebSocketService {
   private isConnected = false;
   private connectionState: ConnectionState = 'disconnected';
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000; // 1초부터 시작
+  private maxReconnectAttempts = process.env.NODE_ENV === 'production' ? 3 : 5; // 프로덕션에서는 3회로 제한
+  private reconnectDelay = process.env.NODE_ENV === 'production' ? 3000 : 1000; // 프로덕션에서는 3초부터 시작
   private eventHandlers = new Map<WebSocketEventType, WebSocketEventHandler[]>();
   private subscriptions = new Map<string, WebSocketSubscription>();
   private connectionPromise: Promise<void> | null = null;
@@ -222,18 +222,21 @@ export class WebSocketService {
     this.connectionPromise = null;
     this.stopHeartbeat();
 
-    // 정상적인 종료가 아니라면 재연결 시도
+    // 정상적인 종료가 아니라면 재연결 시도 (최대 횟수 체크 포함)
     if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
       this.scheduleReconnect();
     } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       this.connectionState = 'error';
-      this.emit('connection.failed', {
-        type: 'connection.failed',
-        spaceSlug: this.spaceSlug || '',
-        timestamp: new Date().toISOString(),
-        reason: 'Max reconnection attempts reached',
-        attempts: this.reconnectAttempts,
-      });
+      // 개발 환경에서만 연결 실패 이벤트 emit
+      if (process.env.NODE_ENV === 'development') {
+        this.emit('connection.failed', {
+          type: 'connection.failed',
+          spaceSlug: this.spaceSlug || '',
+          timestamp: new Date().toISOString(),
+          reason: 'Max reconnection attempts reached',
+          attempts: this.reconnectAttempts,
+        });
+      }
     } else {
       this.connectionState = 'disconnected';
     }
@@ -254,7 +257,9 @@ export class WebSocketService {
    */
   subscribeToComments(postId: string): void {
     if (!this.isConnected || !this.spaceSlug) {
-      console.warn('[WebSocket] 연결되지 않았거나 스페이스 정보가 없음');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[WebSocket] 연결되지 않았거나 스페이스 정보가 없음');
+      }
       return;
     }
 
@@ -308,12 +313,14 @@ export class WebSocketService {
    */
   batchSubscribeToComments(postIds: string[]): void {
     if (!this.isConnected || !this.spaceSlug || postIds.length === 0) {
-      console.warn('[WebSocket] 연결되지 않았거나 구독할 포스트가 없습니다', {
-        isConnected: this.isConnected,
-        spaceSlug: this.spaceSlug,
-        postIdsLength: postIds.length,
-        wsReadyState: this.ws?.readyState
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[WebSocket] 연결되지 않았거나 구독할 포스트가 없습니다', {
+          isConnected: this.isConnected,
+          spaceSlug: this.spaceSlug,
+          postIdsLength: postIds.length,
+          wsReadyState: this.ws?.readyState
+        });
+      }
       return;
     }
 
@@ -450,12 +457,14 @@ export class WebSocketService {
    */
   batchSubscribeToReactions(postIds: string[]): void {
     if (!this.isConnected || !this.spaceSlug || postIds.length === 0) {
-      console.warn('[WebSocket] 연결되지 않았거나 구독할 포스트가 없습니다', {
-        isConnected: this.isConnected,
-        spaceSlug: this.spaceSlug,
-        postIdsLength: postIds.length,
-        wsReadyState: this.ws?.readyState
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[WebSocket] 연결되지 않았거나 구독할 포스트가 없습니다', {
+          isConnected: this.isConnected,
+          spaceSlug: this.spaceSlug,
+          postIdsLength: postIds.length,
+          wsReadyState: this.ws?.readyState
+        });
+      }
       return;
     }
 
@@ -577,11 +586,13 @@ export class WebSocketService {
    */
   batchSubscribeToPosts(spaceSlugs: string[]): void {
     if (!this.isConnected || spaceSlugs.length === 0) {
-      console.warn('[WebSocket] 연결되지 않았거나 구독할 스페이스가 없습니다', {
-        isConnected: this.isConnected,
-        spaceSlugLength: spaceSlugs.length,
-        wsReadyState: this.ws?.readyState
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[WebSocket] 연결되지 않았거나 구독할 스페이스가 없습니다', {
+          isConnected: this.isConnected,
+          spaceSlugLength: spaceSlugs.length,
+          wsReadyState: this.ws?.readyState
+        });
+      }
       return;
     }
 
@@ -840,8 +851,18 @@ export class WebSocketService {
    * 재연결을 스케줄링합니다 (지수 백오프)
    */
   private scheduleReconnect(): void {
+    // 최대 재연결 시도 횟수 도달 시 중단
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      this.connectionState = 'error';
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[WebSocket] 최대 재연결 시도 횟수 도달, 재연결 중단');
+      }
+      return;
+    }
+
+    // 이미 재연결 예정인 경우 중복 방지
     if (this.reconnectTimer) {
-      return; // 이미 재연결 예정
+      return;
     }
 
     this.reconnectAttempts++;
@@ -850,28 +871,39 @@ export class WebSocketService {
     // 지수 백오프 계산 (최대 30초)
     const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 30000);
 
-    this.emit('connection.reconnecting', {
-      type: 'connection.reconnecting',
-      spaceSlug: this.spaceSlug || '',
-      timestamp: new Date().toISOString(),
-      attempt: this.reconnectAttempts,
-      maxAttempts: this.maxReconnectAttempts,
-      nextRetryIn: delay,
-    });
+    // 개발 환경에서만 재연결 이벤트 emit
+    if (process.env.NODE_ENV === 'development') {
+      this.emit('connection.reconnecting', {
+        type: 'connection.reconnecting',
+        spaceSlug: this.spaceSlug || '',
+        timestamp: new Date().toISOString(),
+        attempt: this.reconnectAttempts,
+        maxAttempts: this.maxReconnectAttempts,
+        nextRetryIn: delay,
+      });
+    }
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
 
+      // 최대 재시도 횟수 재확인 (타이머 동안 변경될 수 있음)
+      if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+        this.connectionState = 'error';
+        return;
+      }
+
       if (this.userID && this.spaceSlug) {
         this.connect(this.userID, this.spaceSlug).catch(_error => {
-          // 개발 환경에서는 재연결 실패 로그 생략 (핫 리로드로 인한 정상적 현상)
-          if (process.env.NODE_ENV !== 'development') {
+          // 프로덕션에서는 조용히 처리
+          if (process.env.NODE_ENV === 'development') {
             console.warn('[WebSocket] 재연결 실패, 다시 시도합니다');
           }
 
-          // 재연결 실패 시 다시 스케줄링
+          // 재연결 실패 시 다시 스케줄링 (최대 횟수 체크 포함)
           if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.scheduleReconnect();
+          } else {
+            this.connectionState = 'error';
           }
         });
       }
