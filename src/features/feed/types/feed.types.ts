@@ -132,3 +132,14 @@ export interface PostSubscriptionState {
   subscribedPostIds: string[];
   pendingUnsubscribe: Map<string, NodeJS.Timeout>;
 }
+
+export interface EmojiData {
+  /** i.e. "grinning_face" */
+  id: string;
+  /** i.e. "Grinning Face" */
+  name: string;
+  /** 실제 이모지 문자 */
+  native: string;
+  skin?: number;
+  keywords?: string[];
+}

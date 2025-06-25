@@ -101,14 +101,6 @@ export function useAddReaction(spaceSlug: string) {
       // 사용자에게 에러 알림 (토스트 메시지 등)
       // TODO: 에러 토스트 표시 로직 추가
     },
-
-    // 성공/실패 관계없이 마지막에 실행: 서버 데이터로 동기화
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.lists(spaceSlug),
-        exact: false,
-      });
-    },
   });
 }
 
@@ -255,14 +247,6 @@ export function useRemoveReaction(spaceSlug: string) {
           queryClient.setQueryData(key, data);
         });
       }
-    },
-
-    // 서버 데이터로 동기화
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.lists(spaceSlug),
-        exact: false,
-      });
     },
   });
 }

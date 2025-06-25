@@ -27,7 +27,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import router from 'next/router';
 import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
-import type { Post } from '../types/feed.types';
+import type { EmojiData, Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
 
 interface PostContentProps {
@@ -247,15 +247,13 @@ export function PostContent({
     handleDelete();
   };
 
-  const handleEmojiClick = (emoji: any) => {
+  const handleEmojiClick = (emoji: EmojiData, event?: React.MouseEvent<HTMLDivElement>) => {
+    const shiftPressed = !!event?.shiftKey; // ⇧ 키 여부
+
     // 상위 컴포넌트에서 리액션 처리를 원하는 경우
     if (onReaction) {
       onReaction(post.id, emoji.native);
     } else {
-      // 컴포넌트에서 직접 리액션 API 호출
-      if (process.env.NODE_ENV === 'development') {
-        console.log(emoji);
-      }
       toggleReaction(
         {
           targetType: 'posts',
@@ -273,7 +271,14 @@ export function PostContent({
         }
       );
     }
-    setShowEmojiPicker(false);
+
+    // ② Shift가 눌리지 않았을 때만 픽커 닫기
+    if (!shiftPressed) {
+      setShowEmojiPicker(false);
+    } else {
+      // 여러 개를 연속으로 고를 때 포커스 유지 + 스크롤 보정용(선택)
+      calculateEmojiPickerPosition();
+    }
   };
 
   const handleEmojiPickerToggle = (e: React.MouseEvent) => {
@@ -575,7 +580,10 @@ export function PostContent({
                     <div className="overflow-hidden rounded-lg shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
                       <Picker
                         data={data}
-                        onEmojiSelect={handleEmojiClick}
+                        onEmojiSelect={(
+                          emoji: EmojiData,
+                          event: React.MouseEvent<HTMLDivElement>
+                        ) => handleEmojiClick(emoji, event)}
                         autoFocus={false}
                         searchPosition="sticky"
                         navPosition="bottom"

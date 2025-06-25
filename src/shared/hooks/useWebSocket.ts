@@ -55,21 +55,9 @@ export function useWebSocket({
   const lastVisiblePostIdsRef = useRef<Set<string>>(new Set());
   const [wsConnected, setWsConnected] = useState(false);
 
-  // 댓글 관련 쿼리 무효화 함수
-  const invalidateCommentQueries = useCallback(
-    (postId: string) => {
-      // 특정 포스트의 댓글 쿼리 무효화
-      queryClient.invalidateQueries({
-        queryKey: commentsKeys.list(postId),
-      });
-
-      // 포스트 목록 쿼리도 무효화 (댓글 수 업데이트를 위해)
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.lists(spaceSlug),
-      });
-    },
-    [queryClient, spaceSlug]
-  );
+  // ✅ 댓글 관련 쿼리 무효화 제거
+  // useFeedData.ts에서 선택적 캐시 업데이트로 처리하므로 중복 제거
+  // 대신 이벤트만 전달하여 각 컴포넌트에서 적절히 처리하도록 함
 
   // 기본 이벤트 핸들러들
   const handleConnectionEstablished = useCallback(
@@ -91,54 +79,40 @@ export function useWebSocket({
       if (message.type === 'comment.created') {
         if (process.env.NODE_ENV === 'development') {
           console.log('[useWebSocket] Processing comment.created for postId:', message.data?.postId);
+          console.log('[useWebSocket] Event forwarded to useFeedData.ts for selective cache update');
         }
         
-        // 안전하게 postId 추출
-        const postId = message.data?.postId || message.postId;
-        if (postId) {
-          invalidateCommentQueries(postId);
-        } else {
-          console.warn('[useWebSocket] No postId found in comment.created message:', message);
-        }
+        // ✅ invalidateQueries 제거 - useFeedData.ts에서 선택적 캐시 업데이트 처리
+        // 이벤트는 자동으로 다른 리스너들에게 전달됨
       }
     },
-    [invalidateCommentQueries]
+    []
   );
 
   const handleCommentUpdated = useCallback(
     (message: IncomingWebSocketMessage) => {
       if (process.env.NODE_ENV === 'development') {
         console.log('[useWebSocket] handleCommentUpdated called with:', message);
+        console.log('[useWebSocket] Event forwarded to useFeedData.ts for selective cache update');
       }
       
-      if (message.type === 'comment.updated') {
-        const postId = message.data?.postId || message.postId;
-        if (postId) {
-          invalidateCommentQueries(postId);
-        } else {
-          console.warn('[useWebSocket] No postId found in comment.updated message:', message);
-        }
-      }
+      // ✅ invalidateQueries 제거 - useFeedData.ts에서 선택적 캐시 업데이트 처리
+      // 이벤트는 자동으로 다른 리스너들에게 전달됨
     },
-    [invalidateCommentQueries]
+    []
   );
 
   const handleCommentDeleted = useCallback(
     (message: IncomingWebSocketMessage) => {
       if (process.env.NODE_ENV === 'development') {
         console.log('[useWebSocket] handleCommentDeleted called with:', message);
+        console.log('[useWebSocket] Event forwarded to useFeedData.ts for selective cache update');
       }
       
-      if (message.type === 'comment.deleted') {
-        const postId = message.data?.postId || message.postId;
-        if (postId) {
-          invalidateCommentQueries(postId);
-        } else {
-          console.warn('[useWebSocket] No postId found in comment.deleted message:', message);
-        }
-      }
+      // ✅ invalidateQueries 제거 - useFeedData.ts에서 선택적 캐시 업데이트 처리
+      // 이벤트는 자동으로 다른 리스너들에게 전달됨
     },
-    [invalidateCommentQueries]
+    []
   );
 
   // 댓글 구독 함수
