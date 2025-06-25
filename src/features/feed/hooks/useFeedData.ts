@@ -88,6 +88,12 @@ export const useFeedData = (spaceSlug: string) => {
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
 
+        const existingComments = oldData.posts.find((p: Post) => p.id === postId)?.comments || [];
+        const isDuplicate = existingComments.some((c: Comment) => c.id === comment.id);
+        if (isDuplicate) {
+          return oldData; // 중복이면 변경 없음
+        }
+
         return {
           ...oldData,
           posts: oldData.posts.map((post: any) => {
@@ -95,7 +101,7 @@ export const useFeedData = (spaceSlug: string) => {
               return {
                 ...post,
                 commentCount: post.commentCount + 1,
-                comments: [...(post.comments || []), comment],
+                comments: [...existingComments, comment],
                 lastCommentTime: comment.createdAt,
               };
             }
@@ -152,7 +158,9 @@ export const useFeedData = (spaceSlug: string) => {
       // 다른 스페이스의 메시지는 무시
       if (message.spaceSlug !== spaceSlug) return;
 
-      console.log('[Feed] 리액션 추가 수신:', message);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Feed] 리액션 추가 수신:', message);
+      }
 
       // 현재 필터 조건에 맞는 쿼리 키
       const queryKey = postsKeys.list(spaceSlug, {
@@ -220,7 +228,9 @@ export const useFeedData = (spaceSlug: string) => {
       // 다른 스페이스의 메시지는 무시
       if (message.spaceSlug !== spaceSlug) return;
 
-      console.log('[Feed] 리액션 제거 수신:', message);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Feed] 리액션 제거 수신:', message);
+      }
 
       const queryKey = postsKeys.list(spaceSlug, {
         filterType,
@@ -275,7 +285,7 @@ export const useFeedData = (spaceSlug: string) => {
           author: {
             id: message.data.userId,
             name: message.data.userName || 'Unknown User',
-            profileImage: '',
+            profileImage: message.data.userAvatarURL || '',
           },
           content: message.data.content || '',
           createdAt: new Date(),
@@ -352,12 +362,6 @@ export const useFeedData = (spaceSlug: string) => {
     hasMore,
     nextCursor,
     refetch: postsQuery.refetch,
-
-    // 실시간 업데이트 핸들러들
-    handleCommentAdded,
-    handleCommentDeleted,
-    handleReactionAdded,
-    handleReactionRemoved,
 
     // 디버깅
     useMockData,

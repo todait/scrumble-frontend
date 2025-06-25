@@ -47,11 +47,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const { visiblePostIds, observePost, unobservePost, unobserveAll } = useVisiblePosts();
 
   // WebSocket 연결 관리
-  const {
-    connected: wsConnected,
-    addEventListener,
-    removeEventListener,
-  } = useWebSocket({
+  useWebSocket({
     spaceSlug,
     visiblePostIds, // 현재 보이는 포스트 ID들 전달
   });
@@ -65,8 +61,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     selectedDate,
     existsCheckinQuery,
     isLoading,
-    handleCommentAdded,
-    handleCommentDeleted,
   } = useFeedData(spaceSlug);
   const { handleCommentClick, handleViewSummaryClick, handleDateClick } = useFeedActions(
     spaceSlug,
@@ -119,49 +113,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     };
   }, [unobserveAll]);
 
-  // 전역 댓글 웹소켓 이벤트 핸들러 등록
-  useEffect(() => {
-    if (!wsConnected) return;
-
-    // 댓글 이벤트 핸들러들
-    const handleCommentCreated = (message: any) => {
-      if (message.postId && message.comment) {
-        handleCommentAdded(message.postId, {
-          id: message.comment.id,
-          author: {
-            id: message.comment.author.id,
-            name: message.comment.author.name,
-            profileImage: message.comment.author.avatarURL,
-          },
-          content: message.comment.content,
-          createdAt: new Date(message.comment.createdAt),
-          images: message.comment.images || [],
-        });
-      }
-    };
-
-    const handleCommentDeletedEvent = (message: any) => {
-      if (message.postId && message.commentId) {
-        handleCommentDeleted(message.postId, message.commentId);
-      }
-    };
-
-    // 이벤트 리스너 등록
-    addEventListener('comment.created', handleCommentCreated);
-    addEventListener('comment.deleted', handleCommentDeletedEvent);
-
-    // 정리 함수
-    return () => {
-      removeEventListener('comment.created', handleCommentCreated);
-      removeEventListener('comment.deleted', handleCommentDeletedEvent);
-    };
-  }, [
-    wsConnected,
-    addEventListener,
-    removeEventListener,
-    handleCommentAdded,
-    handleCommentDeleted,
-  ]);
+  // 댓글 이벤트는 useFeedData.ts에서 처리하므로 중복 제거
 
   // URL 파라미터 처리
   const searchParams = useSearchParams();
@@ -246,10 +198,14 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                         data-post-id={post.id}
                         ref={el => {
                           if (el) {
-                            console.log('[FeedPage] Observing post:', post.id);
+                            if (process.env.NODE_ENV === 'development') {
+                              console.log('[FeedPage] Observing post:', post.id);
+                            }
                             observePost(post.id, el);
                           } else {
-                            console.log('[FeedPage] Unobserving post:', post.id);
+                            if (process.env.NODE_ENV === 'development') {
+                              console.log('[FeedPage] Unobserving post:', post.id);
+                            }
                             unobservePost(post.id);
                           }
                         }}

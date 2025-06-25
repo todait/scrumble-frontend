@@ -161,31 +161,36 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
               </div>
             </div>
             <div className="space-y-4 overflow-hidden">
-              {post.comments.map(comment => (
-                <div key={comment.id} className="flex gap-3 overflow-hidden">
-                  <ProfileImage
-                    src={comment.author.profileImage}
-                    alt={comment.author.name}
-                    size={32}
-                    className="flex-shrink-0"
-                  />
-                  <div className="min-w-0 flex-1 overflow-hidden">
-                    <div className="mb-1 flex items-center gap-2">
-                      <span className="text-sm font-bold text-[#222222] md:text-[14px]">
-                        {comment.author.name}
-                      </span>
-                      <span className="text-xs text-[#222222] opacity-40 md:text-[13px]">
-                        {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko })}
-                      </span>
+              {post.comments
+                .filter((comment, index, array) => {
+                  // 중복된 댓글 ID 제거 (같은 ID의 첫 번째 댓글만 유지)
+                  return array.findIndex(c => c.id === comment.id) === index;
+                })
+                .map(comment => (
+                  <div key={comment.id} className="flex gap-3 overflow-hidden">
+                    <ProfileImage
+                      src={comment.author.profileImage}
+                      alt={comment.author.name}
+                      size={32}
+                      className="flex-shrink-0"
+                    />
+                    <div className="min-w-0 flex-1 overflow-hidden">
+                      <div className="mb-1 flex items-center gap-2">
+                        <span className="text-sm font-bold text-[#222222] md:text-[14px]">
+                          {comment.author.name}
+                        </span>
+                        <span className="text-xs text-[#222222] opacity-40 md:text-[13px]">
+                          {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-[#222222] md:text-[14px]">{comment.content}</p>
+                      {/* 댓글 이미지 */}
+                      {comment.images && comment.images.length > 0 && (
+                        <ImageGallery images={comment.images} className="mt-2" />
+                      )}
                     </div>
-                    <p className="text-sm text-[#222222] md:text-[14px]">{comment.content}</p>
-                    {/* 댓글 이미지 */}
-                    {comment.images && comment.images.length > 0 && (
-                      <ImageGallery images={comment.images} className="mt-2" />
-                    )}
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}

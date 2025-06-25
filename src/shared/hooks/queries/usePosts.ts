@@ -113,20 +113,78 @@ export const useCreateCheckIn = () => {
       console.warn('CheckIn API call - Images:', params.images);
       return postsApi.createCheckIn(params);
     },
-    onSuccess: (data, variables) => {
-      // 포스트 목록 무효화
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
-      // existsCheckin 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
+    onMutate: async variables => {
+      // ✅ Optimistic Update: 진행 중인 쿼리들 취소
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+
       const targetDate = variables.postedDate || formatDateToAPIString(new Date());
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.existsCheckin(variables.spaceSlug, targetDate),
+
+      // 이전 데이터 백업 (롤백용)
+      const previousPostsData = queryClient.getQueriesData({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
       });
-      // feedSummary 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+      const previousExistsData = queryClient.getQueryData(
+        postsKeys.existsCheckin(variables.spaceSlug, targetDate)
+      );
+      const previousSummaryData = queryClient.getQueryData(
+        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+      );
+
+      // existsCheckin 즉시 업데이트
+      queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, targetDate), {
+        exists: true,
       });
+
+      return { previousPostsData, previousExistsData, previousSummaryData, targetDate };
     },
-    onError: (err: unknown) => {
+    onSuccess: (data, variables, context) => {
+      // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
+      // 대신 existsCheckin과 feedSummary만 업데이트 (즉시 필요한 상태)
+      const ctx = context as { targetDate: string } | undefined;
+      if (ctx) {
+        queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate), {
+          exists: true,
+        });
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+        });
+
+        // ❗️ WebSocket 미도착 상황을 위해 게시글 목록(cache) 무효화 추가
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.lists(variables.spaceSlug),
+          exact: false,
+        });
+      }
+    },
+    onError: (err: unknown, variables, context) => {
+      // ✅ 에러 시 이전 상태로 롤백
+      const ctx = context as
+        | {
+            previousPostsData?: any;
+            previousExistsData?: any;
+            previousSummaryData?: any;
+            targetDate: string;
+          }
+        | undefined;
+      if (ctx) {
+        ctx.previousPostsData?.forEach(([key, data]: any) => {
+          queryClient.setQueryData(key, data);
+        });
+        if (ctx.previousExistsData !== undefined) {
+          queryClient.setQueryData(
+            postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate),
+            ctx.previousExistsData
+          );
+        }
+        if (ctx.previousSummaryData !== undefined) {
+          queryClient.setQueryData(
+            postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+            ctx.previousSummaryData
+          );
+        }
+      }
+
       if (isErrorCode(err, ErrorCode.CHECKIN_ALREADY_EXISTS)) {
         error({
           title: '이미 작성한 체크인이 있습니다',
@@ -153,15 +211,57 @@ export const useCreateCheckOut = () => {
       console.warn('CheckOut API call - Images:', params.images);
       return postsApi.createCheckOut(params);
     },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
-      // feedSummary 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
+    onMutate: async variables => {
+      // ✅ Optimistic Update: 진행 중인 쿼리들 취소
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+
       const targetDate = variables.postedDate || formatDateToAPIString(new Date());
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+
+      // 이전 데이터 백업 (롤백용)
+      const previousPostsData = queryClient.getQueriesData({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
       });
+      const previousSummaryData = queryClient.getQueryData(
+        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+      );
+
+      return { previousPostsData, previousSummaryData, targetDate };
     },
-    onError: (err: unknown) => {
+    onSuccess: (data, variables, context) => {
+      // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
+      // feedSummary만 무효화 (팀 요약 통계 업데이트 필요)
+      const ctx = context as { targetDate: string } | undefined;
+      if (ctx) {
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+        });
+
+        // ❗️ WebSocket 미도착 상황을 위해 게시글 목록(cache) 무효화 추가
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.lists(variables.spaceSlug),
+          exact: false,
+        });
+      }
+    },
+    onError: (err: unknown, variables, context) => {
+      // ✅ 에러 시 이전 상태로 롤백
+      const ctx = context as
+        | { previousPostsData?: any; previousSummaryData?: any; targetDate: string }
+        | undefined;
+      if (ctx) {
+        ctx.previousPostsData?.forEach(([key, data]: any) => {
+          queryClient.setQueryData(key, data);
+        });
+        if (ctx.previousSummaryData !== undefined) {
+          const targetDate = variables.postedDate || formatDateToAPIString(new Date());
+          queryClient.setQueryData(
+            postsKeys.feedSummary(variables.spaceSlug, targetDate),
+            ctx.previousSummaryData
+          );
+        }
+      }
+
       error({
         title: '체크아웃 작성 실패',
         message: getErrorMessage(err),
@@ -176,15 +276,41 @@ export const useUpdateCheckIn = () => {
 
   return useMutation<UpdateCheckInResponse, Error, UpdateCheckInRequest>({
     mutationFn: params => postsApi.updateCheckIn(params),
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
-      // feedSummary 쿼리 무효화 - 응답 데이터의 postedAt 날짜로
-      const targetDate = data.post.postedAt.split('T')[0]; // YYYY-MM-DD 형식 추출
+    onMutate: async variables => {
+      // ✅ Optimistic Update: 진행 중인 쿼리들 취소
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+
+      // 이전 데이터 백업 (롤백용)
+      const previousPostsData = queryClient.getQueriesData({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
+      });
+
+      return { previousPostsData };
+    },
+    onSuccess: (data, variables, _context) => {
+      // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
+      // feedSummary만 무효화 (통계 업데이트 필요)
+      const targetDate = data.post.postedAt.split('T')[0];
       queryClient.invalidateQueries({
         queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
       });
+
+      // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
+      });
     },
-    onError: (err: unknown) => {
+    onError: (err: unknown, variables, context) => {
+      // ✅ 에러 시 이전 상태로 롤백
+      const ctx = context as { previousPostsData?: any } | undefined;
+      if (ctx?.previousPostsData) {
+        ctx.previousPostsData.forEach(([key, data]: any) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+
       error({
         title: '체크인 수정 실패',
         message: getErrorMessage(err),
@@ -199,15 +325,77 @@ export const useDeleteCheckIn = () => {
 
   return useMutation<DeleteCheckInResponse, Error, DeleteCheckInRequest>({
     mutationFn: params => postsApi.deleteCheckIn(params),
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
-      // feedSummary 쿼리 무효화 - 오늘 날짜로 (delete는 날짜 정보가 없음)
+    onMutate: async variables => {
+      // ✅ Optimistic Update: 진행 중인 쿼리들 취소
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+
       const targetDate = formatDateToAPIString(new Date());
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+
+      // 이전 데이터 백업 (롤백용)
+      const previousPostsData = queryClient.getQueriesData({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
       });
+      const previousExistsData = queryClient.getQueryData(
+        postsKeys.existsCheckin(variables.spaceSlug, targetDate)
+      );
+      const previousSummaryData = queryClient.getQueryData(
+        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+      );
+
+      // existsCheckin 즉시 업데이트
+      queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, targetDate), {
+        exists: false,
+      });
+
+      return { previousPostsData, previousExistsData, previousSummaryData, targetDate };
     },
-    onError: (err: unknown) => {
+    onSuccess: (data, variables, context) => {
+      // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
+      const ctx = context as { targetDate: string } | undefined;
+      if (ctx) {
+        queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate), {
+          exists: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+        });
+
+        // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.lists(variables.spaceSlug),
+          exact: false,
+        });
+      }
+    },
+    onError: (err: unknown, variables, context) => {
+      // ✅ 에러 시 이전 상태로 롤백
+      const ctx = context as
+        | {
+            previousPostsData?: any;
+            previousExistsData?: any;
+            previousSummaryData?: any;
+            targetDate: string;
+          }
+        | undefined;
+      if (ctx) {
+        ctx.previousPostsData?.forEach(([key, data]: any) => {
+          queryClient.setQueryData(key, data);
+        });
+        if (ctx.previousExistsData !== undefined) {
+          queryClient.setQueryData(
+            postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate),
+            ctx.previousExistsData
+          );
+        }
+        if (ctx.previousSummaryData !== undefined) {
+          queryClient.setQueryData(
+            postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+            ctx.previousSummaryData
+          );
+        }
+      }
+
       error({
         title: '체크인 삭제 실패',
         message: getErrorMessage(err),
@@ -222,15 +410,41 @@ export const useUpdateCheckOut = () => {
 
   return useMutation<UpdateCheckOutResponse, Error, UpdateCheckOutRequest>({
     mutationFn: params => postsApi.updateCheckOut(params),
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
-      // feedSummary 쿼리 무효화 - 응답 데이터의 postedAt 날짜로
-      const targetDate = data.post.postedAt.split('T')[0]; // YYYY-MM-DD 형식 추출
+    onMutate: async variables => {
+      // ✅ Optimistic Update: 진행 중인 쿼리들 취소
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+
+      // 이전 데이터 백업 (롤백용)
+      const previousPostsData = queryClient.getQueriesData({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
+      });
+
+      return { previousPostsData };
+    },
+    onSuccess: (data, variables, _context) => {
+      // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
+      // feedSummary만 무효화 (통계 업데이트 필요)
+      const targetDate = data.post.postedAt.split('T')[0];
       queryClient.invalidateQueries({
         queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
       });
+
+      // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
+      queryClient.invalidateQueries({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
+      });
     },
-    onError: (err: unknown) => {
+    onError: (err: unknown, variables, context) => {
+      // ✅ 에러 시 이전 상태로 롤백
+      const ctx = context as { previousPostsData?: any } | undefined;
+      if (ctx?.previousPostsData) {
+        ctx.previousPostsData.forEach(([key, data]: any) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+
       error({
         title: '체크아웃 수정 실패',
         message: getErrorMessage(err),
@@ -245,15 +459,56 @@ export const useDeleteCheckOut = () => {
 
   return useMutation<DeleteCheckOutResponse, Error, DeleteCheckOutRequest>({
     mutationFn: params => postsApi.deleteCheckOut(params),
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
-      // feedSummary 쿼리 무효화 - 오늘 날짜로 (delete는 날짜 정보가 없음)
+    onMutate: async variables => {
+      // ✅ Optimistic Update: 진행 중인 쿼리들 취소
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+
       const targetDate = formatDateToAPIString(new Date());
-      queryClient.invalidateQueries({
-        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+
+      // 이전 데이터 백업 (롤백용)
+      const previousPostsData = queryClient.getQueriesData({
+        queryKey: postsKeys.lists(variables.spaceSlug),
+        exact: false,
       });
+      const previousSummaryData = queryClient.getQueryData(
+        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+      );
+
+      return { previousPostsData, previousSummaryData, targetDate };
     },
-    onError: (err: unknown) => {
+    onSuccess: (data, variables, context) => {
+      // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
+      const ctx = context as { targetDate: string } | undefined;
+      if (ctx) {
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+        });
+
+        // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
+        queryClient.invalidateQueries({
+          queryKey: postsKeys.lists(variables.spaceSlug),
+          exact: false,
+        });
+      }
+    },
+    onError: (err: unknown, variables, context) => {
+      // ✅ 에러 시 이전 상태로 롤백
+      const ctx = context as
+        | { previousPostsData?: any; previousSummaryData?: any; targetDate: string }
+        | undefined;
+      if (ctx) {
+        ctx.previousPostsData?.forEach(([key, data]: any) => {
+          queryClient.setQueryData(key, data);
+        });
+        if (ctx.previousSummaryData !== undefined) {
+          const targetDate = formatDateToAPIString(new Date());
+          queryClient.setQueryData(
+            postsKeys.feedSummary(variables.spaceSlug, targetDate),
+            ctx.previousSummaryData
+          );
+        }
+      }
+
       error({
         title: '체크아웃 삭제 실패',
         message: getErrorMessage(err),

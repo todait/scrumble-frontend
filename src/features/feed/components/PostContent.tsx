@@ -27,7 +27,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import router from 'next/router';
 import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
-import type { Post } from '../types/feed.types';
+import type { EmojiData, Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
 
 interface PostContentProps {
@@ -75,7 +75,7 @@ export function PostContent({
     spaceSlug,
     date: formatDateToAPIString(new Date()),
   });
-  const { mutate: toggleReaction, isPending: isReactionPending } = useToggleReaction(spaceSlug);
+  const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
   const imageUrls = post.images?.map(image => image.url);
 
   const calculateEmojiPickerPosition = useCallback(() => {
@@ -247,13 +247,13 @@ export function PostContent({
     handleDelete();
   };
 
-  const handleEmojiClick = (emoji: any) => {
+  const handleEmojiClick = (emoji: EmojiData, event?: React.MouseEvent<HTMLDivElement>) => {
+    const shiftPressed = !!event?.shiftKey; // ⇧ 키 여부
+
     // 상위 컴포넌트에서 리액션 처리를 원하는 경우
     if (onReaction) {
       onReaction(post.id, emoji.native);
     } else {
-      // 컴포넌트에서 직접 리액션 API 호출
-      console.log(emoji);
       toggleReaction(
         {
           targetType: 'posts',
@@ -271,7 +271,11 @@ export function PostContent({
         }
       );
     }
-    setShowEmojiPicker(false);
+
+    // ② Shift가 눌리지 않았을 때만 픽커 닫기
+    if (!shiftPressed) {
+      setShowEmojiPicker(false);
+    }
   };
 
   const handleEmojiPickerToggle = (e: React.MouseEvent) => {
@@ -501,10 +505,10 @@ export function PostContent({
           {/* 리액션 및 댓글 섹션 */}
           <div className="flex flex-col gap-[10px] py-2">
             {/* 이모지 리액션 */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
               {post.reactions.map((reaction, index) => (
                 <button
-                  key={index}
+                  key={`${post.id}-${reaction.emoji}-${index}`}
                   onClick={e => {
                     e.stopPropagation();
                     // 상위 컴포넌트에서 리액션 처리를 원하는 경우
@@ -530,12 +534,11 @@ export function PostContent({
                       );
                     }
                   }}
-                  disabled={isReactionPending}
                   className={`flex items-center gap-1 rounded-2xl border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
                     reaction.userIds.includes(user?.id || '')
                       ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
                       : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
-                  } ${isReactionPending ? 'cursor-not-allowed opacity-50' : ''}`}
+                  } `}
                 >
                   <span>{reaction.emoji}</span>
                   {reaction.count > 0 && <span>{reaction.count}</span>}
@@ -547,10 +550,7 @@ export function PostContent({
                 <button
                   ref={emojiButtonRef}
                   onClick={handleEmojiPickerToggle}
-                  disabled={isReactionPending}
-                  className={`flex h-[26px] w-[36px] items-center justify-center rounded-2xl bg-[rgba(241,241,241,0.5)] text-[#222222] opacity-50 transition-all hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100 ${
-                    isReactionPending ? 'cursor-not-allowed' : ''
-                  }`}
+                  className={`flex h-[26px] w-[36px] items-center justify-center rounded-2xl bg-[rgba(241,241,241,0.5)] text-[#222222] opacity-50 transition-all hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100`}
                 >
                   <RiEmojiStickerLine className="h-4 w-4" />
                 </button>
@@ -569,11 +569,18 @@ export function PostContent({
                         left: `${emojiPickerPosition.left}px`,
                       }),
                     }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
                   >
                     <div className="overflow-hidden rounded-lg shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
                       <Picker
                         data={data}
-                        onEmojiSelect={handleEmojiClick}
+                        onEmojiSelect={(
+                          emoji: EmojiData,
+                          event: React.MouseEvent<HTMLDivElement>
+                        ) => handleEmojiClick(emoji, event)}
                         autoFocus={false}
                         searchPosition="sticky"
                         navPosition="bottom"
@@ -619,7 +626,7 @@ export function PostContent({
                     .reverse() // 최신순으로 정렬
                     .map((comment, index) => (
                       <ProfileImage
-                        key={index}
+                        key={`${post.id}-comment-${comment.id}-${index}`}
                         src={comment.author.profileImage}
                         alt={comment.author.name}
                         size={32}
