@@ -22,18 +22,19 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
     id: apiPost.id,
     createdAt: new Date(apiPost.createdAt),
     updatedAt: apiPost.updatedAt ? new Date(apiPost.updatedAt) : undefined,
-    reactions: [],
+    reactions: apiPost.reactions || [], // API에서 받은 reactions 사용
     comments:
       apiPost.comments?.map(comment => ({
         id: comment.id,
         author: {
           id: comment.author.id,
           name: comment.author.name,
-          profileImage: comment.author.avatarURL,
+          profileImage: comment.author.profileImage ?? '',
         },
         content: comment.content,
         createdAt: new Date(comment.createdAt),
         images: comment.images,
+        reactions: comment.reactions || [], // 댓글 reactions 추가
       })) || [],
     commentCount: apiPost.comments?.length || 0,
     lastCommentTime:
@@ -71,5 +72,15 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
  * @returns Feed용 포스트 배열
  */
 export const convertApiPostsToFeedPosts = (apiPosts: ApiPost[]): FeedPost[] => {
-  return apiPosts.map(convertApiPostToFeedPost);
+  const seenIds = new Set<string>();
+  const uniquePosts: FeedPost[] = [];
+
+  apiPosts.forEach(apiPost => {
+    if (!seenIds.has(apiPost.id)) {
+      seenIds.add(apiPost.id);
+      uniquePosts.push(convertApiPostToFeedPost(apiPost));
+    }
+  });
+
+  return uniquePosts;
 };

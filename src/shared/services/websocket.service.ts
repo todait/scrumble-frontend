@@ -14,6 +14,14 @@ import type {
   UnsubscribeMessage,
   BatchSubscribeMessage,
   BatchUnsubscribeMessage,
+  SubscribeReactionsMessage,
+  UnsubscribeReactionsMessage,
+  BatchSubscribeReactionsMessage,
+  BatchUnsubscribeReactionsMessage,
+  SubscribePostsMessage,
+  UnsubscribePostsMessage,
+  BatchSubscribePostsMessage,
+  BatchUnsubscribePostsMessage,
 } from '@/shared/types/websocket.types';
 import {
   safeParseWebSocketMessage,
@@ -373,6 +381,285 @@ export class WebSocketService {
   }
 
   /**
+   * 특정 포스트의 리액션 이벤트를 구독합니다
+   */
+  subscribeToReactions(postId: string): void {
+    if (!this.isConnected || !this.spaceSlug) {
+      console.warn('[WebSocket] 연결되지 않았거나 스페이스 정보가 없음');
+      return;
+    }
+
+    const subscriptionKey = `reactions:${postId}`;
+
+    // 이미 구독 중이라면 스킵
+    if (this.subscriptions.has(subscriptionKey)) {
+      return;
+    }
+
+    const subscription: WebSocketSubscription = {
+      type: 'subscribe',
+      spaceSlug: this.spaceSlug,
+      postId,
+    };
+
+    this.subscriptions.set(subscriptionKey, subscription);
+
+    // 백엔드에 리액션 구독 요청 전송
+    const subscribeMessage: SubscribeReactionsMessage = {
+      type: 'subscribeReactions',
+      spaceSlug: this.spaceSlug,
+      postId,
+    };
+
+    this.sendMessage(subscribeMessage);
+  }
+
+  /**
+   * 특정 포스트의 리액션 이벤트 구독을 해제합니다
+   */
+  unsubscribeFromReactions(postId: string): void {
+    if (!this.isConnected || !this.spaceSlug) {
+      return;
+    }
+
+    const subscriptionKey = `reactions:${postId}`;
+
+    if (!this.subscriptions.has(subscriptionKey)) {
+      return;
+    }
+
+    const unsubscribeMessage: UnsubscribeReactionsMessage = {
+      type: 'unsubscribeReactions',
+      spaceSlug: this.spaceSlug!,
+      postId,
+    };
+
+    this.subscriptions.delete(subscriptionKey);
+
+    // 백엔드에 리액션 구독 해제 요청 전송
+    this.sendMessage(unsubscribeMessage);
+  }
+
+  /**
+   * 여러 포스트의 리액션 이벤트를 한번에 구독합니다
+   */
+  batchSubscribeToReactions(postIds: string[]): void {
+    if (!this.isConnected || !this.spaceSlug || postIds.length === 0) {
+      console.warn('[WebSocket] 연결되지 않았거나 구독할 포스트가 없습니다', {
+        isConnected: this.isConnected,
+        spaceSlug: this.spaceSlug,
+        postIdsLength: postIds.length,
+        wsReadyState: this.ws?.readyState
+      });
+      return;
+    }
+
+    const newSubscriptions: string[] = [];
+
+    postIds.forEach(postId => {
+      const subscriptionKey = `reactions:${postId}`;
+      // 이미 구독 중이 아닌 것만 추가
+      if (!this.subscriptions.has(subscriptionKey)) {
+        this.subscriptions.set(subscriptionKey, {
+          type: 'subscribe',
+          spaceSlug: this.spaceSlug!,
+          postId,
+        });
+        newSubscriptions.push(postId);
+      }
+    });
+
+    // 새로 구독할 포스트가 있다면 배치 요청 전송
+    if (newSubscriptions.length > 0) {
+      const batchSubscription: BatchSubscribeReactionsMessage = {
+        type: 'batchSubscribeReactions',
+        spaceSlug: this.spaceSlug!,
+        postIds: newSubscriptions,
+      };
+      this.sendMessage(batchSubscription);
+    }
+  }
+
+  /**
+   * 여러 포스트의 리액션 이벤트 구독을 한번에 해제합니다
+   */
+  batchUnsubscribeFromReactions(postIds: string[]): void {
+    if (!this.isConnected || !this.spaceSlug || postIds.length === 0) {
+      return;
+    }
+
+    const toUnsubscribe: string[] = [];
+
+    postIds.forEach(postId => {
+      const subscriptionKey = `reactions:${postId}`;
+      if (this.subscriptions.has(subscriptionKey)) {
+        this.subscriptions.delete(subscriptionKey);
+        toUnsubscribe.push(postId);
+      }
+    });
+
+    // 구독 해제할 포스트가 있다면 배치 요청 전송
+    if (toUnsubscribe.length > 0) {
+      const batchUnsubscription: BatchUnsubscribeReactionsMessage = {
+        type: 'batchUnsubscribeReactions',
+        spaceSlug: this.spaceSlug!,
+        postIds: toUnsubscribe,
+      };
+      this.sendMessage(batchUnsubscription);
+    }
+  }
+
+  /**
+   * 스페이스의 포스트 이벤트를 구독합니다 (향후 백엔드 지원 예정)
+   */
+  subscribeToPosts(spaceSlug: string): void {
+    if (!this.isConnected) {
+      console.warn('[WebSocket] 연결되지 않았음');
+      return;
+    }
+
+    const subscriptionKey = `posts:${spaceSlug}`;
+
+    // 이미 구독 중이라면 스킵
+    if (this.subscriptions.has(subscriptionKey)) {
+      return;
+    }
+
+    const subscription: WebSocketSubscription = {
+      type: 'subscribe',
+      spaceSlug,
+      postId: '', // 포스트 구독은 postId가 필요없음
+    };
+
+    this.subscriptions.set(subscriptionKey, subscription);
+
+    // 백엔드에 포스트 구독 요청 전송 (향후 지원 예정)
+    const subscribeMessage: SubscribePostsMessage = {
+      type: 'subscribePosts',
+      spaceSlug,
+    };
+
+    this.sendMessage(subscribeMessage);
+  }
+
+  /**
+   * 스페이스의 포스트 이벤트 구독을 해제합니다 (향후 백엔드 지원 예정)
+   */
+  unsubscribeFromPosts(spaceSlug: string): void {
+    if (!this.isConnected) {
+      return;
+    }
+
+    const subscriptionKey = `posts:${spaceSlug}`;
+
+    if (!this.subscriptions.has(subscriptionKey)) {
+      return;
+    }
+
+    const unsubscribeMessage: UnsubscribePostsMessage = {
+      type: 'unsubscribePosts',
+      spaceSlug,
+    };
+
+    this.subscriptions.delete(subscriptionKey);
+
+    // 백엔드에 포스트 구독 해제 요청 전송 (향후 지원 예정)
+    this.sendMessage(unsubscribeMessage);
+  }
+
+  /**
+   * 여러 스페이스의 포스트 이벤트를 한번에 구독합니다 (향후 백엔드 지원 예정)
+   */
+  batchSubscribeToPosts(spaceSlugs: string[]): void {
+    if (!this.isConnected || spaceSlugs.length === 0) {
+      console.warn('[WebSocket] 연결되지 않았거나 구독할 스페이스가 없습니다', {
+        isConnected: this.isConnected,
+        spaceSlugLength: spaceSlugs.length,
+        wsReadyState: this.ws?.readyState
+      });
+      return;
+    }
+
+    const newSubscriptions: string[] = [];
+
+    spaceSlugs.forEach(spaceSlug => {
+      const subscriptionKey = `posts:${spaceSlug}`;
+      // 이미 구독 중이 아닌 것만 추가
+      if (!this.subscriptions.has(subscriptionKey)) {
+        this.subscriptions.set(subscriptionKey, {
+          type: 'subscribe',
+          spaceSlug,
+          postId: '',
+        });
+        newSubscriptions.push(spaceSlug);
+      }
+    });
+
+    // 새로 구독할 스페이스가 있다면 배치 요청 전송
+    if (newSubscriptions.length > 0) {
+      const batchSubscription: BatchSubscribePostsMessage = {
+        type: 'batchSubscribePosts',
+        spaceSlugs: newSubscriptions,
+      };
+      this.sendMessage(batchSubscription);
+    }
+  }
+
+  /**
+   * 여러 스페이스의 포스트 이벤트 구독을 한번에 해제합니다 (향후 백엔드 지원 예정)
+   */
+  batchUnsubscribeFromPosts(spaceSlugs: string[]): void {
+    if (!this.isConnected || spaceSlugs.length === 0) {
+      return;
+    }
+
+    const toUnsubscribe: string[] = [];
+
+    spaceSlugs.forEach(spaceSlug => {
+      const subscriptionKey = `posts:${spaceSlug}`;
+      if (this.subscriptions.has(subscriptionKey)) {
+        this.subscriptions.delete(subscriptionKey);
+        toUnsubscribe.push(spaceSlug);
+      }
+    });
+
+    // 구독 해제할 스페이스가 있다면 배치 요청 전송
+    if (toUnsubscribe.length > 0) {
+      const batchUnsubscription: BatchUnsubscribePostsMessage = {
+        type: 'batchUnsubscribePosts',
+        spaceSlugs: toUnsubscribe,
+      };
+      this.sendMessage(batchUnsubscription);
+    }
+  }
+
+  /**
+   * 현재 구독 중인 리액션 포스트 ID 목록을 반환합니다
+   */
+  getSubscribedReactionPostIds(): string[] {
+    const postIds: string[] = [];
+    this.subscriptions.forEach((_, key) => {
+      if (key.startsWith('reactions:')) {
+        postIds.push(key.substring(10)); // 'reactions:' 제거
+      }
+    });
+    return postIds;
+  }
+
+  /**
+   * 현재 구독 중인 포스트 스페이스 슬러그 목록을 반환합니다
+   */
+  getSubscribedPostSpaceSlugs(): string[] {
+    const spaceSlugs: string[] = [];
+    this.subscriptions.forEach((_, key) => {
+      if (key.startsWith('posts:')) {
+        spaceSlugs.push(key.substring(6)); // 'posts:' 제거
+      }
+    });
+    return spaceSlugs;
+  }
+
+  /**
    * 특정 이벤트 타입에 대한 핸들러를 등록합니다
    * 중복 등록을 방지합니다
    */
@@ -422,6 +709,13 @@ export class WebSocketService {
   private sendMessage(message: OutgoingWebSocketMessage): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       const messageStr = JSON.stringify(message);
+      
+      // 개발 환경에서 전송 메시지 로깅
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[WebSocket] Sending message:', message);
+        console.log('[WebSocket] Message string:', messageStr);
+      }
+      
       this.ws.send(messageStr);
     } else {
       console.warn('[WebSocket] 메시지 전송 실패 - 연결되지 않음:', {
@@ -437,10 +731,16 @@ export class WebSocketService {
    * 백엔드로부터 받은 메시지를 처리합니다
    */
   private handleMessage(data: string): void {
+    // 개발 환경에서 원시 메시지 로깅
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[WebSocket] Raw message received:', data);
+    }
+
     // 안전한 메시지 파싱
     const message = safeParseWebSocketMessage(data);
     
     if (!message) {
+      console.error('[WebSocket] Failed to parse message:', data);
       const errorMessage: IncomingWebSocketMessage = {
         type: 'message.error',
         spaceSlug: this.spaceSlug || '',
@@ -452,8 +752,9 @@ export class WebSocketService {
       return;
     }
 
-    // 개발 환경에서 디버깅
+    // 개발 환경에서 파싱된 메시지 디버깅
     if (process.env.NODE_ENV === 'development') {
+      console.log('[WebSocket] Parsed message:', message);
       debugWebSocketMessage(message);
     }
 
@@ -465,14 +766,28 @@ export class WebSocketService {
 
     // connection.established 이벤트 처리
     if (message.type === 'connection.established') {
+      console.log('[WebSocket] Connection established, setting connected state to true');
       this.isConnected = true;
       this.connectionState = 'connected';
       this.reconnectAttempts = 0;
+      
+      // 개발 환경에서 연결 상태 확인
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[WebSocket] Connection state after establishment:', {
+          isConnected: this.isConnected,
+          connectionState: this.connectionState,
+          wsReadyState: this.ws?.readyState
+        });
+      }
     }
 
     // 등록된 핸들러들에게 메시지 전달
     const handlers = this.eventHandlers.get(message.type);
     if (handlers && handlers.length > 0) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[WebSocket] Found ${handlers.length} handlers for message type: ${message.type}`);
+      }
+      
       handlers.forEach(handler => {
         try {
           handler(message);
@@ -489,6 +804,10 @@ export class WebSocketService {
           this.emit('message.error', errorMessage);
         }
       });
+    } else {
+      if (process.env.NODE_ENV === 'development' && (message.type as string) !== 'pong') {
+        console.warn(`[WebSocket] No handlers found for message type: ${message.type}`);
+      }
     }
   }
 
@@ -557,7 +876,10 @@ export class WebSocketService {
     this.eventHandlers.forEach((handlers, eventType) => {
       console.log(`  ${eventType}: ${handlers.length}개`);
     });
-    console.log('현재 구독 포스트 ID:', this.getSubscribedPostIds());
+    console.log('현재 구독 정보:');
+    console.log('  댓글 구독 포스트 ID:', this.getSubscribedPostIds());
+    console.log('  리액션 구독 포스트 ID:', this.getSubscribedReactionPostIds());
+    console.log('  포스트 구독 스페이스 슬러그:', this.getSubscribedPostSpaceSlugs());
     console.groupEnd();
     /* eslint-enable no-console */
   }

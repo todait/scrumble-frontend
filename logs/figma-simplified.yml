@@ -1,148 +1,154 @@
 name: Scrumble
-lastModified: '2025-06-12T10:27:44Z'
+lastModified: '2025-06-25T01:32:55Z'
 thumbnailUrl: >-
-  https://s3-alpha.figma.com/thumbnails/3b7c9b82-0800-4341-bc79-5ce0e848f6a6?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC2S47B3L5%2F20250612%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250612T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=f829efb2c5cac434eafacc3d9c53c8303f39b54e262a09575212b6585fbeb6df
+  https://s3-alpha.figma.com/thumbnails/98129c6d-d7db-48d4-9a59-50094a33c97b?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCZGWUDXPX%2F20250622%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250622T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=31791f9ca706c509ef1085ed8aa09221c7b6bf87d7d2c9c3aed3484a1b2fa920
 nodes:
-  - id: '916:3906'
-    name: Note Feed
+  - id: '1201:14141'
+    name: Emojis
     type: FRAME
-    fills: fill_OCB8RI
-    strokes: stroke_Z6Q6NW
-    effects: effect_I6D1VD
-    layout: layout_WFM31U
-    borderRadius: 16px
+    layout: layout_ZW08GC
     children:
-      - id: '916:3907'
-        name: Menu
+      - id: '1201:14142'
+        name: Emoji
         type: FRAME
-        fills: fill_V9J0ZC
-        layout: layout_7Z7126
-        borderRadius: 8px
+        fills: fill_9S69C5
+        strokes: stroke_0HBIAL
+        layout: layout_XEOFB2
+        borderRadius: 1000px
         children:
-          - id: '916:3908'
-            name: ri:planet-line
+          - id: '1201:14143'
+            name: '======='
+            type: TEXT
+            textStyle: style_1XZ0HN
+            fills: fill_T1UIZI
+            layout: layout_296ZHE
+            text: 🌼
+          - id: '1201:14144'
+            name: '======='
+            type: TEXT
+            textStyle: style_1XZ0HN
+            fills: fill_T1UIZI
+            layout: layout_VWVXJY
+            text: '12'
+      - id: '1201:14145'
+        name: Emoji
+        type: FRAME
+        fills: fill_Q3HYI4
+        layout: layout_XEOFB2
+        borderRadius: 1000px
+        children:
+          - id: '1201:14146'
+            name: '======='
+            type: TEXT
+            textStyle: style_1XZ0HN
+            fills: fill_69QVX5
+            layout: layout_296ZHE
+            text: 💕
+      - id: '1201:14148'
+        name: Emoji
+        type: FRAME
+        fills: fill_Q3HYI4
+        layout: layout_XEOFB2
+        borderRadius: 1000px
+        children:
+          - id: '1201:14149'
+            name: '======='
+            type: TEXT
+            textStyle: style_1XZ0HN
+            fills: fill_69QVX5
+            layout: layout_296ZHE
+            text: 😍
+      - id: '1201:14151'
+        name: Emoji
+        type: FRAME
+        fills: fill_9S69C5
+        strokes: stroke_0HBIAL
+        layout: layout_XEOFB2
+        borderRadius: 1000px
+        children:
+          - id: '1201:14152'
+            name: '======='
+            type: TEXT
+            textStyle: style_1XZ0HN
+            fills: fill_T1UIZI
+            layout: layout_296ZHE
+            text: 🥰
+          - id: '1201:14153'
+            name: '======='
+            type: TEXT
+            textStyle: style_1XZ0HN
+            fills: fill_T1UIZI
+            layout: layout_VWVXJY
+            text: '12'
+      - id: '1201:14154'
+        name: Emoji
+        type: FRAME
+        fills: fill_Q3HYI4
+        layout: layout_XEOFB2
+        borderRadius: 1000px
+        children:
+          - id: '1201:14155'
+            name: ri:emoji-sticker-line
             type: FRAME
-            fills: fill_OCB8RI
-            layout: layout_V3X267
+            fills: fill_Z116DW
+            layout: layout_LTVJIJ
+            opacity: 0.5
             children:
-              - id: '916:3909'
+              - id: '1201:14156'
                 name: Vector
                 type: IMAGE-SVG
-                fills: fill_HX55JX
-                layout: layout_E8GFG1
-          - id: '916:3910'
-            name: Text
-            type: TEXT
-            textStyle: style_S1EKEP
-            fills: fill_HX55JX
-            layout: layout_0VRZUO
-            text: 스페이스 정보
-      - id: '916:3911'
-        name: Menu
-        type: FRAME
-        fills: fill_V9J0ZC
-        layout: layout_7Z7126
-        borderRadius: 8px
-        children:
-          - id: '916:3912'
-            name: ri:equalizer-2-line
-            type: FRAME
-            fills: fill_OCB8RI
-            layout: layout_V3X267
-            children:
-              - id: '916:3913'
-                name: Vector
-                type: IMAGE-SVG
-                fills: fill_HX55JX
-                layout: layout_3B7AHL
-          - id: '916:3914'
-            name: Text
-            type: TEXT
-            textStyle: style_S1EKEP
-            fills: fill_HX55JX
-            layout: layout_0VRZUO
-            text: 설정
-      - id: '916:3915'
-        name: Line 4
-        type: LINE
-        fills: fill_V9J0ZC
-        strokes: stroke_Z6Q6NW
-        layout: layout_50W9JN
-      - id: '916:3916'
-        name: Menu
-        type: FRAME
-        fills: fill_V9J0ZC
-        layout: layout_7Z7126
-        borderRadius: 8px
-        children:
-          - id: '916:3917'
-            name: ri:mail-line
-            type: FRAME
-            fills: fill_OCB8RI
-            layout: layout_V3X267
-            children:
-              - id: '916:3918'
-                name: Vector
-                type: IMAGE-SVG
-                fills: fill_HX55JX
-                layout: layout_4ID6HQ
-          - id: '916:3919'
-            name: Text
-            type: TEXT
-            textStyle: style_S1EKEP
-            fills: fill_HX55JX
-            layout: layout_0VRZUO
-            text: 피드백
-      - id: '916:3920'
-        name: Menu
-        type: FRAME
-        fills: fill_V9J0ZC
-        layout: layout_7Z7126
-        borderRadius: 8px
-        children:
-          - id: '916:3921'
-            name: Text
-            type: TEXT
-            textStyle: style_LT644T
-            fills: fill_ATYTWM
-            layout: layout_0VRZUO
-            text: 로그아웃
+                fills: fill_69QVX5
+                layout: layout_GDOA56
 globalVars:
   styles:
-    fill_OCB8RI:
-      - '#FFFFFF'
-    stroke_Z6Q6NW:
-      colors:
-        - rgba(34, 34, 34, 0.08)
-      strokeWeight: 1px
-    effect_I6D1VD:
-      boxShadow: >-
-        4px 4px 20px 0px rgba(160, 160, 160, 0.04), -4px -4px 20px 0px rgba(160,
-        160, 160, 0.04)
-    layout_WFM31U:
-      mode: column
-      overflowScroll:
-        - 'y'
-      justifyContent: center
-      gap: 8px
-      padding: 10px
-      sizing:
-        horizontal: fixed
-        vertical: hug
-      dimensions:
-        width: 200
-    fill_V9J0ZC:
-      - rgba(34, 34, 34, 0.04)
-    layout_7Z7126:
+    layout_ZW08GC:
       mode: row
       alignItems: center
-      alignSelf: stretch
-      gap: 10px
-      padding: 10px
+      gap: 8px
+      sizing:
+        horizontal: hug
+        vertical: hug
+    fill_9S69C5:
+      - rgba(151, 71, 255, 0.1)
+    stroke_0HBIAL:
+      colors:
+        - '#9747FF'
+      strokeWeight: 1px
+    layout_XEOFB2:
+      mode: row
+      justifyContent: center
+      alignItems: center
+      gap: 4px
+      padding: 6px 10px
+      sizing:
+        horizontal: hug
+        vertical: hug
+    style_1XZ0HN:
+      fontFamily: Pretendard
+      fontWeight: 400
+      fontSize: 13
+      lineHeight: 1.200000029343825em
+      textAlignHorizontal: CENTER
+      textAlignVertical: CENTER
+    fill_T1UIZI:
+      - '#9747FF'
+    layout_296ZHE:
+      mode: none
       sizing:
         horizontal: fill
         vertical: hug
-    layout_V3X267:
+    layout_VWVXJY:
+      mode: none
+      sizing:
+        horizontal: hug
+        vertical: hug
+    fill_Q3HYI4:
+      - rgba(241, 241, 241, 0.5)
+    fill_69QVX5:
+      - '#222222'
+    fill_Z116DW:
+      - '#FFFFFF'
+    layout_LTVJIJ:
       mode: none
       sizing:
         horizontal: fixed
@@ -150,57 +156,11 @@ globalVars:
       dimensions:
         width: 16
         height: 16
-    fill_HX55JX:
-      - '#222222'
-    layout_E8GFG1:
-      mode: none
-      locationRelativeToParent:
-        x: 2
-        'y': 1.48
-      dimensions:
-        width: 12.52
-        height: 12.52
-    style_S1EKEP:
-      fontFamily: Pretendard
-      fontWeight: 600
-      fontSize: 12
-      lineHeight: 1.2000000476837158em
-      textAlignHorizontal: CENTER
-      textAlignVertical: CENTER
-    layout_0VRZUO:
-      mode: none
-      sizing:
-        horizontal: hug
-        vertical: hug
-    layout_3B7AHL:
-      mode: none
-      locationRelativeToParent:
-        x: 2
-        'y': 2.33
-      dimensions:
-        width: 12
-        height: 11.33
-    layout_50W9JN:
-      mode: none
-      sizing:
-        horizontal: fill
-        vertical: fixed
-      dimensions:
-        height: 0
-    layout_4ID6HQ:
+    layout_GDOA56:
       mode: none
       locationRelativeToParent:
         x: 1.33
-        'y': 2
+        'y': 1.33
       dimensions:
         width: 13.33
-        height: 12
-    style_LT644T:
-      fontFamily: Pretendard
-      fontWeight: 700
-      fontSize: 12
-      lineHeight: 1.2000000476837158em
-      textAlignHorizontal: CENTER
-      textAlignVertical: CENTER
-    fill_ATYTWM:
-      - '#E04646'
+        height: 13.33

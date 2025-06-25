@@ -12,12 +12,21 @@ import {
 } from '@/shared/components/ui';
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
+import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
-import { RiArrowRightSLine, RiDeleteBinLine, RiEdit2Line, RiMore2Line } from '@remixicon/react';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
+import {
+  RiArrowRightSLine,
+  RiDeleteBinLine,
+  RiEdit2Line,
+  RiEmojiStickerLine,
+  RiMore2Line,
+} from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import router from 'next/router';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import type { Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
 
@@ -26,7 +35,7 @@ interface PostContentProps {
   post: Post;
   isSelected?: boolean;
   isDetailView?: boolean;
-  onReaction?: (postId: string, emoji: string) => void;
+  onReaction?: (postId: string, emoji: string) => void; // 옵셔널 - 컴포넌트에서 직접 처리하거나 상위에서 처리 가능
   onCommentClick?: (postId: string) => void;
 }
 
@@ -45,7 +54,15 @@ export function PostContent({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerPosition, setEmojiPickerPosition] = useState<{
+    top: number;
+    right?: number;
+    left?: number;
+  }>({ top: 0, right: 0 });
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const { user } = useAuth();
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
@@ -58,7 +75,46 @@ export function PostContent({
     spaceSlug,
     date: formatDateToAPIString(new Date()),
   });
+  const { mutate: toggleReaction, isPending: isReactionPending } = useToggleReaction(spaceSlug);
   const imageUrls = post.images?.map(image => image.url);
+
+  const calculateEmojiPickerPosition = useCallback(() => {
+    if (!emojiButtonRef.current) return;
+
+    const buttonRect = emojiButtonRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const pickerWidth = 360;
+    const pickerHeight = 233; // 350 * 2/3
+
+    // 화면 공간 확인
+    const bottomSpace = viewportHeight - buttonRect.bottom;
+
+    // 세로 위치 결정
+    const top =
+      bottomSpace < pickerHeight + 16
+        ? Math.max(8, buttonRect.top - pickerHeight - 8)
+        : buttonRect.bottom + 8;
+
+    // 가로 위치 결정 - 아이콘 바로 밑에서 시작하여 오른쪽으로
+    const position: { top: number; right?: number; left?: number } = { top };
+
+    // 아이콘의 왼쪽 모서리에서 시작
+    let leftPosition = buttonRect.left;
+
+    // 피커가 화면 오른쪽을 벗어나는지 확인
+    if (leftPosition + pickerWidth > viewportWidth - 8) {
+      // 화면 오른쪽을 벗어나면 오른쪽 정렬로 조정
+      leftPosition = viewportWidth - pickerWidth - 8;
+    }
+
+    // 최소 8px 여백 확보
+    leftPosition = Math.max(8, leftPosition);
+
+    position.left = leftPosition;
+
+    setEmojiPickerPosition(position);
+  }, []);
 
   // 모바일 메뉴 외부 클릭 시 닫기
   useEffect(() => {
@@ -73,6 +129,41 @@ export function PostContent({
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [showMobileMenu]);
+
+  // 이모지 피커 외부 클릭 시 닫기 및 스크롤/리사이즈 시 위치 업데이트
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // 버튼이나 피커 내부 클릭이 아닌 경우에만 닫기
+      if (
+        emojiButtonRef.current &&
+        !emojiButtonRef.current.contains(target) &&
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(target)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    const handleScrollOrResize = () => {
+      if (showEmojiPicker) {
+        calculateEmojiPickerPosition();
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('scroll', handleScrollOrResize, true);
+      window.addEventListener('resize', handleScrollOrResize);
+
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        window.removeEventListener('scroll', handleScrollOrResize, true);
+        window.removeEventListener('resize', handleScrollOrResize);
+      };
+    }
+  }, [showEmojiPicker, calculateEmojiPickerPosition]);
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -154,6 +245,44 @@ export function PostContent({
     e.preventDefault();
     setShowMobileMenu(false);
     handleDelete();
+  };
+
+  const handleEmojiClick = (emoji: any) => {
+    // 상위 컴포넌트에서 리액션 처리를 원하는 경우
+    if (onReaction) {
+      onReaction(post.id, emoji.native);
+    } else {
+      // 컴포넌트에서 직접 리액션 API 호출
+      console.log(emoji);
+      toggleReaction(
+        {
+          targetType: 'posts',
+          targetId: post.id,
+          emoji: emoji.native,
+          currentReactions: post.reactions,
+        },
+        {
+          onError: error => {
+            console.error('[PostContent] 리액션 실패:', error);
+            setShowToast({
+              message: '리액션 추가에 실패했습니다. 다시 시도해주세요.',
+            });
+          },
+        }
+      );
+    }
+    setShowEmojiPicker(false);
+  };
+
+  const handleEmojiPickerToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!showEmojiPicker) {
+      calculateEmojiPickerPosition();
+    }
+
+    setShowEmojiPicker(!showEmojiPicker);
   };
 
   const profileImageSize = isDetailView ? 48 : 40;
@@ -378,18 +507,100 @@ export function PostContent({
                   key={index}
                   onClick={e => {
                     e.stopPropagation();
-                    onReaction?.(post.id, reaction.emoji);
+                    // 상위 컴포넌트에서 리액션 처리를 원하는 경우
+                    if (onReaction) {
+                      onReaction(post.id, reaction.emoji);
+                    } else {
+                      // 컴포넌트에서 직접 리액션 API 호출
+                      toggleReaction(
+                        {
+                          targetType: 'posts',
+                          targetId: post.id,
+                          emoji: reaction.emoji,
+                          currentReactions: post.reactions,
+                        },
+                        {
+                          onError: error => {
+                            console.error('[PostContent] 리액션 토글 실패:', error);
+                            setShowToast({
+                              message: '리액션 처리에 실패했습니다. 다시 시도해주세요.',
+                            });
+                          },
+                        }
+                      );
+                    }
                   }}
-                  className={`flex items-center gap-1 rounded-full border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
+                  disabled={isReactionPending}
+                  className={`flex items-center gap-1 rounded-2xl border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
                     reaction.userIds.includes(user?.id || '')
                       ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
                       : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
-                  }`}
+                  } ${isReactionPending ? 'cursor-not-allowed opacity-50' : ''}`}
                 >
                   <span>{reaction.emoji}</span>
                   {reaction.count > 0 && <span>{reaction.count}</span>}
                 </button>
               ))}
+
+              {/* 이모지 추가 버튼 - 항상 표시 */}
+              <div>
+                <button
+                  ref={emojiButtonRef}
+                  onClick={handleEmojiPickerToggle}
+                  disabled={isReactionPending}
+                  className={`flex h-[26px] w-[36px] items-center justify-center rounded-2xl bg-[rgba(241,241,241,0.5)] text-[#222222] opacity-50 transition-all hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100 ${
+                    isReactionPending ? 'cursor-not-allowed' : ''
+                  }`}
+                >
+                  <RiEmojiStickerLine className="h-4 w-4" />
+                </button>
+
+                {/* 이모지 피커 */}
+                {showEmojiPicker && (
+                  <div
+                    ref={emojiPickerRef}
+                    className="fixed z-[9999]"
+                    style={{
+                      top: `${emojiPickerPosition.top}px`,
+                      ...(emojiPickerPosition.right !== undefined && {
+                        right: `${emojiPickerPosition.right}px`,
+                      }),
+                      ...(emojiPickerPosition.left !== undefined && {
+                        left: `${emojiPickerPosition.left}px`,
+                      }),
+                    }}
+                  >
+                    <div className="overflow-hidden rounded-lg shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
+                      <Picker
+                        data={data}
+                        onEmojiSelect={handleEmojiClick}
+                        autoFocus={false}
+                        searchPosition="sticky"
+                        navPosition="bottom"
+                        previewPosition="none"
+                        skinTonePosition="none"
+                        set="native"
+                        theme="light"
+                        emojiButtonSize={34}
+                        emojiSize={28}
+                        perLine={9}
+                        maxFrequentRows={2}
+                        categories={[
+                          'frequent',
+                          'people',
+                          'nature',
+                          'foods',
+                          'activity',
+                          'places',
+                          'objects',
+                          'symbols',
+                          'flags',
+                        ]}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 댓글 정보 (카드 뷰에서만) */}
