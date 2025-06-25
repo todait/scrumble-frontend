@@ -22,16 +22,14 @@ interface BaseWebSocketMessage {
 export interface CommentCreatedMessage extends BaseWebSocketMessage {
   type: 'comment.created';
   postId: string;
-  comment: {
-    id: string;
-    author: {
-      id: string;
-      name: string;
-      avatarURL: string;
-    };
+  userId: string;
+  data: {
+    postId: string;
+    commentId: string;
+    userId: string;
+    spaceSlug: string;
     content: string;
-    createdAt: string;
-    images?: ImageMetadata[];
+    action: string;
   };
 }
 
@@ -39,11 +37,14 @@ export interface CommentCreatedMessage extends BaseWebSocketMessage {
 export interface CommentUpdatedMessage extends BaseWebSocketMessage {
   type: 'comment.updated';
   postId: string;
-  comment: {
-    id: string;
+  userId: string;
+  data: {
+    postId: string;
+    commentId: string;
+    userId: string;
+    spaceSlug: string;
     content: string;
-    updatedAt: string;
-    images?: ImageMetadata[];
+    action: string;
   };
 }
 
@@ -51,7 +52,91 @@ export interface CommentUpdatedMessage extends BaseWebSocketMessage {
 export interface CommentDeletedMessage extends BaseWebSocketMessage {
   type: 'comment.deleted';
   postId: string;
-  commentId: string;
+  userId: string;
+  data: {
+    postId: string;
+    commentId: string;
+    userId: string;
+    spaceSlug: string;
+    action: string;
+  };
+}
+
+// 리액션 추가 메시지
+export interface ReactionAddedMessage extends BaseWebSocketMessage {
+  type: 'reaction.added';
+  postId: string;
+  userId: string;
+  data: {
+    targetType: 'post' | 'comment';
+    targetId: string;
+    userId: string;
+    userName: string;
+    emoji: string;
+    spaceSlug: string;
+    postId: string;
+    action: string;
+  };
+}
+
+// 리액션 제거 메시지
+export interface ReactionRemovedMessage extends BaseWebSocketMessage {
+  type: 'reaction.removed';
+  postId: string;
+  userId: string;
+  data: {
+    targetType: 'post' | 'comment';
+    targetId: string;
+    userId: string;
+    userName: string;
+    emoji: string;
+    spaceSlug: string;
+    postId: string;
+    action: string;
+  };
+}
+
+// 포스트 생성 메시지
+export interface PostCreatedMessage extends BaseWebSocketMessage {
+  type: 'post.created';
+  postId: string;
+  userId: string;
+  data: {
+    postId: string;
+    userId: string;
+    spaceSlug: string;
+    postType: 'checkin' | 'checkout';
+    postedAt: string; // ISO 8601 format
+    action: string;
+  };
+}
+
+// 포스트 수정 메시지
+export interface PostUpdatedMessage extends BaseWebSocketMessage {
+  type: 'post.updated';
+  postId: string;
+  userId: string;
+  data: {
+    postId: string;
+    userId: string;
+    spaceSlug: string;
+    postType: 'checkin' | 'checkout';
+    action: string;
+  };
+}
+
+// 포스트 삭제 메시지
+export interface PostDeletedMessage extends BaseWebSocketMessage {
+  type: 'post.deleted';
+  postId: string;
+  userId: string;
+  data: {
+    postId: string;
+    userId: string;
+    spaceSlug: string;
+    postType: 'checkin' | 'checkout';
+    action: string;
+  };
 }
 
 // 연결 상태 메시지
@@ -109,6 +194,54 @@ export interface BatchUnsubscribeMessage {
   postIds: string[];
 }
 
+// 리액션 구독 메시지 (클라이언트 -> 서버)
+export interface SubscribeReactionsMessage {
+  type: 'subscribeReactions';
+  spaceSlug: string;
+  postId: string;
+}
+
+export interface UnsubscribeReactionsMessage {
+  type: 'unsubscribeReactions';
+  spaceSlug: string;
+  postId: string;
+}
+
+// 배치 리액션 구독 메시지
+export interface BatchSubscribeReactionsMessage {
+  type: 'batchSubscribeReactions';
+  spaceSlug: string;
+  postIds: string[];
+}
+
+export interface BatchUnsubscribeReactionsMessage {
+  type: 'batchUnsubscribeReactions';
+  spaceSlug: string;
+  postIds: string[];
+}
+
+// 포스트 구독 메시지 (클라이언트 -> 서버) - 향후 백엔드 지원 예정
+export interface SubscribePostsMessage {
+  type: 'subscribePosts';
+  spaceSlug: string;
+}
+
+export interface UnsubscribePostsMessage {
+  type: 'unsubscribePosts';
+  spaceSlug: string;
+}
+
+// 배치 포스트 구독 메시지 - 향후 백엔드 지원 예정
+export interface BatchSubscribePostsMessage {
+  type: 'batchSubscribePosts';
+  spaceSlugs: string[];
+}
+
+export interface BatchUnsubscribePostsMessage {
+  type: 'batchUnsubscribePosts';
+  spaceSlugs: string[];
+}
+
 // Heartbeat 메시지
 export interface PingMessage {
   type: 'ping';
@@ -131,6 +264,11 @@ export type IncomingWebSocketMessage =
   | CommentCreatedMessage
   | CommentUpdatedMessage
   | CommentDeletedMessage
+  | PostCreatedMessage
+  | PostUpdatedMessage
+  | PostDeletedMessage
+  | ReactionAddedMessage
+  | ReactionRemovedMessage
   | ConnectionEstablishedMessage
   | ConnectionReconnectingMessage
   | ConnectionFailedMessage
@@ -144,6 +282,14 @@ export type OutgoingWebSocketMessage =
   | UnsubscribeMessage
   | BatchSubscribeMessage
   | BatchUnsubscribeMessage
+  | SubscribeReactionsMessage
+  | UnsubscribeReactionsMessage
+  | BatchSubscribeReactionsMessage
+  | BatchUnsubscribeReactionsMessage
+  | SubscribePostsMessage
+  | UnsubscribePostsMessage
+  | BatchSubscribePostsMessage
+  | BatchUnsubscribePostsMessage
   | PingMessage;
 
 // 모든 웹소켓 메시지의 유니온 타입
@@ -161,6 +307,21 @@ export const isCommentUpdatedMessage = (msg: WebSocketMessage): msg is CommentUp
 
 export const isCommentDeletedMessage = (msg: WebSocketMessage): msg is CommentDeletedMessage => 
   msg.type === 'comment.deleted';
+
+export const isReactionAddedMessage = (msg: WebSocketMessage): msg is ReactionAddedMessage => 
+  msg.type === 'reaction.added';
+
+export const isReactionRemovedMessage = (msg: WebSocketMessage): msg is ReactionRemovedMessage => 
+  msg.type === 'reaction.removed';
+
+export const isPostCreatedMessage = (msg: WebSocketMessage): msg is PostCreatedMessage => 
+  msg.type === 'post.created';
+
+export const isPostUpdatedMessage = (msg: WebSocketMessage): msg is PostUpdatedMessage => 
+  msg.type === 'post.updated';
+
+export const isPostDeletedMessage = (msg: WebSocketMessage): msg is PostDeletedMessage => 
+  msg.type === 'post.deleted';
 
 export const isConnectionEstablishedMessage = (msg: WebSocketMessage): msg is ConnectionEstablishedMessage =>
   msg.type === 'connection.established';
@@ -185,6 +346,11 @@ export interface WebSocketHandlers {
   'comment.created'?: WebSocketEventHandler<CommentCreatedMessage>;
   'comment.updated'?: WebSocketEventHandler<CommentUpdatedMessage>;
   'comment.deleted'?: WebSocketEventHandler<CommentDeletedMessage>;
+  'post.created'?: WebSocketEventHandler<PostCreatedMessage>;
+  'post.updated'?: WebSocketEventHandler<PostUpdatedMessage>;
+  'post.deleted'?: WebSocketEventHandler<PostDeletedMessage>;
+  'reaction.added'?: WebSocketEventHandler<ReactionAddedMessage>;
+  'reaction.removed'?: WebSocketEventHandler<ReactionRemovedMessage>;
   'connection.established'?: WebSocketEventHandler<ConnectionEstablishedMessage>;
   'connection.reconnecting'?: WebSocketEventHandler<ConnectionReconnectingMessage>;
   'connection.failed'?: WebSocketEventHandler<ConnectionFailedMessage>;

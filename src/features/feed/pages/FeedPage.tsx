@@ -68,8 +68,11 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     handleCommentAdded,
     handleCommentDeleted,
   } = useFeedData(spaceSlug);
-  const { handleReaction, handleCommentClick, handleViewSummaryClick, handleDateClick } =
-    useFeedActions(spaceSlug, posts as FeedPost[], () => {});
+  const { handleCommentClick, handleViewSummaryClick, handleDateClick } = useFeedActions(
+    spaceSlug,
+    posts as FeedPost[],
+    () => {}
+  );
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
   const { handlePostClick, handleClosePostDetail } = useFeedNavigation(spaceSlug);
   const { scrollContainerRef, showScrollToTop, scrollToTop, scrollToSelectedPost } = useFeedScroll(
@@ -243,8 +246,10 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                         data-post-id={post.id}
                         ref={el => {
                           if (el) {
+                            console.log('[FeedPage] Observing post:', post.id);
                             observePost(post.id, el);
                           } else {
+                            console.log('[FeedPage] Unobserving post:', post.id);
                             unobservePost(post.id);
                           }
                         }}
@@ -254,7 +259,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                         <PostCard
                           spaceSlug={spaceSlug}
                           post={post as FeedPost}
-                          onReaction={handleReaction}
                           onCommentClick={handleCommentClick}
                           isSelected={selectedPostId === post.id}
                         />
@@ -300,7 +304,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                     key={selectedPost.id}
                     post={selectedPost as FeedPost}
                     onClose={handleClosePostDetail}
-                    onReaction={handleReaction}
                   />
                 </div>
               </div>
@@ -318,7 +321,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                       key={selectedPost.id}
                       post={selectedPost as FeedPost}
                       onClose={handleClosePostDetail}
-                      onReaction={handleReaction}
                     />
                   </div>
                 </div>

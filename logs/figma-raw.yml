@@ -1,112 +1,26 @@
 name: Scrumble
-lastModified: '2025-06-12T10:27:44Z'
+lastModified: '2025-06-25T01:32:55Z'
 thumbnailUrl: >-
-  https://s3-alpha.figma.com/thumbnails/3b7c9b82-0800-4341-bc79-5ce0e848f6a6?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC2S47B3L5%2F20250612%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250612T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=f829efb2c5cac434eafacc3d9c53c8303f39b54e262a09575212b6585fbeb6df
-version: '2228712363039266553'
+  https://s3-alpha.figma.com/thumbnails/98129c6d-d7db-48d4-9a59-50094a33c97b?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCZGWUDXPX%2F20250622%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250622T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=31791f9ca706c509ef1085ed8aa09221c7b6bf87d7d2c9c3aed3484a1b2fa920
+version: '2233394607548522057'
 role: editor
 editorType: figma
 linkAccess: inherit
 nodes:
-  '916:3906':
+  '1201:14141':
     document:
-      id: '916:3906'
-      name: Note Feed
+      id: '1201:14141'
+      name: Emojis
       type: FRAME
       scrollBehavior: SCROLLS
       children:
-        - id: '916:3907'
-          name: Menu
+        - id: '1201:14142'
+          name: Emoji
           type: FRAME
           scrollBehavior: SCROLLS
           children:
-            - id: '916:3908'
-              name: ri:planet-line
-              type: FRAME
-              scrollBehavior: SCROLLS
-              children:
-                - id: '916:3909'
-                  name: Vector
-                  type: VECTOR
-                  scrollBehavior: SCROLLS
-                  blendMode: PASS_THROUGH
-                  fills:
-                    - blendMode: NORMAL
-                      type: SOLID
-                      color:
-                        r: 0.13333334028720856
-                        g: 0.13333334028720856
-                        b: 0.13333334028720856
-                        a: 1
-                  strokes: []
-                  strokeWeight: 0.6666666865348816
-                  strokeAlign: INSIDE
-                  absoluteBoundingBox:
-                    x: 58732
-                    'y': 1276.4805908203125
-                    width: 12.518095016479492
-                    height: 12.520870208740234
-                  absoluteRenderBounds:
-                    x: 58732
-                    'y': 1276.4805908203125
-                    width: 12.51953125
-                    height: 12.5208740234375
-                  constraints:
-                    vertical: SCALE
-                    horizontal: SCALE
-                  effects: []
-                  interactions: []
-              blendMode: PASS_THROUGH
-              clipsContent: true
-              background:
-                - blendMode: NORMAL
-                  visible: false
-                  type: SOLID
-                  color:
-                    r: 1
-                    g: 1
-                    b: 1
-                    a: 1
-              fills:
-                - blendMode: NORMAL
-                  visible: false
-                  type: SOLID
-                  color:
-                    r: 1
-                    g: 1
-                    b: 1
-                    a: 1
-              strokes: []
-              strokeWeight: 1
-              strokeAlign: INSIDE
-              backgroundColor:
-                r: 0
-                g: 0
-                b: 0
-                a: 0
-              absoluteBoundingBox:
-                x: 58730
-                'y': 1275
-                width: 16
-                height: 16
-              absoluteRenderBounds:
-                x: 58730
-                'y': 1275
-                width: 16
-                height: 16
-              targetAspectRatio:
-                x: 16
-                'y': 16
-              constraints:
-                vertical: TOP
-                horizontal: LEFT
-              layoutAlign: INHERIT
-              layoutGrow: 0
-              layoutSizingHorizontal: FIXED
-              layoutSizingVertical: FIXED
-              effects: []
-              interactions: []
-            - id: '916:3910'
-              name: Text
+            - id: '1201:14143'
+              name: '======='
               type: TEXT
               scrollBehavior: SCROLLS
               blendMode: PASS_THROUGH
@@ -114,31 +28,31 @@ nodes:
                 - blendMode: NORMAL
                   type: SOLID
                   color:
-                    r: 0.13333334028720856
-                    g: 0.13333334028720856
-                    b: 0.13333334028720856
+                    r: 0.5921568870544434
+                    g: 0.27843138575553894
+                    b: 1
                     a: 1
               strokes: []
               strokeWeight: 1
               strokeAlign: OUTSIDE
               absoluteBoundingBox:
-                x: 58756
-                'y': 1276
-                width: 66
-                height: 14
+                x: 64687
+                'y': 10745
+                width: 13
+                height: 16
               absoluteRenderBounds:
-                x: 58756.8125
-                'y': 1277.44921875
-                width: 64.3828125
-                height: 10.60546875
+                x: 64687
+                'y': 10746.91015625
+                width: 13
+                height: 13
               constraints:
                 vertical: TOP
                 horizontal: LEFT
               layoutAlign: INHERIT
-              layoutGrow: 0
-              layoutSizingHorizontal: HUG
+              layoutGrow: 1
+              layoutSizingHorizontal: FILL
               layoutSizingVertical: HUG
-              characters: 스페이스 정보
+              characters: 🌼
               characterStyleOverrides: []
               styleOverrideTable: {}
               lineTypes:
@@ -147,15 +61,72 @@ nodes:
                 - 0
               style:
                 fontFamily: Pretendard
-                fontPostScriptName: Pretendard-SemiBold
-                fontStyle: SemiBold
-                fontWeight: 600
-                textAutoResize: WIDTH_AND_HEIGHT
-                fontSize: 12
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: HEIGHT
+                fontSize: 13
                 textAlignHorizontal: CENTER
                 textAlignVertical: CENTER
                 letterSpacing: 0
-                lineHeightPx: 14.40000057220459
+                lineHeightPx: 15.600000381469727
+                lineHeightPercent: 100.55647277832031
+                lineHeightPercentFontSize: 120.00000762939453
+                lineHeightUnit: FONT_SIZE_%
+              layoutVersion: 4
+              effects: []
+              interactions: []
+            - id: '1201:14144'
+              name: '======='
+              type: TEXT
+              scrollBehavior: SCROLLS
+              blendMode: PASS_THROUGH
+              fills:
+                - blendMode: NORMAL
+                  type: SOLID
+                  color:
+                    r: 0.5921568870544434
+                    g: 0.27843138575553894
+                    b: 1
+                    a: 1
+              strokes: []
+              strokeWeight: 1
+              strokeAlign: OUTSIDE
+              absoluteBoundingBox:
+                x: 64704
+                'y': 10745
+                width: 14
+                height: 16
+              absoluteRenderBounds:
+                x: 64705.0078125
+                'y': 10748.681640625
+                width: 11.859375
+                height: 9.318359375
+              constraints:
+                vertical: TOP
+                horizontal: LEFT
+              layoutAlign: INHERIT
+              layoutGrow: 0
+              layoutSizingHorizontal: HUG
+              layoutSizingVertical: HUG
+              characters: '12'
+              characterStyleOverrides: []
+              styleOverrideTable: {}
+              lineTypes:
+                - NONE
+              lineIndentations:
+                - 0
+              style:
+                fontFamily: Pretendard
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: WIDTH_AND_HEIGHT
+                fontSize: 13
+                textAlignHorizontal: CENTER
+                textAlignVertical: CENTER
+                letterSpacing: 0
+                lineHeightPx: 15.600000381469727
                 lineHeightPercent: 99.98373413085938
                 lineHeightPercentFontSize: 120.00000762939453
                 lineHeightUnit: FONT_SIZE_%
@@ -165,327 +136,617 @@ nodes:
           blendMode: PASS_THROUGH
           clipsContent: false
           background:
-            - opacity: 0.03999999910593033
+            - opacity: 0.10000000149011612
               blendMode: NORMAL
-              visible: false
               type: SOLID
               color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
+                r: 0.5921568870544434
+                g: 0.27843138575553894
+                b: 1
                 a: 1
           fills:
-            - opacity: 0.03999999910593033
+            - opacity: 0.10000000149011612
               blendMode: NORMAL
-              visible: false
               type: SOLID
               color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
-                a: 1
-          strokes: []
-          cornerRadius: 8
-          cornerSmoothing: 0
-          strokeWeight: 1
-          strokeAlign: INSIDE
-          backgroundColor:
-            r: 0
-            g: 0
-            b: 0
-            a: 0
-          layoutMode: HORIZONTAL
-          itemSpacing: 10
-          primaryAxisSizingMode: FIXED
-          counterAxisAlignItems: CENTER
-          paddingLeft: 10
-          paddingRight: 10
-          paddingTop: 10
-          paddingBottom: 10
-          layoutWrap: NO_WRAP
-          absoluteBoundingBox:
-            x: 58720
-            'y': 1265
-            width: 180
-            height: 36
-          absoluteRenderBounds:
-            x: 58720
-            'y': 1265
-            width: 180
-            height: 36
-          constraints:
-            vertical: TOP
-            horizontal: LEFT
-          layoutAlign: STRETCH
-          layoutGrow: 0
-          layoutSizingHorizontal: FILL
-          layoutSizingVertical: HUG
-          effects: []
-          interactions: []
-        - id: '916:3911'
-          name: Menu
-          type: FRAME
-          scrollBehavior: SCROLLS
-          children:
-            - id: '916:3912'
-              name: ri:equalizer-2-line
-              type: FRAME
-              scrollBehavior: SCROLLS
-              children:
-                - id: '916:3913'
-                  name: Vector
-                  type: VECTOR
-                  scrollBehavior: SCROLLS
-                  blendMode: PASS_THROUGH
-                  fills:
-                    - blendMode: NORMAL
-                      type: SOLID
-                      color:
-                        r: 0.13333334028720856
-                        g: 0.13333334028720856
-                        b: 0.13333334028720856
-                        a: 1
-                  strokes: []
-                  strokeWeight: 0.6666666865348816
-                  strokeAlign: INSIDE
-                  absoluteBoundingBox:
-                    x: 58732
-                    'y': 1321.3333740234375
-                    width: 12
-                    height: 11.333333969116211
-                  absoluteRenderBounds:
-                    x: 58732
-                    'y': 1321.3333740234375
-                    width: 12
-                    height: 11.3333740234375
-                  constraints:
-                    vertical: SCALE
-                    horizontal: SCALE
-                  effects: []
-                  interactions: []
-              blendMode: PASS_THROUGH
-              clipsContent: true
-              background:
-                - blendMode: NORMAL
-                  visible: false
-                  type: SOLID
-                  color:
-                    r: 1
-                    g: 1
-                    b: 1
-                    a: 1
-              fills:
-                - blendMode: NORMAL
-                  visible: false
-                  type: SOLID
-                  color:
-                    r: 1
-                    g: 1
-                    b: 1
-                    a: 1
-              strokes: []
-              strokeWeight: 1
-              strokeAlign: INSIDE
-              backgroundColor:
-                r: 0
-                g: 0
-                b: 0
-                a: 0
-              absoluteBoundingBox:
-                x: 58730
-                'y': 1319
-                width: 16
-                height: 16
-              absoluteRenderBounds:
-                x: 58730
-                'y': 1319
-                width: 16
-                height: 16
-              targetAspectRatio:
-                x: 16
-                'y': 16
-              constraints:
-                vertical: TOP
-                horizontal: LEFT
-              layoutAlign: INHERIT
-              layoutGrow: 0
-              layoutSizingHorizontal: FIXED
-              layoutSizingVertical: FIXED
-              effects: []
-              interactions: []
-            - id: '916:3914'
-              name: Text
-              type: TEXT
-              scrollBehavior: SCROLLS
-              blendMode: PASS_THROUGH
-              fills:
-                - blendMode: NORMAL
-                  type: SOLID
-                  color:
-                    r: 0.13333334028720856
-                    g: 0.13333334028720856
-                    b: 0.13333334028720856
-                    a: 1
-              strokes: []
-              strokeWeight: 1
-              strokeAlign: OUTSIDE
-              absoluteBoundingBox:
-                x: 58756
-                'y': 1320
-                width: 21
-                height: 14
-              absoluteRenderBounds:
-                x: 58756.421875
-                'y': 1321.44921875
-                width: 19.3359375
-                height: 10.59375
-              constraints:
-                vertical: TOP
-                horizontal: LEFT
-              layoutAlign: INHERIT
-              layoutGrow: 0
-              layoutSizingHorizontal: HUG
-              layoutSizingVertical: HUG
-              characters: 설정
-              characterStyleOverrides: []
-              styleOverrideTable: {}
-              lineTypes:
-                - NONE
-              lineIndentations:
-                - 0
-              style:
-                fontFamily: Pretendard
-                fontPostScriptName: Pretendard-SemiBold
-                fontStyle: SemiBold
-                fontWeight: 600
-                textAutoResize: WIDTH_AND_HEIGHT
-                fontSize: 12
-                textAlignHorizontal: CENTER
-                textAlignVertical: CENTER
-                letterSpacing: 0
-                lineHeightPx: 14.40000057220459
-                lineHeightPercent: 99.98373413085938
-                lineHeightPercentFontSize: 120.00000762939453
-                lineHeightUnit: FONT_SIZE_%
-              layoutVersion: 4
-              effects: []
-              interactions: []
-          blendMode: PASS_THROUGH
-          clipsContent: false
-          background:
-            - opacity: 0.03999999910593033
-              blendMode: NORMAL
-              visible: false
-              type: SOLID
-              color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
-                a: 1
-          fills:
-            - opacity: 0.03999999910593033
-              blendMode: NORMAL
-              visible: false
-              type: SOLID
-              color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
-                a: 1
-          strokes: []
-          cornerRadius: 8
-          cornerSmoothing: 0
-          strokeWeight: 1
-          strokeAlign: INSIDE
-          backgroundColor:
-            r: 0
-            g: 0
-            b: 0
-            a: 0
-          layoutMode: HORIZONTAL
-          itemSpacing: 10
-          primaryAxisSizingMode: FIXED
-          counterAxisAlignItems: CENTER
-          paddingLeft: 10
-          paddingRight: 10
-          paddingTop: 10
-          paddingBottom: 10
-          layoutWrap: NO_WRAP
-          absoluteBoundingBox:
-            x: 58720
-            'y': 1309
-            width: 180
-            height: 36
-          absoluteRenderBounds:
-            x: 58720
-            'y': 1309
-            width: 180
-            height: 36
-          constraints:
-            vertical: TOP
-            horizontal: LEFT
-          layoutAlign: STRETCH
-          layoutGrow: 0
-          layoutSizingHorizontal: FILL
-          layoutSizingVertical: HUG
-          effects: []
-          interactions: []
-        - id: '916:3915'
-          name: Line 4
-          type: LINE
-          scrollBehavior: SCROLLS
-          blendMode: PASS_THROUGH
-          fills:
-            - opacity: 0.03999999910593033
-              blendMode: NORMAL
-              visible: false
-              type: SOLID
-              color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
+                r: 0.5921568870544434
+                g: 0.27843138575553894
+                b: 1
                 a: 1
           strokes:
-            - opacity: 0.07999999821186066
-              blendMode: NORMAL
+            - blendMode: NORMAL
               type: SOLID
               color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
+                r: 0.5921568870544434
+                g: 0.27843138575553894
+                b: 1
                 a: 1
+          cornerRadius: 1000
+          cornerSmoothing: 0
           strokeWeight: 1
-          strokeAlign: CENTER
+          strokeAlign: INSIDE
+          backgroundColor:
+            r: 0.5921568870544434
+            g: 0.27843138575553894
+            b: 1
+            a: 0.10000000149011612
+          layoutMode: HORIZONTAL
+          itemSpacing: 4
+          counterAxisAlignItems: CENTER
+          primaryAxisAlignItems: CENTER
+          paddingLeft: 10
+          paddingRight: 10
+          paddingTop: 6
+          paddingBottom: 6
+          layoutWrap: NO_WRAP
           absoluteBoundingBox:
-            x: 58720
-            'y': 1353
-            width: 180
-            height: 0
+            x: 64677
+            'y': 10739
+            width: 51
+            height: 28
           absoluteRenderBounds:
-            x: 58720
-            'y': 1352
-            width: 180
-            height: 1
+            x: 64677
+            'y': 10739
+            width: 51
+            height: 28
           constraints:
             vertical: TOP
             horizontal: LEFT
-          layoutAlign: STRETCH
+          layoutAlign: INHERIT
           layoutGrow: 0
-          layoutSizingHorizontal: FILL
-          layoutSizingVertical: FIXED
+          minWidth: 46
+          layoutSizingHorizontal: HUG
+          layoutSizingVertical: HUG
           effects: []
           interactions: []
-        - id: '916:3916'
-          name: Menu
+        - id: '1201:14145'
+          name: Emoji
           type: FRAME
           scrollBehavior: SCROLLS
           children:
-            - id: '916:3917'
-              name: ri:mail-line
+            - id: '1201:14146'
+              name: '======='
+              type: TEXT
+              scrollBehavior: SCROLLS
+              blendMode: PASS_THROUGH
+              fills:
+                - blendMode: NORMAL
+                  type: SOLID
+                  color:
+                    r: 0.13333334028720856
+                    g: 0.13333334028720856
+                    b: 0.13333334028720856
+                    a: 1
+              strokes: []
+              strokeWeight: 1
+              strokeAlign: OUTSIDE
+              absoluteBoundingBox:
+                x: 64746
+                'y': 10745
+                width: 26
+                height: 16
+              absoluteRenderBounds:
+                x: 64752.5
+                'y': 10746.91015625
+                width: 13
+                height: 13
+              constraints:
+                vertical: TOP
+                horizontal: LEFT
+              layoutAlign: INHERIT
+              layoutGrow: 1
+              layoutSizingHorizontal: FILL
+              layoutSizingVertical: HUG
+              characters: 💕
+              characterStyleOverrides: []
+              styleOverrideTable: {}
+              lineTypes:
+                - NONE
+              lineIndentations:
+                - 0
+              style:
+                fontFamily: Pretendard
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: HEIGHT
+                fontSize: 13
+                textAlignHorizontal: CENTER
+                textAlignVertical: CENTER
+                letterSpacing: 0
+                lineHeightPx: 15.600000381469727
+                lineHeightPercent: 100.55647277832031
+                lineHeightPercentFontSize: 120.00000762939453
+                lineHeightUnit: FONT_SIZE_%
+              layoutVersion: 4
+              effects: []
+              interactions: []
+            - id: '1201:14147'
+              name: '======='
+              visible: false
+              type: TEXT
+              scrollBehavior: SCROLLS
+              blendMode: PASS_THROUGH
+              opacity: 0.5
+              fills:
+                - blendMode: NORMAL
+                  type: SOLID
+                  color:
+                    r: 0.13333334028720856
+                    g: 0.13333334028720856
+                    b: 0.13333334028720856
+                    a: 1
+              strokes: []
+              strokeWeight: 1
+              strokeAlign: OUTSIDE
+              absoluteBoundingBox:
+                x: 64763
+                'y': 10745
+                width: 9
+                height: 16
+              absoluteRenderBounds: null
+              constraints:
+                vertical: TOP
+                horizontal: LEFT
+              layoutAlign: INHERIT
+              layoutGrow: 0
+              layoutSizingHorizontal: FIXED
+              layoutSizingVertical: FIXED
+              characters: '3'
+              characterStyleOverrides: []
+              styleOverrideTable: {}
+              lineTypes:
+                - NONE
+              lineIndentations:
+                - 0
+              style:
+                fontFamily: Pretendard
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: WIDTH_AND_HEIGHT
+                fontSize: 13
+                textAlignHorizontal: CENTER
+                textAlignVertical: CENTER
+                letterSpacing: 0
+                lineHeightPx: 15.600000381469727
+                lineHeightPercent: 99.98373413085938
+                lineHeightPercentFontSize: 120.00000762939453
+                lineHeightUnit: FONT_SIZE_%
+              layoutVersion: 4
+              effects: []
+              interactions: []
+          blendMode: PASS_THROUGH
+          clipsContent: false
+          background:
+            - opacity: 0.5
+              blendMode: NORMAL
+              type: SOLID
+              color:
+                r: 0.9450120329856873
+                g: 0.9450120329856873
+                b: 0.9450120329856873
+                a: 1
+          fills:
+            - opacity: 0.5
+              blendMode: NORMAL
+              type: SOLID
+              color:
+                r: 0.9450120329856873
+                g: 0.9450120329856873
+                b: 0.9450120329856873
+                a: 1
+          strokes: []
+          cornerRadius: 1000
+          cornerSmoothing: 0
+          strokeWeight: 1
+          strokeAlign: INSIDE
+          backgroundColor:
+            r: 0.9450120329856873
+            g: 0.9450120329856873
+            b: 0.9450120329856873
+            a: 0.5
+          layoutMode: HORIZONTAL
+          itemSpacing: 4
+          counterAxisAlignItems: CENTER
+          primaryAxisAlignItems: CENTER
+          paddingLeft: 10
+          paddingRight: 10
+          paddingTop: 6
+          paddingBottom: 6
+          layoutWrap: NO_WRAP
+          absoluteBoundingBox:
+            x: 64736
+            'y': 10739
+            width: 46
+            height: 28
+          absoluteRenderBounds:
+            x: 64736
+            'y': 10739
+            width: 46
+            height: 28
+          constraints:
+            vertical: TOP
+            horizontal: LEFT
+          layoutAlign: INHERIT
+          layoutGrow: 0
+          minWidth: 46
+          layoutSizingHorizontal: HUG
+          layoutSizingVertical: HUG
+          effects: []
+          interactions: []
+        - id: '1201:14148'
+          name: Emoji
+          type: FRAME
+          scrollBehavior: SCROLLS
+          children:
+            - id: '1201:14149'
+              name: '======='
+              type: TEXT
+              scrollBehavior: SCROLLS
+              blendMode: PASS_THROUGH
+              fills:
+                - blendMode: NORMAL
+                  type: SOLID
+                  color:
+                    r: 0.13333334028720856
+                    g: 0.13333334028720856
+                    b: 0.13333334028720856
+                    a: 1
+              strokes: []
+              strokeWeight: 1
+              strokeAlign: OUTSIDE
+              absoluteBoundingBox:
+                x: 64800
+                'y': 10745
+                width: 26
+                height: 16
+              absoluteRenderBounds:
+                x: 64806.5
+                'y': 10746.91015625
+                width: 13
+                height: 13
+              constraints:
+                vertical: TOP
+                horizontal: LEFT
+              layoutAlign: INHERIT
+              layoutGrow: 1
+              layoutSizingHorizontal: FILL
+              layoutSizingVertical: HUG
+              characters: 😍
+              characterStyleOverrides: []
+              styleOverrideTable: {}
+              lineTypes:
+                - NONE
+              lineIndentations:
+                - 0
+              style:
+                fontFamily: Pretendard
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: HEIGHT
+                fontSize: 13
+                textAlignHorizontal: CENTER
+                textAlignVertical: CENTER
+                letterSpacing: 0
+                lineHeightPx: 15.600000381469727
+                lineHeightPercent: 100.55647277832031
+                lineHeightPercentFontSize: 120.00000762939453
+                lineHeightUnit: FONT_SIZE_%
+              layoutVersion: 4
+              effects: []
+              interactions: []
+            - id: '1201:14150'
+              name: '======='
+              visible: false
+              type: TEXT
+              scrollBehavior: SCROLLS
+              blendMode: PASS_THROUGH
+              opacity: 0.5
+              fills:
+                - blendMode: NORMAL
+                  type: SOLID
+                  color:
+                    r: 0.13333334028720856
+                    g: 0.13333334028720856
+                    b: 0.13333334028720856
+                    a: 1
+              strokes: []
+              strokeWeight: 1
+              strokeAlign: OUTSIDE
+              absoluteBoundingBox:
+                x: 64817
+                'y': 10745
+                width: 9
+                height: 16
+              absoluteRenderBounds: null
+              constraints:
+                vertical: TOP
+                horizontal: LEFT
+              layoutAlign: INHERIT
+              layoutGrow: 0
+              layoutSizingHorizontal: FIXED
+              layoutSizingVertical: FIXED
+              characters: '3'
+              characterStyleOverrides: []
+              styleOverrideTable: {}
+              lineTypes:
+                - NONE
+              lineIndentations:
+                - 0
+              style:
+                fontFamily: Pretendard
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: WIDTH_AND_HEIGHT
+                fontSize: 13
+                textAlignHorizontal: CENTER
+                textAlignVertical: CENTER
+                letterSpacing: 0
+                lineHeightPx: 15.600000381469727
+                lineHeightPercent: 99.98373413085938
+                lineHeightPercentFontSize: 120.00000762939453
+                lineHeightUnit: FONT_SIZE_%
+              layoutVersion: 4
+              effects: []
+              interactions: []
+          blendMode: PASS_THROUGH
+          clipsContent: false
+          background:
+            - opacity: 0.5
+              blendMode: NORMAL
+              type: SOLID
+              color:
+                r: 0.9450120329856873
+                g: 0.9450120329856873
+                b: 0.9450120329856873
+                a: 1
+          fills:
+            - opacity: 0.5
+              blendMode: NORMAL
+              type: SOLID
+              color:
+                r: 0.9450120329856873
+                g: 0.9450120329856873
+                b: 0.9450120329856873
+                a: 1
+          strokes: []
+          cornerRadius: 1000
+          cornerSmoothing: 0
+          strokeWeight: 1
+          strokeAlign: INSIDE
+          backgroundColor:
+            r: 0.9450120329856873
+            g: 0.9450120329856873
+            b: 0.9450120329856873
+            a: 0.5
+          layoutMode: HORIZONTAL
+          itemSpacing: 4
+          counterAxisAlignItems: CENTER
+          primaryAxisAlignItems: CENTER
+          paddingLeft: 10
+          paddingRight: 10
+          paddingTop: 6
+          paddingBottom: 6
+          layoutWrap: NO_WRAP
+          absoluteBoundingBox:
+            x: 64790
+            'y': 10739
+            width: 46
+            height: 28
+          absoluteRenderBounds:
+            x: 64790
+            'y': 10739
+            width: 46
+            height: 28
+          constraints:
+            vertical: TOP
+            horizontal: LEFT
+          layoutAlign: INHERIT
+          layoutGrow: 0
+          minWidth: 46
+          layoutSizingHorizontal: HUG
+          layoutSizingVertical: HUG
+          effects: []
+          interactions: []
+        - id: '1201:14151'
+          name: Emoji
+          type: FRAME
+          scrollBehavior: SCROLLS
+          children:
+            - id: '1201:14152'
+              name: '======='
+              type: TEXT
+              scrollBehavior: SCROLLS
+              blendMode: PASS_THROUGH
+              fills:
+                - blendMode: NORMAL
+                  type: SOLID
+                  color:
+                    r: 0.5921568870544434
+                    g: 0.27843138575553894
+                    b: 1
+                    a: 1
+              strokes: []
+              strokeWeight: 1
+              strokeAlign: OUTSIDE
+              absoluteBoundingBox:
+                x: 64854
+                'y': 10745
+                width: 13
+                height: 16
+              absoluteRenderBounds:
+                x: 64854
+                'y': 10746.91015625
+                width: 13
+                height: 13
+              constraints:
+                vertical: TOP
+                horizontal: LEFT
+              layoutAlign: INHERIT
+              layoutGrow: 1
+              layoutSizingHorizontal: FILL
+              layoutSizingVertical: HUG
+              characters: 🥰
+              characterStyleOverrides: []
+              styleOverrideTable: {}
+              lineTypes:
+                - NONE
+              lineIndentations:
+                - 0
+              style:
+                fontFamily: Pretendard
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: HEIGHT
+                fontSize: 13
+                textAlignHorizontal: CENTER
+                textAlignVertical: CENTER
+                letterSpacing: 0
+                lineHeightPx: 15.600000381469727
+                lineHeightPercent: 100.55647277832031
+                lineHeightPercentFontSize: 120.00000762939453
+                lineHeightUnit: FONT_SIZE_%
+              layoutVersion: 4
+              effects: []
+              interactions: []
+            - id: '1201:14153'
+              name: '======='
+              type: TEXT
+              scrollBehavior: SCROLLS
+              blendMode: PASS_THROUGH
+              fills:
+                - blendMode: NORMAL
+                  type: SOLID
+                  color:
+                    r: 0.5921568870544434
+                    g: 0.27843138575553894
+                    b: 1
+                    a: 1
+              strokes: []
+              strokeWeight: 1
+              strokeAlign: OUTSIDE
+              absoluteBoundingBox:
+                x: 64871
+                'y': 10745
+                width: 14
+                height: 16
+              absoluteRenderBounds:
+                x: 64872.0078125
+                'y': 10748.681640625
+                width: 11.859375
+                height: 9.318359375
+              constraints:
+                vertical: TOP
+                horizontal: LEFT
+              layoutAlign: INHERIT
+              layoutGrow: 0
+              layoutSizingHorizontal: HUG
+              layoutSizingVertical: HUG
+              characters: '12'
+              characterStyleOverrides: []
+              styleOverrideTable: {}
+              lineTypes:
+                - NONE
+              lineIndentations:
+                - 0
+              style:
+                fontFamily: Pretendard
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
+                textAutoResize: WIDTH_AND_HEIGHT
+                fontSize: 13
+                textAlignHorizontal: CENTER
+                textAlignVertical: CENTER
+                letterSpacing: 0
+                lineHeightPx: 15.600000381469727
+                lineHeightPercent: 99.98373413085938
+                lineHeightPercentFontSize: 120.00000762939453
+                lineHeightUnit: FONT_SIZE_%
+              layoutVersion: 4
+              effects: []
+              interactions: []
+          blendMode: PASS_THROUGH
+          clipsContent: false
+          background:
+            - opacity: 0.10000000149011612
+              blendMode: NORMAL
+              type: SOLID
+              color:
+                r: 0.5921568870544434
+                g: 0.27843138575553894
+                b: 1
+                a: 1
+          fills:
+            - opacity: 0.10000000149011612
+              blendMode: NORMAL
+              type: SOLID
+              color:
+                r: 0.5921568870544434
+                g: 0.27843138575553894
+                b: 1
+                a: 1
+          strokes:
+            - blendMode: NORMAL
+              type: SOLID
+              color:
+                r: 0.5921568870544434
+                g: 0.27843138575553894
+                b: 1
+                a: 1
+          cornerRadius: 1000
+          cornerSmoothing: 0
+          strokeWeight: 1
+          strokeAlign: INSIDE
+          backgroundColor:
+            r: 0.5921568870544434
+            g: 0.27843138575553894
+            b: 1
+            a: 0.10000000149011612
+          layoutMode: HORIZONTAL
+          itemSpacing: 4
+          counterAxisAlignItems: CENTER
+          primaryAxisAlignItems: CENTER
+          paddingLeft: 10
+          paddingRight: 10
+          paddingTop: 6
+          paddingBottom: 6
+          layoutWrap: NO_WRAP
+          absoluteBoundingBox:
+            x: 64844
+            'y': 10739
+            width: 51
+            height: 28
+          absoluteRenderBounds:
+            x: 64844
+            'y': 10739
+            width: 51
+            height: 28
+          constraints:
+            vertical: TOP
+            horizontal: LEFT
+          layoutAlign: INHERIT
+          layoutGrow: 0
+          minWidth: 46
+          layoutSizingHorizontal: HUG
+          layoutSizingVertical: HUG
+          effects: []
+          interactions: []
+        - id: '1201:14154'
+          name: Emoji
+          type: FRAME
+          scrollBehavior: SCROLLS
+          children:
+            - id: '1201:14155'
+              name: ri:emoji-sticker-line
               type: FRAME
               scrollBehavior: SCROLLS
               children:
-                - id: '916:3918'
+                - id: '1201:14156'
                   name: Vector
                   type: VECTOR
                   scrollBehavior: SCROLLS
@@ -502,21 +763,22 @@ nodes:
                   strokeWeight: 0.6666666865348816
                   strokeAlign: INSIDE
                   absoluteBoundingBox:
-                    x: 58731.33203125
-                    'y': 1373
+                    x: 64914.33203125
+                    'y': 10746.33203125
                     width: 13.333333969116211
-                    height: 12
+                    height: 13.333337783813477
                   absoluteRenderBounds:
-                    x: 58731.33203125
-                    'y': 1373
+                    x: 64914.33203125
+                    'y': 10746.33203125
                     width: 13.33203125
-                    height: 12
+                    height: 13.3330078125
                   constraints:
                     vertical: SCALE
                     horizontal: SCALE
                   effects: []
                   interactions: []
               blendMode: PASS_THROUGH
+              opacity: 0.5
               clipsContent: true
               background:
                 - blendMode: NORMAL
@@ -545,13 +807,13 @@ nodes:
                 b: 0
                 a: 0
               absoluteBoundingBox:
-                x: 58730
-                'y': 1371
+                x: 64913
+                'y': 10745
                 width: 16
                 height: 16
               absoluteRenderBounds:
-                x: 58730
-                'y': 1371
+                x: 64913
+                'y': 10745
                 width: 16
                 height: 16
               targetAspectRatio:
@@ -566,11 +828,13 @@ nodes:
               layoutSizingVertical: FIXED
               effects: []
               interactions: []
-            - id: '916:3919'
-              name: Text
+            - id: '1201:14157'
+              name: '======='
+              visible: false
               type: TEXT
               scrollBehavior: SCROLLS
               blendMode: PASS_THROUGH
+              opacity: 0.5
               fills:
                 - blendMode: NORMAL
                   type: SOLID
@@ -583,23 +847,19 @@ nodes:
               strokeWeight: 1
               strokeAlign: OUTSIDE
               absoluteBoundingBox:
-                x: 58756
-                'y': 1372
-                width: 32
-                height: 14
-              absoluteRenderBounds:
-                x: 58756.7734375
-                'y': 1373.44921875
-                width: 29.8203125
-                height: 10.59375
+                x: 64930
+                'y': 10745
+                width: 9
+                height: 16
+              absoluteRenderBounds: null
               constraints:
                 vertical: TOP
                 horizontal: LEFT
               layoutAlign: INHERIT
               layoutGrow: 0
-              layoutSizingHorizontal: HUG
-              layoutSizingVertical: HUG
-              characters: 피드백
+              layoutSizingHorizontal: FIXED
+              layoutSizingVertical: FIXED
+              characters: '3'
               characterStyleOverrides: []
               styleOverrideTable: {}
               lineTypes:
@@ -608,15 +868,15 @@ nodes:
                 - 0
               style:
                 fontFamily: Pretendard
-                fontPostScriptName: Pretendard-SemiBold
-                fontStyle: SemiBold
-                fontWeight: 600
+                fontPostScriptName: Pretendard-Regular
+                fontStyle: Regular
+                fontWeight: 400
                 textAutoResize: WIDTH_AND_HEIGHT
-                fontSize: 12
+                fontSize: 13
                 textAlignHorizontal: CENTER
                 textAlignVertical: CENTER
                 letterSpacing: 0
-                lineHeightPx: 14.40000057220459
+                lineHeightPx: 15.600000381469727
                 lineHeightPercent: 99.98373413085938
                 lineHeightPercentFontSize: 120.00000762939453
                 lineHeightUnit: FONT_SIZE_%
@@ -626,289 +886,93 @@ nodes:
           blendMode: PASS_THROUGH
           clipsContent: false
           background:
-            - opacity: 0.03999999910593033
+            - opacity: 0.5
               blendMode: NORMAL
-              visible: false
               type: SOLID
               color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
+                r: 0.9450120329856873
+                g: 0.9450120329856873
+                b: 0.9450120329856873
                 a: 1
           fills:
-            - opacity: 0.03999999910593033
+            - opacity: 0.5
               blendMode: NORMAL
-              visible: false
               type: SOLID
               color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
+                r: 0.9450120329856873
+                g: 0.9450120329856873
+                b: 0.9450120329856873
                 a: 1
           strokes: []
-          cornerRadius: 8
+          cornerRadius: 1000
           cornerSmoothing: 0
           strokeWeight: 1
           strokeAlign: INSIDE
           backgroundColor:
-            r: 0
-            g: 0
-            b: 0
-            a: 0
+            r: 0.9450120329856873
+            g: 0.9450120329856873
+            b: 0.9450120329856873
+            a: 0.5
           layoutMode: HORIZONTAL
-          itemSpacing: 10
-          primaryAxisSizingMode: FIXED
+          itemSpacing: 4
           counterAxisAlignItems: CENTER
+          primaryAxisAlignItems: CENTER
           paddingLeft: 10
           paddingRight: 10
-          paddingTop: 10
-          paddingBottom: 10
+          paddingTop: 6
+          paddingBottom: 6
           layoutWrap: NO_WRAP
           absoluteBoundingBox:
-            x: 58720
-            'y': 1361
-            width: 180
-            height: 36
+            x: 64903
+            'y': 10739
+            width: 36
+            height: 28
           absoluteRenderBounds:
-            x: 58720
-            'y': 1361
-            width: 180
-            height: 36
+            x: 64903
+            'y': 10739
+            width: 36
+            height: 28
           constraints:
             vertical: TOP
             horizontal: LEFT
-          layoutAlign: STRETCH
+          layoutAlign: INHERIT
           layoutGrow: 0
-          layoutSizingHorizontal: FILL
+          layoutSizingHorizontal: HUG
           layoutSizingVertical: HUG
           effects: []
           interactions: []
-        - id: '916:3920'
-          name: Menu
-          type: FRAME
-          scrollBehavior: SCROLLS
-          children:
-            - id: '916:3921'
-              name: Text
-              type: TEXT
-              scrollBehavior: SCROLLS
-              blendMode: PASS_THROUGH
-              fills:
-                - blendMode: NORMAL
-                  type: SOLID
-                  color:
-                    r: 0.8766714334487915
-                    g: 0.27394336462020874
-                    b: 0.27394336462020874
-                    a: 1
-              strokes: []
-              strokeWeight: 1
-              strokeAlign: OUTSIDE
-              absoluteBoundingBox:
-                x: 58730
-                'y': 1415
-                width: 42
-                height: 14
-              absoluteRenderBounds:
-                x: 58730.57421875
-                'y': 1416.4140625
-                width: 40.83984375
-                height: 10.6640625
-              constraints:
-                vertical: TOP
-                horizontal: LEFT
-              layoutAlign: INHERIT
-              layoutGrow: 0
-              layoutSizingHorizontal: HUG
-              layoutSizingVertical: HUG
-              characters: 로그아웃
-              characterStyleOverrides: []
-              styleOverrideTable: {}
-              lineTypes:
-                - NONE
-              lineIndentations:
-                - 0
-              style:
-                fontFamily: Pretendard
-                fontPostScriptName: Pretendard-Bold
-                fontStyle: Bold
-                fontWeight: 700
-                textAutoResize: WIDTH_AND_HEIGHT
-                fontSize: 12
-                textAlignHorizontal: CENTER
-                textAlignVertical: CENTER
-                letterSpacing: 0
-                lineHeightPx: 14.40000057220459
-                lineHeightPercent: 99.98373413085938
-                lineHeightPercentFontSize: 120.00000762939453
-                lineHeightUnit: FONT_SIZE_%
-              layoutVersion: 4
-              effects: []
-              interactions: []
-          blendMode: PASS_THROUGH
-          clipsContent: false
-          background:
-            - opacity: 0.03999999910593033
-              blendMode: NORMAL
-              visible: false
-              type: SOLID
-              color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
-                a: 1
-          fills:
-            - opacity: 0.03999999910593033
-              blendMode: NORMAL
-              visible: false
-              type: SOLID
-              color:
-                r: 0.13333334028720856
-                g: 0.13333334028720856
-                b: 0.13333334028720856
-                a: 1
-          strokes: []
-          cornerRadius: 8
-          cornerSmoothing: 0
-          strokeWeight: 1
-          strokeAlign: INSIDE
-          backgroundColor:
-            r: 0
-            g: 0
-            b: 0
-            a: 0
-          layoutMode: HORIZONTAL
-          itemSpacing: 10
-          primaryAxisSizingMode: FIXED
-          counterAxisAlignItems: CENTER
-          paddingLeft: 10
-          paddingRight: 10
-          paddingTop: 10
-          paddingBottom: 10
-          layoutWrap: NO_WRAP
-          absoluteBoundingBox:
-            x: 58720
-            'y': 1405
-            width: 180
-            height: 34
-          absoluteRenderBounds:
-            x: 58720
-            'y': 1405
-            width: 180
-            height: 34
-          constraints:
-            vertical: TOP
-            horizontal: LEFT
-          layoutAlign: STRETCH
-          layoutGrow: 0
-          layoutSizingHorizontal: FILL
-          layoutSizingVertical: HUG
-          effects: []
-          transitionNodeID: '900:20707'
-          transitionDuration: 1
-          transitionEasing: EASE_OUT
-          interactions:
-            - trigger:
-                type: ON_HOVER
-              actions:
-                - type: NODE
-                  destinationId: null
-                  navigation: NAVIGATE
-                  transition:
-                    type: DISSOLVE
-                    easing:
-                      type: EASE_OUT
-                    duration: 0.0010000000474974513
-                  resetVideoPosition: false
-                  resetInteractiveComponents: true
       blendMode: PASS_THROUGH
-      clipsContent: true
-      background:
-        - blendMode: NORMAL
-          type: SOLID
-          color:
-            r: 1
-            g: 1
-            b: 1
-            a: 1
-      fills:
-        - blendMode: NORMAL
-          type: SOLID
-          color:
-            r: 1
-            g: 1
-            b: 1
-            a: 1
-      strokes:
-        - opacity: 0.07999999821186066
-          blendMode: NORMAL
-          type: SOLID
-          color:
-            r: 0.13333334028720856
-            g: 0.13333334028720856
-            b: 0.13333334028720856
-            a: 1
-      cornerRadius: 16
-      cornerSmoothing: 0
+      clipsContent: false
+      background: []
+      fills: []
+      strokes: []
       strokeWeight: 1
       strokeAlign: INSIDE
       backgroundColor:
-        r: 1
-        g: 1
-        b: 1
-        a: 1
-      overflowDirection: VERTICAL_SCROLLING
-      layoutMode: VERTICAL
-      counterAxisSizingMode: FIXED
+        r: 0
+        g: 0
+        b: 0
+        a: 0
+      layoutMode: HORIZONTAL
       itemSpacing: 8
-      primaryAxisAlignItems: CENTER
-      paddingLeft: 10
-      paddingRight: 10
-      paddingTop: 10
-      paddingBottom: 10
+      counterAxisAlignItems: CENTER
       layoutWrap: NO_WRAP
       absoluteBoundingBox:
-        x: 58710
-        'y': 1255
-        width: 200
-        height: 194
+        x: 64677
+        'y': 10739
+        width: 262
+        height: 28
       absoluteRenderBounds:
-        x: 58686
-        'y': 1231
-        width: 248
-        height: 242
+        x: 64677
+        'y': 10739
+        width: 262
+        height: 28
       constraints:
-        vertical: BOTTOM
+        vertical: TOP
         horizontal: LEFT
-      layoutSizingHorizontal: FIXED
+      layoutSizingHorizontal: HUG
       layoutSizingVertical: HUG
-      effects:
-        - type: DROP_SHADOW
-          visible: true
-          color:
-            r: 0.628737211227417
-            g: 0.628737211227417
-            b: 0.628737211227417
-            a: 0.03999999910593033
-          blendMode: NORMAL
-          offset:
-            x: 4
-            'y': 4
-          radius: 20
-          showShadowBehindNode: false
-        - type: DROP_SHADOW
-          visible: true
-          color:
-            r: 0.6274510025978088
-            g: 0.6274510025978088
-            b: 0.6274510025978088
-            a: 0.03999999910593033
-          blendMode: NORMAL
-          offset:
-            x: -4
-            'y': -4
-          radius: 20
-          showShadowBehindNode: false
+      effects: []
       interactions: []
     components: {}
     componentSets: {}

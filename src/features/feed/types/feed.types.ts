@@ -21,6 +21,7 @@ export interface Comment {
   content: string;
   createdAt: Date;
   images?: ImageMetadata[];
+  reactions?: Reaction[];
 }
 
 export interface BasePost {

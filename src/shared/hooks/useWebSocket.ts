@@ -3,7 +3,7 @@
  */
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { TokenManager } from '../lib/token';
 import {
   WebSocketEventHandler,
@@ -24,10 +24,17 @@ interface UseWebSocketOptions {
 
 interface UseWebSocketReturn {
   connected: boolean;
+  // 댓글 구독 함수들
   subscribeToComments: (postId: string) => void;
   unsubscribeFromComments: (postId: string) => void;
   batchSubscribeToComments: (postIds: string[]) => void;
   batchUnsubscribeFromComments: (postIds: string[]) => void;
+  // 리액션 구독 함수들
+  subscribeToReactions: (postId: string) => void;
+  unsubscribeFromReactions: (postId: string) => void;
+  batchSubscribeToReactions: (postIds: string[]) => void;
+  batchUnsubscribeFromReactions: (postIds: string[]) => void;
+  // 이벤트 리스너 함수들
   addEventListener: (eventType: WebSocketEventType, handler: WebSocketEventHandler) => void;
   removeEventListener: (eventType: WebSocketEventType, handler: WebSocketEventHandler) => void;
 }
@@ -46,6 +53,7 @@ export function useWebSocket({
   const eventHandlersRef = useRef<Map<WebSocketEventType, WebSocketEventHandler[]>>(new Map());
   const subscriptionTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const lastVisiblePostIdsRef = useRef<Set<string>>(new Set());
+  const [wsConnected, setWsConnected] = useState(false);
 
   // 댓글 관련 쿼리 무효화 함수
   const invalidateCommentQueries = useCallback(
@@ -67,7 +75,8 @@ export function useWebSocket({
   const handleConnectionEstablished = useCallback(
     (message: IncomingWebSocketMessage) => {
       if (message.type === 'connection.established') {
-        // 연결 확립됨 - 추가 로직이 필요한 경우 여기에 추가
+        console.log('[useWebSocket] Connection established, updating React state');
+        setWsConnected(true);
       }
     },
     []
@@ -75,8 +84,22 @@ export function useWebSocket({
 
   const handleCommentCreated = useCallback(
     (message: IncomingWebSocketMessage) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[useWebSocket] handleCommentCreated called with:', message);
+      }
+      
       if (message.type === 'comment.created') {
-        invalidateCommentQueries(message.postId);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[useWebSocket] Processing comment.created for postId:', message.data?.postId);
+        }
+        
+        // 안전하게 postId 추출
+        const postId = message.data?.postId || message.postId;
+        if (postId) {
+          invalidateCommentQueries(postId);
+        } else {
+          console.warn('[useWebSocket] No postId found in comment.created message:', message);
+        }
       }
     },
     [invalidateCommentQueries]
@@ -84,8 +107,17 @@ export function useWebSocket({
 
   const handleCommentUpdated = useCallback(
     (message: IncomingWebSocketMessage) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[useWebSocket] handleCommentUpdated called with:', message);
+      }
+      
       if (message.type === 'comment.updated') {
-        invalidateCommentQueries(message.postId);
+        const postId = message.data?.postId || message.postId;
+        if (postId) {
+          invalidateCommentQueries(postId);
+        } else {
+          console.warn('[useWebSocket] No postId found in comment.updated message:', message);
+        }
       }
     },
     [invalidateCommentQueries]
@@ -93,8 +125,17 @@ export function useWebSocket({
 
   const handleCommentDeleted = useCallback(
     (message: IncomingWebSocketMessage) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[useWebSocket] handleCommentDeleted called with:', message);
+      }
+      
       if (message.type === 'comment.deleted') {
-        invalidateCommentQueries(message.postId);
+        const postId = message.data?.postId || message.postId;
+        if (postId) {
+          invalidateCommentQueries(postId);
+        } else {
+          console.warn('[useWebSocket] No postId found in comment.deleted message:', message);
+        }
       }
     },
     [invalidateCommentQueries]
@@ -120,9 +161,43 @@ export function useWebSocket({
     websocketService.batchUnsubscribeFromComments(postIds);
   }, []);
 
+  // 리액션 구독 함수
+  const subscribeToReactions = useCallback((postId: string) => {
+    websocketService.subscribeToReactions(postId);
+  }, []);
+
+  // 리액션 구독 해제 함수
+  const unsubscribeFromReactions = useCallback((postId: string) => {
+    websocketService.unsubscribeFromReactions(postId);
+  }, []);
+
+  // 배치 리액션 구독 함수
+  const batchSubscribeToReactions = useCallback((postIds: string[]) => {
+    websocketService.batchSubscribeToReactions(postIds);
+  }, []);
+
+  // 배치 리액션 구독 해제 함수
+  const batchUnsubscribeFromReactions = useCallback((postIds: string[]) => {
+    websocketService.batchUnsubscribeFromReactions(postIds);
+  }, []);
+
   // Viewport 기반 자동 구독 관리
   useEffect(() => {
-    if (!websocketService.connected || subscribeToAllComments || visiblePostIds.length === 0) {
+    console.log('[useWebSocket] Viewport subscription effect triggered', {
+      wsConnected,
+      websocketServiceConnected: websocketService.connected,
+      subscribeToAllComments,
+      visiblePostIdsLength: visiblePostIds.length,
+      visiblePostIds
+    });
+
+    if (!wsConnected || subscribeToAllComments || visiblePostIds.length === 0) {
+      console.log('[useWebSocket] Subscription skipped:', {
+        wsConnected,
+        websocketServiceConnected: websocketService.connected,
+        subscribeToAllComments,
+        visiblePostIdsLength: visiblePostIds.length
+      });
       return;
     }
 
@@ -146,10 +221,27 @@ export function useWebSocket({
         }
       });
 
-      // 임시: 개별 구독으로 변경 (batchSubscribe가 백엔드에서 처리되지 않음)
-      newlyVisible.forEach(postId => {
-        subscribeToComments(postId);
-      });
+      // 댓글과 리액션 배치 구독
+      try {
+        console.log('[useWebSocket] Attempting batch subscribe for posts:', newlyVisible);
+        batchSubscribeToComments(newlyVisible);
+        batchSubscribeToReactions(newlyVisible);
+        
+        // 배치 구독 후에도 개별 구독 시도 (임시 디버깅용)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[useWebSocket] Also trying individual subscriptions for debugging');
+          newlyVisible.forEach(postId => {
+            subscribeToComments(postId);
+            subscribeToReactions(postId);
+          });
+        }
+      } catch (error) {
+        console.error('[useWebSocket] Batch subscribe failed, falling back to individual:', error);
+        newlyVisible.forEach(postId => {
+          subscribeToComments(postId);
+          subscribeToReactions(postId);
+        });
+      }
     }
 
     // 더 이상 보이지 않는 포스트들 지연 구독 해제
@@ -165,7 +257,9 @@ export function useWebSocket({
         const timer = setTimeout(() => {
           const stillNotVisible = !visiblePostIds.includes(postId);
           if (stillNotVisible) {
-            unsubscribeFromComments(postId);
+            // 댓글과 리액션 구독 해제
+            batchUnsubscribeFromComments([postId]);
+            batchUnsubscribeFromReactions([postId]);
           }
           subscriptionTimersRef.current.delete(postId);
         }, 30000); // 30초 지연
@@ -176,7 +270,32 @@ export function useWebSocket({
 
     // 현재 보이는 포스트 ID 업데이트
     lastVisiblePostIdsRef.current = currentVisibleSet;
-  }, [visiblePostIds, subscribeToAllComments, subscribeToComments, unsubscribeFromComments]);
+  }, [wsConnected, visiblePostIds, subscribeToAllComments, batchSubscribeToComments, batchUnsubscribeFromComments, batchSubscribeToReactions, batchUnsubscribeFromReactions, subscribeToComments, subscribeToReactions]);
+
+  // WebSocket 연결 상태 변화 감지하여 재구독
+  useEffect(() => {
+    console.log('[useWebSocket] Connection state changed:', {
+      wsConnected,
+      websocketServiceConnected: websocketService.connected,
+      visiblePostIdsLength: visiblePostIds.length
+    });
+
+    if (wsConnected && visiblePostIds.length > 0 && !subscribeToAllComments) {
+      console.log('[useWebSocket] Re-subscribing due to connection state change');
+      // 연결이 완료된 후 현재 보이는 포스트들에 대해 구독
+      try {
+        batchSubscribeToComments(visiblePostIds);
+        batchSubscribeToReactions(visiblePostIds);
+        // 디버깅용 개별 구독도 시도
+        visiblePostIds.forEach(postId => {
+          subscribeToComments(postId);
+          subscribeToReactions(postId);
+        });
+      } catch (error) {
+        console.error('[useWebSocket] Subscription failed after connection:', error);
+      }
+    }
+  }, [wsConnected, visiblePostIds, subscribeToAllComments, batchSubscribeToComments, batchSubscribeToReactions, subscribeToComments, subscribeToReactions]);
 
   // 이벤트 리스너 추가 함수
   const addEventListener = useCallback(
@@ -286,10 +405,17 @@ export function useWebSocket({
 
   return {
     connected: websocketService.connected,
+    // 댓글 구독 함수들
     subscribeToComments,
     unsubscribeFromComments,
     batchSubscribeToComments,
     batchUnsubscribeFromComments,
+    // 리액션 구독 함수들
+    subscribeToReactions,
+    unsubscribeFromReactions,
+    batchSubscribeToReactions,
+    batchUnsubscribeFromReactions,
+    // 이벤트 리스너 함수들
     addEventListener,
     removeEventListener,
   };

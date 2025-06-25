@@ -37,6 +37,7 @@ import type {
 } from '@/shared/types/post';
 import { apiClient } from '../api';
 import { convertApiCommentToComment } from './comments';
+import { convertApiReactionsToReactions } from '@/shared/utils/reactions.utils';
 
 /**
  * 백엔드 API 응답을 프론트엔드 타입으로 변환하는 함수
@@ -62,6 +63,7 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     reflectionText: apiPost.reflection_text,
     images: apiPost.images || [],
     comments: apiPost.comments ? apiPost.comments.map(convertApiCommentToComment) : [],
+    reactions: convertApiReactionsToReactions(apiPost.reactions),
   };
 };
 
