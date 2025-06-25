@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "vercel-build": "npm install --legacy-peer-deps && next build",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -17,6 +18,7 @@
     "@aws-sdk/s3-request-presigner": "^3.828.0",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
+    "emoji-mart": "^5.6.0",
     "@hookform/resolvers": "^5.0.1",
     "@remixicon/react": "^4.6.0",
     "@tanstack/react-query": "^5.80.6",
