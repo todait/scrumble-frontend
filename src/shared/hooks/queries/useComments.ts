@@ -17,7 +17,7 @@ import { useToast } from '../useToast';
  * 댓글 생성 훅
  * 새로운 댓글을 작성합니다
  */
-export const useCreateComment = () => {
+export const useCreateComment = (spaceSlug: string) => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
 
@@ -30,7 +30,7 @@ export const useCreateComment = () => {
     },
     onSuccess: (data, variables) => {
       // 포스트 목록 무효화 (댓글이 추가되었으므로)
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(spaceSlug) });
       // 해당 포스트의 댓글 목록 무효화
       queryClient.invalidateQueries({ queryKey: commentsKeys.list(variables.postId) });
       
@@ -52,7 +52,7 @@ export const useCreateComment = () => {
  * 댓글 수정 훅
  * 기존 댓글을 수정합니다
  */
-export const useUpdateComment = () => {
+export const useUpdateComment = (spaceSlug: string) => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
 
@@ -60,7 +60,7 @@ export const useUpdateComment = () => {
     mutationFn: params => commentsApi.updateComment(params),
     onSuccess: (data, variables) => {
       // 포스트 목록 무효화
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(spaceSlug) });
       // 해당 포스트의 댓글 목록 무효화
       queryClient.invalidateQueries({ queryKey: commentsKeys.list(variables.postId) });
       // 특정 댓글 상세 정보 무효화
@@ -86,7 +86,7 @@ export const useUpdateComment = () => {
  * 댓글 삭제 훅
  * 댓글을 삭제합니다
  */
-export const useDeleteComment = () => {
+export const useDeleteComment = (spaceSlug: string) => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
 
@@ -94,7 +94,7 @@ export const useDeleteComment = () => {
     mutationFn: params => commentsApi.deleteComment(params),
     onSuccess: (data, variables) => {
       // 포스트 목록 무효화 (댓글이 삭제되었으므로)
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(spaceSlug) });
       // 해당 포스트의 댓글 목록 무효화
       queryClient.invalidateQueries({ queryKey: commentsKeys.list(variables.postId) });
       

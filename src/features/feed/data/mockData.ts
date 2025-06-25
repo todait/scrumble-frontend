@@ -1,5 +1,5 @@
-import type { CheckinPost, CheckoutPost, Post, TeamSummary } from '../types/feed.types';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import type { CheckinPost, CheckoutPost, Post, TeamSummary } from '../types/feed.types';
 
 // 헬퍼 함수: URL을 ImageMetadata로 변환
 const createMockImageMetadata = (urls: string[]): ImageMetadata[] => {
@@ -44,6 +44,7 @@ const createMockPosts = (): Post[] => {
           },
           content: '좋은 하루 보내세요!',
           createdAt: new Date(),
+          reactions: [],
         },
         {
           id: '2',
@@ -54,6 +55,7 @@ const createMockPosts = (): Post[] => {
           },
           content: '수고하셨습니다!',
           createdAt: new Date(),
+          reactions: [],
         },
         {
           id: '3',
@@ -64,6 +66,7 @@ const createMockPosts = (): Post[] => {
           },
           content: '오늘도 화이팅!',
           createdAt: new Date(),
+          reactions: [],
         },
       ],
       lastCommentTime: new Date(Date.now() - 24 * 60 * 1000),
@@ -98,6 +101,7 @@ const createMockPosts = (): Post[] => {
           content:
             '꽃이 정말 아름답네요! 칡덩굴에도 이렇게 예쁜 꽃이 피는군요.\n자연의 신비로움을 다시 한번 느끼게 됩니다.',
           createdAt: new Date(Date.now() - 5 * 60 * 1000),
+          reactions: [],
         },
         {
           id: '2',
@@ -108,6 +112,7 @@ const createMockPosts = (): Post[] => {
           },
           content: '추억이 담긴 이야기네요. 그때 그 순간이 떠오르는 것 같아요.',
           createdAt: new Date(Date.now() - 15 * 60 * 1000),
+          reactions: [],
           images: createMockImageMetadata([
             'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=300&fit=crop',
           ]),
@@ -438,7 +443,9 @@ const createMockPosts = (): Post[] => {
         { emoji: '👍', count: 8, userIds: ['4', '5', '6'] },
       ],
       comments: [],
-      images: createMockImageMetadata(['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=300&fit=crop']),
+      images: createMockImageMetadata([
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=300&fit=crop',
+      ]),
     },
     {
       id: '4',
@@ -626,6 +633,10 @@ const createMockPosts = (): Post[] => {
 
   return posts.map(post => ({
     ...post,
+    comments: post.comments.map(comment => ({
+      reactions: [],
+      ...comment,
+    })),
     commentCount: post.comments.length,
   })) as Post[];
 };

@@ -4,8 +4,8 @@
  */
 
 import type { DateString, ID } from './api';
-import { Comment } from './comment';
 import type { ImageMetadata } from './upload.types';
+import type { Reaction, Comment } from '@/features/feed/types/feed.types';
 
 /**
  * 포스트 유형
@@ -46,6 +46,7 @@ export interface Post {
   reflectionText?: string; // 체크아웃 메시지
   images: ImageMetadata[];
   comments: Comment[];
+  reactions: Reaction[];
 }
 
 /**

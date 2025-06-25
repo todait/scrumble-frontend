@@ -158,50 +158,13 @@ export interface GetPostsApiResponse {
     updated_at: string;
     user_id: string;
     space_slug: string;
-    author: {
-      id: string;
-      email: string;
-      name: string;
-      avatar_url: string;
-    };
+    author: ApiUser;
     condition_score?: number;
     condition_text?: string;
     reflection_text?: string;
-    images: {
-      id: string;
-      created_at: string;
-      url: string;
-      key: string;
-      size: number;
-      width: number;
-      height: number;
-      format: string;
-      name: string;
-    }[];
-    comments: {
-      id: string;
-      post_id: string;
-      author: {
-        id: string;
-        email: string;
-        name: string;
-        avatar_url: string;
-      };
-      content: string;
-      created_at: string;
-      updated_at: string;
-      images?: {
-        id: string;
-        created_at: string;
-        url: string;
-        key: string;
-        size: number;
-        width: number;
-        height: number;
-        format: string;
-        name: string;
-      }[];
-    }[];
+    images: ApiImage[];
+    comments: ApiComment[];
+    reactions?: ApiReaction[];
   }>;
   nextCursor?: string;
   hasMore: boolean;
@@ -234,6 +197,7 @@ export interface ApiComment {
     format: string;
     name: string;
   }[];
+  reactions?: ApiReaction[];
 }
 
 /**
@@ -261,6 +225,17 @@ export interface ApiUser {
   email: string;
   name: string;
   avatar_url: string;
+}
+
+/**
+ * API 리액션 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 개별 리액션 정보 - 백엔드 ReactionDTO 구조
+ */
+export interface ApiReaction {
+  user_id: string;
+  emoji: string;
+  created_at: string;
+  author: ApiUser;
 }
 
 export interface GetFeedSummaryApiResponse {

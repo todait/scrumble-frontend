@@ -115,7 +115,7 @@ export const useCreateCheckIn = () => {
     },
     onSuccess: (data, variables) => {
       // 포스트 목록 무효화
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
       // existsCheckin 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
       const targetDate = variables.postedDate || formatDateToAPIString(new Date());
       queryClient.invalidateQueries({
@@ -154,7 +154,7 @@ export const useCreateCheckOut = () => {
       return postsApi.createCheckOut(params);
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
       // feedSummary 쿼리 무효화 - 요청한 날짜 또는 오늘 날짜로
       const targetDate = variables.postedDate || formatDateToAPIString(new Date());
       queryClient.invalidateQueries({
@@ -177,7 +177,7 @@ export const useUpdateCheckIn = () => {
   return useMutation<UpdateCheckInResponse, Error, UpdateCheckInRequest>({
     mutationFn: params => postsApi.updateCheckIn(params),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
       // feedSummary 쿼리 무효화 - 응답 데이터의 postedAt 날짜로
       const targetDate = data.post.postedAt.split('T')[0]; // YYYY-MM-DD 형식 추출
       queryClient.invalidateQueries({
@@ -200,7 +200,7 @@ export const useDeleteCheckIn = () => {
   return useMutation<DeleteCheckInResponse, Error, DeleteCheckInRequest>({
     mutationFn: params => postsApi.deleteCheckIn(params),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
       // feedSummary 쿼리 무효화 - 오늘 날짜로 (delete는 날짜 정보가 없음)
       const targetDate = formatDateToAPIString(new Date());
       queryClient.invalidateQueries({
@@ -223,7 +223,7 @@ export const useUpdateCheckOut = () => {
   return useMutation<UpdateCheckOutResponse, Error, UpdateCheckOutRequest>({
     mutationFn: params => postsApi.updateCheckOut(params),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
       // feedSummary 쿼리 무효화 - 응답 데이터의 postedAt 날짜로
       const targetDate = data.post.postedAt.split('T')[0]; // YYYY-MM-DD 형식 추출
       queryClient.invalidateQueries({
@@ -246,7 +246,7 @@ export const useDeleteCheckOut = () => {
   return useMutation<DeleteCheckOutResponse, Error, DeleteCheckOutRequest>({
     mutationFn: params => postsApi.deleteCheckOut(params),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
       // feedSummary 쿼리 무효화 - 오늘 날짜로 (delete는 날짜 정보가 없음)
       const targetDate = formatDateToAPIString(new Date());
       queryClient.invalidateQueries({

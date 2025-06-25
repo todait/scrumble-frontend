@@ -32,7 +32,7 @@ export function useImageUpload({
   const uploadIdCounter = useRef(0);
 
   // 파일 유효성 검사
-  const validateFiles = (files: File[]): { valid: File[]; errors: string[] } => {
+  const validateFiles = useCallback((files: File[]): { valid: File[]; errors: string[] } => {
     const valid: File[] = [];
     const errors: string[] = [];
 
@@ -49,7 +49,7 @@ export function useImageUpload({
     });
 
     return { valid, errors };
-  };
+  }, [acceptedFormats, maxSize, maxFiles, uploadingImages]);
 
   // 단일 이미지 업로드
   const uploadSingleImage = async (file: File, uploadId: string): Promise<ImageMetadata> => {

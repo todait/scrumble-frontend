@@ -1,6 +1,6 @@
-import { ApiComment, ApiImage, ApiUser } from '@/shared/types/api';
+import { Comment } from '@/features/feed/types/feed.types';
+import { ApiComment, ApiImage } from '@/shared/types/api';
 import {
-  Comment,
   CommentImage,
   CreateCommentRequest,
   CreateCommentResponse,
@@ -9,17 +9,8 @@ import {
   UpdateCommentRequest,
   UpdateCommentResponse,
 } from '@/shared/types/comment';
+import { convertApiReactionsToReactions } from '@/shared/utils/reactions.utils';
 import { apiClient } from '../api';
-
-/**
- * API 사용자 정보를 프론트엔드 형식으로 변환
- */
-export const convertApiUserToUser = (apiUser: ApiUser) => ({
-  id: apiUser.id,
-  name: apiUser.name,
-  email: apiUser.email,
-  avatarURL: apiUser.avatar_url,
-});
 
 /**
  * API 이미지 정보를 프론트엔드 형식으로 변환
@@ -41,17 +32,18 @@ export const convertApiImageToImage = (apiImage: ApiImage): CommentImage => ({
  * @param apiComment - 백엔드 API에서 반환된 댓글 데이터
  * @returns 프론트엔드에서 사용하는 Comment 타입
  */
-export const convertApiCommentToComment = (apiComment: ApiComment): Comment => {
-  return {
-    id: apiComment.id,
-    postId: apiComment.post_id,
-    author: convertApiUserToUser(apiComment.author),
-    content: apiComment.content,
-    createdAt: apiComment.created_at,
-    updatedAt: apiComment.updated_at,
-    images: apiComment.images?.map(convertApiImageToImage),
-  };
-};
+export const convertApiCommentToComment = (apiComment: ApiComment): Comment => ({
+  id: apiComment.id,
+  author: {
+    id: apiComment.author.id,
+    name: apiComment.author.name,
+    profileImage: apiComment.author.avatar_url || '',
+  },
+  content: apiComment.content,
+  createdAt: new Date(apiComment.created_at),
+  images: apiComment.images?.map(convertApiImageToImage),
+  reactions: convertApiReactionsToReactions(apiComment.reactions),
+});
 
 export const commentsApi = {
   createComment: async (params: CreateCommentRequest): Promise<CreateCommentResponse> => {
