@@ -50,13 +50,6 @@ export function useWebSocket({
   // 댓글 관련 쿼리 무효화 함수
   const invalidateCommentQueries = useCallback(
     (postId: string) => {
-      console.log('[useWebSocket] 캐시 무효화 시작:', {
-        postId,
-        spaceSlug,
-        commentQueryKey: commentsKeys.list(postId),
-        postsQueryKey: postsKeys.lists(spaceSlug)
-      });
-
       // 특정 포스트의 댓글 쿼리 무효화
       queryClient.invalidateQueries({
         queryKey: commentsKeys.list(postId),
@@ -66,8 +59,6 @@ export function useWebSocket({
       queryClient.invalidateQueries({
         queryKey: postsKeys.lists(spaceSlug),
       });
-
-      console.log('[useWebSocket] 캐시 무효화 완료:', postId);
     },
     [queryClient, spaceSlug]
   );
@@ -76,7 +67,7 @@ export function useWebSocket({
   const handleConnectionEstablished = useCallback(
     (message: IncomingWebSocketMessage) => {
       if (message.type === 'connection.established') {
-        console.log('[WebSocket] 연결 확립:', message);
+        // 연결 확립됨 - 추가 로직이 필요한 경우 여기에 추가
       }
     },
     []
@@ -85,7 +76,6 @@ export function useWebSocket({
   const handleCommentCreated = useCallback(
     (message: IncomingWebSocketMessage) => {
       if (message.type === 'comment.created') {
-        console.log('[useWebSocket] 댓글 생성 이벤트 수신:', message.postId);
         invalidateCommentQueries(message.postId);
       }
     },
@@ -133,11 +123,6 @@ export function useWebSocket({
   // Viewport 기반 자동 구독 관리
   useEffect(() => {
     if (!websocketService.connected || subscribeToAllComments || visiblePostIds.length === 0) {
-      console.log('[useWebSocket] 구독 관리 스킵:', {
-        connected: websocketService.connected,
-        subscribeToAllComments,
-        visiblePostIds: visiblePostIds.length
-      });
       return;
     }
 
@@ -150,12 +135,6 @@ export function useWebSocket({
     // 더 이상 보이지 않는 포스트들
     const noLongerVisible = Array.from(previousVisibleSet).filter(id => !currentVisibleSet.has(id));
 
-    console.log('[useWebSocket] 가시성 변경:', {
-      currentVisible: visiblePostIds,
-      newlyVisible,
-      noLongerVisible
-    });
-
     // 새로 보이는 포스트들 구독
     if (newlyVisible.length > 0) {
       // 지연 구독 타이머가 있다면 취소
@@ -167,10 +146,8 @@ export function useWebSocket({
         }
       });
 
-      console.log('[useWebSocket] 새로운 포스트 구독:', newlyVisible);
       // 임시: 개별 구독으로 변경 (batchSubscribe가 백엔드에서 처리되지 않음)
       newlyVisible.forEach(postId => {
-        console.log('[useWebSocket] 개별 구독:', postId);
         subscribeToComments(postId);
       });
     }
@@ -199,7 +176,7 @@ export function useWebSocket({
 
     // 현재 보이는 포스트 ID 업데이트
     lastVisiblePostIdsRef.current = currentVisibleSet;
-  }, [visiblePostIds, subscribeToAllComments, batchSubscribeToComments, unsubscribeFromComments]);
+  }, [visiblePostIds, subscribeToAllComments, subscribeToComments, unsubscribeFromComments]);
 
   // 이벤트 리스너 추가 함수
   const addEventListener = useCallback(

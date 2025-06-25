@@ -107,7 +107,6 @@ export class WebSocketService {
 
         // 연결 성공 핸들러
         this.ws.onopen = () => {
-          console.log('[WebSocket] onopen 이벤트 - 연결 대기 중');
           this.connectionPromise = null;
           this.startHeartbeat();
           // 연결 상태는 connection.established 이벤트 수신 후 설정
@@ -116,16 +115,6 @@ export class WebSocketService {
 
         // 메시지 수신 핸들러
         this.ws.onmessage = event => {
-          console.log('[WebSocket] RAW 메시지 수신:', event.data);
-          try {
-            const parsed = JSON.parse(event.data);
-            console.log('[WebSocket] 파싱된 메시지:', parsed);
-            if (parsed.type && parsed.type !== 'pong') {
-              console.log('[WebSocket] 중요 메시지 타입:', parsed.type);
-            }
-          } catch (e) {
-            console.warn('[WebSocket] 메시지 파싱 실패:', e);
-          }
           this.handleMessage(event.data);
         };
 
@@ -332,16 +321,12 @@ export class WebSocketService {
 
     // 새로 구독할 포스트가 있다면 배치 요청 전송
     if (newSubscriptions.length > 0) {
-      console.log(`[WebSocket] 배치 구독 요청: ${newSubscriptions.length}개 포스트`, newSubscriptions);
-      console.log(`[WebSocket] 예상 채널: space:${this.spaceSlug}:post:${newSubscriptions[0]}:comments`);
       const batchSubscription: BatchSubscribeMessage = {
         type: 'batchSubscribe',
         spaceSlug: this.spaceSlug!,
         postIds: newSubscriptions,
       };
       this.sendMessage(batchSubscription);
-    } else {
-      console.log('[WebSocket] 모든 포스트가 이미 구독됨:', this.getSubscribedPostIds());
     }
   }
 
@@ -437,7 +422,6 @@ export class WebSocketService {
   private sendMessage(message: OutgoingWebSocketMessage): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       const messageStr = JSON.stringify(message);
-      console.log('[WebSocket] 메시지 전송:', messageStr);
       this.ws.send(messageStr);
     } else {
       console.warn('[WebSocket] 메시지 전송 실패 - 연결되지 않음:', {
@@ -484,13 +468,11 @@ export class WebSocketService {
       this.isConnected = true;
       this.connectionState = 'connected';
       this.reconnectAttempts = 0;
-      console.log('[WebSocket] 연결 상태 업데이트: connected = true');
     }
 
     // 등록된 핸들러들에게 메시지 전달
     const handlers = this.eventHandlers.get(message.type);
     if (handlers && handlers.length > 0) {
-      console.log(`[WebSocket] 핸들러 실행: ${message.type}, 핸들러 수: ${handlers.length}`);
       handlers.forEach(handler => {
         try {
           handler(message);
@@ -507,8 +489,6 @@ export class WebSocketService {
           this.emit('message.error', errorMessage);
         }
       });
-    } else {
-      console.warn(`[WebSocket] 핸들러 없음: ${message.type}`);
     }
   }
 
@@ -566,6 +546,7 @@ export class WebSocketService {
    * 디버깅을 위한 상태 정보 출력
    */
   debugInfo(): void {
+    /* eslint-disable no-console */
     console.group('[WebSocket Debug Info]');
     console.log('연결 상태:', this.connectionState);
     console.log('WebSocket 연결:', this.isConnected);
@@ -578,6 +559,7 @@ export class WebSocketService {
     });
     console.log('현재 구독 포스트 ID:', this.getSubscribedPostIds());
     console.groupEnd();
+    /* eslint-enable no-console */
   }
 }
 
@@ -586,7 +568,9 @@ export const websocketService = new WebSocketService();
 
 // 개발 환경에서 전역 디버깅 헬퍼 등록
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).debugWebSocket = () => websocketService.debugInfo();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).wsService = websocketService;
 }
 
