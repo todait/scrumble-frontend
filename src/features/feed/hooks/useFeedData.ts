@@ -158,7 +158,9 @@ export const useFeedData = (spaceSlug: string) => {
       // 다른 스페이스의 메시지는 무시
       if (message.spaceSlug !== spaceSlug) return;
 
-      console.log('[Feed] 리액션 추가 수신:', message);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Feed] 리액션 추가 수신:', message);
+      }
 
       // 현재 필터 조건에 맞는 쿼리 키
       const queryKey = postsKeys.list(spaceSlug, {
@@ -226,7 +228,9 @@ export const useFeedData = (spaceSlug: string) => {
       // 다른 스페이스의 메시지는 무시
       if (message.spaceSlug !== spaceSlug) return;
 
-      console.log('[Feed] 리액션 제거 수신:', message);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Feed] 리액션 제거 수신:', message);
+      }
 
       const queryKey = postsKeys.list(spaceSlug, {
         filterType,

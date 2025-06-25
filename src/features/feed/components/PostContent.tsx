@@ -505,7 +505,7 @@ export function PostContent({
           {/* 리액션 및 댓글 섹션 */}
           <div className="flex flex-col gap-[10px] py-2">
             {/* 이모지 리액션 */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
               {post.reactions.map((reaction, index) => (
                 <button
                   key={`${post.id}-${reaction.emoji}-${index}`}

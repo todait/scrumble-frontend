@@ -4,29 +4,26 @@
  */
 
 import type {
-  WebSocketEventType,
+  BatchSubscribeMessage,
+  BatchSubscribePostsMessage,
+  BatchSubscribeReactionsMessage,
+  BatchUnsubscribeMessage,
+  BatchUnsubscribePostsMessage,
+  BatchUnsubscribeReactionsMessage,
   ConnectionState,
   IncomingWebSocketMessage,
   OutgoingWebSocketMessage,
+  SubscribePostsMessage,
+  SubscribeReactionsMessage,
+  UnsubscribeMessage,
+  UnsubscribePostsMessage,
+  UnsubscribeReactionsMessage,
+  WebSocketEventHandler,
+  WebSocketEventType,
   WebSocketHandlers,
   WebSocketSubscription,
-  WebSocketEventHandler,
-  UnsubscribeMessage,
-  BatchSubscribeMessage,
-  BatchUnsubscribeMessage,
-  SubscribeReactionsMessage,
-  UnsubscribeReactionsMessage,
-  BatchSubscribeReactionsMessage,
-  BatchUnsubscribeReactionsMessage,
-  SubscribePostsMessage,
-  UnsubscribePostsMessage,
-  BatchSubscribePostsMessage,
-  BatchUnsubscribePostsMessage,
 } from '@/shared/types/websocket.types';
-import {
-  safeParseWebSocketMessage,
-  debugWebSocketMessage,
-} from '@/shared/utils/typeGuards';
+import { debugWebSocketMessage, safeParseWebSocketMessage } from '@/shared/utils/typeGuards';
 
 /**
  * WebSocket 연결을 관리하는 클래스
@@ -318,7 +315,7 @@ export class WebSocketService {
           isConnected: this.isConnected,
           spaceSlug: this.spaceSlug,
           postIdsLength: postIds.length,
-          wsReadyState: this.ws?.readyState
+          wsReadyState: this.ws?.readyState,
         });
       }
       return;
@@ -462,7 +459,7 @@ export class WebSocketService {
           isConnected: this.isConnected,
           spaceSlug: this.spaceSlug,
           postIdsLength: postIds.length,
-          wsReadyState: this.ws?.readyState
+          wsReadyState: this.ws?.readyState,
         });
       }
       return;
@@ -590,7 +587,7 @@ export class WebSocketService {
         console.warn('[WebSocket] 연결되지 않았거나 구독할 스페이스가 없습니다', {
           isConnected: this.isConnected,
           spaceSlugLength: spaceSlugs.length,
-          wsReadyState: this.ws?.readyState
+          wsReadyState: this.ws?.readyState,
         });
       }
       return;
@@ -726,16 +723,16 @@ export class WebSocketService {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       try {
         const messageStr = JSON.stringify(message);
-        
+
         // 개발 환경에서만 전송 메시지 로깅
         if (process.env.NODE_ENV === 'development') {
           console.log('[WebSocket] Sending message:', message);
         }
-        
+
         this.ws.send(messageStr);
       } catch (error) {
         console.error('[WebSocket] 메시지 전송 중 오류:', error, message);
-        
+
         // 전송 실패 시 에러 이벤트 발생
         const errorMessage: IncomingWebSocketMessage = {
           type: 'message.error',
@@ -750,14 +747,14 @@ export class WebSocketService {
       if (process.env.NODE_ENV === 'production' && !this.isConnected) {
         this.scheduleReconnect();
       }
-      
+
       // 개발 환경에서만 상세한 경고 로그
       if (process.env.NODE_ENV === 'development') {
         console.warn('[WebSocket] 메시지 전송 실패 - 연결되지 않음:', {
           wsExists: !!this.ws,
           readyState: this.ws?.readyState,
           isConnected: this.isConnected,
-          message
+          message,
         });
       }
     }
@@ -771,7 +768,7 @@ export class WebSocketService {
     setTimeout(() => {
       // 안전한 메시지 파싱
       const message = safeParseWebSocketMessage(data);
-      
+
       if (!message) {
         console.error('[WebSocket] Failed to parse message:', data);
         const errorMessage: IncomingWebSocketMessage = {
@@ -802,50 +799,51 @@ export class WebSocketService {
         this.isConnected = true;
         this.connectionState = 'connected';
         this.reconnectAttempts = 0;
-      
-      // 개발 환경에서만 상태 로깅
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[WebSocket] Connection established, state updated:', {
-          isConnected: this.isConnected,
-          connectionState: this.connectionState,
-          wsReadyState: this.ws?.readyState
-        });
-      }
-    }
 
-    // 등록된 핸들러들에게 메시지 전달 (비동기 처리로 성능 최적화)
-    const handlers = this.eventHandlers.get(message.type);
-    if (handlers && handlers.length > 0) {
-      // 개발 환경에서만 핸들러 수 로깅
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[WebSocket] Found ${handlers.length} handlers for message type: ${message.type}`);
-      }
-      
-      // 핸들러들을 비동기로 실행하여 블로킹 방지
-      handlers.forEach(handler => {
-        try {
-          handler(message);
-        } catch (error) {
-          console.error('[WebSocket] 핸들러 실행 에러:', error);
-          // 개별 핸들러 에러가 전체 시스템에 영향을 주지 않도록
-          const errorMessage: IncomingWebSocketMessage = {
-            type: 'message.error',
-            spaceSlug: this.spaceSlug || '',
-            timestamp: new Date().toISOString(),
-            error: error instanceof Error ? error : new Error(String(error)),
-            message,
-          };
-          this.emit('message.error', errorMessage);
+        // 개발 환경에서만 상태 로깅
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[WebSocket] Connection established, state updated:', {
+            isConnected: this.isConnected,
+            connectionState: this.connectionState,
+            wsReadyState: this.ws?.readyState,
+          });
         }
-      });
-    } else {
-      if (process.env.NODE_ENV === 'development' && (message.type as string) !== 'pong') {
-        console.warn(`[WebSocket] No handlers found for message type: ${message.type}`);
       }
-    }
+
+      // 등록된 핸들러들에게 메시지 전달 (비동기 처리로 성능 최적화)
+      const handlers = this.eventHandlers.get(message.type);
+      if (handlers && handlers.length > 0) {
+        // 개발 환경에서만 핸들러 수 로깅
+        if (process.env.NODE_ENV === 'development') {
+          console.log(
+            `[WebSocket] Found ${handlers.length} handlers for message type: ${message.type}`
+          );
+        }
+
+        // 핸들러들을 비동기로 실행하여 블로킹 방지
+        handlers.forEach(handler => {
+          try {
+            handler(message);
+          } catch (error) {
+            console.error('[WebSocket] 핸들러 실행 에러:', error);
+            // 개별 핸들러 에러가 전체 시스템에 영향을 주지 않도록
+            const errorMessage: IncomingWebSocketMessage = {
+              type: 'message.error',
+              spaceSlug: this.spaceSlug || '',
+              timestamp: new Date().toISOString(),
+              error: error instanceof Error ? error : new Error(String(error)),
+              message,
+            };
+            this.emit('message.error', errorMessage);
+          }
+        });
+      } else {
+        if (process.env.NODE_ENV === 'development' && (message.type as string) !== 'pong') {
+          console.warn(`[WebSocket] No handlers found for message type: ${message.type}`);
+        }
+      }
     }, 0);
   }
-
 
   /**
    * 재연결을 스케줄링합니다 (지수 백오프)
@@ -921,6 +919,10 @@ export class WebSocketService {
    * 디버깅을 위한 상태 정보 출력
    */
   debugInfo(): void {
+    if (process.env.NODE_ENV !== 'development') {
+      return;
+    }
+
     /* eslint-disable no-console */
     console.group('[WebSocket Debug Info]');
     console.log('연결 상태:', this.connectionState);
@@ -953,4 +955,9 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 }
 
 // React 훅을 위한 타입 내보내기
-export type { WebSocketEventHandler, WebSocketEventType, IncomingWebSocketMessage, WebSocketHandlers };
+export type {
+  IncomingWebSocketMessage,
+  WebSocketEventHandler,
+  WebSocketEventType,
+  WebSocketHandlers,
+};
