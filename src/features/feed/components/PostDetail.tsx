@@ -1,11 +1,9 @@
 'use client';
 
-import { ImageGallery, ProfileImage } from '@/shared/components/ui';
-import { useCreateComment } from '@/shared/hooks/queries/useComments';
+import { CommentSection } from '@/shared/components/ui';
+import { useCreateComment, useUpdateComment, useDeleteComment } from '@/shared/hooks/queries/useComments';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
-import { formatDistanceToNow } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { Post } from '../types/feed.types';
@@ -27,6 +25,8 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
   const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(spaceSlug);
+  const { mutate: updateComment } = useUpdateComment(spaceSlug);
+  const { mutate: deleteComment } = useDeleteComment(spaceSlug);
   const [isClosing, setIsClosing] = useState(false);
   const prevCommentCountRef = useRef(post.commentCount);
 
@@ -80,6 +80,17 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
       document.removeEventListener('keydown', handleEscKey);
     };
   }, [onClose]);
+
+  const handleCommentEdit = (commentId: string) => {
+    // TODO: 댓글 수정 모달 열기 또는 인라인 수정 로직
+    console.warn('댓글 수정 기능 구현 예정:', commentId);
+  };
+
+  const handleCommentDelete = (commentId: string) => {
+    if (window.confirm('댓글을 삭제하시겠습니까?')) {
+      deleteComment({ commentId, postId: post.id });
+    }
+  };
 
   const handleCommentSubmit = (content: string, images: ImageMetadata[]) => {
     createComment(
@@ -144,56 +155,13 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
         />
 
         {/* 댓글 섹션 */}
-        {post.commentCount > 0 && (
-          <div
-            ref={commentsContainerRef}
-            className="overflow-hidden px-4 pb-6 md:px-[30px] md:pb-[30px]"
-          >
-            {/* Divider with text */}
-            <div className="relative -mx-4 flex items-center py-4 md:-mx-[30px]">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[rgba(34,34,34,0.08)]"></div>
-              </div>
-              <div className="relative ml-3 bg-white px-2 md:ml-[18px] md:px-3">
-                <span className="text-xs font-medium text-[#222222] opacity-40 md:text-[11px]">
-                  댓글 {post.commentCount}
-                </span>
-              </div>
-            </div>
-            <div className="space-y-4 overflow-hidden">
-              {post.comments
-                .filter((comment, index, array) => {
-                  // 중복된 댓글 ID 제거 (같은 ID의 첫 번째 댓글만 유지)
-                  return array.findIndex(c => c.id === comment.id) === index;
-                })
-                .map(comment => (
-                  <div key={comment.id} className="flex gap-3 overflow-hidden">
-                    <ProfileImage
-                      src={comment.author.profileImage}
-                      alt={comment.author.name}
-                      size={32}
-                      className="flex-shrink-0"
-                    />
-                    <div className="min-w-0 flex-1 overflow-hidden">
-                      <div className="mb-1 flex items-center gap-2">
-                        <span className="text-sm font-bold text-[#222222] md:text-[14px]">
-                          {comment.author.name}
-                        </span>
-                        <span className="text-xs text-[#222222] opacity-40 md:text-[13px]">
-                          {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko })}
-                        </span>
-                      </div>
-                      <p className="text-sm text-[#222222] md:text-[14px]">{comment.content}</p>
-                      {/* 댓글 이미지 */}
-                      {comment.images && comment.images.length > 0 && (
-                        <ImageGallery images={comment.images} className="mt-2" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
+        <CommentSection
+          ref={commentsContainerRef}
+          comments={post.comments}
+          commentCount={post.commentCount}
+          onCommentEdit={handleCommentEdit}
+          onCommentDelete={handleCommentDelete}
+        />
       </div>
 
       {/* 댓글 입력 영역 */}
