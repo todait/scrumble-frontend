@@ -21,6 +21,8 @@ body {
   color: var(--foreground);
   background: #FAFAFA;
   font-family: 'Pretendard', system-ui, sans-serif;
+  /* 모바일 터치 확대 방지 */
+  touch-action: manipulation;
 }
 
 /* 스크롤바 숨김 */
@@ -30,6 +32,21 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari, Opera */
+}
+
+/* iOS Safari 확대 방지를 위한 최소 font-size 설정 (모바일에서만) */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="search"],
+  input[type="url"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }
 
 /* 툴팁 애니메이션 */
