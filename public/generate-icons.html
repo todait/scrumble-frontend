@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate PWA Icons</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    canvas {
+      border: 1px solid #ddd;
+      margin: 10px;
+      display: inline-block;
+    }
+    .icon-group {
+      margin: 20px 0;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .instructions {
+      background: #f0f9ff;
+      border: 1px solid #0284c7;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #059669;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Scrumble PWA Icon Generator</h1>
+    <div class="instructions">
+      <p><strong>Instructions:</strong></p>
+      <ol>
+        <li>아이콘들이 아래에 표시됩니다</li>
+        <li>각 캔버스를 우클릭하여 "이미지로 저장"을 선택합니다</li>
+        <li>해당하는 파일명으로 저장합니다 (예: icon-192x192.png)</li>
+        <li>모든 이미지를 public 폴더에 저장합니다</li>
+      </ol>
+    </div>
+
+    <div class="icon-group">
+      <h2>App Icons</h2>
+      <div>
+        <canvas id="icon-192" width="192" height="192"></canvas>
+        <p>Save as: icon-192x192.png</p>
+      </div>
+      <div>
+        <canvas id="icon-384" width="384" height="384"></canvas>
+        <p>Save as: icon-384x384.png</p>
+      </div>
+      <div>
+        <canvas id="icon-512" width="512" height="512"></canvas>
+        <p>Save as: icon-512x512.png</p>
+      </div>
+      <div>
+        <canvas id="apple-icon" width="180" height="180"></canvas>
+        <p>Save as: apple-icon.png</p>
+      </div>
+      <div>
+        <canvas id="favicon" width="32" height="32"></canvas>
+        <p>Save as: favicon.png (convert to .ico)</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // 배경
+      ctx.fillStyle = '#10B981';
+      const radius = size * 0.15;
+      
+      // Rounded rectangle
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fill();
+      
+      // 텍스트
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.55}px Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('S', size / 2, size / 2 + size * 0.05);
+    }
+
+    // Draw all icons
+    drawIcon('icon-192', 192);
+    drawIcon('icon-384', 384);
+    drawIcon('icon-512', 512);
+    drawIcon('apple-icon', 180);
+    drawIcon('favicon', 32);
+  </script>
+</body>
+</html>

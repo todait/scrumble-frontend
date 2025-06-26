@@ -100,7 +100,7 @@ export const PostForm = ({
             value={message}
             onChange={e => setMessage(e.target.value)}
             placeholder={placeholder}
-            className="h-[240px] w-full resize-none border-none p-[10px] text-[15px] text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+            className="h-[240px] w-full resize-none border-none p-[10px] text-base md:text-[15px] text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
             disabled={disabled}
           />
         </div>
@@ -161,7 +161,7 @@ export const PostForm = ({
         <button
           onClick={handleSubmit}
           disabled={isSubmitDisabled}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/20 bg-white py-4 text-center font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/20 bg-white py-4 text-center text-base font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
         >
           {isLoading || isUploading ? (
             <>
