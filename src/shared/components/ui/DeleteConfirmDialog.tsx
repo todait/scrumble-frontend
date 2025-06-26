@@ -9,9 +9,20 @@ interface DeleteConfirmDialogProps {
   onClose: () => void;
   onConfirm: () => void;
   isLoading?: boolean;
+  title?: string;
+  description?: string;
+  confirmText?: string;
 }
 
-export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, isLoading = false }: DeleteConfirmDialogProps) {
+export function DeleteConfirmDialog({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  isLoading = false,
+  title = '이 노트를 삭제하시겠어요?',
+  description = '삭제한 게시물은 복원할 수 없습니다',
+  confirmText = '삭제'
+}: DeleteConfirmDialogProps) {
   // ESC 키로 다이얼로그 닫기
   useEffect(() => {
     if (!isOpen) return;
@@ -32,7 +43,7 @@ export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, isLoading = fa
     <>
       {/* 백드롭 */}
       <div 
-        className="fixed inset-0 z-50 bg-black/50 transition-opacity" 
+        className="fixed inset-0 z-[100] bg-black/50 transition-opacity" 
         onClick={(e) => {
           e.stopPropagation();
           onClose();
@@ -41,14 +52,14 @@ export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, isLoading = fa
 
       {/* 다이얼로그 */}
       <div 
-        className="fixed left-1/2 top-1/2 z-50 w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[rgba(34,34,34,0.08)] bg-white p-5 shadow-lg"
+        className="fixed left-1/2 top-1/2 z-[101] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[rgba(34,34,34,0.08)] bg-white p-5 shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 콘텐츠 */}
         <div className="flex h-[100px] flex-col items-center justify-center gap-2 py-5">
-          <h3 className="text-[16px] font-bold text-[#222222]">이 노트를 삭제하시겠어요?</h3>
+          <h3 className="text-[16px] font-bold text-[#222222]">{title}</h3>
           <p className="text-[13px] text-[#222222] opacity-60">
-            삭제한 게시물은 복원할 수 없습니다
+            {description}
           </p>
         </div>
 
@@ -77,7 +88,7 @@ export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, isLoading = fa
             ) : (
               <>
                 <RiDeleteBinLine className="h-4 w-4 opacity-80" />
-                삭제
+                {confirmText}
               </>
             )}
           </button>

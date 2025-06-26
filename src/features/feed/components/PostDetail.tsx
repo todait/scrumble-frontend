@@ -1,6 +1,6 @@
 'use client';
 
-import { CommentSection } from '@/shared/components/ui';
+import { CommentSection, DeleteConfirmDialog } from '@/shared/components/ui';
 import { useCreateComment, useUpdateComment, useDeleteComment } from '@/shared/hooks/queries/useComments';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
@@ -15,9 +15,10 @@ interface PostDetailProps {
   post: Post;
   onClose: () => void;
   onReaction?: (postId: string, emoji: string) => void;
+  onDeleteDialogChange?: (isOpen: boolean) => void;
 }
 
-export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailProps) {
+export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialogChange }: PostDetailProps) {
   const isCheckIn = post.type === 'checkin';
   const commentInputRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
@@ -25,9 +26,12 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
   const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(spaceSlug);
-  const { mutate: updateComment } = useUpdateComment(spaceSlug);
-  const { mutate: deleteComment } = useDeleteComment(spaceSlug);
+  const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(spaceSlug);
+  const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment(spaceSlug);
   const [isClosing, setIsClosing] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const prevCommentCountRef = useRef(post.commentCount);
 
   // WebSocket 구독은 이제 FeedPage에서 전역적으로 관리됩니다
@@ -82,13 +86,49 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
   }, [onClose]);
 
   const handleCommentEdit = (commentId: string) => {
-    // TODO: 댓글 수정 모달 열기 또는 인라인 수정 로직
-    console.warn('댓글 수정 기능 구현 예정:', commentId);
+    // 편집 모드 전환 (이미 편집 중이면 종료)
+    setEditingCommentId(prev => prev === commentId ? null : commentId);
+  };
+
+  const handleCommentUpdate = (commentId: string, content: string, images: ImageMetadata[]) => {
+    updateComment(
+      {
+        commentId,
+        postId: post.id,
+        content,
+        images,
+      },
+      {
+        onSuccess: () => {
+          // 수정 성공 시 편집 모드 종료
+          setEditingCommentId(null);
+        },
+        onError: (error) => {
+          console.error('댓글 수정 오류:', error);
+          alert('댓글 수정에 실패했습니다.');
+        },
+      }
+    );
   };
 
   const handleCommentDelete = (commentId: string) => {
-    if (window.confirm('댓글을 삭제하시겠습니까?')) {
-      deleteComment({ commentId, postId: post.id });
+    setSelectedCommentId(commentId);
+    setDeleteDialogOpen(true);
+    onDeleteDialogChange?.(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedCommentId) {
+      deleteComment(
+        { commentId: selectedCommentId, postId: post.id },
+        {
+          onSettled: () => {
+            setDeleteDialogOpen(false);
+            setSelectedCommentId(null);
+            onDeleteDialogChange?.(false);
+          },
+        }
+      );
     }
   };
 
@@ -161,6 +201,9 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
           commentCount={post.commentCount}
           onCommentEdit={handleCommentEdit}
           onCommentDelete={handleCommentDelete}
+          onCommentUpdate={handleCommentUpdate}
+          editingCommentId={editingCommentId}
+          isUpdating={isUpdatingComment}
         />
       </div>
 
@@ -172,6 +215,21 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction }: PostDetailP
           isSubmitting={isCreatingComment}
         />
       </div>
+
+      {/* 댓글 삭제 확인 다이얼로그 */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setSelectedCommentId(null);
+          onDeleteDialogChange?.(false);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="댓글을 삭제하시겠어요?"
+        description="삭제한 댓글은 복원할 수 없습니다"
+        confirmText="삭제"
+        isLoading={isDeletingComment}
+      />
     </div>
   );
 }

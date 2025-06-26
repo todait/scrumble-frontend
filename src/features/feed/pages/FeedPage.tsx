@@ -40,6 +40,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 설정 드롭다운 상태
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -241,7 +242,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             </div>
 
             {/* PostDetail 활성화 시 선택된 포스트로 이동하는 플로팅 버튼 */}
-            {selectedPost && (
+            {selectedPost && !isDeleteDialogOpen && (
               <GoToFocusedPostButton
                 selectedPostId={selectedPostId || ''}
                 onScrollToPost={() => scrollToSelectedPost(selectedPostId)}
@@ -260,6 +261,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                     key={selectedPost.id}
                     post={selectedPost as FeedPost}
                     onClose={handleClosePostDetail}
+                    onDeleteDialogChange={setIsDeleteDialogOpen}
                   />
                 </div>
               </div>
@@ -277,6 +279,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                       key={selectedPost.id}
                       post={selectedPost as FeedPost}
                       onClose={handleClosePostDetail}
+                      onDeleteDialogChange={setIsDeleteDialogOpen}
                     />
                   </div>
                 </div>

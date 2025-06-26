@@ -127,7 +127,7 @@ export const useUpdateComment = (spaceSlug: string) => {
                 ? {
                     ...comment,
                     content: variables.content,
-                    images: variables.images || comment.images,
+                    images: variables.images || [],
                     updatedAt: new Date(),
                   }
                 : comment
@@ -138,8 +138,10 @@ export const useUpdateComment = (spaceSlug: string) => {
 
       return { previousData };
     },
-    onSuccess: (_data, _variables) => {
-      // WebSocket 이벤트가 실제 동기화를 담당하므로 invalidateQueries 제거
+    onSuccess: () => {
+      // 캐시를 무효화하여 서버에서 최신 데이터를 가져옴
+      queryClient.invalidateQueries({ queryKey: postsKeys.lists(spaceSlug) });
+      
       success({
         title: '댓글 수정 완료',
         message: '댓글이 성공적으로 수정되었습니다.',
