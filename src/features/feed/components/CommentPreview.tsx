@@ -1,6 +1,7 @@
 'use client';
 
 import { ProfileImage } from '@/shared/components/ui';
+import { map, pipe, reverse, take, toArray, uniqBy } from '@fxts/core';
 import { RiArrowRightSLine } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -32,6 +33,14 @@ export function CommentPreview({
   className = '',
 }: CommentPreviewProps) {
   if (commentCount === 0) return null;
+  const uniqueAuthors = pipe(
+    comments,
+    reverse,
+    uniqBy(comment => comment.author.id),
+    take(5),
+    map(comment => comment.author),
+    toArray
+  );
 
   return (
     <button
@@ -44,18 +53,15 @@ export function CommentPreview({
     >
       {/* 최근 댓글 작성자들의 프로필 이미지 */}
       <div className="flex gap-1">
-        {comments
-          .slice(-5) // 최신 5개 댓글
-          .reverse() // 최신순으로 정렬
-          .map((comment, index) => (
-            <ProfileImage
-              key={`${postId}-comment-${comment.id}-${index}`}
-              src={comment.author.profileImage}
-              alt={comment.author.name}
-              size={32}
-              className="bg-white"
-            />
-          ))}
+        {uniqueAuthors.map((author, index) => (
+          <ProfileImage
+            key={`${postId}-comment-${author.id}-${index}`}
+            src={author.profileImage}
+            alt={author.name}
+            size={32}
+            className="bg-white"
+          />
+        ))}
       </div>
 
       {/* 댓글 수 */}
