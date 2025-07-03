@@ -56,6 +56,18 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     initializeFromUrl(dateParam);
   }, [searchParams, initializeFromUrl]);
 
+  // 미래 날짜 접근 시 오늘로 리다이렉트
+  useEffect(() => {
+    const today = new Date();
+    // 시간을 00:00:00으로 맞춰 비교 (DayPicker는 날짜만 비교하므로)
+    const normalize = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    if (normalize(selectedDate) > normalize(today)) {
+      handleDateChange(today);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
+
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
@@ -146,7 +158,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // URL 파라미터 처리
   const selectedPostId = searchParams.get('post');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
-  
+
   // selectedPostId가 변경될 때 isPostDetailVisible 업데이트
   useEffect(() => {
     setIsPostDetailVisible(!!selectedPostId);

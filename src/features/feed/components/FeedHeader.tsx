@@ -97,9 +97,17 @@ export function FeedHeader({ selectedDate, activeUsers, onDateChange }: FeedHead
                 showOutsideDays={false}
                 className="p-3"
                 today={today}
+                disabled={{ after: today }}
+                modifiersStyles={{
+                  disabled: {
+                    color: '#9CA3AF', // tailwind gray-400
+                    cursor: 'not-allowed',
+                  },
+                }}
                 modifiersClassNames={{
                   selected: 'rdp-day_selected',
                   today: 'rdp-day_today custom-today',
+                  disabled: 'rdp-day_disabled',
                 }}
               />
             </div>
