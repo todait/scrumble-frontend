@@ -71,7 +71,7 @@ export const commentsApi = {
   },
 
   updateComment: async (params: UpdateCommentRequest): Promise<UpdateCommentResponse> => {
-    const { data } = await apiClient.put(
+    const { data } = await apiClient.patch(
       `/api/v1/posts/${params.postId}/comments/${params.commentId}`,
       {
         content: params.content,

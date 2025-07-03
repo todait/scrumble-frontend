@@ -27,8 +27,11 @@ export interface CommentCreatedMessage extends BaseWebSocketMessage {
     postId: string;
     commentId: string;
     userId: string;
+    userName: string;
+    userAvatarURL: string;
     spaceSlug: string;
     content: string;
+    imageURLs: string[];
     action: string;
   };
 }
@@ -42,8 +45,11 @@ export interface CommentUpdatedMessage extends BaseWebSocketMessage {
     postId: string;
     commentId: string;
     userId: string;
+    userName: string;
+    userAvatarURL: string;
     spaceSlug: string;
     content: string;
+    imageURLs: string[];
     action: string;
   };
 }
@@ -57,6 +63,8 @@ export interface CommentDeletedMessage extends BaseWebSocketMessage {
     postId: string;
     commentId: string;
     userId: string;
+    userName: string;
+    userAvatarURL: string;
     spaceSlug: string;
     action: string;
   };
@@ -260,7 +268,7 @@ export interface SubscriptionResponseMessage extends BaseWebSocketMessage {
 }
 
 // 서버에서 받는 모든 메시지의 유니온 타입
-export type IncomingWebSocketMessage = 
+export type IncomingWebSocketMessage =
   | CommentCreatedMessage
   | CommentUpdatedMessage
   | CommentDeletedMessage
@@ -299,35 +307,37 @@ export type WebSocketMessage = IncomingWebSocketMessage | OutgoingWebSocketMessa
 export type WebSocketEventType = WebSocketMessage['type'];
 
 // 타입 가드 함수들
-export const isCommentCreatedMessage = (msg: WebSocketMessage): msg is CommentCreatedMessage => 
+export const isCommentCreatedMessage = (msg: WebSocketMessage): msg is CommentCreatedMessage =>
   msg.type === 'comment.created';
 
-export const isCommentUpdatedMessage = (msg: WebSocketMessage): msg is CommentUpdatedMessage => 
+export const isCommentUpdatedMessage = (msg: WebSocketMessage): msg is CommentUpdatedMessage =>
   msg.type === 'comment.updated';
 
-export const isCommentDeletedMessage = (msg: WebSocketMessage): msg is CommentDeletedMessage => 
+export const isCommentDeletedMessage = (msg: WebSocketMessage): msg is CommentDeletedMessage =>
   msg.type === 'comment.deleted';
 
-export const isReactionAddedMessage = (msg: WebSocketMessage): msg is ReactionAddedMessage => 
+export const isReactionAddedMessage = (msg: WebSocketMessage): msg is ReactionAddedMessage =>
   msg.type === 'reaction.added';
 
-export const isReactionRemovedMessage = (msg: WebSocketMessage): msg is ReactionRemovedMessage => 
+export const isReactionRemovedMessage = (msg: WebSocketMessage): msg is ReactionRemovedMessage =>
   msg.type === 'reaction.removed';
 
-export const isPostCreatedMessage = (msg: WebSocketMessage): msg is PostCreatedMessage => 
+export const isPostCreatedMessage = (msg: WebSocketMessage): msg is PostCreatedMessage =>
   msg.type === 'post.created';
 
-export const isPostUpdatedMessage = (msg: WebSocketMessage): msg is PostUpdatedMessage => 
+export const isPostUpdatedMessage = (msg: WebSocketMessage): msg is PostUpdatedMessage =>
   msg.type === 'post.updated';
 
-export const isPostDeletedMessage = (msg: WebSocketMessage): msg is PostDeletedMessage => 
+export const isPostDeletedMessage = (msg: WebSocketMessage): msg is PostDeletedMessage =>
   msg.type === 'post.deleted';
 
-export const isConnectionEstablishedMessage = (msg: WebSocketMessage): msg is ConnectionEstablishedMessage =>
-  msg.type === 'connection.established';
+export const isConnectionEstablishedMessage = (
+  msg: WebSocketMessage
+): msg is ConnectionEstablishedMessage => msg.type === 'connection.established';
 
-export const isConnectionReconnectingMessage = (msg: WebSocketMessage): msg is ConnectionReconnectingMessage =>
-  msg.type === 'connection.reconnecting';
+export const isConnectionReconnectingMessage = (
+  msg: WebSocketMessage
+): msg is ConnectionReconnectingMessage => msg.type === 'connection.reconnecting';
 
 export const isConnectionFailedMessage = (msg: WebSocketMessage): msg is ConnectionFailedMessage =>
   msg.type === 'connection.failed';
@@ -335,11 +345,12 @@ export const isConnectionFailedMessage = (msg: WebSocketMessage): msg is Connect
 export const isMessageErrorMessage = (msg: WebSocketMessage): msg is MessageErrorMessage =>
   msg.type === 'message.error';
 
-export const isPongMessage = (msg: WebSocketMessage): msg is PongMessage =>
-  msg.type === 'pong';
+export const isPongMessage = (msg: WebSocketMessage): msg is PongMessage => msg.type === 'pong';
 
 // 이벤트 핸들러 타입
-export type WebSocketEventHandler<T extends IncomingWebSocketMessage = IncomingWebSocketMessage> = (message: T) => void;
+export type WebSocketEventHandler<T extends IncomingWebSocketMessage = IncomingWebSocketMessage> = (
+  message: T
+) => void;
 
 // 타입별 핸들러 맵
 export interface WebSocketHandlers {
@@ -355,11 +366,16 @@ export interface WebSocketHandlers {
   'connection.reconnecting'?: WebSocketEventHandler<ConnectionReconnectingMessage>;
   'connection.failed'?: WebSocketEventHandler<ConnectionFailedMessage>;
   'message.error'?: WebSocketEventHandler<MessageErrorMessage>;
-  'pong'?: WebSocketEventHandler<PongMessage>;
+  pong?: WebSocketEventHandler<PongMessage>;
 }
 
 // 연결 상태 타입
-export type ConnectionState = 'connecting' | 'connected' | 'reconnecting' | 'disconnected' | 'error';
+export type ConnectionState =
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting'
+  | 'disconnected'
+  | 'error';
 
 // WebSocket 구독 정보 (deprecated - use SubscribeMessage instead)
 export interface WebSocketSubscription {
@@ -369,4 +385,7 @@ export interface WebSocketSubscription {
 }
 
 // 특정 메시지 타입 추출 헬퍼
-export type ExtractMessageType<T extends WebSocketEventType> = Extract<IncomingWebSocketMessage, { type: T }>;
+export type ExtractMessageType<T extends WebSocketEventType> = Extract<
+  IncomingWebSocketMessage,
+  { type: T }
+>;

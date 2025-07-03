@@ -2,7 +2,6 @@
  * WebSocket을 사용하기 위한 React 훅
  */
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { TokenManager } from '../lib/token';
 import {
@@ -10,8 +9,10 @@ import {
   WebSocketEventType,
   websocketService,
 } from '../services/websocket.service';
-import type { IncomingWebSocketMessage } from '../types/websocket.types';
+import type { ExtractMessageType, IncomingWebSocketMessage } from '../types/websocket.types';
+import { debug } from '../utils/debug';
 import { useAuth } from './auth/useAuth';
+import { useDebounce } from './useDebounce';
 
 interface UseWebSocketOptions {
   spaceSlug: string;
@@ -32,9 +33,15 @@ interface UseWebSocketReturn {
   unsubscribeFromReactions: (postId: string) => void;
   batchSubscribeToReactions: (postIds: string[]) => void;
   batchUnsubscribeFromReactions: (postIds: string[]) => void;
-  // 이벤트 리스너 함수들
-  addEventListener: (eventType: WebSocketEventType, handler: WebSocketEventHandler) => void;
-  removeEventListener: (eventType: WebSocketEventType, handler: WebSocketEventHandler) => void;
+  // 타입 안전한 이벤트 리스너 함수들
+  addEventListener: <T extends WebSocketEventType>(
+    eventType: T,
+    handler: WebSocketEventHandler<ExtractMessageType<T>>
+  ) => void;
+  removeEventListener: <T extends WebSocketEventType>(
+    eventType: T,
+    handler: WebSocketEventHandler<ExtractMessageType<T>>
+  ) => void;
 }
 
 /**
@@ -47,60 +54,20 @@ export function useWebSocket({
   visiblePostIds = [],
 }: UseWebSocketOptions): UseWebSocketReturn {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const eventHandlersRef = useRef<Map<WebSocketEventType, WebSocketEventHandler[]>>(new Map());
   const subscriptionTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const lastVisiblePostIdsRef = useRef<Set<string>>(new Set());
   const [wsConnected, setWsConnected] = useState(false);
 
-  // ✅ 댓글 관련 쿼리 무효화 제거
-  // useFeedData.ts에서 선택적 캐시 업데이트로 처리하므로 중복 제거
-  // 대신 이벤트만 전달하여 각 컴포넌트에서 적절히 처리하도록 함
+  // 스크롤 시 과도한 구독/해제 방지를 위한 디바운스
+  const debouncedVisibleIds = useDebounce(visiblePostIds, 150);
 
-  // 기본 이벤트 핸들러들
+  // 연결 상태 핸들러 (유일한 기본 핸들러)
   const handleConnectionEstablished = useCallback((message: IncomingWebSocketMessage) => {
     if (message.type === 'connection.established') {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[useWebSocket] Connection established, updating React state');
-      }
+      debug('useWebSocket', 'Connection established, updating React state');
       setWsConnected(true);
     }
-  }, []);
-
-  const handleCommentCreated = useCallback((message: IncomingWebSocketMessage) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[useWebSocket] handleCommentCreated called with:', message);
-    }
-
-    if (message.type === 'comment.created') {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[useWebSocket] Processing comment.created for postId:', message.data?.postId);
-        console.log('[useWebSocket] Event forwarded to useFeedData.ts for selective cache update');
-      }
-
-      // ✅ invalidateQueries 제거 - useFeedData.ts에서 선택적 캐시 업데이트 처리
-      // 이벤트는 자동으로 다른 리스너들에게 전달됨
-    }
-  }, []);
-
-  const handleCommentUpdated = useCallback((message: IncomingWebSocketMessage) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[useWebSocket] handleCommentUpdated called with:', message);
-      console.log('[useWebSocket] Event forwarded to useFeedData.ts for selective cache update');
-    }
-
-    // ✅ invalidateQueries 제거 - useFeedData.ts에서 선택적 캐시 업데이트 처리
-    // 이벤트는 자동으로 다른 리스너들에게 전달됨
-  }, []);
-
-  const handleCommentDeleted = useCallback((message: IncomingWebSocketMessage) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[useWebSocket] handleCommentDeleted called with:', message);
-      console.log('[useWebSocket] Event forwarded to useFeedData.ts for selective cache update');
-    }
-
-    // ✅ invalidateQueries 제거 - useFeedData.ts에서 선택적 캐시 업데이트 처리
-    // 이벤트는 자동으로 다른 리스너들에게 전달됨
   }, []);
 
   // 댓글 구독 함수
@@ -143,73 +110,41 @@ export function useWebSocket({
     websocketService.batchUnsubscribeFromReactions(postIds);
   }, []);
 
-  // Viewport 기반 자동 구독 관리
+  // Viewport 기반 자동 구독 관리 (디바운스 적용) - 통합된 효과
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[useWebSocket] Viewport subscription effect triggered', {
-        wsConnected,
-        websocketServiceConnected: websocketService.connected,
-        subscribeToAllComments,
-        visiblePostIdsLength: visiblePostIds.length,
-        visiblePostIds,
-      });
-    }
-
-    if (!wsConnected || subscribeToAllComments || visiblePostIds.length === 0) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[useWebSocket] Subscription skipped:', {
-          wsConnected,
-          websocketServiceConnected: websocketService.connected,
-          subscribeToAllComments,
-          visiblePostIdsLength: visiblePostIds.length,
-        });
-      }
+    // 조건 체크: 연결되지 않았거나 모든 댓글 구독 모드이거나 보이는 포스트가 없으면 스킵
+    if (!wsConnected || subscribeToAllComments || debouncedVisibleIds.length === 0) {
       return;
     }
 
-    const currentVisibleSet = new Set(visiblePostIds);
+    const currentVisibleSet = new Set<string>(debouncedVisibleIds);
     const previousVisibleSet = lastVisiblePostIdsRef.current;
 
-    // 새로 보이게 된 포스트들
-    const newlyVisible = visiblePostIds.filter(id => !previousVisibleSet.has(id));
+    // 현재 보이는 포스트 ID들과 이전 ID들을 비교
+    const isInitialLoad = previousVisibleSet.size === 0;
+    const hasChanged = !isInitialLoad && (
+      currentVisibleSet.size !== previousVisibleSet.size ||
+      [...currentVisibleSet].some(id => !previousVisibleSet.has(id)) ||
+      [...previousVisibleSet].some(id => !currentVisibleSet.has(id))
+    );
 
-    // 더 이상 보이지 않는 포스트들
-    const noLongerVisible = Array.from(previousVisibleSet).filter(id => !currentVisibleSet.has(id));
-
-    // 새로 보이는 포스트들 구독
-    if (newlyVisible.length > 0) {
-      // 지연 구독 타이머가 있다면 취소
-      newlyVisible.forEach(postId => {
-        const timer = subscriptionTimersRef.current.get(postId);
-        if (timer) {
-          clearTimeout(timer);
-          subscriptionTimersRef.current.delete(postId);
-        }
-      });
-
-      // 이미 구독된 포스트 확인하여 중복 방지
+    // 초기 로드이거나 실제로 변경된 경우에만 처리
+    if (isInitialLoad || hasChanged) {
+      // 이미 구독된 포스트 ID들 확인
       const subscribedComments = websocketService.getSubscribedPostIds();
       const subscribedReactions = websocketService.getSubscribedReactionPostIds();
 
-      const newCommentSubscriptions = newlyVisible.filter(
-        postId => !subscribedComments.includes(postId)
+      // 새로 구독할 포스트들 (현재 보이는 것 중 아직 구독되지 않은 것들)
+      const newCommentSubscriptions = debouncedVisibleIds.filter(
+        (postId: string) => !subscribedComments.includes(postId)
       );
-      const newReactionSubscriptions = newlyVisible.filter(
-        postId => !subscribedReactions.includes(postId)
+      const newReactionSubscriptions = debouncedVisibleIds.filter(
+        (postId: string) => !subscribedReactions.includes(postId)
       );
 
       // 새로 구독할 포스트가 있을 때만 구독 시도
       if (newCommentSubscriptions.length > 0 || newReactionSubscriptions.length > 0) {
         try {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('[useWebSocket] Attempting batch subscribe for posts:', {
-              newCommentSubscriptions,
-              newReactionSubscriptions,
-              alreadySubscribedComments: subscribedComments,
-              alreadySubscribedReactions: subscribedReactions,
-            });
-          }
-
           // 배치 구독 (중복 방지됨)
           if (newCommentSubscriptions.length > 0) {
             batchSubscribeToComments(newCommentSubscriptions);
@@ -218,152 +153,87 @@ export function useWebSocket({
             batchSubscribeToReactions(newReactionSubscriptions);
           }
         } catch (error) {
-          console.error(
-            '[useWebSocket] Batch subscribe failed, falling back to individual:',
-            error
-          );
-          newCommentSubscriptions.forEach(postId => subscribeToComments(postId));
-          newReactionSubscriptions.forEach(postId => subscribeToReactions(postId));
+          console.error('[WS] Batch subscribe failed, falling back to individual:', error);
+          newCommentSubscriptions.forEach((postId: string) => subscribeToComments(postId));
+          newReactionSubscriptions.forEach((postId: string) => subscribeToReactions(postId));
         }
-      } else if (process.env.NODE_ENV === 'development') {
-        console.log(
-          '[useWebSocket] All newly visible posts already subscribed, skipping subscription'
-        );
       }
-    }
 
-    // 더 이상 보이지 않는 포스트들 지연 구독 해제
-    if (noLongerVisible.length > 0) {
-      noLongerVisible.forEach(postId => {
-        // 기존 타이머가 있다면 취소
-        const existingTimer = subscriptionTimersRef.current.get(postId);
-        if (existingTimer) {
-          clearTimeout(existingTimer);
-        }
+      // 더 이상 보이지 않는 포스트들 지연 구독 해제 (초기 로드가 아닌 경우에만)
+      if (!isInitialLoad) {
+        const noLongerVisible = Array.from(previousVisibleSet).filter(
+          (id: string) => !currentVisibleSet.has(id)
+        );
 
-        // 30초 후 구독 해제 (다시 스크롤해서 보일 수 있으므로)
-        const timer = setTimeout(() => {
-          const stillNotVisible = !visiblePostIds.includes(postId);
-          if (stillNotVisible) {
-            // 댓글과 리액션 구독 해제
-            batchUnsubscribeFromComments([postId]);
-            batchUnsubscribeFromReactions([postId]);
-          }
-          subscriptionTimersRef.current.delete(postId);
-        }, 30000); // 30초 지연
+        if (noLongerVisible.length > 0) {
+          noLongerVisible.forEach((postId: string) => {
+            // 기존 타이머가 있다면 취소
+            const existingTimer = subscriptionTimersRef.current.get(postId);
+            if (existingTimer) {
+              clearTimeout(existingTimer);
+            }
 
-        subscriptionTimersRef.current.set(postId, timer);
-      });
-    }
+            // 30초 후 구독 해제 (다시 스크롤해서 보일 수 있으므로)
+            const timer = setTimeout(() => {
+              const stillNotVisible = !debouncedVisibleIds.includes(postId);
+              if (stillNotVisible) {
+                // 댓글과 리액션 구독 해제
+                batchUnsubscribeFromComments([postId]);
+                batchUnsubscribeFromReactions([postId]);
+              }
+              subscriptionTimersRef.current.delete(postId);
+            }, 30000); // 30초 지연
 
-    // 현재 보이는 포스트 ID 업데이트
-    lastVisiblePostIdsRef.current = currentVisibleSet;
-  }, [
-    wsConnected,
-    visiblePostIds,
-    subscribeToAllComments,
-    batchSubscribeToComments,
-    batchUnsubscribeFromComments,
-    batchSubscribeToReactions,
-    batchUnsubscribeFromReactions,
-    subscribeToComments,
-    subscribeToReactions,
-  ]);
-
-  // WebSocket 연결 상태 변화 감지하여 재구독 (중복 방지)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[useWebSocket] Connection state changed:', {
-        wsConnected,
-        websocketServiceConnected: websocketService.connected,
-        visiblePostIdsLength: visiblePostIds.length,
-      });
-    }
-
-    // 연결이 완료되고 처음으로 보이는 포스트가 있을 때만 구독
-    if (wsConnected && visiblePostIds.length > 0 && !subscribeToAllComments) {
-      // 이미 구독된 포스트 ID들 확인
-      const subscribedComments = websocketService.getSubscribedPostIds();
-      const subscribedReactions = websocketService.getSubscribedReactionPostIds();
-
-      // 아직 구독되지 않은 포스트들만 필터링
-      const newCommentSubscriptions = visiblePostIds.filter(
-        postId => !subscribedComments.includes(postId)
-      );
-      const newReactionSubscriptions = visiblePostIds.filter(
-        postId => !subscribedReactions.includes(postId)
-      );
-
-      if (newCommentSubscriptions.length > 0 || newReactionSubscriptions.length > 0) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[useWebSocket] Subscribing to new posts:', {
-            newCommentSubscriptions,
-            newReactionSubscriptions,
-            alreadySubscribedComments: subscribedComments,
-            alreadySubscribedReactions: subscribedReactions,
+            subscriptionTimersRef.current.set(postId, timer);
           });
         }
-
-        try {
-          // 배치 구독만 사용 (중복 방지)
-          if (newCommentSubscriptions.length > 0) {
-            batchSubscribeToComments(newCommentSubscriptions);
-          }
-          if (newReactionSubscriptions.length > 0) {
-            batchSubscribeToReactions(newReactionSubscriptions);
-          }
-        } catch (error) {
-          console.error('[useWebSocket] Subscription failed after connection:', error);
-          // 실패 시 개별 구독으로 폴백
-          newCommentSubscriptions.forEach(postId => subscribeToComments(postId));
-          newReactionSubscriptions.forEach(postId => subscribeToReactions(postId));
-        }
-      } else {
-        if (process.env.NODE_ENV === 'development') {
-          console.log(
-            '[useWebSocket] All visible posts already subscribed, skipping re-subscription'
-          );
-        }
       }
+
+      // 현재 보이는 포스트 ID 업데이트
+      lastVisiblePostIdsRef.current = currentVisibleSet;
     }
   }, [
     wsConnected,
+    debouncedVisibleIds,
     subscribeToAllComments,
-    batchSubscribeToComments,
-    batchSubscribeToReactions,
-    subscribeToComments,
-    subscribeToReactions,
+    // 함수들은 useCallback으로 메모이제이션되어 있으므로 의존성에서 제거
   ]);
 
-  // 이벤트 리스너 추가 함수
+  // 타입 안전한 이벤트 리스너 추가 함수
   const addEventListener = useCallback(
-    (eventType: WebSocketEventType, handler: WebSocketEventHandler) => {
+    <T extends WebSocketEventType>(
+      eventType: T,
+      handler: WebSocketEventHandler<ExtractMessageType<T>>
+    ) => {
       // 핸들러 참조 저장 (cleanup을 위해)
       if (!eventHandlersRef.current.has(eventType)) {
         eventHandlersRef.current.set(eventType, []);
       }
-      eventHandlersRef.current.get(eventType)!.push(handler);
+      eventHandlersRef.current.get(eventType)!.push(handler as WebSocketEventHandler);
 
       // WebSocket 서비스에 핸들러 등록
-      websocketService.addEventListener(eventType, handler);
+      websocketService.addEventListener(eventType, handler as WebSocketEventHandler);
     },
     []
   );
 
-  // 이벤트 리스너 제거 함수
+  // 타입 안전한 이벤트 리스너 제거 함수
   const removeEventListener = useCallback(
-    (eventType: WebSocketEventType, handler: WebSocketEventHandler) => {
+    <T extends WebSocketEventType>(
+      eventType: T,
+      handler: WebSocketEventHandler<ExtractMessageType<T>>
+    ) => {
       // 핸들러 참조에서 제거
       const handlers = eventHandlersRef.current.get(eventType);
       if (handlers) {
-        const index = handlers.indexOf(handler);
+        const index = handlers.indexOf(handler as WebSocketEventHandler);
         if (index > -1) {
           handlers.splice(index, 1);
         }
       }
 
       // WebSocket 서비스에서 핸들러 제거
-      websocketService.removeEventListener(eventType, handler);
+      websocketService.removeEventListener(eventType, handler as WebSocketEventHandler);
     },
     []
   );
@@ -383,9 +253,7 @@ export function useWebSocket({
           // 연결 및 핸들러 등록
           const setupConnection = async () => {
             try {
-              if (process.env.NODE_ENV === 'development') {
-                console.log('[useWebSocket] Starting WebSocket connection after initial load');
-              }
+              debug('useWebSocket', 'Starting WebSocket connection after initial load');
 
               // 프로덕션에서는 연결 Promise를 즉시 resolve하여 UI 블로킹 방지
               if (process.env.NODE_ENV === 'production') {
@@ -396,14 +264,11 @@ export function useWebSocket({
                 await websocketService.connect(user.id, spaceSlug);
               }
 
-              // 기본 이벤트 핸들러 등록
+              // 연결 상태 핸들러만 등록
               websocketService.addEventListener(
                 'connection.established',
                 handleConnectionEstablished
               );
-              websocketService.addEventListener('comment.created', handleCommentCreated);
-              websocketService.addEventListener('comment.updated', handleCommentUpdated);
-              websocketService.addEventListener('comment.deleted', handleCommentDeleted);
 
               // cleanup 함수 설정
               cleanup = () => {
@@ -416,9 +281,6 @@ export function useWebSocket({
                   'connection.established',
                   handleConnectionEstablished
                 );
-                websocketService.removeEventListener('comment.created', handleCommentCreated);
-                websocketService.removeEventListener('comment.updated', handleCommentUpdated);
-                websocketService.removeEventListener('comment.deleted', handleCommentDeleted);
 
                 // 사용자 정의 핸들러들 제거
                 eventHandlersRef.current.forEach((handlers, eventType) => {
@@ -433,9 +295,9 @@ export function useWebSocket({
             } catch (error) {
               // 개발 환경에서는 핫 리로드로 인한 일시적 연결 실패가 정상적임
               if (process.env.NODE_ENV === 'development') {
-                console.warn('[useWebSocket] WebSocket 일시적 연결 실패 (재연결 시도 중)');
+                console.warn('[WS] WebSocket 일시적 연결 실패 (재연결 시도 중)');
               } else {
-                console.error('[useWebSocket] WebSocket 연결 실패:', error);
+                console.error('[WS] WebSocket 연결 실패:', error);
               }
             }
           };
@@ -443,7 +305,7 @@ export function useWebSocket({
           setupConnection();
         }, delay);
       } else {
-        console.warn('[useWebSocket] 인증 토큰이 없어 WebSocket 연결을 건너뜁니다.');
+        console.warn('[WS] 인증 토큰이 없어 WebSocket 연결을 건너뜁니다.');
       }
     }
 
@@ -456,15 +318,7 @@ export function useWebSocket({
         cleanup();
       }
     };
-  }, [
-    autoConnect,
-    user?.id,
-    spaceSlug,
-    handleConnectionEstablished,
-    handleCommentCreated,
-    handleCommentUpdated,
-    handleCommentDeleted,
-  ]);
+  }, [autoConnect, user?.id, spaceSlug, handleConnectionEstablished]);
 
   return {
     connected: websocketService.connected,
@@ -478,7 +332,7 @@ export function useWebSocket({
     unsubscribeFromReactions,
     batchSubscribeToReactions,
     batchUnsubscribeFromReactions,
-    // 이벤트 리스너 함수들
+    // 타입 안전한 이벤트 리스너 함수들
     addEventListener,
     removeEventListener,
   };
