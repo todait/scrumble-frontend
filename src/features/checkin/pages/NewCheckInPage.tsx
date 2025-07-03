@@ -2,9 +2,10 @@
 
 import { formatDateForPage } from '@/shared/utils';
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
+import { useDateStore } from '@/shared/stores/useDateStore';
 import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CheckInWriteModal } from '../components/CheckInWriteModal';
 import { TeamStatusCard } from '../components/ui';
 
@@ -12,21 +13,14 @@ export function NewCheckInPage() {
   const router = useRouter();
   const params = useParams();
   const spaceSlug = params.spaceSlug as string;
+  const { selectedDate } = useDateStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [dateString, setDateString] = useState('');
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  useEffect(() => {
-    const today = new Date();
-    setCurrentDate(today);
-    setDateString(formatDateForPage(today));
-  }, []);
 
   // 팀 요약 정보 가져오기
   const { data: teamSummary, isLoading } = useTeamSummary({
     spaceSlug,
-    date: currentDate,
+    date: selectedDate,
     enabled: !!spaceSlug,
   });
 
@@ -53,7 +47,7 @@ export function NewCheckInPage() {
           <div className="overflow-hidden rounded-xl bg-white shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-2xl">
             {/* 상단 섹션 - 날짜와 제목 */}
             <div className="border-b border-[rgba(34,34,34,0.08)] px-5 py-5 md:px-[30px] md:py-[30px]">
-              <div className="mb-2 text-sm font-bold text-[#9747FF] md:text-[15px]">{dateString}</div>
+              <div className="mb-2 text-sm font-bold text-[#9747FF] md:text-[15px]">{formatDateForPage(selectedDate)}</div>
 
               <div className="space-y-2">
                 <h1 className="text-xl font-bold leading-[1.5] text-[#222222] md:text-[24px]">

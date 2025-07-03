@@ -30,61 +30,63 @@ export function useAddReaction(spaceSlug: string) {
   const { user } = useAuth();
 
   return useMutation({
-    // 서버에 리액션 추가 요청
+    // 서버에 리액션 추가 요청 (API에는 targetPostId 불필요)
     mutationFn: (variables: {
       targetType: 'posts' | 'comments';
       targetId: string;
+      targetPostId?: string; // 댓글의 경우 포스트 ID
       emoji: string;
-    }) => reactionsApi.addReaction(variables),
+    }) =>
+      reactionsApi.addReaction({
+        targetType: variables.targetType,
+        targetId: variables.targetId,
+        emoji: variables.emoji,
+      }),
 
     // Optimistic Update: 서버 요청 전에 UI를 먼저 업데이트
-    onMutate: async ({ targetType, targetId, emoji }) => {
-      // 🔄 모든 목록(필터/날짜 조합 포함) 취소
-      await queryClient.cancelQueries({
-        queryKey: postsKeys.lists(spaceSlug),
-        exact: false,
-      });
-
+    onMutate: async ({ targetType, targetId, targetPostId, emoji }) => {
       // 현재 캐시된 모든 목록 캐시 백업 (롤백용)
       const previousData = queryClient.getQueriesData({
         queryKey: postsKeys.lists(spaceSlug),
         exact: false,
       });
 
-      // 포스트 리액션인 경우 캐시 데이터 낙관적 업데이트 (모든 목록 대상)
-      if (targetType === 'posts') {
-        queryClient.setQueriesData(
-          { queryKey: postsKeys.lists(spaceSlug), exact: false },
-          (oldData: any) => {
-            if (!oldData) return oldData;
+      // 캐시 데이터 낙관적 업데이트 (모든 목록 대상)
+      queryClient.setQueriesData(
+        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        (oldData: any) => {
+          if (!oldData) return oldData;
 
-            // 형태 1) infiniteQuery: {pages: [...], pageParams: [...]}
-            if (oldData.pages) {
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page: any) => ({
-                  ...page,
-                  data: page.data.map((post: Post) =>
-                    applyAddReaction(post, targetId, emoji, user?.id)
-                  ),
-                })),
-              };
-            }
-
-            // 형태 2) 일반 리스트: {posts: [...]} 등
-            if (oldData.posts) {
-              return {
-                ...oldData,
-                posts: oldData.posts.map((post: Post) =>
-                  applyAddReaction(post, targetId, emoji, user?.id)
+          // 형태 1) infiniteQuery: {pages: [...], pageParams: [...]}
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                data: page.data.map((post: Post) =>
+                  targetType === 'posts'
+                    ? applyAddReaction(post, targetId, emoji, user?.id)
+                    : applyAddReactionToComment(post, targetPostId || '', targetId, emoji, user?.id)
                 ),
-              };
-            }
-
-            return oldData;
+              })),
+            };
           }
-        );
-      }
+
+          // 형태 2) 일반 리스트: {posts: [...]} 등
+          if (oldData.posts) {
+            return {
+              ...oldData,
+              posts: oldData.posts.map((post: Post) =>
+                targetType === 'posts'
+                  ? applyAddReaction(post, targetId, emoji, user?.id)
+                  : applyAddReactionToComment(post, targetPostId || '', targetId, emoji, user?.id)
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
 
       return { previousData };
     },
@@ -97,9 +99,6 @@ export function useAddReaction(spaceSlug: string) {
       context?.previousData?.forEach(([key, data]: any) => {
         queryClient.setQueryData(key, data);
       });
-
-      // 사용자에게 에러 알림 (토스트 메시지 등)
-      // TODO: 에러 토스트 표시 로직 추가
     },
   });
 }
@@ -136,6 +135,54 @@ function applyAddReaction(
   };
 }
 
+// 공용 헬퍼: 댓글에 리액션 추가 낙관적 적용
+function applyAddReactionToComment(
+  post: Post,
+  targetPostId: string,
+  targetId: string,
+  emoji: string,
+  userId: string | undefined
+): Post {
+  // targetPostId가 일치하지 않으면 변경하지 않음 (성능 최적화)
+  if (targetPostId && post.id !== targetPostId) return post;
+
+  // 댓글이 없는 포스트는 건너뛰기
+  if (!post.comments || post.comments.length === 0) return post;
+
+  // 해당 댓글을 포함하고 있는지 빠르게 확인
+  const hasTargetComment = post.comments.some(c => c.id === targetId);
+  if (!hasTargetComment) return post;
+
+  return {
+    ...post,
+    comments: post.comments.map(comment => {
+      if (comment.id !== targetId) return comment;
+
+      const existingIdx = (comment.reactions || []).findIndex(r => r.emoji === emoji);
+
+      if (existingIdx >= 0) {
+        const updated = [...(comment.reactions || [])];
+        const react = updated[existingIdx];
+
+        if (!react.userIds.includes(userId || '')) {
+          updated[existingIdx] = {
+            ...react,
+            count: react.count + 1,
+            userIds: [...react.userIds, userId || ''],
+          };
+        }
+
+        return { ...comment, reactions: updated };
+      }
+
+      return {
+        ...comment,
+        reactions: [...(comment.reactions || []), { emoji, count: 1, userIds: [userId || ''] }],
+      };
+    }),
+  };
+}
+
 /**
  * 리액션 제거를 위한 뮤테이션 훅
  * 추가와 동일한 패턴으로 Optimistic Update 제공
@@ -145,95 +192,74 @@ export function useRemoveReaction(spaceSlug: string) {
   const { user } = useAuth();
 
   return useMutation({
-    // 서버에 리액션 제거 요청
+    // 서버에 리액션 제거 요청 (API에는 targetPostId 불필요)
     mutationFn: (variables: {
       targetType: 'posts' | 'comments';
       targetId: string;
+      targetPostId?: string; // 댓글의 경우 포스트 ID
       emoji: string;
-    }) => reactionsApi.removeReaction(variables),
+    }) =>
+      reactionsApi.removeReaction({
+        targetType: variables.targetType,
+        targetId: variables.targetId,
+        emoji: variables.emoji,
+      }),
 
     // Optimistic Update: UI 먼저 업데이트
-    onMutate: async ({ targetType, targetId, emoji }) => {
-      await queryClient.cancelQueries({
-        queryKey: postsKeys.lists(spaceSlug),
-        exact: false,
-      });
-
+    onMutate: async ({ targetType, targetId, targetPostId, emoji }) => {
       const previousData = queryClient.getQueriesData({
         queryKey: postsKeys.lists(spaceSlug),
         exact: false,
       });
 
-      // 포스트 리액션인 경우 캐시 데이터 낙관적 업데이트
-      if (targetType === 'posts') {
-        queryClient.setQueriesData(
-          { queryKey: postsKeys.lists(spaceSlug), exact: false },
-          (oldData: any) => {
-            if (!oldData) return oldData;
+      // 캐시 데이터 낙관적 업데이트
+      queryClient.setQueriesData(
+        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        (oldData: any) => {
+          if (!oldData) return oldData;
 
-            // 형태 1) infiniteQuery: {pages: [...], pageParams: [...]}
-            if (oldData.pages) {
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page: any) => ({
-                  ...page,
-                  data: page.data.map((post: Post) => {
-                    if (post.id !== targetId) return post;
-
-                    const updatedReactions = post.reactions
-                      .map((reaction: Reaction) => {
-                        if (reaction.emoji !== emoji) return reaction;
-
-                        // 사용자 ID 제거
-                        const newUserIds = reaction.userIds.filter(id => id !== user?.id);
-
-                        return {
-                          ...reaction,
-                          count: Math.max(0, reaction.count - 1),
-                          userIds: newUserIds,
-                        };
-                      })
-                      // count가 0인 리액션은 제거
-                      .filter((reaction: Reaction) => reaction.count > 0);
-
-                    return { ...post, reactions: updatedReactions };
-                  }),
-                })),
-              };
-            }
-
-            // 형태 2) 일반 리스트: {posts: [...]} 등
-            if (oldData.posts) {
-              return {
-                ...oldData,
-                posts: oldData.posts.map((post: Post) => {
-                  if (post.id !== targetId) return post;
-
-                  const updatedReactions = post.reactions
-                    .map((reaction: Reaction) => {
-                      if (reaction.emoji !== emoji) return reaction;
-
-                      // 사용자 ID 제거
-                      const newUserIds = reaction.userIds.filter(id => id !== user?.id);
-
-                      return {
-                        ...reaction,
-                        count: Math.max(0, reaction.count - 1),
-                        userIds: newUserIds,
-                      };
-                    })
-                    // count가 0인 리액션은 제거
-                    .filter((reaction: Reaction) => reaction.count > 0);
-
-                  return { ...post, reactions: updatedReactions };
-                }),
-              };
-            }
-
-            return oldData;
+          // 형태 1) infiniteQuery: {pages: [...], pageParams: [...]}
+          if (oldData.pages) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                data: page.data.map((post: Post) =>
+                  targetType === 'posts'
+                    ? applyRemoveReaction(post, targetId, emoji, user?.id)
+                    : applyRemoveReactionFromComment(
+                        post,
+                        targetPostId || '',
+                        targetId,
+                        emoji,
+                        user?.id
+                      )
+                ),
+              })),
+            };
           }
-        );
-      }
+
+          // 형태 2) 일반 리스트: {posts: [...]} 등
+          if (oldData.posts) {
+            return {
+              ...oldData,
+              posts: oldData.posts.map((post: Post) =>
+                targetType === 'posts'
+                  ? applyRemoveReaction(post, targetId, emoji, user?.id)
+                  : applyRemoveReactionFromComment(
+                      post,
+                      targetPostId || '',
+                      targetId,
+                      emoji,
+                      user?.id
+                    )
+              ),
+            };
+          }
+
+          return oldData;
+        }
+      );
 
       return { previousData };
     },
@@ -251,6 +277,78 @@ export function useRemoveReaction(spaceSlug: string) {
   });
 }
 
+// 공용 헬퍼: 포스트에서 리액션 제거 낙관적 적용
+function applyRemoveReaction(
+  post: Post,
+  targetId: string,
+  emoji: string,
+  userId: string | undefined
+): Post {
+  if (post.id !== targetId) return post;
+
+  const updatedReactions = post.reactions
+    .map((reaction: Reaction) => {
+      if (reaction.emoji !== emoji) return reaction;
+
+      // 사용자 ID 제거
+      const newUserIds = reaction.userIds.filter(id => id !== userId);
+
+      return {
+        ...reaction,
+        count: Math.max(0, reaction.count - 1),
+        userIds: newUserIds,
+      };
+    })
+    // count가 0인 리액션은 제거
+    .filter((reaction: Reaction) => reaction.count > 0);
+
+  return { ...post, reactions: updatedReactions };
+}
+
+// 공용 헬퍼: 댓글에서 리액션 제거 낙관적 적용
+function applyRemoveReactionFromComment(
+  post: Post,
+  targetPostId: string,
+  targetId: string,
+  emoji: string,
+  userId: string | undefined
+): Post {
+  // targetPostId가 일치하지 않으면 변경하지 않음 (성능 최적화)
+  if (targetPostId && post.id !== targetPostId) return post;
+
+  // 댓글이 없는 포스트는 건너뛰기
+  if (!post.comments || post.comments.length === 0) return post;
+
+  // 해당 댓글을 포함하고 있는지 빠르게 확인
+  const hasTargetComment = post.comments.some(c => c.id === targetId);
+  if (!hasTargetComment) return post;
+
+  return {
+    ...post,
+    comments: post.comments.map(comment => {
+      if (comment.id !== targetId) return comment;
+
+      const updatedReactions = (comment.reactions || [])
+        .map((reaction: Reaction) => {
+          if (reaction.emoji !== emoji) return reaction;
+
+          // 사용자 ID 제거
+          const newUserIds = reaction.userIds.filter(id => id !== userId);
+
+          return {
+            ...reaction,
+            count: Math.max(0, reaction.count - 1),
+            userIds: newUserIds,
+          };
+        })
+        // count가 0인 리액션은 제거
+        .filter((reaction: Reaction) => reaction.count > 0);
+
+      return { ...comment, reactions: updatedReactions };
+    }),
+  };
+}
+
 /**
  * 리액션 토글을 위한 편의 훅
  * 이미 리액션한 경우 제거, 아닌 경우 추가
@@ -264,11 +362,13 @@ export function useToggleReaction(spaceSlug: string) {
     mutationFn: async ({
       targetType,
       targetId,
+      targetPostId,
       emoji,
       currentReactions,
     }: {
       targetType: 'posts' | 'comments';
       targetId: string;
+      targetPostId?: string; // 댓글의 경우 포스트 ID
       emoji: string;
       currentReactions: Reaction[];
     }) => {
@@ -276,9 +376,9 @@ export function useToggleReaction(spaceSlug: string) {
       const userHasReacted = existingReaction?.userIds.includes(user?.id || '');
 
       if (userHasReacted) {
-        return removeReaction.mutateAsync({ targetType, targetId, emoji });
+        return removeReaction.mutateAsync({ targetType, targetId, targetPostId, emoji });
       } else {
-        return addReaction.mutateAsync({ targetType, targetId, emoji });
+        return addReaction.mutateAsync({ targetType, targetId, targetPostId, emoji });
       }
     },
   });

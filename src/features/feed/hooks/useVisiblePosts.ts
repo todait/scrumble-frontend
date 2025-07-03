@@ -1,3 +1,4 @@
+import { debug as logDebug } from '@/shared/utils/debug';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
@@ -30,12 +31,12 @@ export function useVisiblePosts(threshold = 0.1) {
             if (isVisible) {
               newVisible.add(postId);
               if (process.env.NODE_ENV === 'development') {
-                console.log('[useVisiblePosts] Post became visible:', postId);
+                logDebug('useVisiblePosts', 'Post became visible', postId);
               }
             } else {
               newVisible.delete(postId);
               if (process.env.NODE_ENV === 'development') {
-                console.log('[useVisiblePosts] Post became hidden:', postId);
+                logDebug('useVisiblePosts', 'Post became hidden', postId);
               }
             }
           });
@@ -47,9 +48,9 @@ export function useVisiblePosts(threshold = 0.1) {
           }
 
           if (process.env.NODE_ENV === 'development') {
-            console.log('[useVisiblePosts] Visible posts changed:', {
+            logDebug('useVisiblePosts', 'Visible posts changed', {
               before: prev,
-              after: newArray
+              after: newArray,
             });
           }
 
@@ -102,7 +103,7 @@ export function useVisiblePosts(threshold = 0.1) {
   }, []);
 
   // 디버깅용 정보
-  const debug = {
+  const debugInfo = {
     totalObserved: postsRef.current.size,
     visibleCount: visiblePostIds.length,
   };
@@ -112,6 +113,6 @@ export function useVisiblePosts(threshold = 0.1) {
     observePost,
     unobservePost,
     unobserveAll,
-    debug,
+    debug: debugInfo,
   };
 }

@@ -2,22 +2,41 @@ import { postsKeys } from '@/shared/hooks/queries/postsKeys';
 import { useExistsCheckin, usePosts } from '@/shared/hooks/queries/usePosts';
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
 import { useWebSocket } from '@/shared/hooks/useWebSocket';
+import { useDateStore } from '@/shared/stores/useDateStore';
 import type { Post as ApiPost } from '@/shared/types/post';
-import type { ReactionAddedMessage, ReactionRemovedMessage } from '@/shared/types/websocket.types';
+import type {
+  CommentCreatedMessage,
+  CommentDeletedMessage,
+  CommentUpdatedMessage,
+  ReactionAddedMessage,
+  ReactionRemovedMessage,
+  WebSocketEventHandler,
+} from '@/shared/types/websocket.types';
 import { formatDateToAPIString, getErrorMessage } from '@/shared/utils';
+import { debug } from '@/shared/utils/debug';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Comment, FilterType, Post, Reaction } from '../types/feed.types';
 import { convertApiPostsToFeedPosts } from '../utils/postTransform.utils';
 import { useMockPosts } from './useMockPosts';
 
 export const useFeedData = (spaceSlug: string) => {
   const [filterType, setFilterType] = useState<FilterType>('all');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { selectedDate } = useDateStore();
   const queryClient = useQueryClient();
 
   // temp-space-id일 때는 mock 데이터 사용
   const useMockData = spaceSlug === 'temp-space-id';
+
+  // 쿼리 키 빌더 - 메모이제이션으로 불필요한 재생성 방지
+  const buildListKey = useCallback(
+    () =>
+      postsKeys.list(spaceSlug, {
+        filterType,
+        date: formatDateToAPIString(selectedDate),
+      }),
+    [spaceSlug, filterType, selectedDate]
+  );
 
   const existsCheckinQuery = useExistsCheckin({
     spaceSlug,
@@ -79,11 +98,7 @@ export const useFeedData = (spaceSlug: string) => {
   // 댓글 추가 핸들러
   const handleCommentAdded = useCallback(
     (postId: string, comment: Comment) => {
-      // 현재 필터 조건에 맞는 쿼리 키 생성
-      const queryKey = postsKeys.list(spaceSlug, {
-        filterType,
-        date: formatDateToAPIString(selectedDate),
-      });
+      const queryKey = buildListKey();
 
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
@@ -110,16 +125,43 @@ export const useFeedData = (spaceSlug: string) => {
         };
       });
     },
-    [queryClient, spaceSlug, filterType, selectedDate]
+    [queryClient, buildListKey]
+  );
+
+  const handleCommentUpdated = useCallback(
+    (postId: string, comment: Comment) => {
+      const queryKey = buildListKey();
+
+      queryClient.setQueryData(queryKey, (old: any) => {
+        if (!old?.posts) return old;
+        return {
+          ...old,
+          posts: old.posts.map((post: Post) =>
+            post.id === postId
+              ? {
+                  ...post,
+                  comments: post.comments.map((c: Comment) =>
+                    c.id === comment.id
+                      ? {
+                          ...c,
+                          content: comment.content,
+                          images: comment.images || [],
+                        }
+                      : c
+                  ),
+                }
+              : post
+          ),
+        };
+      });
+    },
+    [queryClient, buildListKey]
   );
 
   // 댓글 삭제 핸들러
   const handleCommentDeleted = useCallback(
     (postId: string, commentId: string) => {
-      const queryKey = postsKeys.list(spaceSlug, {
-        filterType,
-        date: formatDateToAPIString(selectedDate),
-      });
+      const queryKey = buildListKey();
 
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
@@ -146,7 +188,7 @@ export const useFeedData = (spaceSlug: string) => {
         };
       });
     },
-    [queryClient, spaceSlug, filterType, selectedDate]
+    [queryClient, buildListKey]
   );
 
   /**
@@ -158,65 +200,119 @@ export const useFeedData = (spaceSlug: string) => {
       // 다른 스페이스의 메시지는 무시
       if (message.spaceSlug !== spaceSlug) return;
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[Feed] 리액션 추가 수신:', message);
-      }
+      debug('useFeedData', '리액션 추가 수신', message);
 
-      // 현재 필터 조건에 맞는 쿼리 키
-      const queryKey = postsKeys.list(spaceSlug, {
-        filterType,
-        date: formatDateToAPIString(selectedDate),
-      });
+      const queryKey = buildListKey();
 
       // React Query 캐시 업데이트
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
 
-        return {
-          ...oldData,
-          posts: oldData.posts.map((post: Post) => {
-            // 해당 포스트가 아니면 그대로 반환
-            if (post.id !== message.data.targetId) return post;
+        // 포스트 리액션인 경우
+        if (message.data.targetType === 'post') {
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: Post) => {
+              // 해당 포스트가 아니면 그대로 반환
+              if (post.id !== message.data.targetId) return post;
 
-            // 기존 리액션 찾기
-            const existingReactionIndex = post.reactions.findIndex(
-              (r: Reaction) => r.emoji === message.data.emoji
-            );
+              // 기존 리액션 찾기
+              const existingReactionIndex = post.reactions.findIndex(
+                (r: Reaction) => r.emoji === message.data.emoji
+              );
 
-            if (existingReactionIndex >= 0) {
-              // 기존 리액션에 사용자 추가
-              const updatedReactions = [...post.reactions];
-              const reaction = updatedReactions[existingReactionIndex];
+              if (existingReactionIndex >= 0) {
+                // 기존 리액션에 사용자 추가
+                const updatedReactions = [...post.reactions];
+                const reaction = updatedReactions[existingReactionIndex];
 
-              // 중복 체크
-              if (!reaction.userIds.includes(message.data.userId)) {
-                updatedReactions[existingReactionIndex] = {
-                  ...reaction,
-                  count: reaction.count + 1,
-                  userIds: [...reaction.userIds, message.data.userId],
+                // 중복 체크
+                if (!reaction.userIds.includes(message.data.userId)) {
+                  updatedReactions[existingReactionIndex] = {
+                    ...reaction,
+                    count: reaction.count + 1,
+                    userIds: [...reaction.userIds, message.data.userId],
+                  };
+                }
+
+                return { ...post, reactions: updatedReactions };
+              } else {
+                // 새로운 리액션 추가
+                return {
+                  ...post,
+                  reactions: [
+                    ...post.reactions,
+                    {
+                      emoji: message.data.emoji,
+                      count: 1,
+                      userIds: [message.data.userId],
+                    },
+                  ],
                 };
               }
+            }),
+          };
+        }
+        
+        // 댓글 리액션인 경우
+        if (message.data.targetType === 'comment') {
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: Post) => {
+              // 해당 포스트가 아니면 그대로 반환
+              if (post.id !== message.postId) return post;
 
-              return { ...post, reactions: updatedReactions };
-            } else {
-              // 새로운 리액션 추가
+              // 댓글 업데이트
               return {
                 ...post,
-                reactions: [
-                  ...post.reactions,
-                  {
-                    emoji: message.data.emoji,
-                    count: 1,
-                    userIds: [message.data.userId],
-                  },
-                ],
+                comments: post.comments.map((comment: Comment) => {
+                  // 해당 댓글이 아니면 그대로 반환
+                  if (comment.id !== message.data.targetId) return comment;
+
+                  // 기존 리액션 찾기
+                  const existingReactionIndex = (comment.reactions || []).findIndex(
+                    (r: Reaction) => r.emoji === message.data.emoji
+                  );
+
+                  if (existingReactionIndex >= 0) {
+                    // 기존 리액션에 사용자 추가
+                    const updatedReactions = [...(comment.reactions || [])];
+                    const reaction = updatedReactions[existingReactionIndex];
+
+                    // 중복 체크
+                    if (!reaction.userIds.includes(message.data.userId)) {
+                      updatedReactions[existingReactionIndex] = {
+                        ...reaction,
+                        count: reaction.count + 1,
+                        userIds: [...reaction.userIds, message.data.userId],
+                      };
+                    }
+
+                    return { ...comment, reactions: updatedReactions };
+                  } else {
+                    // 새로운 리액션 추가
+                    return {
+                      ...comment,
+                      reactions: [
+                        ...(comment.reactions || []),
+                        {
+                          emoji: message.data.emoji,
+                          count: 1,
+                          userIds: [message.data.userId],
+                        },
+                      ],
+                    };
+                  }
+                }),
               };
-            }
-          }),
-        };
+            }),
+          };
+        }
+
+        return oldData;
       });
     },
-    [spaceSlug, queryClient, filterType, selectedDate]
+    [spaceSlug, queryClient, buildListKey]
   );
 
   /**
@@ -228,113 +324,196 @@ export const useFeedData = (spaceSlug: string) => {
       // 다른 스페이스의 메시지는 무시
       if (message.spaceSlug !== spaceSlug) return;
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[Feed] 리액션 제거 수신:', message);
-      }
+      debug('useFeedData', '리액션 제거 수신', message);
 
-      const queryKey = postsKeys.list(spaceSlug, {
-        filterType,
-        date: formatDateToAPIString(selectedDate),
-      });
+      const queryKey = buildListKey();
 
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
 
-        return {
-          ...oldData,
-          posts: oldData.posts.map((post: Post) => {
-            if (post.id !== message.data.targetId) return post;
+        // 포스트 리액션인 경우
+        if (message.data.targetType === 'post') {
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: Post) => {
+              if (post.id !== message.data.targetId) return post;
 
-            // 해당 리액션 업데이트
-            const updatedReactions = post.reactions
-              .map((reaction: Reaction) => {
-                if (reaction.emoji !== message.data.emoji) {
-                  return reaction;
-                }
+              // 해당 리액션 업데이트
+              const updatedReactions = post.reactions
+                .map((reaction: Reaction) => {
+                  if (reaction.emoji !== message.data.emoji) {
+                    return reaction;
+                  }
 
-                // 사용자 ID 제거
-                const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
+                  // 사용자 ID 제거
+                  const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
 
-                return {
-                  ...reaction,
-                  count: Math.max(0, reaction.count - 1),
-                  userIds: newUserIds,
-                };
-              })
-              // count가 0인 리액션은 제거
-              .filter((reaction: Reaction) => reaction.count > 0);
+                  return {
+                    ...reaction,
+                    count: Math.max(0, reaction.count - 1),
+                    userIds: newUserIds,
+                  };
+                })
+                // count가 0인 리액션은 제거
+                .filter((reaction: Reaction) => reaction.count > 0);
 
-            return { ...post, reactions: updatedReactions };
-          }),
-        };
+              return { ...post, reactions: updatedReactions };
+            }),
+          };
+        }
+
+        // 댓글 리액션인 경우
+        if (message.data.targetType === 'comment') {
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: Post) => {
+              // 해당 포스트가 아니면 그대로 반환
+              if (post.id !== message.postId) return post;
+
+              // 댓글 업데이트
+              return {
+                ...post,
+                comments: post.comments.map((comment: Comment) => {
+                  // 해당 댓글이 아니면 그대로 반환
+                  if (comment.id !== message.data.targetId) return comment;
+
+                  // 해당 리액션 업데이트
+                  const updatedReactions = (comment.reactions || [])
+                    .map((reaction: Reaction) => {
+                      if (reaction.emoji !== message.data.emoji) {
+                        return reaction;
+                      }
+
+                      // 사용자 ID 제거
+                      const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
+
+                      return {
+                        ...reaction,
+                        count: Math.max(0, reaction.count - 1),
+                        userIds: newUserIds,
+                      };
+                    })
+                    // count가 0인 리액션은 제거
+                    .filter((reaction: Reaction) => reaction.count > 0);
+
+                  return { ...comment, reactions: updatedReactions };
+                }),
+              };
+            }),
+          };
+        }
+
+        return oldData;
       });
     },
-    [spaceSlug, queryClient, filterType, selectedDate]
+    [spaceSlug, queryClient, buildListKey]
   );
 
-  // WebSocket 이벤트 리스너 등록
+  // WebSocket 이벤트 래퍼 함수들을 useRef로 메모이제이션
+  // 초기값은 null로 설정하고 useEffect에서만 업데이트
+  const eventHandlersRef = useRef<{
+    commentCreated: WebSocketEventHandler<CommentCreatedMessage>;
+    commentUpdated: WebSocketEventHandler<CommentUpdatedMessage>;
+    commentDeleted: WebSocketEventHandler<CommentDeletedMessage>;
+    reactionAdded: WebSocketEventHandler<ReactionAddedMessage>;
+    reactionRemoved: WebSocketEventHandler<ReactionRemovedMessage>;
+  } | null>(null);
+
+  // 핸들러 의존성 업데이트
   useEffect(() => {
-    if (!webSocketActions) return;
-
-    // 댓글 이벤트 래퍼 함수들
-    const handleCommentCreatedWrapper = (message: any) => {
-      if (message.type === 'comment.created' && message.data?.postId && message.data?.commentId) {
-        // WebSocket 메시지를 Comment 형태로 변환
-        const comment: Comment = {
-          id: message.data.commentId,
-          author: {
-            id: message.data.userId,
-            name: message.data.userName || 'Unknown User',
-            profileImage: message.data.userAvatarURL || '',
-          },
-          content: message.data.content || '',
-          createdAt: new Date(),
-          images: [],
-          reactions: [],
-        };
-        handleCommentAdded(message.data.postId, comment);
-      }
-    };
-
-    const handleCommentDeletedWrapper = (message: any) => {
-      if (message.type === 'comment.deleted' && message.data?.postId && message.data?.commentId) {
-        handleCommentDeleted(message.data.postId, message.data.commentId);
-      }
-    };
-
-    // 리액션 이벤트 래퍼 함수들
-    const handleReactionAddedWrapper = (message: any) => {
-      if (message.type === 'reaction.added') {
-        handleReactionAdded(message as ReactionAddedMessage);
-      }
-    };
-
-    const handleReactionRemovedWrapper = (message: any) => {
-      if (message.type === 'reaction.removed') {
-        handleReactionRemoved(message as ReactionRemovedMessage);
-      }
-    };
-
-    // 이벤트 리스너 등록
-    webSocketActions.addEventListener('comment.created', handleCommentCreatedWrapper);
-    webSocketActions.addEventListener('comment.deleted', handleCommentDeletedWrapper);
-    webSocketActions.addEventListener('reaction.added', handleReactionAddedWrapper);
-    webSocketActions.addEventListener('reaction.removed', handleReactionRemovedWrapper);
-
-    // cleanup: 컴포넌트 언마운트 시 리스너 제거
-    return () => {
-      webSocketActions.removeEventListener('comment.created', handleCommentCreatedWrapper);
-      webSocketActions.removeEventListener('comment.deleted', handleCommentDeletedWrapper);
-      webSocketActions.removeEventListener('reaction.added', handleReactionAddedWrapper);
-      webSocketActions.removeEventListener('reaction.removed', handleReactionRemovedWrapper);
+    eventHandlersRef.current = {
+      commentCreated: (message: CommentCreatedMessage) => {
+        if (message.data?.postId && message.data?.commentId) {
+          const comment: Comment = {
+            id: message.data.commentId,
+            author: {
+              id: message.data.userId,
+              name: message.data.userName,
+              profileImage: message.data.userAvatarURL,
+            },
+            content: message.data.content || '',
+            createdAt: new Date(),
+            images: (message.data.imageURLs || []).map(url => ({
+              url,
+              key: url,
+              size: 0,
+              width: 0,
+              height: 0,
+              format: 'unknown',
+              name: url.split('/').pop() || 'image',
+            })),
+            reactions: [],
+          };
+          handleCommentAdded(message.data.postId, comment);
+        }
+      },
+      commentUpdated: (message: CommentUpdatedMessage) => {
+        if (message.data?.postId && message.data?.commentId) {
+          const comment: Comment = {
+            id: message.data.commentId,
+            author: {
+              id: message.data.userId,
+              name: message.data.userName,
+              profileImage: message.data.userAvatarURL,
+            },
+            content: message.data.content || '',
+            createdAt: new Date(),
+            images: (message.data.imageURLs || []).map(url => ({
+              url,
+              key: url,
+              size: 0,
+              width: 0,
+              height: 0,
+              format: 'unknown',
+              name: url.split('/').pop() || 'image',
+            })),
+            reactions: [],
+          };
+          handleCommentUpdated(message.data.postId, comment);
+        }
+      },
+      commentDeleted: (message: CommentDeletedMessage) => {
+        if (message.data?.postId && message.data?.commentId) {
+          handleCommentDeleted(message.data.postId, message.data.commentId);
+        }
+      },
+      reactionAdded: (message: ReactionAddedMessage) => {
+        handleReactionAdded(message);
+      },
+      reactionRemoved: (message: ReactionRemovedMessage) => {
+        handleReactionRemoved(message);
+      },
     };
   }, [
-    webSocketActions,
     handleCommentAdded,
+    handleCommentUpdated,
     handleCommentDeleted,
     handleReactionAdded,
     handleReactionRemoved,
   ]);
+
+  // WebSocket 이벤트 리스너 등록
+  useEffect(() => {
+    if (!webSocketActions || !eventHandlersRef.current) return;
+
+    const handlers = eventHandlersRef.current;
+
+    // 타입 안전한 이벤트 리스너 등록
+    webSocketActions.addEventListener('comment.created', handlers.commentCreated);
+    webSocketActions.addEventListener('comment.updated', handlers.commentUpdated);
+    webSocketActions.addEventListener('comment.deleted', handlers.commentDeleted);
+    webSocketActions.addEventListener('reaction.added', handlers.reactionAdded);
+    webSocketActions.addEventListener('reaction.removed', handlers.reactionRemoved);
+
+    // cleanup: 컴포넌트 언마운트 시 리스너 제거
+    return () => {
+      webSocketActions.removeEventListener('comment.created', handlers.commentCreated);
+      webSocketActions.removeEventListener('comment.updated', handlers.commentUpdated);
+      webSocketActions.removeEventListener('comment.deleted', handlers.commentDeleted);
+      webSocketActions.removeEventListener('reaction.added', handlers.reactionAdded);
+      webSocketActions.removeEventListener('reaction.removed', handlers.reactionRemoved);
+    };
+  }, [webSocketActions]);
 
   return {
     existsCheckinQuery,
@@ -346,8 +525,6 @@ export const useFeedData = (spaceSlug: string) => {
     // 필터 상태
     filterType,
     setFilterType,
-    selectedDate,
-    setSelectedDate,
 
     // 로딩 및 에러 상태
     isLoading: isLoading || teamSummaryQuery.isLoading,

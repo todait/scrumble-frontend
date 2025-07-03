@@ -25,6 +25,9 @@ import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
 import { useWebSocket } from '@/shared/hooks/useWebSocket';
+import { useDateStore } from '@/shared/stores/useDateStore';
+import { formatDateToAPIString } from '@/shared/utils';
+import { debug as logDebug } from '@/shared/utils/debug';
 import { RiSettings6Line } from '@remixicon/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -35,14 +38,31 @@ interface FeedPageProps {
 
 export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const { logout } = useAuthHook();
+  const { selectedDate, setSelectedDate, initializeFromUrl } = useDateStore();
 
   // 설정 드롭다운 상태
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPostDetailVisible, setIsPostDetailVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // URL 파라미터에서 날짜 초기화 (URL → localStorage → 오늘 순서)
+  useEffect(() => {
+    const dateParam = searchParams.get('date');
+    initializeFromUrl(dateParam);
+  }, [searchParams, initializeFromUrl]);
+
+  // 날짜 변경 함수 (URL과 store 모두 업데이트)
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    const dateString = formatDateToAPIString(date);
+    const newUrl = `/${spaceSlug}/feed?date=${dateString}`;
+    router.replace(newUrl);
+  };
 
   // 가시성 추적
   const { visiblePostIds, observePost, unobservePost, unobserveAll } = useVisiblePosts();
@@ -59,20 +79,29 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     teamSummary,
     filterType,
     setFilterType,
-    selectedDate,
     existsCheckinQuery,
     isLoading,
   } = useFeedData(spaceSlug);
-  const { handleCommentClick, handleViewSummaryClick, handleDateClick } = useFeedActions(
+  const { handleCommentClick, handleViewSummaryClick } = useFeedActions(
     spaceSlug,
     posts as FeedPost[],
     () => {}
   );
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
-  const { handlePostClick, handleClosePostDetail } = useFeedNavigation(spaceSlug);
+  const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } = useFeedNavigation(spaceSlug);
   const { scrollContainerRef, showScrollToTop, scrollToTop, scrollToSelectedPost } = useFeedScroll(
     posts.length
   );
+
+  // PostDetail 즉시 닫기 처리
+  const handleClosePostDetail = () => {
+    // 즉시 PostDetail을 숨김
+    setIsPostDetailVisible(false);
+    // 백그라운드에서 URL 업데이트
+    setTimeout(() => {
+      navigateClosePostDetail();
+    }, 0);
+  };
 
   // 설정 드롭다운 핸들러
   const handleMouseEnter = () => {
@@ -114,12 +143,14 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     };
   }, [unobserveAll]);
 
-  // 댓글 이벤트는 useFeedData.ts에서 처리하므로 중복 제거
-
   // URL 파라미터 처리
-  const searchParams = useSearchParams();
   const selectedPostId = searchParams.get('post');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
+  
+  // selectedPostId가 변경될 때 isPostDetailVisible 업데이트
+  useEffect(() => {
+    setIsPostDetailVisible(!!selectedPostId);
+  }, [selectedPostId]);
   const existsMyCheckin = existsCheckinQuery.data?.exists;
   const existsMyCheckout = (posts as FeedPost[]).some(
     post => post.type === 'checkout' && post.author.id === user?.id
@@ -135,13 +166,13 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         {/* 통합 컨테이너 - 중앙 피드와 PostDetail을 하나로 묶어서 중앙 정렬 */}
         <div
           className={`flex w-full transition-all duration-300 ${
-            selectedPost ? 'pt-2 lg:w-[1196px] lg:pt-6' : 'pt-4 md:w-[672px] md:pt-6'
+            selectedPost && isPostDetailVisible ? 'pt-2 lg:w-[1196px] lg:pt-6' : 'pt-4 md:w-[672px] md:pt-6'
           }`}
         >
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
             className={`relative flex w-full flex-col px-2 transition-all duration-300 md:px-4 ${
-              selectedPost ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0' : 'md:w-[672px]'
+              selectedPost && isPostDetailVisible ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0' : 'md:w-[672px]'
             }`}
           >
             {/* 필터 드롭다운과 설정 아이콘 - 고정 */}
@@ -180,7 +211,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                 <FeedHeader
                   selectedDate={selectedDate}
                   activeUsers={teamSummary?.totalMembers || 0}
-                  onDateClick={handleDateClick}
+                  onDateChange={handleDateChange}
                 />
               </div>
 
@@ -199,14 +230,10 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                         data-post-id={post.id}
                         ref={el => {
                           if (el) {
-                            if (process.env.NODE_ENV === 'development') {
-                              console.log('[FeedPage] Observing post:', post.id);
-                            }
+                            logDebug('FeedPage', 'Observing post', post.id);
                             observePost(post.id, el);
                           } else {
-                            if (process.env.NODE_ENV === 'development') {
-                              console.log('[FeedPage] Unobserving post:', post.id);
-                            }
+                            logDebug('FeedPage', 'Unobserving post', post.id);
                             unobservePost(post.id);
                           }
                         }}
@@ -242,7 +269,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             </div>
 
             {/* PostDetail 활성화 시 선택된 포스트로 이동하는 플로팅 버튼 */}
-            {selectedPost && !isDeleteDialogOpen && (
+            {selectedPost && isPostDetailVisible && !isDeleteDialogOpen && (
               <GoToFocusedPostButton
                 selectedPostId={selectedPostId || ''}
                 onScrollToPost={() => scrollToSelectedPost(selectedPostId)}
@@ -251,7 +278,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
           </div>
 
           {/* PostDetail 영역 */}
-          {selectedPost && (
+          {selectedPost && isPostDetailVisible && (
             <>
               {/* 모바일 PostDetail - 전체 화면 */}
               <div className="flex w-full flex-col px-2 lg:hidden">
@@ -291,7 +318,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         {/* 오른쪽 요약 카드 - 데스크톱에서만 표시 */}
         <div
           className={`fixed left-[calc(50%+320px+24px)] top-[90px] hidden transition-all duration-300 xl:block ${
-            selectedPost ? 'pointer-events-none opacity-0' : 'opacity-100'
+            selectedPost && isPostDetailVisible ? 'pointer-events-none opacity-0' : 'opacity-100'
           }`}
         >
           {teamSummary && (
@@ -301,7 +328,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
       </div>
 
       {/* 플로팅 체크아웃 버튼 - 모바일에서 위치 조정 */}
-      {!selectedPost && isCheckoutAvailable && (
+      {!(selectedPost && isPostDetailVisible) && isCheckoutAvailable && (
         <div className="pointer-events-none fixed bottom-24 left-0 right-0 z-10 flex justify-center px-4 md:bottom-8 md:px-8">
           <div className="w-full max-w-[1200px]">
             <div className="flex justify-end">

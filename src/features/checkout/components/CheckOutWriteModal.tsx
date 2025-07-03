@@ -2,8 +2,9 @@
 
 import { CheckInModalLayout } from '@/features/checkin/components/layout';
 import { useCreateCheckOut } from '@/shared/hooks/queries';
+import { useDateStore } from '@/shared/stores/useDateStore';
 import type { ImageMetadata } from '@/shared/types/upload.types';
-import { formatDate } from '@/shared/utils';
+import { formatDate, formatDateToAPIString } from '@/shared/utils';
 import { RiPokerDiamondsFill } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 import { CheckOutForm } from './forms';
@@ -16,11 +17,12 @@ interface CheckOutWriteModalProps {
 
 export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWriteModalProps) {
   const { mutate: createCheckOut, isPending } = useCreateCheckOut();
+  const { selectedDate } = useDateStore();
   const [dateString, setDateString] = useState('');
 
   useEffect(() => {
-    setDateString(formatDate());
-  }, []);
+    setDateString(formatDate(selectedDate));
+  }, [selectedDate]);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -44,6 +46,7 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
     createCheckOut(
       {
         spaceSlug,
+        postedDate: formatDateToAPIString(selectedDate),
         reflectionText: data.message,
         images: data.images || [], // 기본값 대비
       },

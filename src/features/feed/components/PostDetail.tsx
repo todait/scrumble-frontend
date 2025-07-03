@@ -1,7 +1,11 @@
 'use client';
 
 import { CommentSection, DeleteConfirmDialog } from '@/shared/components/ui';
-import { useCreateComment, useUpdateComment, useDeleteComment } from '@/shared/hooks/queries/useComments';
+import {
+  useCreateComment,
+  useDeleteComment,
+  useUpdateComment,
+} from '@/shared/hooks/queries/useComments';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
 import { useSearchParams } from 'next/navigation';
@@ -18,7 +22,13 @@ interface PostDetailProps {
   onDeleteDialogChange?: (isOpen: boolean) => void;
 }
 
-export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialogChange }: PostDetailProps) {
+export function PostDetail({
+  spaceSlug,
+  post,
+  onClose,
+  onReaction,
+  onDeleteDialogChange,
+}: PostDetailProps) {
   const isCheckIn = post.type === 'checkin';
   const commentInputRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
@@ -28,7 +38,6 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialo
   const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(spaceSlug);
   const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(spaceSlug);
   const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment(spaceSlug);
-  const [isClosing, setIsClosing] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -72,10 +81,7 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialo
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        // 즉시 UI 숨기기
-        setIsClosing(true);
-        // 백그라운드에서 실제 닫기 처리
-        setTimeout(() => onClose(), 0);
+        onClose();
       }
     };
 
@@ -87,7 +93,7 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialo
 
   const handleCommentEdit = (commentId: string) => {
     // 편집 모드 전환 (이미 편집 중이면 종료)
-    setEditingCommentId(prev => prev === commentId ? null : commentId);
+    setEditingCommentId(prev => (prev === commentId ? null : commentId));
   };
 
   const handleCommentUpdate = (commentId: string, content: string, images: ImageMetadata[]) => {
@@ -103,7 +109,7 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialo
           // 수정 성공 시 편집 모드 종료
           setEditingCommentId(null);
         },
-        onError: (error) => {
+        onError: error => {
           console.error('댓글 수정 오류:', error);
           alert('댓글 수정에 실패했습니다.');
         },
@@ -164,21 +170,14 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialo
   };
 
   return (
-    <div
-      className={`flex h-full flex-col overflow-hidden transition-opacity duration-150 ${
-        isClosing ? 'pointer-events-none opacity-0' : 'opacity-100'
-      }`}
-    >
+    <div className="flex h-full flex-col overflow-hidden">
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-[rgba(34,34,34,0.08)] px-4 py-4 md:px-[30px] md:py-5">
         <h2 className="text-base font-bold text-[#222222] md:text-lg">
           {post.author.name}님의 {isCheckIn ? '체크인' : '체크아웃'}
         </h2>
         <button
-          onClick={() => {
-            setIsClosing(true);
-            setTimeout(() => onClose(), 0);
-          }}
+          onClick={onClose}
           className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[rgba(34,34,34,0.08)]"
         >
           <RiCloseLine className="h-5 w-5 text-[#222222]" />
@@ -199,6 +198,7 @@ export function PostDetail({ spaceSlug, post, onClose, onReaction, onDeleteDialo
           ref={commentsContainerRef}
           comments={post.comments}
           commentCount={post.commentCount}
+          postId={post.id}
           onCommentEdit={handleCommentEdit}
           onCommentDelete={handleCommentDelete}
           onCommentUpdate={handleCommentUpdate}
