@@ -124,14 +124,18 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   };
 
   useEffect(() => {
+    // 오늘일 때만 체크인 강제 (과거 날짜는 체크인 없어도 피드 볼 수 있음)
+    const isToday = formatDateToAPIString(selectedDate) === formatDateToAPIString(new Date());
+
     if (
+      isToday &&
       !existsCheckinQuery.isLoading &&
       existsCheckinQuery.data &&
       existsCheckinQuery.data.exists === false
     ) {
       router.replace(ROUTES.SPACE_CHECKIN(spaceSlug));
     }
-  }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug]);
+  }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug, selectedDate]);
 
   // 컴포넌트 언마운트 시 타이머 정리 및 관찰 중지
   useEffect(() => {
@@ -146,7 +150,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // URL 파라미터 처리
   const selectedPostId = searchParams.get('post');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
-  
+
   // selectedPostId가 변경될 때 isPostDetailVisible 업데이트
   useEffect(() => {
     setIsPostDetailVisible(!!selectedPostId);
