@@ -14,20 +14,16 @@ import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
+import { EmojiReactions } from '@/shared/components/emoji';
 import {
-  RiArrowRightSLine,
   RiDeleteBinLine,
   RiEdit2Line,
-  RiEmojiStickerLine,
   RiMore2Line,
 } from '@remixicon/react';
-import { formatDistanceToNow } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import router from 'next/router';
-import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
-import type { EmojiData, Post } from '../types/feed.types';
+import { forwardRef, useEffect, useRef, useState } from 'react';
+import type { Post } from '../types/feed.types';
+import { CommentPreview } from './CommentPreview';
 import { getPostContent } from '../types/feed.types';
 
 interface PostContentProps {
@@ -54,15 +50,7 @@ export function PostContent({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [emojiPickerPosition, setEmojiPickerPosition] = useState<{
-    top: number;
-    right?: number;
-    left?: number;
-  }>({ top: 0, right: 0 });
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const { user } = useAuth();
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
@@ -78,43 +66,6 @@ export function PostContent({
   const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
   const imageUrls = post.images?.map(image => image.url);
 
-  const calculateEmojiPickerPosition = useCallback(() => {
-    if (!emojiButtonRef.current) return;
-
-    const buttonRect = emojiButtonRef.current.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const pickerWidth = 360;
-    const pickerHeight = 233; // 350 * 2/3
-
-    // 화면 공간 확인
-    const bottomSpace = viewportHeight - buttonRect.bottom;
-
-    // 세로 위치 결정
-    const top =
-      bottomSpace < pickerHeight + 16
-        ? Math.max(8, buttonRect.top - pickerHeight - 8)
-        : buttonRect.bottom + 8;
-
-    // 가로 위치 결정 - 아이콘 바로 밑에서 시작하여 오른쪽으로
-    const position: { top: number; right?: number; left?: number } = { top };
-
-    // 아이콘의 왼쪽 모서리에서 시작
-    let leftPosition = buttonRect.left;
-
-    // 피커가 화면 오른쪽을 벗어나는지 확인
-    if (leftPosition + pickerWidth > viewportWidth - 8) {
-      // 화면 오른쪽을 벗어나면 오른쪽 정렬로 조정
-      leftPosition = viewportWidth - pickerWidth - 8;
-    }
-
-    // 최소 8px 여백 확보
-    leftPosition = Math.max(8, leftPosition);
-
-    position.left = leftPosition;
-
-    setEmojiPickerPosition(position);
-  }, []);
 
   // 모바일 메뉴 외부 클릭 시 닫기
   useEffect(() => {
@@ -130,40 +81,6 @@ export function PostContent({
     }
   }, [showMobileMenu]);
 
-  // 이모지 피커 외부 클릭 시 닫기 및 스크롤/리사이즈 시 위치 업데이트
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      // 버튼이나 피커 내부 클릭이 아닌 경우에만 닫기
-      if (
-        emojiButtonRef.current &&
-        !emojiButtonRef.current.contains(target) &&
-        emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(target)
-      ) {
-        setShowEmojiPicker(false);
-      }
-    };
-
-    const handleScrollOrResize = () => {
-      if (showEmojiPicker) {
-        calculateEmojiPickerPosition();
-      }
-    };
-
-    if (showEmojiPicker) {
-      document.addEventListener('mousedown', handleClickOutside);
-      window.addEventListener('scroll', handleScrollOrResize, true);
-      window.addEventListener('resize', handleScrollOrResize);
-
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-        window.removeEventListener('scroll', handleScrollOrResize, true);
-        window.removeEventListener('resize', handleScrollOrResize);
-      };
-    }
-  }, [showEmojiPicker, calculateEmojiPickerPosition]);
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -247,18 +164,38 @@ export function PostContent({
     handleDelete();
   };
 
-  const handleEmojiClick = (emoji: EmojiData, event?: React.MouseEvent<HTMLDivElement>) => {
-    const shiftPressed = !!event?.shiftKey; // ⇧ 키 여부
-
-    // 상위 컴포넌트에서 리액션 처리를 원하는 경우
+  const handleReactionToggle = (emoji: string) => {
     if (onReaction) {
-      onReaction(post.id, emoji.native);
+      onReaction(post.id, emoji);
     } else {
       toggleReaction(
         {
           targetType: 'posts',
           targetId: post.id,
-          emoji: emoji.native,
+          emoji: emoji,
+          currentReactions: post.reactions,
+        },
+        {
+          onError: error => {
+            console.error('[PostContent] 리액션 토글 실패:', error);
+            setShowToast({
+              message: '리액션 처리에 실패했습니다. 다시 시도해주세요.',
+            });
+          },
+        }
+      );
+    }
+  };
+
+  const handleReactionAdd = (emoji: string) => {
+    if (onReaction) {
+      onReaction(post.id, emoji);
+    } else {
+      toggleReaction(
+        {
+          targetType: 'posts',
+          targetId: post.id,
+          emoji: emoji,
           currentReactions: post.reactions,
         },
         {
@@ -271,23 +208,12 @@ export function PostContent({
         }
       );
     }
-
-    // ② Shift가 눌리지 않았을 때만 픽커 닫기
-    if (!shiftPressed) {
-      setShowEmojiPicker(false);
-    }
   };
 
-  const handleEmojiPickerToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    if (!showEmojiPicker) {
-      calculateEmojiPickerPosition();
-    }
-
-    setShowEmojiPicker(!showEmojiPicker);
+  const handleReactionError = (message: string) => {
+    setShowToast({ message });
   };
+
 
   const profileImageSize = isDetailView ? 48 : 40;
   const nameTextSize = isDetailView ? 'text-lg md:text-[17px]' : 'text-base md:text-[15px]';
@@ -505,150 +431,25 @@ export function PostContent({
           {/* 리액션 및 댓글 섹션 */}
           <div className="flex flex-col gap-[10px] py-2">
             {/* 이모지 리액션 */}
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-              {post.reactions.map((reaction, index) => (
-                <button
-                  key={`${post.id}-${reaction.emoji}-${index}`}
-                  onClick={e => {
-                    e.stopPropagation();
-                    // 상위 컴포넌트에서 리액션 처리를 원하는 경우
-                    if (onReaction) {
-                      onReaction(post.id, reaction.emoji);
-                    } else {
-                      // 컴포넌트에서 직접 리액션 API 호출
-                      toggleReaction(
-                        {
-                          targetType: 'posts',
-                          targetId: post.id,
-                          emoji: reaction.emoji,
-                          currentReactions: post.reactions,
-                        },
-                        {
-                          onError: error => {
-                            console.error('[PostContent] 리액션 토글 실패:', error);
-                            setShowToast({
-                              message: '리액션 처리에 실패했습니다. 다시 시도해주세요.',
-                            });
-                          },
-                        }
-                      );
-                    }
-                  }}
-                  className={`flex items-center gap-1 rounded-2xl border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
-                    reaction.userIds.includes(user?.id || '')
-                      ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
-                      : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
-                  } `}
-                >
-                  <span>{reaction.emoji}</span>
-                  {reaction.count > 0 && <span>{reaction.count}</span>}
-                </button>
-              ))}
-
-              {/* 이모지 추가 버튼 - 항상 표시 */}
-              <div>
-                <button
-                  ref={emojiButtonRef}
-                  onClick={handleEmojiPickerToggle}
-                  className={`flex h-[26px] w-[36px] items-center justify-center rounded-2xl bg-[rgba(241,241,241,0.5)] text-[#222222] opacity-50 transition-all hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100`}
-                >
-                  <RiEmojiStickerLine className="h-4 w-4" />
-                </button>
-
-                {/* 이모지 피커 */}
-                {showEmojiPicker && (
-                  <div
-                    ref={emojiPickerRef}
-                    className="fixed z-[9999]"
-                    style={{
-                      top: `${emojiPickerPosition.top}px`,
-                      ...(emojiPickerPosition.right !== undefined && {
-                        right: `${emojiPickerPosition.right}px`,
-                      }),
-                      ...(emojiPickerPosition.left !== undefined && {
-                        left: `${emojiPickerPosition.left}px`,
-                      }),
-                    }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                    }}
-                  >
-                    <div className="overflow-hidden rounded-lg shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
-                      <Picker
-                        data={data}
-                        onEmojiSelect={(
-                          emoji: EmojiData,
-                          event: React.MouseEvent<HTMLDivElement>
-                        ) => handleEmojiClick(emoji, event)}
-                        autoFocus={false}
-                        searchPosition="sticky"
-                        navPosition="bottom"
-                        previewPosition="none"
-                        skinTonePosition="none"
-                        set="native"
-                        theme="light"
-                        emojiButtonSize={34}
-                        emojiSize={28}
-                        perLine={9}
-                        maxFrequentRows={2}
-                        categories={[
-                          'frequent',
-                          'people',
-                          'nature',
-                          'foods',
-                          'activity',
-                          'places',
-                          'objects',
-                          'symbols',
-                          'flags',
-                        ]}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <EmojiReactions
+              reactions={post.reactions}
+              currentUserId={user?.id}
+              targetType="posts"
+              targetId={post.id}
+              onReactionToggle={handleReactionToggle}
+              onReactionAdd={handleReactionAdd}
+              onError={handleReactionError}
+            />
 
             {/* 댓글 정보 (카드 뷰에서만) */}
-            {!isDetailView && post.commentCount > 0 && (
-              <button
-                onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  onCommentClick?.(post.id);
-                }}
-                className="group/comment flex h-10 items-center gap-2 rounded-lg bg-white px-2"
-              >
-                <div className="flex gap-1">
-                  {post.comments
-                    .slice(-5) // 최신 5개 댓글
-                    .reverse() // 최신순으로 정렬
-                    .map((comment, index) => (
-                      <ProfileImage
-                        key={`${post.id}-comment-${comment.id}-${index}`}
-                        src={comment.author.profileImage}
-                        alt={comment.author.name}
-                        size={32}
-                        className="bg-white"
-                      />
-                    ))}
-                </div>
-                <span className="text-sm leading-[1.5] text-[#222222] opacity-80 md:text-[13px]">
-                  {post.commentCount}개의 댓글
-                </span>
-                {post.lastCommentTime && (
-                  <>
-                    <span className="text-sm leading-[1.5] text-[#222222] opacity-40 group-hover:hidden md:text-[13px]">
-                      {formatDistanceToNow(post.lastCommentTime, { addSuffix: true, locale: ko })}
-                    </span>
-                    <span className="hidden text-sm leading-[1.5] text-[#222222] opacity-40 group-hover:block md:text-[13px]">
-                      보기
-                    </span>
-                  </>
-                )}
-                <RiArrowRightSLine className="ml-auto h-4 w-4 text-[#222222] opacity-0 transition-opacity group-hover:opacity-60" />
-              </button>
+            {!isDetailView && (
+              <CommentPreview
+                postId={post.id}
+                comments={post.comments}
+                commentCount={post.commentCount}
+                lastCommentTime={post.lastCommentTime}
+                onCommentClick={onCommentClick}
+              />
             )}
           </div>
         </div>
