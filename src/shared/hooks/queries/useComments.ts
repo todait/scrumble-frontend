@@ -37,8 +37,9 @@ export const useCreateComment = (spaceSlug: string) => {
       await queryClient.cancelQueries({ queryKey: postsKeys.lists(spaceSlug) });
 
       // 현재 사용자 정보로 즉시 댓글 생성
+      const tempId = `temp-${Date.now()}`;
       const optimisticComment: Comment = {
-        id: `temp-${Date.now()}`, // 임시 ID
+        id: tempId, // 임시 ID
         author: {
           id: user?.id || '',
           name: user?.name || '',
@@ -50,43 +51,86 @@ export const useCreateComment = (spaceSlug: string) => {
         reactions: [],
       };
 
-      // 이전 데이터 백업
-      const previousData = queryClient.getQueryData(postsKeys.lists(spaceSlug));
-
-      // 즉시 캐시에 댓글 추가 (Optimistic Update)
-      queryClient.setQueryData(postsKeys.lists(spaceSlug), (oldData: any) => {
-        if (!oldData?.posts) return oldData;
-
-        return {
-          ...oldData,
-          posts: oldData.posts.map((post: any) =>
-            post.id === variables.postId
-              ? {
-                  ...post,
-                  comments: [optimisticComment, ...post.comments],
-                  commentCount: post.commentCount + 1,
-                  lastCommentTime: new Date(),
-                }
-              : post
-          ),
-        };
+      // 이전 데이터들을 백업 (모든 관련 캐시)
+      const previousQueries = queryClient.getQueriesData<any>({
+        queryKey: postsKeys.lists(spaceSlug),
+        exact: false,
       });
 
-      return { previousData, optimisticComment };
+      // 필터와 관계없이 모든 목록 캐시 업데이트
+      queryClient.setQueriesData(
+        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        (oldData: any) => {
+          if (!oldData?.posts) return oldData;
+
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: any) =>
+              post.id === variables.postId
+                ? {
+                    ...post,
+                    comments: [optimisticComment, ...post.comments],
+                    commentCount: post.commentCount + 1,
+                    lastCommentTime: new Date(),
+                  }
+                : post
+            ),
+          };
+        }
+      );
+
+      return { previousQueries, optimisticComment, tempId };
     },
-    onSuccess: (_data, _variables) => {
-      // WebSocket 이벤트가 실제 동기화를 담당하므로 invalidateQueries 제거
-      // 대신 성공 토스트만 표시
+    onSuccess: (data, variables, context) => {
+      if (!context) return;
+
+      // 서버 응답의 실제 댓글 데이터로 임시 댓글 교체
+      const actualComment: Comment = {
+        id: data.id,
+        author: {
+          id: data.userId,
+          name: data.userName,
+          profileImage: data.userAvatarURL || '',
+        },
+        content: data.content,
+        createdAt: new Date(data.createdAt),
+        images: data.images || [],
+        reactions: [],
+      };
+
+      // 임시 ID를 실제 ID로 교체
+      queryClient.setQueriesData(
+        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        (oldData: any) => {
+          if (!oldData?.posts) return oldData;
+
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: any) =>
+              post.id === variables.postId
+                ? {
+                    ...post,
+                    comments: post.comments.map((comment: Comment) =>
+                      comment.id === context.tempId ? actualComment : comment
+                    ),
+                  }
+                : post
+            ),
+          };
+        }
+      );
+
       success({
         title: '댓글 작성 완료',
         message: '댓글이 성공적으로 작성되었습니다.',
       });
     },
     onError: (err: unknown, variables, context) => {
-      // 에러 발생 시 이전 상태로 롤백
-      const ctx = context as { previousData?: any; optimisticComment?: Comment } | undefined;
-      if (ctx?.previousData) {
-        queryClient.setQueryData(postsKeys.lists(spaceSlug), ctx.previousData);
+      // 에러 발생 시 모든 캐시를 이전 상태로 롤백
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, previousData]) => {
+          queryClient.setQueryData(queryKey, previousData);
+        });
       }
 
       error({
@@ -111,47 +155,76 @@ export const useUpdateComment = (spaceSlug: string) => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
       await queryClient.cancelQueries({ queryKey: postsKeys.lists(spaceSlug) });
 
-      // 이전 데이터 백업
-      const previousData = queryClient.getQueryData(postsKeys.lists(spaceSlug));
-
-      // 즉시 캐시에 댓글 업데이트 (Optimistic Update)
-      queryClient.setQueryData(postsKeys.lists(spaceSlug), (oldData: any) => {
-        if (!oldData?.posts) return oldData;
-
-        return {
-          ...oldData,
-          posts: oldData.posts.map((post: any) => ({
-            ...post,
-            comments: post.comments.map((comment: any) =>
-              comment.id === variables.commentId
-                ? {
-                    ...comment,
-                    content: variables.content,
-                    images: variables.images || [],
-                    updatedAt: new Date(),
-                  }
-                : comment
-            ),
-          })),
-        };
+      // 이전 데이터들을 백업 (모든 관련 캐시)
+      const previousQueries = queryClient.getQueriesData<any>({
+        queryKey: postsKeys.lists(spaceSlug),
+        exact: false,
       });
 
-      return { previousData };
+      // 필터와 관계없이 모든 목록 캐시 업데이트
+      queryClient.setQueriesData(
+        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        (oldData: any) => {
+          if (!oldData?.posts) return oldData;
+
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: any) => ({
+              ...post,
+              comments: post.comments.map((comment: any) =>
+                comment.id === variables.commentId
+                  ? {
+                      ...comment,
+                      content: variables.content,
+                      images: variables.images || [],
+                      updatedAt: new Date(),
+                    }
+                  : comment
+              ),
+            })),
+          };
+        }
+      );
+
+      return { previousQueries };
     },
-    onSuccess: () => {
-      // 캐시를 무효화하여 서버에서 최신 데이터를 가져옴
-      queryClient.invalidateQueries({ queryKey: postsKeys.lists(spaceSlug) });
-      
+    onSuccess: (data, variables) => {
+      // 서버 응답으로 최종 업데이트
+      const updatedComment: Partial<Comment> = {
+        content: data.content,
+        images: data.images || [],
+      };
+
+      queryClient.setQueriesData(
+        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        (oldData: any) => {
+          if (!oldData?.posts) return oldData;
+
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: any) => ({
+              ...post,
+              comments: post.comments.map((comment: any) =>
+                comment.id === variables.commentId
+                  ? { ...comment, ...updatedComment }
+                  : comment
+              ),
+            })),
+          };
+        }
+      );
+
       success({
         title: '댓글 수정 완료',
         message: '댓글이 성공적으로 수정되었습니다.',
       });
     },
     onError: (err: unknown, _variables, context) => {
-      // 에러 발생 시 이전 상태로 롤백
-      const ctx = context as { previousData?: any } | undefined;
-      if (ctx?.previousData) {
-        queryClient.setQueryData(postsKeys.lists(spaceSlug), ctx.previousData);
+      // 에러 발생 시 모든 캐시를 이전 상태로 롤백
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, previousData]) => {
+          queryClient.setQueryData(queryKey, previousData);
+        });
       }
 
       error({
@@ -176,40 +249,46 @@ export const useDeleteComment = (spaceSlug: string) => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
       await queryClient.cancelQueries({ queryKey: postsKeys.lists(spaceSlug) });
 
-      // 이전 데이터 백업
-      const previousData = queryClient.getQueryData(postsKeys.lists(spaceSlug));
-
-      // 즉시 캐시에서 댓글 삭제 (Optimistic Update)
-      queryClient.setQueryData(postsKeys.lists(spaceSlug), (oldData: any) => {
-        if (!oldData?.posts) return oldData;
-
-        return {
-          ...oldData,
-          posts: oldData.posts.map((post: any) => {
-            const updatedComments = post.comments.filter((comment: any) => comment.id !== variables.commentId);
-            return {
-              ...post,
-              comments: updatedComments,
-              commentCount: Math.max(0, post.commentCount - 1),
-            };
-          }),
-        };
+      // 이전 데이터들을 백업 (모든 관련 캐시)
+      const previousQueries = queryClient.getQueriesData<any>({
+        queryKey: postsKeys.lists(spaceSlug),
+        exact: false,
       });
 
-      return { previousData };
+      // 필터와 관계없이 모든 목록 캐시 업데이트
+      queryClient.setQueriesData(
+        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        (oldData: any) => {
+          if (!oldData?.posts) return oldData;
+
+          return {
+            ...oldData,
+            posts: oldData.posts.map((post: any) => {
+              const updatedComments = post.comments.filter((comment: any) => comment.id !== variables.commentId);
+              return {
+                ...post,
+                comments: updatedComments,
+                commentCount: Math.max(0, post.commentCount - 1),
+              };
+            }),
+          };
+        }
+      );
+
+      return { previousQueries };
     },
     onSuccess: (_data, _variables) => {
-      // WebSocket 이벤트가 실제 동기화를 담당하므로 invalidateQueries 제거
       success({
         title: '댓글 삭제 완료',
         message: '댓글이 성공적으로 삭제되었습니다.',
       });
     },
     onError: (err: unknown, _variables, context) => {
-      // 에러 발생 시 이전 상태로 롤백
-      const ctx = context as { previousData?: any } | undefined;
-      if (ctx?.previousData) {
-        queryClient.setQueryData(postsKeys.lists(spaceSlug), ctx.previousData);
+      // 에러 발생 시 모든 캐시를 이전 상태로 롤백
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, previousData]) => {
+          queryClient.setQueryData(queryKey, previousData);
+        });
       }
 
       error({

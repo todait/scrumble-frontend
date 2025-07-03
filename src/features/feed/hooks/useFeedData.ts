@@ -103,20 +103,42 @@ export const useFeedData = (spaceSlug: string) => {
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
 
-        const existingComments = oldData.posts.find((p: Post) => p.id === postId)?.comments || [];
+        const targetPost = oldData.posts.find((p: Post) => p.id === postId);
+        if (!targetPost) return oldData;
+
+        const existingComments = targetPost.comments || [];
+
+        // 실제 ID로 중복 체크
         const isDuplicate = existingComments.some((c: Comment) => c.id === comment.id);
         if (isDuplicate) {
-          return oldData; // 중복이면 변경 없음
+          return oldData; // 이미 존재하는 댓글이면 변경 없음
         }
+
+        // 임시 ID를 가진 댓글이 있는지 체크 (작성자와 내용으로 매칭)
+        const tempCommentIndex = existingComments.findIndex((c: Comment) =>
+          c.id.startsWith('temp-') &&
+          c.author.id === comment.author.id &&
+          c.content === comment.content
+        );
 
         return {
           ...oldData,
           posts: oldData.posts.map((post: any) => {
             if (post.id === postId) {
+              let updatedComments = [...existingComments];
+
+              if (tempCommentIndex >= 0) {
+                // 임시 댓글을 실제 댓글로 교체
+                updatedComments[tempCommentIndex] = comment;
+              } else {
+                // 새 댓글 추가 (WebSocket 이벤트가 optimistic update보다 먼저 도착한 경우)
+                updatedComments = [comment, ...updatedComments];
+              }
+
               return {
                 ...post,
-                commentCount: post.commentCount + 1,
-                comments: [...existingComments, comment],
+                comments: updatedComments,
+                commentCount: tempCommentIndex >= 0 ? post.commentCount : post.commentCount + 1,
                 lastCommentTime: comment.createdAt,
               };
             }
@@ -253,7 +275,7 @@ export const useFeedData = (spaceSlug: string) => {
             }),
           };
         }
-        
+
         // 댓글 리액션인 경우
         if (message.data.targetType === 'comment') {
           return {
