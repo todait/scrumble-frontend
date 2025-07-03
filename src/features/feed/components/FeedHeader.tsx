@@ -97,9 +97,18 @@ export function FeedHeader({ selectedDate, activeUsers, onDateChange }: FeedHead
                 showOutsideDays={false}
                 className="p-3"
                 today={today}
+                disabled={(date) => {
+                  // 미래 날짜 비활성화
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const targetDate = new Date(date);
+                  targetDate.setHours(0, 0, 0, 0);
+                  return targetDate > today;
+                }}
                 modifiersClassNames={{
                   selected: 'rdp-day_selected',
                   today: 'rdp-day_today custom-today',
+                  disabled: 'rdp-day_disabled',
                 }}
               />
             </div>
