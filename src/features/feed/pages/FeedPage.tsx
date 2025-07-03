@@ -29,6 +29,7 @@ import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 import { debug as logDebug } from '@/shared/utils/debug';
 import { RiSettings6Line } from '@remixicon/react';
+import { isSameDay } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -124,14 +125,17 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   };
 
   useEffect(() => {
+    const isToday = isSameDay(selectedDate, new Date());
+
     if (
+      isToday &&
       !existsCheckinQuery.isLoading &&
       existsCheckinQuery.data &&
       existsCheckinQuery.data.exists === false
     ) {
       router.replace(ROUTES.SPACE_CHECKIN(spaceSlug));
     }
-  }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug]);
+  }, [selectedDate, existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug]);
 
   // 컴포넌트 언마운트 시 타이머 정리 및 관찰 중지
   useEffect(() => {
@@ -146,7 +150,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // URL 파라미터 처리
   const selectedPostId = searchParams.get('post');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
-  
+
   // selectedPostId가 변경될 때 isPostDetailVisible 업데이트
   useEffect(() => {
     setIsPostDetailVisible(!!selectedPostId);
