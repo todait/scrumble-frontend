@@ -236,7 +236,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                   <FeedListSkeleton count={6} />
                 ) : (
                   <>
-                    {posts.map((post: FeedPost) => (
+                    {posts.map(post => (
                       <div
                         key={post.id}
                         data-post-id={post.id}
@@ -254,7 +254,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                       >
                         <PostCard
                           spaceSlug={spaceSlug}
-                          post={post}
+                          post={post as FeedPost}
                           onCommentClick={handleCommentClick}
                           isSelected={selectedPostId === post.id}
                         />
