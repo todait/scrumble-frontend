@@ -52,3 +52,50 @@ declare module '@remixicon/react' {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export const UnknownIcon: any;
 }
+
+// -----------------------------------------------------------------------------
+// Additional module shims
+// -----------------------------------------------------------------------------
+
+declare module 'date-fns/locale/*' {
+  import { Locale } from 'date-fns';
+  const locale: Locale;
+  export = locale;
+}
+
+declare module 'react-day-picker' {
+  import * as React from 'react';
+  // These are partial types. For full types, install @types/react-day-picker if needed.
+  export interface DayPickerSingleProps {
+    mode?: 'single';
+    selected?: Date;
+    onSelect?: (date?: Date) => void;
+    locale?: unknown;
+    showOutsideDays?: boolean;
+    weekStartsOn?: number;
+    today?: Date;
+    disabled?: unknown;
+    modifiersClassNames?: Record<string, string>;
+    modifiersStyles?: Record<string, React.CSSProperties>;
+    className?: string;
+  }
+  export function DayPicker(props: DayPickerSingleProps): JSX.Element;
+}
+
+declare module 'next/navigation' {
+  export function useRouter(): any;
+  export function useSearchParams(): URLSearchParams;
+  export function usePathname(): string;
+  export function useParams(): Record<string, string>;
+}
+
+declare module 'next/link' {
+  import * as React from 'react';
+  interface LinkProps {
+    href: string;
+    children?: React.ReactNode;
+    className?: string;
+  }
+  const Link: React.FC<LinkProps>;
+  export default Link;
+}
