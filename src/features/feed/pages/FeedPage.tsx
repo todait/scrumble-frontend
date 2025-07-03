@@ -48,7 +48,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPostDetailVisible, setIsPostDetailVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // URL 파라미터에서 날짜 초기화 (URL → localStorage → 오늘 순서)
   useEffect(() => {
@@ -236,7 +236,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                   <FeedListSkeleton count={6} />
                 ) : (
                   <>
-                    {posts.map(post => (
+                    {posts.map((post: FeedPost) => (
                       <div
                         key={post.id}
                         data-post-id={post.id}
@@ -254,7 +254,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                       >
                         <PostCard
                           spaceSlug={spaceSlug}
-                          post={post as FeedPost}
+                          post={post}
                           onCommentClick={handleCommentClick}
                           isSelected={selectedPostId === post.id}
                         />

@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuth } from '@/shared/hooks/auth/useAuth';
 import {
   RiBarChartFill,
   RiBarChartLine,
@@ -16,8 +17,7 @@ import {
 } from '@remixicon/react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useState, useRef, useEffect } from 'react';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import React, { useEffect, useRef, useState } from 'react';
 import { SettingsDropdown } from './SettingsDropdown';
 
 interface NavItem {
@@ -38,7 +38,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { logout } = useAuth();
 
   // 로그아웃 처리 함수
