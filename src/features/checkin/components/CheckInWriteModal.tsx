@@ -2,6 +2,7 @@
 
 import { useCreateCheckIn, useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
+import { useDateStore } from '@/shared/stores/useDateStore';
 import { ErrorCode } from '@/shared/types/api';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
@@ -20,6 +21,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const router = useRouter();
   const params = useParams();
   const spaceSlug = params.spaceSlug as string;
+  const { selectedDate } = useDateStore();
   const [dateString, setDateString] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const { error, info } = useToast();
@@ -27,12 +29,12 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const { mutate: createCheckIn, isPending } = useCreateCheckIn();
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
     spaceSlug,
-    date: formatDateToAPIString(new Date()),
+    date: formatDateToAPIString(selectedDate),
   });
 
   useEffect(() => {
-    setDateString(formatDate());
-  }, []);
+    setDateString(formatDate(selectedDate));
+  }, [selectedDate]);
 
   const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
@@ -44,6 +46,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     createCheckIn(
       {
         spaceSlug,
+        postedDate: formatDateToAPIString(selectedDate),
         conditionScore: data.score,
         conditionText: data.message,
         images: data.images || [], // 기본값 대비

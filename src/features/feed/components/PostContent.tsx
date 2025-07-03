@@ -5,6 +5,7 @@ import { CheckOutEditModal } from '@/features/checkout/components';
 import { SimpleToast } from '@/shared/components/feedback';
 import {
   DeleteConfirmDialog,
+  EditDeleteMenu,
   ImageGallery,
   ImageViewer,
   ProfileImage,
@@ -15,13 +16,8 @@ import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
 import { EmojiReactions } from '@/shared/components/emoji';
-import {
-  RiDeleteBinLine,
-  RiEdit2Line,
-  RiMore2Line,
-} from '@remixicon/react';
 import router from 'next/router';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { Post } from '../types/feed.types';
 import { CommentPreview } from './CommentPreview';
 import { getPostContent } from '../types/feed.types';
@@ -49,8 +45,6 @@ export function PostContent({
   const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
@@ -67,19 +61,6 @@ export function PostContent({
   const imageUrls = post.images?.map(image => image.url);
 
 
-  // 모바일 메뉴 외부 클릭 시 닫기
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        setShowMobileMenu(false);
-      }
-    };
-
-    if (showMobileMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [showMobileMenu]);
 
 
   const handleEdit = () => {
@@ -144,25 +125,6 @@ export function PostContent({
     setShowToast(null);
   };
 
-  const handleMobileMenuToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowMobileMenu(!showMobileMenu);
-  };
-
-  const handleMobileEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowMobileMenu(false);
-    handleEdit();
-  };
-
-  const handleMobileDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowMobileMenu(false);
-    handleDelete();
-  };
 
   const handleReactionToggle = (emoji: string) => {
     if (onReaction) {
@@ -222,47 +184,6 @@ export function PostContent({
     : 'text-base leading-[1.4] md:text-[15px] md:leading-[1.4]';
   const padding = isDetailView ? 'p-4 md:p-6' : 'p-5 md:p-[30px]';
 
-  // 모바일 더보기 메뉴 컴포넌트
-  const MobileMoreMenu = forwardRef<
-    HTMLDivElement,
-    {
-      showMenu: boolean;
-      onMenuToggle: (e: React.MouseEvent) => void;
-      onEdit: (e: React.MouseEvent) => void;
-      onDelete: (e: React.MouseEvent) => void;
-    }
-  >(({ showMenu, onMenuToggle, onEdit, onDelete }, ref) => (
-    <div ref={ref} className="relative md:hidden">
-      <button
-        onClick={onMenuToggle}
-        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[rgba(34,34,34,0.08)]"
-      >
-        <RiMore2Line className="h-5 w-5 text-[#222222] opacity-60" />
-      </button>
-
-      {/* 모바일 드롭다운 메뉴 */}
-      {showMenu && (
-        <div className="absolute right-0 top-full z-30 mt-1 flex min-w-[120px] flex-col rounded-lg bg-white p-1 shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
-          <button
-            onClick={onEdit}
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-[#F1F1F1]"
-          >
-            <RiEdit2Line className="h-4 w-4 text-[#222222]" />
-            <span className="font-medium text-[#222222]">수정</span>
-          </button>
-          <button
-            onClick={onDelete}
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[#E04646] transition-colors hover:bg-[rgba(224,70,70,0.04)]"
-          >
-            <RiDeleteBinLine className="h-4 w-4" />
-            <span className="font-medium">삭제</span>
-          </button>
-        </div>
-      )}
-    </div>
-  ));
-
-  MobileMoreMenu.displayName = 'MobileMoreMenu';
 
   return (
     <>
@@ -280,33 +201,6 @@ export function PostContent({
           <div className="absolute left-0 top-0 h-full w-1 bg-[#9747FF]" />
         )}
 
-        {/* 내 포스트일 때 수정/삭제 버튼 - 데스크톱 호버 메뉴 (카드 뷰에서만) */}
-        {isMyPost && !isDetailView && (
-          <div className="absolute right-[10px] top-[10px] z-10 hidden opacity-0 transition-opacity group-hover:opacity-100 md:block">
-            <div className="flex h-[50px] w-[150px] items-center justify-center gap-[10px] rounded-lg bg-white p-2 shadow-[0px_2px_8px_rgba(0,0,0,0.08)]">
-              <button
-                onClick={e => {
-                  e.stopPropagation();
-                  handleEdit();
-                }}
-                className="flex h-[34px] w-[62px] items-center justify-center gap-1 rounded-lg hover:bg-[#F1F1F1]"
-              >
-                <RiEdit2Line className="h-4 w-4 text-[#222222]" />
-                <span className="text-[13px] font-medium text-[#222222]">수정</span>
-              </button>
-              <button
-                onClick={e => {
-                  e.stopPropagation();
-                  handleDelete();
-                }}
-                className="flex h-[34px] w-[62px] items-center justify-center gap-1 rounded-lg text-[#E04646] hover:bg-[rgba(224,70,70,0.04)]"
-              >
-                <RiDeleteBinLine className="h-4 w-4" />
-                <span className="text-[13px] font-medium">삭제</span>
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* 프로필 이미지 */}
         <div className="flex-shrink-0">
@@ -347,7 +241,7 @@ export function PostContent({
             </div>
 
             {/* 체크인 점수 + 더보기 메뉴 */}
-            {isCheckIn && 'conditionScore' in post && (
+            {isCheckIn && 'conditionScore' in post ? (
               <div className="flex flex-shrink-0 items-center gap-2">
                 <div className="rounded border border-[rgba(34,34,34,0.08)] px-2 py-2">
                   <span className="text-base text-[#222222] opacity-80 md:text-[15px]">
@@ -355,32 +249,26 @@ export function PostContent({
                     {post.conditionScore}점
                   </span>
                 </div>
-
-                {/* 모바일 더보기 메뉴 - 내 포스트일 때만 표시 */}
+                {/* 내 포스트일 때 수정/삭제 메뉴 (카드 뷰에서만) */}
                 {isMyPost && !isDetailView && (
-                  <MobileMoreMenu
-                    ref={mobileMenuRef}
-                    showMenu={showMobileMenu}
-                    onMenuToggle={handleMobileMenuToggle}
-                    onEdit={handleMobileEdit}
-                    onDelete={handleMobileDelete}
+                  <EditDeleteMenu
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                   />
                 )}
               </div>
+            ) : (
+              /* 체크아웃인 경우 더보기 메뉴만 */
+              isMyPost && !isDetailView && (
+                <div className="flex-shrink-0">
+                  <EditDeleteMenu
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                </div>
+              )
             )}
 
-            {/* 체크아웃 더보기 메뉴 - 체크인 점수가 없을 때 */}
-            {isCheckOut && isMyPost && !isDetailView && (
-              <div className="flex-shrink-0">
-                <MobileMoreMenu
-                  ref={mobileMenuRef}
-                  showMenu={showMobileMenu}
-                  onMenuToggle={handleMobileMenuToggle}
-                  onEdit={handleMobileEdit}
-                  onDelete={handleMobileDelete}
-                />
-              </div>
-            )}
           </div>
 
           {/* 본문 */}

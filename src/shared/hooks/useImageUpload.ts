@@ -178,13 +178,15 @@ export function useImageUpload({
 
   // 모든 이미지 초기화
   const clearImages = useCallback(() => {
-    uploadingImages.forEach(img => {
-      if (img.preview) {
-        URL.revokeObjectURL(img.preview);
-      }
+    setUploadingImages(prev => {
+      prev.forEach(img => {
+        if (img.preview) {
+          URL.revokeObjectURL(img.preview);
+        }
+      });
+      return [];
     });
-    setUploadingImages([]);
-  }, [uploadingImages]);
+  }, []);
 
   const isUploading = uploadingImages.some(
     img => img.progress > 0 && img.progress < 100 && !img.error
@@ -194,6 +196,18 @@ export function useImageUpload({
     .filter(img => img.metadata && !img.error)
     .map(img => img.metadata!);
 
+  // 기존 이미지들을 동적으로 초기화하는 함수
+  const initializeWithImages = useCallback((images: ImageMetadata[]) => {
+    const existingImages: UploadingImage[] = images.map((img, index) => ({
+      id: `existing-${img.url}-${index}`,
+      file: new File([], img.name, { type: img.format }),
+      preview: img.url,
+      progress: 100,
+      metadata: img,
+    }));
+    setUploadingImages(existingImages);
+  }, []);
+
   return {
     uploadImages,
     uploadingImages,
@@ -201,5 +215,6 @@ export function useImageUpload({
     removeImage,
     clearImages,
     isUploading,
+    initializeWithImages,
   };
 }

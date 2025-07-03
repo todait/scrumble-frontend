@@ -19,7 +19,7 @@
 
 body {
   color: var(--foreground);
-  background: #FAFAFA;
+  background: #fafafa;
   font-family: 'Pretendard', system-ui, sans-serif;
   /* 모바일 터치 확대 방지 */
   touch-action: manipulation;
@@ -27,22 +27,22 @@ body {
 
 /* 스크롤바 숨김 */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* iOS Safari 확대 방지를 위한 최소 font-size 설정 (모바일에서만) */
 @media (max-width: 768px) {
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="search"],
-  input[type="url"],
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='search'],
+  input[type='url'],
   textarea,
   select {
     font-size: 16px !important;
@@ -59,4 +59,215 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ========== REACT DAY PICKER 스타일 오버라이드 ========== */
+
+/* CSS 변수 설정 */
+:root {
+  --rdp-accent-color: #b794f6 !important;
+  --rdp-accent-color-dark: #9f7aea !important;
+}
+
+/* 1. 기본 스타일 설정 */
+.rdp {
+  font-family: inherit !important;
+}
+
+/* 2. 캘린더 헤더 스타일 */
+.rdp-caption,
+.rdp-caption_label {
+  color: #222222 !important;
+  font-weight: 600 !important;
+  padding-left: 8px !important;
+  text-align: left !important;
+}
+
+/* 3. 요일 헤더 스타일 */
+.rdp-weekday {
+  color: #666666 !important;
+  font-weight: 500 !important;
+}
+
+/* 4. 네비게이션 버튼 수정 - 더 구체적인 선택자 */
+.rdp-nav button,
+.rdp-nav_button,
+.rdp-nav_button_previous,
+.rdp-nav_button_next,
+button.rdp-nav_button,
+button.rdp-nav_button_previous,
+button.rdp-nav_button_next {
+  color: #9747ff !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.rdp-nav button:hover,
+.rdp-nav_button:hover,
+.rdp-nav_button_previous:hover,
+.rdp-nav_button_next:hover {
+  background-color: rgba(151, 71, 255, 0.1) !important;
+  border-radius: 50% !important;
+}
+
+.rdp-nav svg,
+.rdp-nav button svg,
+.rdp-nav_button svg {
+  color: #9747ff !important;
+  fill: #9747ff !important;
+}
+
+/* 5. 날짜 셀 스타일 */
+.rdp-day {
+  position: relative !important;
+}
+
+/* 6. 날짜 버튼 기본 스타일 - react-day-picker v9 구조에 맞춤 */
+.rdp-button,
+.rdp-day_button,
+.rdp-day .rdp-button,
+.rdp-cell button,
+button.rdp-button {
+  width: 32px !important;
+  height: 32px !important;
+  margin: 2px auto !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: #222222 !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+/* 7. 날짜 hover 효과 - 선택되지 않은 날짜만 */
+.rdp-button:not([aria-selected='true']):hover,
+.rdp-day_button:not([aria-selected='true']):hover,
+.rdp-day:not(.rdp-day_selected) .rdp-button:hover,
+.rdp-day:not(.rdp-day_selected) button:hover {
+  background-color: rgba(183, 148, 246, 0.15) !important;
+}
+
+/* 8. 선택된 날짜 스타일 - v9 구조에 맞춤 */
+.rdp-day_selected .rdp-button,
+.rdp-day_selected button,
+.rdp-day.rdp-day_selected .rdp-button,
+.rdp-day.rdp-day_selected button,
+.rdp-button[aria-selected='true'],
+button[aria-selected='true'].rdp-button,
+.rdp-day_selected:hover .rdp-button,
+.rdp-day_selected:hover button {
+  background-color: #b794f6 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(183, 148, 246, 0.3) !important;
+}
+
+/* 선택된 날짜의 hover 효과 - 더 어두운 보라색 */
+.rdp-day_selected .rdp-button:hover,
+.rdp-day_selected button:hover,
+.rdp-day.rdp-day_selected .rdp-button:hover,
+.rdp-day.rdp-day_selected button:hover,
+.rdp-button[aria-selected='true']:hover,
+button[aria-selected='true'].rdp-button:hover {
+  background-color: #9f7aea !important;
+  color: white !important;
+  box-shadow: 0 2px 6px rgba(183, 148, 246, 0.4) !important;
+}
+
+/* 9. 오늘 날짜 스타일 - v9 구조에 맞춤 */
+.rdp-day_today:not(.rdp-day_selected) .rdp-button,
+.rdp-day_today:not(.rdp-day_selected) button,
+.rdp-day.rdp-day_today:not(.rdp-day_selected) .rdp-button,
+.rdp-day.rdp-day_today:not(.rdp-day_selected) button,
+.custom-today:not(.rdp-day_selected) .rdp-button,
+.custom-today:not(.rdp-day_selected) button {
+  background: transparent !important;
+  color: #9747ff !important;
+  font-weight: 600 !important;
+  border: 2px solid #9747ff !important;
+  box-sizing: border-box !important;
+}
+
+.rdp-day_today:not(.rdp-day_selected) .rdp-button:hover,
+.rdp-day_today:not(.rdp-day_selected) button:hover {
+  background-color: rgba(151, 71, 255, 0.1) !important;
+  border-color: #7c3aed !important;
+  color: #7c3aed !important;
+}
+
+/* 10. 오늘이면서 선택된 날짜 */
+.rdp-day_today.rdp-day_selected .rdp-button,
+.rdp-day_today.rdp-day_selected button,
+.rdp-day.rdp-day_today.rdp-day_selected .rdp-button,
+.rdp-day.rdp-day_today.rdp-day_selected button,
+.custom-today.rdp-day_selected .rdp-button,
+.custom-today.rdp-day_selected button,
+.rdp-day_today.rdp-day_selected:hover .rdp-button,
+.rdp-day_today.rdp-day_selected:hover button {
+  background-color: #b794f6 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(183, 148, 246, 0.3) !important;
+}
+
+/* 오늘이면서 선택된 날짜의 hover 효과 */
+.rdp-day_today.rdp-day_selected .rdp-button:hover,
+.rdp-day_today.rdp-day_selected button:hover,
+.custom-today.rdp-day_selected .rdp-button:hover,
+.custom-today.rdp-day_selected button:hover {
+  background-color: #9f7aea !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(183, 148, 246, 0.4) !important;
+}
+
+/* 11. 포커스 스타일 */
+.rdp-button:focus-visible,
+button.rdp-button:focus-visible {
+  outline: 2px solid #9747ff !important;
+  outline-offset: 2px !important;
+}
+
+/* 12. 비활성 날짜 */
+.rdp-day_outside .rdp-button,
+.rdp-day_outside button {
+  opacity: 0.3 !important;
+}
+
+/* 13. 날짜 셀 배경 제거 */
+.rdp-day,
+.rdp-day_selected,
+.rdp-day_today {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* 14. 강제 적용이 필요한 경우를 위한 추가 선택자 */
+.rdp .rdp-button:where([aria-selected='true']),
+.rdp .rdp-button:where([aria-selected='true']):hover {
+  background-color: #b794f6 !important;
+  color: white !important;
+}
+
+.rdp .rdp-button:where([aria-selected='true']):hover {
+  background-color: #9f7aea !important;
+}
+
+/* 15. 최종 보장 - 가장 마지막에 오는 선택자 */
+div.rdp td.rdp-day_selected button.rdp-button,
+div.rdp td.rdp-day_selected button.rdp-button:hover {
+  background-color: #b794f6 !important;
+  color: white !important;
+}
+
+div.rdp td.rdp-day_selected button.rdp-button:hover {
+  background-color: #9f7aea !important;
 }

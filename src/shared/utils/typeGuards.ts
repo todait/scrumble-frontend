@@ -3,17 +3,18 @@
  * 런타임에서 타입 안정성을 보장하고 예기치 않은 에러를 방지합니다.
  */
 
-import type { 
-  IncomingWebSocketMessage,
+import type { Comment, WebSocketComment } from '@/features/feed/types/feed.types';
+import type {
   CommentCreatedMessage,
-  CommentUpdatedMessage,
   CommentDeletedMessage,
+  CommentUpdatedMessage,
   ConnectionEstablishedMessage,
-  ConnectionReconnectingMessage,
   ConnectionFailedMessage,
+  ConnectionReconnectingMessage,
+  IncomingWebSocketMessage,
   MessageErrorMessage,
 } from '@/shared/types/websocket.types';
-import type { Comment, WebSocketComment } from '@/features/feed/types/feed.types';
+import { debug as logDebug } from '@/shared/utils/debug';
 
 // 기본 타입 체크 함수들
 export const isTruthy = <T>(value: T | null | undefined): value is T => {
@@ -38,12 +39,7 @@ export const isObject = (value: any): value is Record<string, any> => {
 
 // WebSocket 메시지 타입 가드들
 export const isValidWebSocketMessage = (data: any): data is IncomingWebSocketMessage => {
-  return (
-    isObject(data) &&
-    isString(data.type) &&
-    data.type.length > 0 &&
-    isString(data.timestamp)
-  );
+  return isObject(data) && isString(data.type) && data.type.length > 0 && isString(data.timestamp);
 };
 
 export const isValidWebSocketComment = (data: any): data is WebSocketComment => {
@@ -61,60 +57,51 @@ export const isValidWebSocketComment = (data: any): data is WebSocketComment => 
 
 // 특정 WebSocket 메시지 타입 검증
 export const isCommentCreatedMessage = (data: any): data is CommentCreatedMessage => {
-  const isValid = (
-    isValidWebSocketMessage(data) &&
-    data.type === 'comment.created'
-    // 임시로 엄격한 검증 제거
-  );
-  
+  const isValid = isValidWebSocketMessage(data) && data.type === 'comment.created';
+  // 임시로 엄격한 검증 제거
+
   if (process.env.NODE_ENV === 'development') {
-    console.log('[TypeGuard] isCommentCreatedMessage check:', {
+    logDebug('TypeGuard', 'isCommentCreatedMessage check', {
       data,
       isValid,
       hasData: isObject(data.data),
       hasPostIdInData: data.data?.postId,
-      hasCommentIdInData: data.data?.commentId
+      hasCommentIdInData: data.data?.commentId,
     });
   }
-  
+
   return isValid;
 };
 
 export const isCommentUpdatedMessage = (data: any): data is CommentUpdatedMessage => {
-  const isValid = (
-    isValidWebSocketMessage(data) &&
-    data.type === 'comment.updated'
-    // 임시로 엄격한 검증 제거
-  );
-  
+  const isValid = isValidWebSocketMessage(data) && data.type === 'comment.updated';
+  // 임시로 엄격한 검증 제거
+
   if (process.env.NODE_ENV === 'development') {
-    console.log('[TypeGuard] isCommentUpdatedMessage check:', {
+    logDebug('TypeGuard', 'isCommentUpdatedMessage check', {
       data,
       isValid,
       hasData: isObject(data.data),
-      hasPostIdInData: data.data?.postId
+      hasPostIdInData: data.data?.postId,
     });
   }
-  
+
   return isValid;
 };
 
 export const isCommentDeletedMessage = (data: any): data is CommentDeletedMessage => {
-  const isValid = (
-    isValidWebSocketMessage(data) &&
-    data.type === 'comment.deleted'
-    // 임시로 엄격한 검증 제거
-  );
-  
+  const isValid = isValidWebSocketMessage(data) && data.type === 'comment.deleted';
+  // 임시로 엄격한 검증 제거
+
   if (process.env.NODE_ENV === 'development') {
-    console.log('[TypeGuard] isCommentDeletedMessage check:', {
+    logDebug('TypeGuard', 'isCommentDeletedMessage check', {
       data,
       isValid,
       hasData: isObject(data.data),
-      hasPostIdInData: data.data?.postId
+      hasPostIdInData: data.data?.postId,
     });
   }
-  
+
   return isValid;
 };
 
@@ -127,7 +114,9 @@ export const isConnectionEstablishedMessage = (data: any): data is ConnectionEst
   );
 };
 
-export const isConnectionReconnectingMessage = (data: any): data is ConnectionReconnectingMessage => {
+export const isConnectionReconnectingMessage = (
+  data: any
+): data is ConnectionReconnectingMessage => {
   return (
     isValidWebSocketMessage(data) &&
     data.type === 'connection.reconnecting' &&
@@ -161,7 +150,7 @@ export const safeTransformComment = (
 ): Comment | undefined => {
   try {
     if (!isValidWebSocketComment(wsComment)) {
-      console.warn('[TypeGuard] Invalid WebSocket comment structure:', wsComment);
+      logDebug('TypeGuard', 'Invalid WebSocket comment structure', wsComment);
       return fallback;
     }
 
@@ -177,25 +166,23 @@ export const safeTransformComment = (
       images: Array.isArray(wsComment.images) ? wsComment.images : [],
     };
   } catch (error) {
-    console.error('[TypeGuard] Comment transformation error:', error);
+    logDebug('TypeGuard', 'Comment transformation error', error);
     return fallback;
   }
 };
 
-export const safeParseWebSocketMessage = (
-  data: string
-): IncomingWebSocketMessage | null => {
+export const safeParseWebSocketMessage = (data: string): IncomingWebSocketMessage | null => {
   try {
     const parsed = JSON.parse(data);
-    
+
     if (!isValidWebSocketMessage(parsed)) {
-      console.warn('[TypeGuard] Invalid WebSocket message format:', parsed);
+      logDebug('TypeGuard', 'Invalid WebSocket message format', parsed);
       return null;
     }
-    
+
     return parsed;
   } catch (error) {
-    console.error('[TypeGuard] WebSocket message parsing error:', error);
+    logDebug('TypeGuard', 'WebSocket message parsing error', error);
     return null;
   }
 };
@@ -205,7 +192,7 @@ export const chunkArray = <T>(array: T[], size: number): T[][] => {
   if (size <= 0) {
     throw new Error('Chunk size must be greater than 0');
   }
-  
+
   const chunks: T[][] = [];
   for (let i = 0; i < array.length; i += size) {
     chunks.push(array.slice(i, i + size));
@@ -239,39 +226,36 @@ export const isNetworkError = (error: unknown): boolean => {
   return (
     error instanceof Error &&
     (error.message.includes('Network Error') ||
-     error.message.includes('Failed to fetch') ||
-     error.name === 'NetworkError')
+      error.message.includes('Failed to fetch') ||
+      error.name === 'NetworkError')
   );
 };
 
 // 웹소켓 메시지 디버깅 유틸리티
 export const debugWebSocketMessage = (message: IncomingWebSocketMessage): void => {
   if (process.env.NODE_ENV === 'development') {
-    console.group(`[WebSocket] ${message.type}`);
-    
+    logDebug('WebSocket', `Group start - ${message.type}`);
+
     // pong 메시지는 로그를 간소화 (heartbeat이므로 너무 상세할 필요 없음)
     if (message.type === 'pong') {
-      console.log('Heartbeat response received');
+      logDebug('WebSocket', 'Heartbeat response received');
     } else {
-      console.log('Timestamp:', new Date(message.timestamp));
-      console.log('Space:', message.spaceSlug);
-      console.log('Payload:', message);
+      logDebug('WebSocket', `Timestamp: ${new Date(message.timestamp).toISOString()}`);
+      logDebug('WebSocket', `Space: ${message.spaceSlug}`);
+      logDebug('WebSocket', 'Payload', message);
     }
-    
-    console.groupEnd();
+
+    logDebug('WebSocket', `Group end - ${message.type}`);
   }
 };
 
 // 성능 모니터링 유틸리티
-export const measurePerformance = <T>(
-  name: string,
-  fn: () => T
-): T => {
+export const measurePerformance = <T>(name: string, fn: () => T): T => {
   if (process.env.NODE_ENV === 'development') {
     const start = performance.now();
     const result = fn();
     const end = performance.now();
-    console.log(`[Performance] ${name}: ${(end - start).toFixed(2)}ms`);
+    logDebug('Performance', `${name}: ${(end - start).toFixed(2)}ms`);
     return result;
   }
   return fn();
@@ -286,7 +270,7 @@ export const measureAsyncPerformance = async <T>(
     const start = performance.now();
     const result = await fn();
     const end = performance.now();
-    console.log(`[Performance] ${name}: ${(end - start).toFixed(2)}ms`);
+    logDebug('Performance', `${name}: ${(end - start).toFixed(2)}ms`);
     return result;
   }
   return fn();
@@ -306,14 +290,11 @@ export const validateCommentId = (commentId: unknown): commentId is string => {
 };
 
 // 안전한 JSON 파싱
-export const safeJsonParse = <T = any>(
-  jsonString: string,
-  fallback: T
-): T => {
+export const safeJsonParse = <T = any>(jsonString: string, fallback: T): T => {
   try {
     return JSON.parse(jsonString);
   } catch (error) {
-    console.warn('[TypeGuard] JSON parsing failed:', error);
+    logDebug('TypeGuard', 'JSON parsing failed', error);
     return fallback;
   }
 };
