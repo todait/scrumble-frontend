@@ -46,8 +46,8 @@ const nextConfig: NextConfig = {
     // 이미지 최적화 설정
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
-    // 이미지 최적화 활성화 (이전에는 Vercel 502 에러 방지를 위해 비활성화했었음)
-    unoptimized: false,
+    // 배포 환경에서는 이미지 최적화 비활성화 (이미지 표시 문제 방지)
+    unoptimized: process.env.NODE_ENV === 'production',
   },
   
   // 실험적 기능 설정
