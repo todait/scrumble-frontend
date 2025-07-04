@@ -101,24 +101,23 @@ export const useFeedData = (spaceSlug: string) => {
     (postId: string, comment: Comment) => {
       const queryKey = buildListKey();
 
-      console.warn('[handleCommentAdded] Called with:', { postId, comment });
+      debug('useFeedData', 'handleCommentAdded called', { postId, comment });
 
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
 
         const targetPost = oldData.posts.find((p: Post) => p.id === postId);
         if (!targetPost) {
-          console.warn('[handleCommentAdded] Target post not found:', postId);
+          debug('useFeedData', 'Target post not found', postId);
           return oldData;
         }
 
         const existingComments = targetPost.comments || [];
-        console.warn('[handleCommentAdded] Existing comments:', existingComments);
 
         // 실제 ID로 중복 체크
         const isDuplicate = existingComments.some((c: Comment) => c.id === comment.id);
         if (isDuplicate) {
-          console.warn('[handleCommentAdded] Duplicate comment found, skipping:', comment.id);
+          debug('useFeedData', 'Duplicate comment found, skipping', comment.id);
           return oldData; // 이미 존재하는 댓글이면 변경 없음
         }
 
@@ -129,10 +128,11 @@ export const useFeedData = (spaceSlug: string) => {
           c.content === comment.content
         );
 
-        console.warn('[handleCommentAdded] Temp comment index:', tempCommentIndex);
         if (tempCommentIndex >= 0) {
-          console.warn('[handleCommentAdded] Found temp comment:', existingComments[tempCommentIndex]);
-          console.warn('[handleCommentAdded] Replacing with:', comment);
+          debug('useFeedData', 'Replacing temp comment', {
+            tempComment: existingComments[tempCommentIndex],
+            newComment: comment
+          });
         }
 
         return {
@@ -474,12 +474,12 @@ export const useFeedData = (spaceSlug: string) => {
     eventHandlersRef.current = {
       commentCreated: (message: CommentCreatedMessage) => {
         if (message.data?.postId && message.data?.commentId) {
-          // 프로덕션에서 디버깅을 위한 로그
-          console.warn('[WebSocket] commentCreated - Raw message data:', message.data);
-          console.warn('[WebSocket] commentCreated - Images:', message.data.images);
-          
           const convertedImages = (message.data.images || []).map(convertWebSocketImageToImageMetadata);
-          console.warn('[WebSocket] commentCreated - Converted images:', convertedImages);
+          
+          debug('WebSocket', 'commentCreated', {
+            messageData: message.data,
+            convertedImages
+          });
 
           const comment: Comment = {
             id: message.data.commentId,
@@ -494,7 +494,6 @@ export const useFeedData = (spaceSlug: string) => {
             reactions: [],
           };
           
-          console.warn('[WebSocket] commentCreated - Final comment:', comment);
           handleCommentAdded(message.data.postId, comment);
         }
       },

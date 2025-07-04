@@ -68,17 +68,6 @@ export function CommentInput({
       const imagesToSubmit = [...completedImages];
       const contentToSubmit = content.trim();
 
-      // 프로덕션 환경에서도 로그 확인 가능하도록 설정
-      console.warn('[CommentInput] Submitting comment:', {
-        content: contentToSubmit,
-        imageCount: imagesToSubmit.length,
-        images: imagesToSubmit.map(img => ({
-          url: img.url,
-          name: img.name,
-          size: img.size,
-          key: img.key
-        }))
-      });
 
       // 상태 초기화를 먼저 수행
       clearImages();

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { ImageViewer } from './ImageViewer';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import { debug } from '@/shared/utils/debug';
 
 interface ImageGalleryProps {
   images: ImageMetadata[];
@@ -139,9 +140,9 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
   const [dragDistance, setDragDistance] = useState(0);
   const [loadErrors, setLoadErrors] = useState<Set<number>>(new Set());
 
-  // 프로덕션에서 디버깅을 위한 로그
+  // 이미지 변경 시 디버깅
   useEffect(() => {
-    console.warn('[ImageGallery] Images changed:', images);
+    debug('ImageGallery', 'Images changed', images);
   }, [images]);
 
   // 이미지 배열이 변경될 때 에러 상태 초기화
@@ -152,9 +153,7 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
   // 이미지 로드 에러 처리
   const handleImageError = useCallback((index: number) => {
     setLoadErrors(prev => new Set(prev).add(index));
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(`[ImageGallery] Failed to load image at index ${index}:`, images[index]);
-    }
+    debug('ImageGallery', `Failed to load image at index ${index}`, images[index]);
   }, [images]);
 
   const handleImageClick = (index: number, event: React.MouseEvent) => {
