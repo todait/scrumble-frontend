@@ -64,33 +64,28 @@ export function CommentInput({
 
   const handleSubmit = () => {
     if (content.trim()) {
-      // 완료된 이미지만 필터링하여 안전하게 전달
-      const validImages = completedImages.filter(img => 
-        img && img.url && img.name && img.size !== undefined
-      );
+      // 이미지 상태를 먼저 복사해서 안전하게 전달
+      const imagesToSubmit = [...completedImages];
       const contentToSubmit = content.trim();
 
-      // 디버깅을 위한 로깅 (배포 환경에서 확인 가능)
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[CommentInput] Submitting comment with images:', {
-          content: contentToSubmit,
-          imageCount: validImages.length,
-          images: validImages
-        });
-      }
+      // 프로덕션 환경에서도 로그 확인 가능하도록 설정
+      console.warn('[CommentInput] Submitting comment:', {
+        content: contentToSubmit,
+        imageCount: imagesToSubmit.length,
+        images: imagesToSubmit.map(img => ({
+          url: img.url,
+          name: img.name,
+          size: img.size,
+          key: img.key
+        }))
+      });
 
-      // 상태 초기화를 나중에 수행 (제출 성공 후에 초기화하는 것이 더 안전)
-      // clearImages();
-      // setContent('');
+      // 상태 초기화를 먼저 수행
+      clearImages();
+      setContent('');
 
-      // 유효한 이미지 데이터로 제출
-      onSubmit(contentToSubmit, validImages);
-
-      // 제출 후 상태 초기화 (약간의 지연을 두어 안전하게)
-      setTimeout(() => {
-        clearImages();
-        setContent('');
-      }, 100);
+      // 복사된 데이터로 제출
+      onSubmit(contentToSubmit, imagesToSubmit);
     }
   };
 

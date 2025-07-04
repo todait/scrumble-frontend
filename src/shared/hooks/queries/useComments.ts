@@ -18,8 +18,10 @@ import { postsKeys } from './postsKeys';
 
 /**
  * CommentImage를 ImageMetadata로 변환하는 유틸리티 함수
+ * WebSocket 이벤트와 동일한 형식으로 통일
  */
 const convertCommentImageToImageMetadata = (commentImage: CommentImage): ImageMetadata => ({
+  id: commentImage.key, // key를 id로 사용하여 WebSocket과 통일
   url: commentImage.url,
   key: commentImage.key,
   size: commentImage.size,
@@ -58,8 +60,21 @@ export const useCreateComment = (spaceSlug: string) => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
       await queryClient.cancelQueries({ queryKey: postsKeys.lists(spaceSlug) });
 
+      // 프로덕션에서 디버깅을 위한 로그
+      console.warn('[useCreateComment] onMutate - Input images:', variables.images);
+
       // 현재 사용자 정보로 즉시 댓글 생성
       const tempId = `temp-${Date.now()}`;
+      
+      // 이미지 데이터를 서버 응답과 동일한 형식으로 정규화
+      const normalizedImages = variables.images?.map(img => ({
+        ...img,
+        id: img.id || img.key, // id가 없으면 key를 사용하여 WebSocket 형식과 통일
+        isTemporary: false, // 서버 응답과 동일하게 설정
+      })) || [];
+
+      console.warn('[useCreateComment] onMutate - Normalized images:', normalizedImages);
+
       const optimisticComment: Comment = {
         id: tempId, // 임시 ID
         author: {
@@ -69,7 +84,7 @@ export const useCreateComment = (spaceSlug: string) => {
         },
         content: variables.content,
         createdAt: new Date(),
-        images: variables.images || [],
+        images: normalizedImages,
         reactions: [],
       };
 
@@ -106,6 +121,12 @@ export const useCreateComment = (spaceSlug: string) => {
     onSuccess: (data, variables, context) => {
       if (!context) return;
 
+      // 프로덕션에서 디버깅을 위한 로그
+      console.warn('[useCreateComment] onSuccess - Server response images:', data.comment.images);
+      
+      const convertedImages = data.comment.images?.map(convertCommentImageToImageMetadata) || [];
+      console.warn('[useCreateComment] onSuccess - Converted images:', convertedImages);
+
       // 서버 응답의 실제 댓글 데이터로 임시 댓글 교체
       const actualComment: Comment = {
         id: data.comment.id,
@@ -116,9 +137,11 @@ export const useCreateComment = (spaceSlug: string) => {
         },
         content: data.comment.content,
         createdAt: new Date(data.comment.createdAt),
-        images: data.comment.images?.map(convertCommentImageToImageMetadata) || [], // 서버 응답의 완전한 이미지 데이터 사용
+        images: convertedImages, // 서버 응답의 완전한 이미지 데이터 사용
         reactions: [],
       };
+
+      console.warn('[useCreateComment] onSuccess - Final actualComment:', actualComment);
 
       // 임시 ID를 실제 ID로 교체
       queryClient.setQueriesData(
@@ -126,19 +149,27 @@ export const useCreateComment = (spaceSlug: string) => {
         (oldData: any) => {
           if (!oldData?.posts) return oldData;
 
-          return {
+          const updatedData = {
             ...oldData,
             posts: oldData.posts.map((post: any) =>
               post.id === variables.postId
                 ? {
                     ...post,
-                    comments: post.comments.map((comment: Comment) =>
-                      comment.id === context.tempId ? actualComment : comment
-                    ),
+                    comments: post.comments.map((comment: Comment) => {
+                      if (comment.id === context.tempId) {
+                        console.warn('[useCreateComment] Replacing optimistic comment:', comment);
+                        console.warn('[useCreateComment] With actual comment:', actualComment);
+                        return actualComment;
+                      }
+                      return comment;
+                    }),
                   }
                 : post
             ),
           };
+
+          console.warn('[useCreateComment] Updated cache data:', updatedData);
+          return updatedData;
         }
       );
 

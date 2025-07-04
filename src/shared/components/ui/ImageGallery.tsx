@@ -139,6 +139,11 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
   const [dragDistance, setDragDistance] = useState(0);
   const [loadErrors, setLoadErrors] = useState<Set<number>>(new Set());
 
+  // 프로덕션에서 디버깅을 위한 로그
+  useEffect(() => {
+    console.warn('[ImageGallery] Images changed:', images);
+  }, [images]);
+
   // 이미지 배열이 변경될 때 에러 상태 초기화
   useEffect(() => {
     setLoadErrors(new Set());
@@ -244,7 +249,6 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
               height={height}
               className="h-full w-full object-cover"
               onError={() => handleImageError(0)}
-              unoptimized={process.env.NODE_ENV === 'production'}
             />
           )}
         </div>
@@ -308,7 +312,6 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
                     className="h-full w-full object-cover"
                     draggable={false}
                     onError={() => handleImageError(index)}
-                    unoptimized={process.env.NODE_ENV === 'production'}
                   />
                 )}
               </div>
