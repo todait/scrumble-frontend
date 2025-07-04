@@ -2,7 +2,7 @@
 
 import { RiDeleteBinLine } from '@remixicon/react';
 import { useEffect } from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
+// import { LoadingSpinner } from './LoadingSpinner'; // 사용하지 않음
 
 interface DeleteConfirmDialogProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ export function DeleteConfirmDialog({
   isOpen, 
   onClose, 
   onConfirm, 
-  isLoading = false,
+  isLoading: _isLoading = false, // _ prefix로 사용하지 않음을 명시
   title = '이 노트를 삭제하시겠어요?',
   description = '삭제한 게시물은 복원할 수 없습니다',
   confirmText = '삭제'
@@ -70,8 +70,8 @@ export function DeleteConfirmDialog({
               e.stopPropagation();
               onClose();
             }}
-            disabled={isLoading}
-            className="flex flex-1 items-center justify-center rounded-lg py-4 text-[13px] text-[#222222] hover:bg-[rgba(241,241,241,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={false}
+            className="flex flex-1 items-center justify-center rounded-lg py-4 text-[13px] text-[#222222] hover:bg-[rgba(241,241,241,0.5)]"
           >
             취소
           </button>
@@ -80,17 +80,13 @@ export function DeleteConfirmDialog({
               e.stopPropagation();
               onConfirm();
             }}
-            disabled={isLoading}
-            className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-[rgba(224,70,70,0.08)] py-4 text-[13px] font-medium text-[#E04646] hover:bg-[rgba(224,70,70,0.12)] disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={false}
+            className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-[rgba(224,70,70,0.08)] py-4 text-[13px] font-medium text-[#E04646] hover:bg-[rgba(224,70,70,0.12)]"
           >
-            {isLoading ? (
-              <LoadingSpinner size="sm" className="text-[#E04646]" />
-            ) : (
-              <>
-                <RiDeleteBinLine className="h-4 w-4 opacity-80" />
-                {confirmText}
-              </>
-            )}
+            <>
+              <RiDeleteBinLine className="h-4 w-4 opacity-80" />
+              {confirmText}
+            </>
           </button>
         </div>
       </div>

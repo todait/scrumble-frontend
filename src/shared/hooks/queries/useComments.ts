@@ -75,7 +75,7 @@ export const useCreateComment = (spaceSlug: string) => {
               post.id === variables.postId
                 ? {
                     ...post,
-                    comments: [optimisticComment, ...post.comments],
+                    comments: [...post.comments, optimisticComment],
                     commentCount: post.commentCount + 1,
                     lastCommentTime: new Date(),
                   }
@@ -171,7 +171,7 @@ export const useUpdateComment = (spaceSlug: string) => {
         exact: false,
       });
 
-      // 필터와 관계없이 모든 목록 캐시 업데이트
+      // 필터와 관계없이 모든 목록 캐시 업데이트 (Optimistic Update)
       queryClient.setQueriesData(
         { queryKey: postsKeys.lists(spaceSlug), exact: false },
         (oldData: any) => {
@@ -186,8 +186,9 @@ export const useUpdateComment = (spaceSlug: string) => {
                   ? {
                       ...comment,
                       content: variables.content,
-                      images: variables.images || [],
+                      images: variables.images || comment.images || [], // 기존 이미지 유지
                       updatedAt: new Date(),
+                      _isOptimistic: true, // 옵티미스틱 업데이트 표시
                     }
                   : comment
               ),
@@ -199,10 +200,11 @@ export const useUpdateComment = (spaceSlug: string) => {
       return { previousQueries };
     },
     onSuccess: (data, variables) => {
-      // 서버 응답으로 최종 업데이트
+      // 서버 응답으로 최종 업데이트 (더 정확한 데이터 반영)
       const updatedComment: Partial<Comment> = {
         content: data.comment.content,
         images: variables.images || [], // 서버 응답에 이미지가 없으므로 요청 데이터 사용
+        updatedAt: new Date(data.comment.updatedAt || Date.now()), // 서버에서 온 수정 시간
       };
 
       queryClient.setQueriesData(
@@ -216,7 +218,12 @@ export const useUpdateComment = (spaceSlug: string) => {
               ...post,
               comments: post.comments.map((comment: any) =>
                 comment.id === variables.commentId
-                  ? { ...comment, ...updatedComment }
+                  ? { 
+                      ...comment, 
+                      ...updatedComment,
+                      // 옵티미스틱 업데이트 시 발생할 수 있는 임시 필드 제거
+                      _isOptimistic: undefined,
+                    }
                   : comment
               ),
             })),

@@ -56,7 +56,7 @@ export function FeedHeader({ selectedDate, activeUsers, onDateChange }: FeedHead
   };
 
   return (
-    <div className="rounded-t-2xl border-b border-[rgba(34,34,34,0.08)] bg-white px-[30px] py-5">
+    <div className="overflow-visible rounded-t-2xl border-b border-[rgba(34,34,34,0.08)] bg-white px-[30px] py-5">
       <div className="flex items-center justify-between">
         <div className="relative flex items-center gap-3">
           <button
@@ -97,7 +97,8 @@ export function FeedHeader({ selectedDate, activeUsers, onDateChange }: FeedHead
                 showOutsideDays={false}
                 className="p-3"
                 today={today}
-                disabled={(date) => {
+                defaultMonth={selectedDate}
+                disabled={date => {
                   // 미래 날짜 비활성화
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);

@@ -132,7 +132,7 @@ export const useFeedData = (spaceSlug: string) => {
                 updatedComments[tempCommentIndex] = comment;
               } else {
                 // 새 댓글 추가 (WebSocket 이벤트가 optimistic update보다 먼저 도착한 경우)
-                updatedComments = [comment, ...updatedComments];
+                updatedComments = [...updatedComments, comment];
               }
 
               return {
@@ -156,6 +156,19 @@ export const useFeedData = (spaceSlug: string) => {
 
       queryClient.setQueryData(queryKey, (old: any) => {
         if (!old?.posts) return old;
+        
+        const targetPost = old.posts.find((p: Post) => p.id === postId);
+        if (!targetPost) return old;
+        
+        const existingComment = targetPost.comments.find((c: Comment) => c.id === comment.id);
+        if (!existingComment) return old;
+        
+        // WebSocket 이벤트로 인한 중복 업데이트 방지
+        // 기존 댓글의 updatedAt이 더 최신이면 업데이트 건너뛰기
+        if (existingComment.updatedAt && comment.createdAt < existingComment.updatedAt) {
+          return old;
+        }
+        
         return {
           ...old,
           posts: old.posts.map((post: Post) =>
@@ -165,9 +178,10 @@ export const useFeedData = (spaceSlug: string) => {
                   comments: post.comments.map((c: Comment) =>
                     c.id === comment.id
                       ? {
-                          ...c,
+                          ...c, // 기존 데이터 유지 (생성시간, 작성자 등)
                           content: comment.content,
-                          images: comment.images || [],
+                          images: comment.images || c.images || [], // 새 이미지가 없으면 기존 이미지 유지
+                          updatedAt: new Date(), // 수정 시간 업데이트
                         }
                       : c
                   ),
@@ -471,6 +485,7 @@ export const useFeedData = (spaceSlug: string) => {
       },
       commentUpdated: (message: CommentUpdatedMessage) => {
         if (message.data?.postId && message.data?.commentId) {
+          // WebSocket 이벤트에서 옵티미스틱 업데이트를 덮어쓰지 않도록 최소한의 데이터만 전달
           const comment: Comment = {
             id: message.data.commentId,
             author: {
@@ -479,7 +494,7 @@ export const useFeedData = (spaceSlug: string) => {
               profileImage: message.data.userAvatarURL,
             },
             content: message.data.content || '',
-            createdAt: new Date(),
+            createdAt: new Date(message.timestamp || Date.now()), // 서버 타임스탬프 사용
             images: (message.data.imageURLs || []).map(url => ({
               url,
               key: url,
@@ -489,7 +504,7 @@ export const useFeedData = (spaceSlug: string) => {
               format: 'unknown',
               name: url.split('/').pop() || 'image',
             })),
-            reactions: [],
+            reactions: [], // 리액션은 별도로 처리되므로 비워둡
           };
           handleCommentUpdated(message.data.postId, comment);
         }

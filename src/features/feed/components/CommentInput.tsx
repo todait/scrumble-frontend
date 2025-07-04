@@ -14,14 +14,14 @@ interface CommentInputProps {
   authorName: string;
   placeholder?: string;
   onSubmit: (content: string, images: ImageMetadata[]) => void;
-  isSubmitting?: boolean;
+  isSubmitting?: boolean; // 사용하지 않지만 API 호환성을 위해 유지
 }
 
 export function CommentInput({
   authorName,
   placeholder,
   onSubmit,
-  isSubmitting = false,
+  isSubmitting: _isSubmitting = false, // _ prefix로 사용하지 않음을 명시
 }: CommentInputProps) {
   const [content, setContent] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -53,7 +53,7 @@ export function CommentInput({
   }, [content]);
 
   const handleSubmit = () => {
-    if (content.trim() && !isSubmitting) {
+    if (content.trim()) {
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
       const contentToSubmit = content.trim();
@@ -81,7 +81,7 @@ export function CommentInput({
   );
 
   const isSubmitEnabled =
-    content.trim().length > 0 && !isUploading && !hasUploadingImages && !isSubmitting;
+    content.trim().length > 0 && !isUploading && !hasUploadingImages;
 
   const displayPlaceholder = placeholder || `${authorName}님의 체크인에 가볍게 코멘트를 남겨보세요`;
 
@@ -106,7 +106,7 @@ export function CommentInput({
             onCompositionEnd={() => setIsComposing(false)}
             className="w-full resize-none overflow-y-auto border-none bg-transparent text-[15px] leading-[1.4] text-[#181818] focus:outline-none"
             style={{ minHeight: '22px', maxHeight: '150px' }}
-            disabled={isSubmitting}
+            disabled={false}
           />
           {/* 커서 애니메이션 - 빈 상태일 때만 */}
           {!content && !isFocused && (
@@ -157,14 +157,14 @@ export function CommentInput({
             accept="image/jpeg,image/png,image/webp,image/gif"
             onChange={e => handleFileInputChange(e, uploadImages, fileInputRef)}
             className="hidden"
-            disabled={isUploading || isSubmitting}
+            disabled={isUploading}
           />
           <IconButton
             icon={<RiImageLine className="h-4 w-4 text-[#222222] opacity-50" />}
             title="이미지 첨부"
             className="h-8 w-8 hover:bg-[#F1F1F1] active:bg-[#E5E5E5]"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading || isSubmitting}
+            disabled={isUploading}
           />
           {/* <IconButton
             icon={<RiAttachment2 className="h-4 w-4 text-[#222222] opacity-50" />}
@@ -193,11 +193,6 @@ export function CommentInput({
             <>
               <LoadingSpinner size="sm" className="mr-2 text-white" />
               <span className="text-sm text-white">업로드 중...</span>
-            </>
-          ) : isSubmitting ? (
-            <>
-              <LoadingSpinner size="sm" className="mr-2 text-white" />
-              <span className="text-sm text-white">전송 중...</span>
             </>
           ) : (
             <RiSendPlaneFill className="h-4 w-4 text-white" />

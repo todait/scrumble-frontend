@@ -110,21 +110,16 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   });
 
   // 데이터 및 상태 관리
-  const {
-    posts,
-    teamSummary,
-    filterType,
-    setFilterType,
-    existsCheckinQuery,
-    isLoading,
-  } = useFeedData(spaceSlug);
+  const { posts, teamSummary, filterType, setFilterType, existsCheckinQuery, isLoading } =
+    useFeedData(spaceSlug);
   const { handleCommentClick, handleViewSummaryClick } = useFeedActions(
     spaceSlug,
     posts as FeedPost[],
     () => {}
   );
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
-  const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } = useFeedNavigation(spaceSlug);
+  const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } =
+    useFeedNavigation(spaceSlug);
   const { scrollContainerRef, showScrollToTop, scrollToTop, scrollToSelectedPost } = useFeedScroll(
     posts.length
   );
@@ -206,13 +201,17 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         {/* 통합 컨테이너 - 중앙 피드와 PostDetail을 하나로 묶어서 중앙 정렬 */}
         <div
           className={`flex w-full transition-all duration-300 ${
-            selectedPost && isPostDetailVisible ? 'pt-2 lg:w-[1196px] lg:pt-6' : 'pt-4 md:w-[672px] md:pt-6'
+            selectedPost && isPostDetailVisible
+              ? 'pt-2 lg:w-[1196px] lg:pt-6'
+              : 'pt-4 md:w-[672px] md:pt-6'
           }`}
         >
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
-            className={`relative flex w-full flex-col px-2 transition-all duration-300 md:px-4 ${
-              selectedPost && isPostDetailVisible ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0' : 'md:w-[672px]'
+            className={`relative flex min-h-0 w-full flex-col px-2 transition-all duration-300 md:px-4 ${
+              selectedPost && isPostDetailVisible
+                ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0'
+                : 'md:w-[672px]'
             }`}
           >
             {/* 필터 드롭다운과 설정 아이콘 - 고정 */}
@@ -245,20 +244,39 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             </div>
 
             {/* 피드 컨테이너 */}
-            <div className="flex flex-col overflow-hidden rounded-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-2xl">
-              {/* 헤더 - 고정 */}
-              <div className="flex-shrink-0">
-                <FeedHeader
-                  selectedDate={selectedDate}
-                  activeUsers={teamSummary?.totalMembers || 0}
-                  onDateChange={handleDateChange}
-                />
-              </div>
+            <div className="flex flex-1 flex-col overflow-hidden">
+              {/* 헤더 - 포스트가 없을 때 */}
+              {(isLoading || posts.length === 0) && (
+                <div className="relative flex-shrink-0">
+                  <FeedHeader
+                    selectedDate={selectedDate}
+                    activeUsers={teamSummary?.totalMembers || 0}
+                    onDateChange={handleDateChange}
+                  />
+                </div>
+              )}
+
+              {/* 헤더 - 포스트가 있을 때 */}
+              {!isLoading && posts.length > 0 && (
+                <div className="rounded-t-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-t-2xl">
+                  <div className="relative flex-shrink-0">
+                    <FeedHeader
+                      selectedDate={selectedDate}
+                      activeUsers={teamSummary?.totalMembers || 0}
+                      onDateChange={handleDateChange}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
               <div
                 ref={scrollContainerRef}
-                className="scrollbar-hide overflow-y-auto pb-20 md:pb-0"
+                className={`scrollbar-hide overflow-y-auto pb-20 md:pb-0 ${
+                  !isLoading && posts.length > 0
+                    ? 'rounded-b-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-b-2xl'
+                    : ''
+                }`}
               >
                 {isLoading ? (
                   <FeedListSkeleton count={6} />
