@@ -23,7 +23,13 @@ export const useCreateComment = (spaceSlug: string) => {
   const { error, success } = useToast();
   const { user } = useAuth();
 
-  return useMutation<CreateCommentResponse, Error, CreateCommentRequest>({
+  type MutationContext = {
+    previousQueries: [any, any][];
+    optimisticComment: Comment;
+    tempId: string;
+  };
+
+  return useMutation<CreateCommentResponse, Error, CreateCommentRequest, MutationContext>({
     mutationFn: params => {
       // 디버깅: 이미지 데이터 로깅 (개발 환경에서만)
       if (process.env.NODE_ENV === 'development') {
@@ -149,7 +155,11 @@ export const useUpdateComment = (spaceSlug: string) => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
 
-  return useMutation<UpdateCommentResponse, Error, UpdateCommentRequest>({
+  type MutationContext = {
+    previousQueries: [any, any][];
+  };
+
+  return useMutation<UpdateCommentResponse, Error, UpdateCommentRequest, MutationContext>({
     mutationFn: params => commentsApi.updateComment(params),
     onMutate: async variables => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
@@ -243,7 +253,11 @@ export const useDeleteComment = (spaceSlug: string) => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
 
-  return useMutation<DeleteCommentResponse, Error, DeleteCommentRequest>({
+  type MutationContext = {
+    previousQueries: [any, any][];
+  };
+
+  return useMutation<DeleteCommentResponse, Error, DeleteCommentRequest, MutationContext>({
     mutationFn: params => commentsApi.deleteComment(params),
     onMutate: async variables => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
