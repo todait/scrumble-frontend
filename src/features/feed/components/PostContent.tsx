@@ -72,8 +72,11 @@ export function PostContent({
   };
 
   const handleConfirmDelete = () => {
+    // 즉시 다이얼로그 닫기 (optimistic update)
+    setShowDeleteDialog(false);
+    
+    // 삭제 성공 후 토스트 표시
     const onSuccess = () => {
-      setShowDeleteDialog(false);
       setShowToast({ message: '해당 게시물이 삭제되었습니다' });
     };
 
@@ -98,6 +101,10 @@ export function PostContent({
               router.replace(`/${spaceSlug}/posts/checkins/new`);
             }
           },
+          onError: (error) => {
+            console.error('체크인 삭제 오류:', error);
+            // 에러 발생 시 사용자에게 알림 (토스트 메시지는 이미 mutation에서 처리됨)
+          },
         }
       );
     }
@@ -108,7 +115,13 @@ export function PostContent({
           spaceSlug,
           postId: post.id,
         },
-        { onSuccess }
+        { 
+          onSuccess,
+          onError: (error) => {
+            console.error('체크아웃 삭제 오류:', error);
+            // 에러 발생 시 사용자에게 알림 (토스트 메시지는 이미 mutation에서 처리됨)
+          },
+        }
       );
     }
   };

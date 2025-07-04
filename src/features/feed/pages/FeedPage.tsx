@@ -54,10 +54,46 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   useEffect(() => {
     const dateParam = searchParams.get('date');
     initializeFromUrl(dateParam);
-  }, [searchParams, initializeFromUrl]);
+
+    // 미래 날짜로 접근한 경우 오늘 날짜로 리다이렉트
+    if (dateParam) {
+      try {
+        const date = new Date(dateParam);
+        if (!isNaN(date.getTime())) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const targetDate = new Date(date);
+          targetDate.setHours(0, 0, 0, 0);
+
+          if (targetDate > today) {
+            const todayString = formatDateToAPIString(new Date());
+            const newUrl = `/${spaceSlug}/feed?date=${todayString}`;
+            router.replace(newUrl);
+          }
+        }
+      } catch {
+        // 유효하지 않은 날짜면 무시
+      }
+    }
+  }, [searchParams, initializeFromUrl, spaceSlug, router]);
 
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
+    // 미래 날짜인지 확인
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    // 미래 날짜인 경우 오늘 날짜로 리다이렉트
+    if (targetDate > today) {
+      const todayString = formatDateToAPIString(new Date());
+      const newUrl = `/${spaceSlug}/feed?date=${todayString}`;
+      router.replace(newUrl);
+      setSelectedDate(new Date());
+      return;
+    }
+
     setSelectedDate(date);
     const dateString = formatDateToAPIString(date);
     const newUrl = `/${spaceSlug}/feed?date=${dateString}`;
@@ -74,21 +110,16 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   });
 
   // 데이터 및 상태 관리
-  const {
-    posts,
-    teamSummary,
-    filterType,
-    setFilterType,
-    existsCheckinQuery,
-    isLoading,
-  } = useFeedData(spaceSlug);
+  const { posts, teamSummary, filterType, setFilterType, existsCheckinQuery, isLoading } =
+    useFeedData(spaceSlug);
   const { handleCommentClick, handleViewSummaryClick } = useFeedActions(
     spaceSlug,
     posts as FeedPost[],
     () => {}
   );
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
-  const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } = useFeedNavigation(spaceSlug);
+  const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } =
+    useFeedNavigation(spaceSlug);
   const { scrollContainerRef, showScrollToTop, scrollToTop, scrollToSelectedPost } = useFeedScroll(
     posts.length
   );
@@ -124,14 +155,18 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   };
 
   useEffect(() => {
+    // 오늘일 때만 체크인 강제 (과거 날짜는 체크인 없어도 피드 볼 수 있음)
+    const isToday = formatDateToAPIString(selectedDate) === formatDateToAPIString(new Date());
+
     if (
+      isToday &&
       !existsCheckinQuery.isLoading &&
       existsCheckinQuery.data &&
       existsCheckinQuery.data.exists === false
     ) {
       router.replace(ROUTES.SPACE_CHECKIN(spaceSlug));
     }
-  }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug]);
+  }, [existsCheckinQuery.isLoading, existsCheckinQuery.data, router, spaceSlug, selectedDate]);
 
   // 컴포넌트 언마운트 시 타이머 정리 및 관찰 중지
   useEffect(() => {
@@ -146,7 +181,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // URL 파라미터 처리
   const selectedPostId = searchParams.get('post');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
-  
+
   // selectedPostId가 변경될 때 isPostDetailVisible 업데이트
   useEffect(() => {
     setIsPostDetailVisible(!!selectedPostId);
@@ -166,13 +201,17 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         {/* 통합 컨테이너 - 중앙 피드와 PostDetail을 하나로 묶어서 중앙 정렬 */}
         <div
           className={`flex w-full transition-all duration-300 ${
-            selectedPost && isPostDetailVisible ? 'pt-2 lg:w-[1196px] lg:pt-6' : 'pt-4 md:w-[672px] md:pt-6'
+            selectedPost && isPostDetailVisible
+              ? 'pt-2 lg:w-[1196px] lg:pt-6'
+              : 'pt-4 md:w-[672px] md:pt-6'
           }`}
         >
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
-            className={`relative flex w-full flex-col px-2 transition-all duration-300 md:px-4 ${
-              selectedPost && isPostDetailVisible ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0' : 'md:w-[672px]'
+            className={`relative flex min-h-0 w-full flex-col px-2 transition-all duration-300 md:px-4 ${
+              selectedPost && isPostDetailVisible
+                ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0'
+                : 'md:w-[672px]'
             }`}
           >
             {/* 필터 드롭다운과 설정 아이콘 - 고정 */}
@@ -205,20 +244,39 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             </div>
 
             {/* 피드 컨테이너 */}
-            <div className="flex flex-col overflow-hidden rounded-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-2xl">
-              {/* 헤더 - 고정 */}
-              <div className="flex-shrink-0">
-                <FeedHeader
-                  selectedDate={selectedDate}
-                  activeUsers={teamSummary?.totalMembers || 0}
-                  onDateChange={handleDateChange}
-                />
-              </div>
+            <div className="flex flex-1 flex-col overflow-hidden">
+              {/* 헤더 - 포스트가 없을 때 */}
+              {(isLoading || posts.length === 0) && (
+                <div className="relative flex-shrink-0">
+                  <FeedHeader
+                    selectedDate={selectedDate}
+                    activeUsers={teamSummary?.totalMembers || 0}
+                    onDateChange={handleDateChange}
+                  />
+                </div>
+              )}
+
+              {/* 헤더 - 포스트가 있을 때 */}
+              {!isLoading && posts.length > 0 && (
+                <div className="rounded-t-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-t-2xl">
+                  <div className="relative flex-shrink-0">
+                    <FeedHeader
+                      selectedDate={selectedDate}
+                      activeUsers={teamSummary?.totalMembers || 0}
+                      onDateChange={handleDateChange}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
               <div
                 ref={scrollContainerRef}
-                className="scrollbar-hide overflow-y-auto pb-20 md:pb-0"
+                className={`scrollbar-hide overflow-y-auto pb-20 md:pb-0 ${
+                  !isLoading && posts.length > 0
+                    ? 'rounded-b-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-b-2xl'
+                    : ''
+                }`}
               >
                 {isLoading ? (
                   <FeedListSkeleton count={6} />

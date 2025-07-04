@@ -1,11 +1,11 @@
 'use client';
 
-import { formatDateForPage } from '@/shared/utils';
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
 import { useDateStore } from '@/shared/stores/useDateStore';
+import { formatDateForPage } from '@/shared/utils';
 import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckInWriteModal } from '../components/CheckInWriteModal';
 import { TeamStatusCard } from '../components/ui';
 
@@ -23,6 +23,18 @@ export function NewCheckInPage() {
     date: selectedDate,
     enabled: !!spaceSlug,
   });
+
+  // 미래 날짜 접근 시 메인 피드로 리다이렉트
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(selectedDate);
+    targetDate.setHours(0, 0, 0, 0);
+
+    if (targetDate > today) {
+      router.replace(`/${spaceSlug}/feed`);
+    }
+  }, [selectedDate, spaceSlug, router]);
 
   // 체크인 가능 횟수 (임시로 15로 설정)
   const remainingCheckins = 15;
@@ -78,7 +90,7 @@ export function NewCheckInPage() {
                   ))}
                 </div>
               ) : (
-                <TeamStatusCard 
+                <TeamStatusCard
                   teamCondition={teamSummary?.teamCondition ?? 0}
                   checkedInCount={teamSummary?.checkedInCount ?? 0}
                   checkedOutCount={teamSummary?.checkedOutCount ?? 0}

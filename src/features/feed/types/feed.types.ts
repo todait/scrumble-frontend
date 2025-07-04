@@ -20,6 +20,7 @@ export interface Comment {
   author: User;
   content: string;
   createdAt: Date;
+  updatedAt?: Date;
   images?: ImageMetadata[];
   reactions?: Reaction[];
 }

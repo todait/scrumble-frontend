@@ -97,6 +97,9 @@ export function PostDetail({
   };
 
   const handleCommentUpdate = (commentId: string, content: string, images: ImageMetadata[]) => {
+    // Optimistic UI: 즉시 편집 모드 종료
+    setEditingCommentId(null);
+    
     updateComment(
       {
         commentId,
@@ -105,12 +108,10 @@ export function PostDetail({
         images,
       },
       {
-        onSuccess: () => {
-          // 수정 성공 시 편집 모드 종료
-          setEditingCommentId(null);
-        },
         onError: error => {
           console.error('댓글 수정 오류:', error);
+          // 에러 발생 시 편집 모드로 다시 돌아가기
+          setEditingCommentId(commentId);
           alert('댓글 수정에 실패했습니다.');
         },
       }
@@ -125,13 +126,18 @@ export function PostDetail({
 
   const handleConfirmDelete = () => {
     if (selectedCommentId) {
+      // 즉시 다이얼로그 닫기 (optimistic update)
+      setDeleteDialogOpen(false);
+      setSelectedCommentId(null);
+      onDeleteDialogChange?.(false);
+      
+      // 삭제 수행
       deleteComment(
         { commentId: selectedCommentId, postId: post.id },
         {
-          onSettled: () => {
-            setDeleteDialogOpen(false);
-            setSelectedCommentId(null);
-            onDeleteDialogChange?.(false);
+          onError: (error) => {
+            console.error('댓글 삭제 오류:', error);
+            // 에러 발생 시 사용자에게 알림 (토스트 메시지는 이미 mutation에서 처리됨)
           },
         }
       );

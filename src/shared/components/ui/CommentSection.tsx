@@ -19,7 +19,7 @@ import { EditDeleteMenu } from './EditDeleteMenu';
 import { IconButton } from './IconButton';
 import { ImageGallery } from './ImageGallery';
 import { ImagePreview } from './ImagePreview';
-import { LoadingSpinner } from './LoadingSpinner';
+// import { LoadingSpinner } from './LoadingSpinner'; // 사용하지 않음
 import { ProfileImage } from './ProfileImage';
 
 interface CommentSectionProps {
@@ -134,7 +134,7 @@ function CommentItem({
   onDelete,
   onUpdate,
   editingCommentId,
-  isUpdating,
+  isUpdating: _isUpdating, // _ prefix로 사용하지 않음을 명시
 }: CommentItemProps) {
   const { user } = useAuth();
   const params = useParams();
@@ -226,7 +226,11 @@ function CommentItem({
   );
 
   const isSaveEnabled =
-    editContent.trim().length > 0 && !isUploading && !hasUploadingImages && !isUpdating;
+    editContent.trim().length > 0 && 
+    !isUploading && 
+    !hasUploadingImages &&
+    (editContent.trim() !== comment.content.trim() || // 내용이 변경되었거나
+     completedImages.length !== (comment.images?.length || 0)); // 이미지가 변경되었을 때
 
   const handleReactionToggle = (emoji: string) => {
     toggleReaction(
@@ -323,7 +327,7 @@ function CommentItem({
               className="w-full resize-none overflow-y-auto rounded-lg border border-[rgba(34,34,34,0.08)] bg-white p-3 text-sm text-[#222222] focus:border-[#9747FF] focus:outline-none md:text-[14px]"
               style={{ minHeight: '60px', maxHeight: '150px' }}
               autoFocus
-              disabled={isUpdating}
+              disabled={false}
             />
 
             {/* 이미지 미리보기 */}
@@ -353,22 +357,22 @@ function CommentItem({
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   onChange={e => handleFileInputChange(e, uploadImages, fileInputRef)}
                   className="hidden"
-                  disabled={isUploading || isUpdating}
+                  disabled={isUploading}
                 />
                 <IconButton
                   icon={<RiImageLine className="h-4 w-4 text-[#222222] opacity-50" />}
                   title="이미지 첨부"
                   className="h-8 w-8 hover:bg-[#F1F1F1] active:bg-[#E5E5E5]"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading || isUpdating}
+                  disabled={isUploading}
                 />
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCancel}
-                  disabled={isUpdating}
-                  className="px-3 py-1.5 text-sm text-[#222222] opacity-60 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-30"
+                  disabled={false}
+                  className="px-3 py-1.5 text-sm text-[#222222] opacity-60 hover:opacity-100"
                 >
                   취소
                 </button>
@@ -381,14 +385,7 @@ function CommentItem({
                       : 'bg-[#F1F1F1] text-[#222222] opacity-30'
                   }`}
                 >
-                  {isUpdating ? (
-                    <span className="flex items-center gap-1">
-                      <LoadingSpinner size="sm" className="text-white" />
-                      저장 중...
-                    </span>
-                  ) : (
-                    '저장'
-                  )}
+                  저장
                 </button>
               </div>
             </div>

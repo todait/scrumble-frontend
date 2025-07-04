@@ -103,20 +103,42 @@ export const useFeedData = (spaceSlug: string) => {
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
 
-        const existingComments = oldData.posts.find((p: Post) => p.id === postId)?.comments || [];
+        const targetPost = oldData.posts.find((p: Post) => p.id === postId);
+        if (!targetPost) return oldData;
+
+        const existingComments = targetPost.comments || [];
+
+        // 실제 ID로 중복 체크
         const isDuplicate = existingComments.some((c: Comment) => c.id === comment.id);
         if (isDuplicate) {
-          return oldData; // 중복이면 변경 없음
+          return oldData; // 이미 존재하는 댓글이면 변경 없음
         }
+
+        // 임시 ID를 가진 댓글이 있는지 체크 (작성자와 내용으로 매칭)
+        const tempCommentIndex = existingComments.findIndex((c: Comment) =>
+          c.id.startsWith('temp-') &&
+          c.author.id === comment.author.id &&
+          c.content === comment.content
+        );
 
         return {
           ...oldData,
           posts: oldData.posts.map((post: any) => {
             if (post.id === postId) {
+              let updatedComments = [...existingComments];
+
+              if (tempCommentIndex >= 0) {
+                // 임시 댓글을 실제 댓글로 교체
+                updatedComments[tempCommentIndex] = comment;
+              } else {
+                // 새 댓글 추가 (WebSocket 이벤트가 optimistic update보다 먼저 도착한 경우)
+                updatedComments = [...updatedComments, comment];
+              }
+
               return {
                 ...post,
-                commentCount: post.commentCount + 1,
-                comments: [...existingComments, comment],
+                comments: updatedComments,
+                commentCount: tempCommentIndex >= 0 ? post.commentCount : post.commentCount + 1,
                 lastCommentTime: comment.createdAt,
               };
             }
@@ -134,6 +156,19 @@ export const useFeedData = (spaceSlug: string) => {
 
       queryClient.setQueryData(queryKey, (old: any) => {
         if (!old?.posts) return old;
+        
+        const targetPost = old.posts.find((p: Post) => p.id === postId);
+        if (!targetPost) return old;
+        
+        const existingComment = targetPost.comments.find((c: Comment) => c.id === comment.id);
+        if (!existingComment) return old;
+        
+        // WebSocket 이벤트로 인한 중복 업데이트 방지
+        // 기존 댓글의 updatedAt이 더 최신이면 업데이트 건너뛰기
+        if (existingComment.updatedAt && comment.createdAt < existingComment.updatedAt) {
+          return old;
+        }
+        
         return {
           ...old,
           posts: old.posts.map((post: Post) =>
@@ -143,9 +178,10 @@ export const useFeedData = (spaceSlug: string) => {
                   comments: post.comments.map((c: Comment) =>
                     c.id === comment.id
                       ? {
-                          ...c,
+                          ...c, // 기존 데이터 유지 (생성시간, 작성자 등)
                           content: comment.content,
-                          images: comment.images || [],
+                          images: comment.images || c.images || [], // 새 이미지가 없으면 기존 이미지 유지
+                          updatedAt: new Date(), // 수정 시간 업데이트
                         }
                       : c
                   ),
@@ -253,7 +289,7 @@ export const useFeedData = (spaceSlug: string) => {
             }),
           };
         }
-        
+
         // 댓글 리액션인 경우
         if (message.data.targetType === 'comment') {
           return {
@@ -449,6 +485,7 @@ export const useFeedData = (spaceSlug: string) => {
       },
       commentUpdated: (message: CommentUpdatedMessage) => {
         if (message.data?.postId && message.data?.commentId) {
+          // WebSocket 이벤트에서 옵티미스틱 업데이트를 덮어쓰지 않도록 최소한의 데이터만 전달
           const comment: Comment = {
             id: message.data.commentId,
             author: {
@@ -457,7 +494,7 @@ export const useFeedData = (spaceSlug: string) => {
               profileImage: message.data.userAvatarURL,
             },
             content: message.data.content || '',
-            createdAt: new Date(),
+            createdAt: new Date(message.timestamp || Date.now()), // 서버 타임스탬프 사용
             images: (message.data.imageURLs || []).map(url => ({
               url,
               key: url,
@@ -467,7 +504,7 @@ export const useFeedData = (spaceSlug: string) => {
               format: 'unknown',
               name: url.split('/').pop() || 'image',
             })),
-            reactions: [],
+            reactions: [], // 리액션은 별도로 처리되므로 비워둡
           };
           handleCommentUpdated(message.data.postId, comment);
         }
