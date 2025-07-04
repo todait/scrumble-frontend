@@ -127,6 +127,11 @@ export const useCreateComment = (spaceSlug: string) => {
       const convertedImages = data.comment.images?.map(convertCommentImageToImageMetadata) || [];
       console.warn('[useCreateComment] onSuccess - Converted images:', convertedImages);
 
+      // 서버 응답에서 이미지 데이터가 없으면 기존 optimistic update의 이미지 유지
+      const shouldKeepOptimisticImages = !data.comment.images || data.comment.images.length === 0;
+      
+      console.warn('[useCreateComment] Should keep optimistic images:', shouldKeepOptimisticImages);
+
       // 서버 응답의 실제 댓글 데이터로 임시 댓글 교체
       const actualComment: Comment = {
         id: data.comment.id,
@@ -137,7 +142,7 @@ export const useCreateComment = (spaceSlug: string) => {
         },
         content: data.comment.content,
         createdAt: new Date(data.comment.createdAt),
-        images: convertedImages, // 서버 응답의 완전한 이미지 데이터 사용
+        images: shouldKeepOptimisticImages ? context.optimisticComment.images : convertedImages,
         reactions: [],
       };
 
