@@ -7,6 +7,7 @@ export interface ImageMetadata {
   height: number;
   format: string;
   name: string;
+  isTemporary?: boolean; // WebSocket 이벤트로 받은 임시 데이터 여부
 }
 
 export interface UploadingImage {

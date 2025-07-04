@@ -2,6 +2,7 @@ import type { Comment } from '@/features/feed/types/feed.types';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { commentsApi } from '@/shared/lib/api/comments';
 import type {
+  CommentImage,
   CreateCommentRequest,
   CreateCommentResponse,
   DeleteCommentRequest,
@@ -9,10 +10,25 @@ import type {
   UpdateCommentRequest,
   UpdateCommentResponse,
 } from '@/shared/types/comment';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { getErrorMessage } from '@/shared/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../useToast';
 import { postsKeys } from './postsKeys';
+
+/**
+ * CommentImage를 ImageMetadata로 변환하는 유틸리티 함수
+ */
+const convertCommentImageToImageMetadata = (commentImage: CommentImage): ImageMetadata => ({
+  url: commentImage.url,
+  key: commentImage.key,
+  size: commentImage.size,
+  width: commentImage.width,
+  height: commentImage.height,
+  format: commentImage.format,
+  name: commentImage.name,
+  isTemporary: false, // 서버에서 받은 데이터는 완전한 데이터
+});
 
 /**
  * 댓글 생성 훅
@@ -100,7 +116,7 @@ export const useCreateComment = (spaceSlug: string) => {
         },
         content: data.comment.content,
         createdAt: new Date(data.comment.createdAt),
-        images: variables.images || [], // 서버 응답에 이미지가 없으므로 요청 데이터 사용
+        images: data.comment.images?.map(convertCommentImageToImageMetadata) || [], // 서버 응답의 완전한 이미지 데이터 사용
         reactions: [],
       };
 
@@ -131,7 +147,7 @@ export const useCreateComment = (spaceSlug: string) => {
         message: '댓글이 성공적으로 작성되었습니다.',
       });
     },
-    onError: (err: unknown, variables, context) => {
+    onError: (err: unknown, _variables, context) => {
       // 에러 발생 시 모든 캐시를 이전 상태로 롤백
       if (context?.previousQueries) {
         context.previousQueries.forEach(([queryKey, previousData]) => {
@@ -203,7 +219,7 @@ export const useUpdateComment = (spaceSlug: string) => {
       // 서버 응답으로 최종 업데이트 (더 정확한 데이터 반영)
       const updatedComment: Partial<Comment> = {
         content: data.comment.content,
-        images: variables.images || [], // 서버 응답에 이미지가 없으므로 요청 데이터 사용
+        images: data.comment.images?.map(convertCommentImageToImageMetadata) || [], // 서버 응답의 완전한 이미지 데이터 사용
         updatedAt: new Date(data.comment.updatedAt || Date.now()), // 서버에서 온 수정 시간
       };
 

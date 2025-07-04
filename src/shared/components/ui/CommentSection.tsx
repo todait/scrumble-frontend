@@ -226,11 +226,11 @@ function CommentItem({
   );
 
   const isSaveEnabled =
-    editContent.trim().length > 0 && 
-    !isUploading && 
+    editContent.trim().length > 0 &&
+    !isUploading &&
     !hasUploadingImages &&
     (editContent.trim() !== comment.content.trim() || // 내용이 변경되었거나
-     completedImages.length !== (comment.images?.length || 0)); // 이미지가 변경되었을 때
+      completedImages.length !== (comment.images?.length || 0)); // 이미지가 변경되었을 때
 
   const handleReactionToggle = (emoji: string) => {
     toggleReaction(
@@ -413,7 +413,9 @@ function CommentItem({
               {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko })}
             </span>
           </div>
-          <p className="text-sm text-[#222222] md:text-[14px]">{comment.content}</p>
+          <p className="whitespace-pre-line text-sm text-[#222222] md:text-[14px]">
+            {comment.content}
+          </p>
           {comment.images && comment.images.length > 0 && (
             <ImageGallery images={comment.images} className="mt-2" />
           )}

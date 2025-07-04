@@ -66,6 +66,7 @@ export const commentsApi = {
           email: data.comment.author.email,
           avatarURL: data.comment.author.avatar_url,
         },
+        images: data.comment.images?.map(convertApiImageToImage),
       },
     };
   },
@@ -93,6 +94,7 @@ export const commentsApi = {
           email: data.comment.author.email,
           avatarURL: data.comment.author.avatar_url,
         },
+        images: data.comment.images?.map(convertApiImageToImage),
       },
     };
   },

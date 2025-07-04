@@ -35,7 +35,7 @@ export interface CreateCommentRequest {
 
 export type CommentResponse = Required<
   Pick<Comment, 'id' | 'postId' | 'author' | 'content' | 'createdAt' | 'updatedAt'>
->;
+> & Pick<Comment, 'images'>;
 
 export interface CreateCommentResponse {
   message: string;

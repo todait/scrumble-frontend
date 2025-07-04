@@ -12,6 +12,7 @@ import type {
   ReactionRemovedMessage,
   WebSocketEventHandler,
 } from '@/shared/types/websocket.types';
+import { convertWebSocketImageToImageMetadata } from '@/shared/types/websocket.types';
 import { formatDateToAPIString, getErrorMessage } from '@/shared/utils';
 import { debug } from '@/shared/utils/debug';
 import { useQueryClient } from '@tanstack/react-query';
@@ -180,7 +181,7 @@ export const useFeedData = (spaceSlug: string) => {
                       ? {
                           ...c, // 기존 데이터 유지 (생성시간, 작성자 등)
                           content: comment.content,
-                          images: comment.images || c.images || [], // 새 이미지가 없으면 기존 이미지 유지
+                          images: comment.images || c.images || [], // 새 이미지 사용 또는 기존 이미지 유지
                           updatedAt: new Date(), // 수정 시간 업데이트
                         }
                       : c
@@ -469,15 +470,7 @@ export const useFeedData = (spaceSlug: string) => {
             },
             content: message.data.content || '',
             createdAt: new Date(),
-            images: (message.data.imageURLs || []).map(url => ({
-              url,
-              key: url,
-              size: 0,
-              width: 0,
-              height: 0,
-              format: 'unknown',
-              name: url.split('/').pop() || 'image',
-            })),
+            images: (message.data.images || []).map(convertWebSocketImageToImageMetadata),
             reactions: [],
           };
           handleCommentAdded(message.data.postId, comment);
@@ -495,15 +488,7 @@ export const useFeedData = (spaceSlug: string) => {
             },
             content: message.data.content || '',
             createdAt: new Date(message.timestamp || Date.now()), // 서버 타임스탬프 사용
-            images: (message.data.imageURLs || []).map(url => ({
-              url,
-              key: url,
-              size: 0,
-              width: 0,
-              height: 0,
-              format: 'unknown',
-              name: url.split('/').pop() || 'image',
-            })),
+            images: (message.data.images || []).map(convertWebSocketImageToImageMetadata),
             reactions: [], // 리액션은 별도로 처리되므로 비워둡
           };
           handleCommentUpdated(message.data.postId, comment);
