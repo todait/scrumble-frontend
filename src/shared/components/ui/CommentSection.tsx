@@ -6,6 +6,8 @@ import { EmojiData, EmojiPicker } from '@/shared/components/emoji/EmojiPicker';
 import { SimpleToast } from '@/shared/components/feedback';
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
+import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
+import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
@@ -148,6 +150,7 @@ function CommentItem({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wasEditingRef = useRef(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const editingContainerRef = useRef<HTMLDivElement>(null);
   const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
 
   const hasReactions = comment.reactions && comment.reactions.length > 0;
@@ -164,6 +167,21 @@ function CommentItem({
     onError: error => {
       alert(error);
     },
+  });
+
+  // 드래그앤드롭 설정
+  const { isDragging, dragHandlers } = useDragAndDrop({
+    onDrop: uploadImages,
+    acceptedFileTypes: ['image/'],
+  });
+
+  // 클립보드 이미지 붙여넣기 설정
+  const { textareaProps } = useTextareaClipboardImagePaste({
+    onImagePaste: uploadImages,
+    onError: error => {
+      setShowToast({ message: error });
+    },
+    enabled: isEditing,
   });
 
   // 편집 상태 변경 시 콘텐츠 초기화 및 편집 종료 시 최신 데이터 반영
@@ -195,7 +213,7 @@ function CommentItem({
       // 높이 자동 조정
       textarea.style.height = '22px';
       const scrollHeight = textarea.scrollHeight;
-      textarea.style.height = `${Math.min(scrollHeight, 150)}px`;
+      textarea.style.height = `${Math.min(scrollHeight, 300)}px`;
 
       // 커서를 텍스트 끝으로 이동
       const length = textarea.value.length;
@@ -203,6 +221,19 @@ function CommentItem({
       textarea.setSelectionRange(length, length);
     }
   }, [editContent, isEditing]);
+
+  // 편집 모드 활성화 시 스크롤 처리
+  useEffect(() => {
+    if (isEditing && editingContainerRef.current) {
+      // 약간의 지연을 두어 DOM 업데이트가 완료된 후 스크롤
+      setTimeout(() => {
+        editingContainerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }, 100);
+    }
+  }, [isEditing]);
 
   const handleEditClick = () => {
     if (onEdit) onEdit();
@@ -293,7 +324,7 @@ function CommentItem({
 
   if (isEditing) {
     return (
-      <div className={`group relative flex gap-3 overflow-visible ${className}`}>
+      <div ref={editingContainerRef} className={`group relative flex gap-3 overflow-visible ${className}`}>
         <ProfileImage
           src={comment.author.profileImage}
           alt={comment.author.name}
@@ -311,24 +342,37 @@ function CommentItem({
           </div>
 
           {/* 편집 영역 */}
-          <div className="space-y-3">
-            <textarea
-              ref={textareaRef}
-              value={editContent}
-              onChange={e => setEditContent(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  if (isSaveEnabled) {
-                    handleSave();
+          <div className="space-y-3" {...dragHandlers}>
+            <div className="relative">
+              <textarea
+                {...textareaProps}
+                ref={textareaRef}
+                value={editContent}
+                onChange={e => setEditContent(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (isSaveEnabled) {
+                      handleSave();
+                    }
                   }
-                }
-              }}
-              className="w-full resize-none overflow-y-auto rounded-lg border border-[rgba(34,34,34,0.08)] bg-white p-3 text-sm text-[#222222] focus:border-[#9747FF] focus:outline-none md:text-[14px]"
-              style={{ minHeight: '60px', maxHeight: '150px' }}
-              autoFocus
-              disabled={false}
-            />
+                }}
+                className="w-full resize-none overflow-y-auto rounded-lg border border-[rgba(34,34,34,0.08)] bg-white p-3 text-sm text-[#222222] focus:border-[#9747FF] focus:outline-none md:text-[14px]"
+                style={{ minHeight: '60px', maxHeight: '300px' }}
+                autoFocus
+                disabled={false}
+              />
+              
+              {/* 드래그 오버레이 */}
+              {isDragging && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-[#9747FF] bg-[#9747FF]/10">
+                  <div className="text-center">
+                    <RiImageLine className="mx-auto mb-2 h-8 w-8 text-[#9747FF]" />
+                    <p className="text-sm font-medium text-[#9747FF]">이미지를 놓으세요</p>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* 이미지 미리보기 */}
             {uploadingImages.length > 0 && (

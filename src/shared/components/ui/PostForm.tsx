@@ -3,6 +3,7 @@
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import { useImageViewer } from '@/shared/hooks/useImageViewer';
+import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiCheckLine, RiImageLine } from '@remixicon/react';
@@ -53,6 +54,15 @@ export const PostForm = ({
 
   const imageViewer = useImageViewer();
 
+  // 클립보드 이미지 붙여넣기 기능
+  const { textareaProps } = useTextareaClipboardImagePaste({
+    onImagePaste: uploadImages,
+    onError: (error) => {
+      alert(error);
+    },
+    enabled: !disabled,
+  });
+
   useEffect(() => {
     setMessage(initialMessage);
   }, [initialMessage]);
@@ -97,6 +107,7 @@ export const PostForm = ({
       <div className={`px-2 transition-colors md:px-7 ${isDragging ? 'bg-blue-50' : ''}`}>
         <div className="cursor-text rounded-xl p-3" onClick={onTextAreaClick}>
           <textarea
+            {...textareaProps}
             value={message}
             onChange={e => setMessage(e.target.value)}
             placeholder={placeholder}

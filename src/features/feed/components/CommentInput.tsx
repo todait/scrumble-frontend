@@ -5,6 +5,7 @@ import { ImagePreview } from '@/shared/components/ui/ImagePreview';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import { useImageViewer } from '@/shared/hooks/useImageViewer';
+import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine, RiSendPlaneFill } from '@remixicon/react';
@@ -42,6 +43,15 @@ export function CommentInput({
   });
 
   const imageViewer = useImageViewer();
+
+  // 클립보드 이미지 붙여넣기 기능
+  const { textareaProps } = useTextareaClipboardImagePaste({
+    onImagePaste: uploadImages,
+    onError: (error) => {
+      alert(error);
+    },
+    enabled: true,
+  });
 
   // textarea 높이 자동 조정
   useEffect(() => {
@@ -96,6 +106,7 @@ export function CommentInput({
       <div className="flex items-start gap-2">
         <div className="relative flex-1">
           <textarea
+            {...textareaProps}
             ref={textareaRef}
             value={content}
             onChange={e => setContent(e.target.value)}
