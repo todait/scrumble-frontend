@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckOutWriteModal } from '@/features/checkout/components';
+import dynamic from 'next/dynamic';
 import {
   FeedHeader,
   FeedListSkeleton,
@@ -8,9 +8,26 @@ import {
   FloatingCheckoutButton,
   GoToFocusedPostButton,
   PostCard,
-  PostDetail,
-  TeamSummaryCard,
 } from '@/features/feed/components';
+
+// Dynamic imports for heavy components
+const PostDetail = dynamic(
+  () => import('@/features/feed/components').then(mod => mod.PostDetail),
+  { 
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-gray-100 h-full w-full rounded-xl" />
+  }
+);
+
+const TeamSummaryCard = dynamic(
+  () => import('@/features/feed/components').then(mod => mod.TeamSummaryCard),
+  { ssr: false }
+);
+
+const CheckOutWriteModal = dynamic(
+  () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
+  { ssr: false }
+);
 import {
   useFeedActions,
   useFeedData,

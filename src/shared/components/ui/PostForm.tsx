@@ -1,9 +1,9 @@
 'use client';
 
+import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import { useImageViewer } from '@/shared/hooks/useImageViewer';
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiCheckLine, RiImageLine } from '@remixicon/react';
@@ -57,7 +57,7 @@ export const PostForm = ({
   // 클립보드 이미지 붙여넣기 기능
   const { textareaProps } = useTextareaClipboardImagePaste({
     onImagePaste: uploadImages,
-    onError: (error) => {
+    onError: error => {
       alert(error);
     },
     enabled: !disabled,
@@ -97,21 +97,17 @@ export const PostForm = ({
     hasUploadingImages; // 업로드 중인 이미지가 있으면 submit 방지
 
   return (
-    <div
-      ref={formRef}
-      className="relative"
-      {...dragHandlers}
-    >
+    <div ref={formRef} className="relative" {...dragHandlers}>
       {children}
 
       <div className={`px-2 transition-colors md:px-7 ${isDragging ? 'bg-blue-50' : ''}`}>
-        <div className="cursor-text rounded-xl p-3" onClick={onTextAreaClick}>
+        <div className="cursor-text rounded-xl py-3" onClick={onTextAreaClick}>
           <textarea
             {...textareaProps}
             value={message}
             onChange={e => setMessage(e.target.value)}
             placeholder={placeholder}
-            className="h-[240px] w-full resize-none border-none p-[10px] text-base md:text-[15px] text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+            className="h-[240px] w-full resize-none border-none p-[10px] text-base text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 md:text-[15px]"
             disabled={disabled}
           />
         </div>
@@ -149,7 +145,11 @@ export const PostForm = ({
                 onRemove={removeImage}
                 onClick={
                   isCompleted && img.metadata
-                    ? () => imageViewer.handleImageClick(img.metadata!.url, completedImages.map(i => i.url))
+                    ? () =>
+                        imageViewer.handleImageClick(
+                          img.metadata!.url,
+                          completedImages.map(i => i.url)
+                        )
                     : undefined
                 }
                 disabled={disabled}

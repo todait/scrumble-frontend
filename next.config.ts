@@ -46,14 +46,14 @@ const nextConfig: NextConfig = {
     // 이미지 최적화 설정
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
-    // Vercel에서 이미지 최적화 비활성화 (502 에러 방지)
-    unoptimized: process.env.NODE_ENV === 'production',
+    // 이미지 최적화 활성화 (이전에는 Vercel 502 에러 방지를 위해 비활성화했었음)
+    unoptimized: false,
   },
   
   // 실험적 기능 설정
   experimental: {
     // 폰트 로딩 최적화
-    optimizePackageImports: ['next/font/google'],
+    optimizePackageImports: ['next/font/google', '@emoji-mart/react', 'lucide-react', '@remixicon/react'],
   },
 };
 

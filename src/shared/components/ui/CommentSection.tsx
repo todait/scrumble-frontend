@@ -2,8 +2,15 @@
 
 import type { Comment } from '@/features/feed/types/feed.types';
 import { EmojiReactions } from '@/shared/components/emoji';
-import { EmojiData, EmojiPicker } from '@/shared/components/emoji/EmojiPicker';
+import type { EmojiData } from '@/shared/components/emoji/EmojiPicker';
 import { SimpleToast } from '@/shared/components/feedback';
+import dynamic from 'next/dynamic';
+
+// Dynamic import for EmojiPicker
+const EmojiPicker = dynamic(
+  () => import('@/shared/components/emoji/EmojiPicker').then(mod => mod.EmojiPicker),
+  { ssr: false }
+);
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
