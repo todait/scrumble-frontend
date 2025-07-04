@@ -86,15 +86,15 @@ export const useCreateComment = (spaceSlug: string) => {
 
       // 서버 응답의 실제 댓글 데이터로 임시 댓글 교체
       const actualComment: Comment = {
-        id: data.id,
+        id: data.comment.id,
         author: {
-          id: data.userId,
-          name: data.userName,
-          profileImage: data.userAvatarURL || '',
+          id: data.comment.author.id,
+          name: data.comment.author.name,
+          profileImage: data.comment.author.avatarURL || '',
         },
-        content: data.content,
-        createdAt: new Date(data.createdAt),
-        images: data.images || [],
+        content: data.comment.content,
+        createdAt: new Date(data.comment.createdAt),
+        images: variables.images || [], // 서버 응답에 이미지가 없으므로 요청 데이터 사용
         reactions: [],
       };
 
@@ -191,8 +191,8 @@ export const useUpdateComment = (spaceSlug: string) => {
     onSuccess: (data, variables) => {
       // 서버 응답으로 최종 업데이트
       const updatedComment: Partial<Comment> = {
-        content: data.content,
-        images: data.images || [],
+        content: data.comment.content,
+        images: variables.images || [], // 서버 응답에 이미지가 없으므로 요청 데이터 사용
       };
 
       queryClient.setQueriesData(
