@@ -242,7 +242,32 @@ button.rdp-button:focus-visible {
   opacity: 0.3 !important;
 }
 
-/* 13. 날짜 셀 배경 제거 */
+/* 13. 미래 날짜 비활성화 스타일 */
+.rdp-day_disabled .rdp-button,
+.rdp-day_disabled button,
+.rdp-day.rdp-day_disabled .rdp-button,
+.rdp-day.rdp-day_disabled button,
+button.rdp-button[disabled],
+.rdp-button[disabled] {
+  color: #cccccc !important;
+  background-color: transparent !important;
+  cursor: not-allowed !important;
+  opacity: 0.4 !important;
+  pointer-events: none !important;
+}
+
+.rdp-day_disabled .rdp-button:hover,
+.rdp-day_disabled button:hover,
+.rdp-day.rdp-day_disabled .rdp-button:hover,
+.rdp-day.rdp-day_disabled button:hover,
+button.rdp-button[disabled]:hover,
+.rdp-button[disabled]:hover {
+  background-color: transparent !important;
+  color: #cccccc !important;
+  cursor: not-allowed !important;
+}
+
+/* 14. 날짜 셀 배경 제거 */
 .rdp-day,
 .rdp-day_selected,
 .rdp-day_today {
@@ -250,7 +275,7 @@ button.rdp-button:focus-visible {
   background-color: transparent !important;
 }
 
-/* 14. 강제 적용이 필요한 경우를 위한 추가 선택자 */
+/* 15. 강제 적용이 필요한 경우를 위한 추가 선택자 */
 .rdp .rdp-button:where([aria-selected='true']),
 .rdp .rdp-button:where([aria-selected='true']):hover {
   background-color: #b794f6 !important;
@@ -261,7 +286,7 @@ button.rdp-button:focus-visible {
   background-color: #9f7aea !important;
 }
 
-/* 15. 최종 보장 - 가장 마지막에 오는 선택자 */
+/* 16. 최종 보장 - 가장 마지막에 오는 선택자 */
 div.rdp td.rdp-day_selected button.rdp-button,
 div.rdp td.rdp-day_selected button.rdp-button:hover {
   background-color: #b794f6 !important;

@@ -54,10 +54,46 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   useEffect(() => {
     const dateParam = searchParams.get('date');
     initializeFromUrl(dateParam);
-  }, [searchParams, initializeFromUrl]);
+
+    // 미래 날짜로 접근한 경우 오늘 날짜로 리다이렉트
+    if (dateParam) {
+      try {
+        const date = new Date(dateParam);
+        if (!isNaN(date.getTime())) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const targetDate = new Date(date);
+          targetDate.setHours(0, 0, 0, 0);
+
+          if (targetDate > today) {
+            const todayString = formatDateToAPIString(new Date());
+            const newUrl = `/${spaceSlug}/feed?date=${todayString}`;
+            router.replace(newUrl);
+          }
+        }
+      } catch {
+        // 유효하지 않은 날짜면 무시
+      }
+    }
+  }, [searchParams, initializeFromUrl, spaceSlug, router]);
 
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
+    // 미래 날짜인지 확인
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    // 미래 날짜인 경우 오늘 날짜로 리다이렉트
+    if (targetDate > today) {
+      const todayString = formatDateToAPIString(new Date());
+      const newUrl = `/${spaceSlug}/feed?date=${todayString}`;
+      router.replace(newUrl);
+      setSelectedDate(new Date());
+      return;
+    }
+
     setSelectedDate(date);
     const dateString = formatDateToAPIString(date);
     const newUrl = `/${spaceSlug}/feed?date=${dateString}`;
