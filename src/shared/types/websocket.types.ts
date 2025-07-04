@@ -3,13 +3,29 @@
  * 백엔드와 주고받는 모든 WebSocket 메시지의 타입을 정의합니다.
  */
 
-// 이미지 메타데이터 타입 (Feed와 공유)
-export interface ImageMetadata {
+// WebSocket 이벤트에서 받는 이미지 메타데이터 타입 (백엔드 구조와 일치)
+export interface WebSocketImageMetadata {
+  id: string;
   url: string;
+  fileType: string;
+  fileSize: number;
   width: number;
   height: number;
-  alt?: string;
+  originalName: string;
 }
+
+// WebSocketImageMetadata를 Feed용 ImageMetadata로 변환하는 유틸리티 함수
+export const convertWebSocketImageToImageMetadata = (wsImage: WebSocketImageMetadata) => ({
+  id: wsImage.id,
+  url: wsImage.url,
+  key: wsImage.url, // WebSocket에서는 key가 없으므로 url을 사용
+  size: wsImage.fileSize,
+  width: wsImage.width,
+  height: wsImage.height,
+  format: wsImage.fileType,
+  name: wsImage.originalName,
+  isTemporary: false, // 서버에서 받은 완전한 데이터
+});
 
 // 기본 메시지 구조
 interface BaseWebSocketMessage {
@@ -31,7 +47,7 @@ export interface CommentCreatedMessage extends BaseWebSocketMessage {
     userAvatarURL: string;
     spaceSlug: string;
     content: string;
-    imageURLs: string[];
+    images: WebSocketImageMetadata[];
     action: string;
   };
 }
@@ -49,7 +65,7 @@ export interface CommentUpdatedMessage extends BaseWebSocketMessage {
     userAvatarURL: string;
     spaceSlug: string;
     content: string;
-    imageURLs: string[];
+    images: WebSocketImageMetadata[];
     action: string;
   };
 }

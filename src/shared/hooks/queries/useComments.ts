@@ -2,6 +2,7 @@ import type { Comment } from '@/features/feed/types/feed.types';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { commentsApi } from '@/shared/lib/api/comments';
 import type {
+  CommentImage,
   CreateCommentRequest,
   CreateCommentResponse,
   DeleteCommentRequest,
@@ -9,10 +10,28 @@ import type {
   UpdateCommentRequest,
   UpdateCommentResponse,
 } from '@/shared/types/comment';
+import type { ImageMetadata } from '@/shared/types/upload.types';
 import { getErrorMessage } from '@/shared/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../useToast';
 import { postsKeys } from './postsKeys';
+import { debug } from '@/shared/utils/debug';
+
+/**
+ * CommentImage를 ImageMetadata로 변환하는 유틸리티 함수
+ * WebSocket 이벤트와 동일한 형식으로 통일
+ */
+const convertCommentImageToImageMetadata = (commentImage: CommentImage): ImageMetadata => ({
+  id: commentImage.key, // key를 id로 사용하여 WebSocket과 통일
+  url: commentImage.url,
+  key: commentImage.key,
+  size: commentImage.size,
+  width: commentImage.width,
+  height: commentImage.height,
+  format: commentImage.format,
+  name: commentImage.name,
+  isTemporary: false, // 서버에서 받은 데이터는 완전한 데이터
+});
 
 /**
  * 댓글 생성 훅
@@ -31,11 +50,10 @@ export const useCreateComment = (spaceSlug: string) => {
 
   return useMutation<CreateCommentResponse, Error, CreateCommentRequest, MutationContext>({
     mutationFn: params => {
-      // 디버깅: 이미지 데이터 로깅 (개발 환경에서만)
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Comment API call - Images count:', params.images?.length || 0);
-        console.warn('Comment API call - Images:', params.images);
-      }
+      debug('useCreateComment', 'API call', {
+        imageCount: params.images?.length || 0,
+        images: params.images
+      });
       return commentsApi.createComment(params);
     },
     onMutate: async variables => {
@@ -44,6 +62,19 @@ export const useCreateComment = (spaceSlug: string) => {
 
       // 현재 사용자 정보로 즉시 댓글 생성
       const tempId = `temp-${Date.now()}`;
+      
+      // 이미지 데이터를 서버 응답과 동일한 형식으로 정규화
+      const normalizedImages = variables.images?.map(img => ({
+        ...img,
+        id: img.id || img.key, // id가 없으면 key를 사용하여 WebSocket 형식과 통일
+        isTemporary: false, // 서버 응답과 동일하게 설정
+      })) || [];
+
+      debug('useCreateComment', 'onMutate', {
+        inputImages: variables.images,
+        normalizedImages
+      });
+
       const optimisticComment: Comment = {
         id: tempId, // 임시 ID
         author: {
@@ -53,7 +84,7 @@ export const useCreateComment = (spaceSlug: string) => {
         },
         content: variables.content,
         createdAt: new Date(),
-        images: variables.images || [],
+        images: normalizedImages,
         reactions: [],
       };
 
@@ -90,6 +121,17 @@ export const useCreateComment = (spaceSlug: string) => {
     onSuccess: (data, variables, context) => {
       if (!context) return;
 
+      const convertedImages = data.comment.images?.map(convertCommentImageToImageMetadata) || [];
+
+      // 서버 응답에서 이미지 데이터가 없으면 기존 optimistic update의 이미지 유지
+      const shouldKeepOptimisticImages = !data.comment.images || data.comment.images.length === 0;
+      
+      debug('useCreateComment', 'onSuccess', {
+        serverImages: data.comment.images,
+        convertedImages,
+        shouldKeepOptimisticImages
+      });
+
       // 서버 응답의 실제 댓글 데이터로 임시 댓글 교체
       const actualComment: Comment = {
         id: data.comment.id,
@@ -100,9 +142,11 @@ export const useCreateComment = (spaceSlug: string) => {
         },
         content: data.comment.content,
         createdAt: new Date(data.comment.createdAt),
-        images: variables.images || [], // 서버 응답에 이미지가 없으므로 요청 데이터 사용
+        images: shouldKeepOptimisticImages ? context.optimisticComment.images : convertedImages,
         reactions: [],
       };
+
+      debug('useCreateComment', 'Final actualComment', actualComment);
 
       // 임시 ID를 실제 ID로 교체
       queryClient.setQueriesData(
@@ -110,19 +154,28 @@ export const useCreateComment = (spaceSlug: string) => {
         (oldData: any) => {
           if (!oldData?.posts) return oldData;
 
-          return {
+          const updatedData = {
             ...oldData,
             posts: oldData.posts.map((post: any) =>
               post.id === variables.postId
                 ? {
                     ...post,
-                    comments: post.comments.map((comment: Comment) =>
-                      comment.id === context.tempId ? actualComment : comment
-                    ),
+                    comments: post.comments.map((comment: Comment) => {
+                      if (comment.id === context.tempId) {
+                        debug('useCreateComment', 'Replacing optimistic comment', {
+                          old: comment,
+                          new: actualComment
+                        });
+                        return actualComment;
+                      }
+                      return comment;
+                    }),
                   }
                 : post
             ),
           };
+
+          return updatedData;
         }
       );
 
@@ -131,7 +184,7 @@ export const useCreateComment = (spaceSlug: string) => {
         message: '댓글이 성공적으로 작성되었습니다.',
       });
     },
-    onError: (err: unknown, variables, context) => {
+    onError: (err: unknown, _variables, context) => {
       // 에러 발생 시 모든 캐시를 이전 상태로 롤백
       if (context?.previousQueries) {
         context.previousQueries.forEach(([queryKey, previousData]) => {
@@ -203,7 +256,7 @@ export const useUpdateComment = (spaceSlug: string) => {
       // 서버 응답으로 최종 업데이트 (더 정확한 데이터 반영)
       const updatedComment: Partial<Comment> = {
         content: data.comment.content,
-        images: variables.images || [], // 서버 응답에 이미지가 없으므로 요청 데이터 사용
+        images: data.comment.images?.map(convertCommentImageToImageMetadata) || [], // 서버 응답의 완전한 이미지 데이터 사용
         updatedAt: new Date(data.comment.updatedAt || Date.now()), // 서버에서 온 수정 시간
       };
 

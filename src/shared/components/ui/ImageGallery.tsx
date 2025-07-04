@@ -1,9 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { ImageViewer } from './ImageViewer';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import { debug } from '@/shared/utils/debug';
 
 interface ImageGalleryProps {
   images: ImageMetadata[];
@@ -137,6 +138,23 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [dragDistance, setDragDistance] = useState(0);
+  const [loadErrors, setLoadErrors] = useState<Set<number>>(new Set());
+
+  // 이미지 변경 시 디버깅
+  useEffect(() => {
+    debug('ImageGallery', 'Images changed', images);
+  }, [images]);
+
+  // 이미지 배열이 변경될 때 에러 상태 초기화
+  useEffect(() => {
+    setLoadErrors(new Set());
+  }, [images]);
+
+  // 이미지 로드 에러 처리
+  const handleImageError = useCallback((index: number) => {
+    setLoadErrors(prev => new Set(prev).add(index));
+    debug('ImageGallery', `Failed to load image at index ${index}`, images[index]);
+  }, [images]);
 
   const handleImageClick = (index: number, event: React.MouseEvent) => {
     // 드래그 거리가 5px 이상이면 클릭으로 간주하지 않음
@@ -218,13 +236,20 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
             maxWidth: '100%' // 부모 컨테이너 너비 초과 방지
           }}
         >
-          <Image
-            src={image.url}
-            alt={image.name || '첨부 이미지'}
-            width={width}
-            height={height}
-            className="h-full w-full object-cover"
-          />
+          {loadErrors.has(0) ? (
+            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-500">
+              <span className="text-sm">이미지를 불러올 수 없습니다</span>
+            </div>
+          ) : (
+            <Image
+              src={image.url}
+              alt={image.name || '첨부 이미지'}
+              width={width}
+              height={height}
+              className="h-full w-full object-cover"
+              onError={() => handleImageError(0)}
+            />
+          )}
         </div>
         <ImageViewer
           images={imageUrls}
@@ -273,14 +298,21 @@ export function ImageGallery({ images, className = '', onClick }: ImageGalleryPr
                   height
                 }}
               >
-                <Image
-                  src={image.url}
-                  alt={image.name || `첨부 이미지 ${index + 1}`}
-                  width={width}
-                  height={height}
-                  className="h-full w-full object-cover"
-                  draggable={false}
-                />
+                {loadErrors.has(index) ? (
+                  <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-500">
+                    <span className="text-xs">이미지 오류</span>
+                  </div>
+                ) : (
+                  <Image
+                    src={image.url}
+                    alt={image.name || `첨부 이미지 ${index + 1}`}
+                    width={width}
+                    height={height}
+                    className="h-full w-full object-cover"
+                    draggable={false}
+                    onError={() => handleImageError(index)}
+                  />
+                )}
               </div>
             );
           })}

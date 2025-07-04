@@ -1,8 +1,15 @@
 'use client';
 
 import { RiEmojiStickerLine } from '@remixicon/react';
+import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
-import { EmojiData, EmojiPicker } from './EmojiPicker';
+import type { EmojiData } from './EmojiPicker';
+
+// Dynamic import for EmojiPicker
+const EmojiPicker = dynamic(
+  () => import('./EmojiPicker').then(mod => mod.EmojiPicker),
+  { ssr: false }
+);
 
 export interface Reaction {
   emoji: string;

@@ -12,6 +12,7 @@ import type {
   ReactionRemovedMessage,
   WebSocketEventHandler,
 } from '@/shared/types/websocket.types';
+import { convertWebSocketImageToImageMetadata } from '@/shared/types/websocket.types';
 import { formatDateToAPIString, getErrorMessage } from '@/shared/utils';
 import { debug } from '@/shared/utils/debug';
 import { useQueryClient } from '@tanstack/react-query';
@@ -100,17 +101,23 @@ export const useFeedData = (spaceSlug: string) => {
     (postId: string, comment: Comment) => {
       const queryKey = buildListKey();
 
+      debug('useFeedData', 'handleCommentAdded called', { postId, comment });
+
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData?.posts) return oldData;
 
         const targetPost = oldData.posts.find((p: Post) => p.id === postId);
-        if (!targetPost) return oldData;
+        if (!targetPost) {
+          debug('useFeedData', 'Target post not found', postId);
+          return oldData;
+        }
 
         const existingComments = targetPost.comments || [];
 
         // 실제 ID로 중복 체크
         const isDuplicate = existingComments.some((c: Comment) => c.id === comment.id);
         if (isDuplicate) {
+          debug('useFeedData', 'Duplicate comment found, skipping', comment.id);
           return oldData; // 이미 존재하는 댓글이면 변경 없음
         }
 
@@ -120,6 +127,13 @@ export const useFeedData = (spaceSlug: string) => {
           c.author.id === comment.author.id &&
           c.content === comment.content
         );
+
+        if (tempCommentIndex >= 0) {
+          debug('useFeedData', 'Replacing temp comment', {
+            tempComment: existingComments[tempCommentIndex],
+            newComment: comment
+          });
+        }
 
         return {
           ...oldData,
@@ -180,7 +194,7 @@ export const useFeedData = (spaceSlug: string) => {
                       ? {
                           ...c, // 기존 데이터 유지 (생성시간, 작성자 등)
                           content: comment.content,
-                          images: comment.images || c.images || [], // 새 이미지가 없으면 기존 이미지 유지
+                          images: comment.images || c.images || [], // 새 이미지 사용 또는 기존 이미지 유지
                           updatedAt: new Date(), // 수정 시간 업데이트
                         }
                       : c
@@ -460,6 +474,13 @@ export const useFeedData = (spaceSlug: string) => {
     eventHandlersRef.current = {
       commentCreated: (message: CommentCreatedMessage) => {
         if (message.data?.postId && message.data?.commentId) {
+          const convertedImages = (message.data.images || []).map(convertWebSocketImageToImageMetadata);
+          
+          debug('WebSocket', 'commentCreated', {
+            messageData: message.data,
+            convertedImages
+          });
+
           const comment: Comment = {
             id: message.data.commentId,
             author: {
@@ -469,17 +490,10 @@ export const useFeedData = (spaceSlug: string) => {
             },
             content: message.data.content || '',
             createdAt: new Date(),
-            images: (message.data.imageURLs || []).map(url => ({
-              url,
-              key: url,
-              size: 0,
-              width: 0,
-              height: 0,
-              format: 'unknown',
-              name: url.split('/').pop() || 'image',
-            })),
+            images: convertedImages,
             reactions: [],
           };
+          
           handleCommentAdded(message.data.postId, comment);
         }
       },
@@ -495,15 +509,7 @@ export const useFeedData = (spaceSlug: string) => {
             },
             content: message.data.content || '',
             createdAt: new Date(message.timestamp || Date.now()), // 서버 타임스탬프 사용
-            images: (message.data.imageURLs || []).map(url => ({
-              url,
-              key: url,
-              size: 0,
-              width: 0,
-              height: 0,
-              format: 'unknown',
-              name: url.split('/').pop() || 'image',
-            })),
+            images: (message.data.images || []).map(convertWebSocketImageToImageMetadata),
             reactions: [], // 리액션은 별도로 처리되므로 비워둡
           };
           handleCommentUpdated(message.data.postId, comment);

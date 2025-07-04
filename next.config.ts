@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
   // 실험적 기능 설정
   experimental: {
     // 폰트 로딩 최적화
-    optimizePackageImports: ['next/font/google'],
+    optimizePackageImports: ['next/font/google', '@emoji-mart/react', 'lucide-react', '@remixicon/react'],
   },
 };
 
