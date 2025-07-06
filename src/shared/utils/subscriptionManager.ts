@@ -1,4 +1,4 @@
-import { websocketService } from '@/shared/services/websocket.service';
+import { centrifugoService } from '@/shared/services/centrifugo.service';
 
 /**
  * WeakMap을 활용한 구독 관리자 클래스
@@ -109,7 +109,7 @@ export class SubscriptionManager {
       // 여전히 아무도 구독하지 않는다면 웹소켓 구독 해제
       const count = this.subscriptionCounts.get(postId) || 0;
       if (count === 0) {
-        websocketService.unsubscribeFromComments(postId);
+        centrifugoService.unsubscribeFromComments(postId);
       }
       this.cleanupTimers.delete(postId);
     }, delay);

@@ -62,7 +62,7 @@ export const authApi = {
    * 로그인 후 적절한 페이지로 리다이렉트하기 위해 사용
    * @returns 최신 스페이스 정보가 포함된 사용자 정보
    */
-  getCurrentUserWithLatestSpace: async (): Promise<UserWithLatestSpace> => {
+  getCurrentUserWithLatestSpace: async (): Promise<UserWithLatestSpace & { centrifugoToken?: string }> => {
     const { data } = await apiClient.get<GetUserWithLatestSpaceApiResponse>(
       '/api/v1/users/me/latest-space'
     );
@@ -75,6 +75,7 @@ export const authApi = {
       avatarURL: data.avatar_url,
       latestSpaceSlug: data.latest_space_slug,
       latestSpaceName: data.latest_space_name,
+      centrifugoToken: data.centrifugo_token,
     };
   },
 
