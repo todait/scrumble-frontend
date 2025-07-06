@@ -171,6 +171,13 @@ export interface ConnectionEstablishedMessage extends BaseWebSocketMessage {
   data?: any;
 }
 
+export interface ConnectionLostMessage extends BaseWebSocketMessage {
+  type: 'connection.lost';
+  postId: string;
+  userId: string;
+  data?: any;
+}
+
 export interface ConnectionReconnectingMessage extends BaseWebSocketMessage {
   type: 'connection.reconnecting';
   attempt: number;
@@ -294,6 +301,7 @@ export type IncomingWebSocketMessage =
   | ReactionAddedMessage
   | ReactionRemovedMessage
   | ConnectionEstablishedMessage
+  | ConnectionLostMessage
   | ConnectionReconnectingMessage
   | ConnectionFailedMessage
   | MessageErrorMessage
@@ -351,6 +359,10 @@ export const isConnectionEstablishedMessage = (
   msg: WebSocketMessage
 ): msg is ConnectionEstablishedMessage => msg.type === 'connection.established';
 
+export const isConnectionLostMessage = (
+  msg: WebSocketMessage
+): msg is ConnectionLostMessage => msg.type === 'connection.lost';
+
 export const isConnectionReconnectingMessage = (
   msg: WebSocketMessage
 ): msg is ConnectionReconnectingMessage => msg.type === 'connection.reconnecting';
@@ -379,6 +391,7 @@ export interface WebSocketHandlers {
   'reaction.added'?: WebSocketEventHandler<ReactionAddedMessage>;
   'reaction.removed'?: WebSocketEventHandler<ReactionRemovedMessage>;
   'connection.established'?: WebSocketEventHandler<ConnectionEstablishedMessage>;
+  'connection.lost'?: WebSocketEventHandler<ConnectionLostMessage>;
   'connection.reconnecting'?: WebSocketEventHandler<ConnectionReconnectingMessage>;
   'connection.failed'?: WebSocketEventHandler<ConnectionFailedMessage>;
   'message.error'?: WebSocketEventHandler<MessageErrorMessage>;

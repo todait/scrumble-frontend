@@ -41,7 +41,7 @@ import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
-import { useWebSocket } from '@/shared/hooks/useWebSocket';
+// import { useWebSocket } from '@/shared/hooks/useWebSocket'; // 사용하지 않음 - useFeedData에서 처리
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 import { debug as logDebug } from '@/shared/utils/debug';
@@ -119,16 +119,20 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 가시성 추적
   const { visiblePostIds, observePost, unobservePost, unobserveAll } = useVisiblePosts();
+  
+  // 디버깅을 위한 로그
+  useEffect(() => {
+    logDebug('FeedPage', 'Visible post IDs changed', visiblePostIds);
+  }, [visiblePostIds]);
 
-  // WebSocket 연결 관리
-  useWebSocket({
-    spaceSlug,
-    visiblePostIds, // 현재 보이는 포스트 ID들 전달
-  });
-
-  // 데이터 및 상태 관리
+  // 데이터 및 상태 관리 (WebSocket 연결 포함)
   const { posts, teamSummary, filterType, setFilterType, existsCheckinQuery, isLoading } =
-    useFeedData(spaceSlug);
+    useFeedData(spaceSlug, {
+      visiblePostIds, // 현재 화면에 보이는 포스트 ID들 전달
+      onReconnectionDataSync: () => {
+        logDebug('FeedPage', '재연결 감지 - 피드 데이터 동기화 완료');
+      },
+    });
   const { handleCommentClick, handleViewSummaryClick } = useFeedActions(
     spaceSlug,
     posts as FeedPost[],

@@ -21,7 +21,12 @@ import type { Comment, FilterType, Post, Reaction } from '../types/feed.types';
 import { convertApiPostsToFeedPosts } from '../utils/postTransform.utils';
 import { useMockPosts } from './useMockPosts';
 
-export const useFeedData = (spaceSlug: string) => {
+interface UseFeedDataOptions {
+  onReconnectionDataSync?: () => void;
+  visiblePostIds?: string[]; // 현재 화면에 보이는 포스트 ID들
+}
+
+export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const { selectedDate } = useDateStore();
   const queryClient = useQueryClient();
@@ -90,11 +95,40 @@ export const useFeedData = (spaceSlug: string) => {
     };
   }, [useMockData, postsQuery.data, postsQuery.isLoading]);
 
+  // 디버깅: visiblePostIds 전달 확인
+  useEffect(() => {
+    debug('useFeedData', 'visiblePostIds passed to useWebSocket', options?.visiblePostIds || []);
+  }, [options?.visiblePostIds]);
+
   // WebSocket 연결 및 이벤트 핸들러
   const webSocketActions = useWebSocket({
     spaceSlug,
-    visiblePostIds: posts.map(p => p.id), // 현재 보이는 포스트 ID들
+    visiblePostIds: options?.visiblePostIds || [], // 현재 화면에 보이는 포스트 ID들
+    onReconnectionDataSync: () => {
+      debug('useFeedData', 'Reconnection data sync called');
+      debug('useFeedData', '재연결 후 데이터 동기화 실행');
+      
+      // 외부에서 제공된 콜백 먼저 실행
+      if (options?.onReconnectionDataSync) {
+        options.onReconnectionDataSync();
+      }
+      
+      // 포스트 데이터 refetch
+      if (postsQuery.refetch) {
+        postsQuery.refetch();
+      }
+      
+      // 팀 요약 데이터도 refetch
+      if (teamSummaryQuery.refetch) {
+        teamSummaryQuery.refetch();
+      }
+    },
   });
+  
+  // Debug: Log when visiblePostIds change
+  useEffect(() => {
+    debug('useFeedData', 'visiblePostIds passed to useWebSocket', options?.visiblePostIds);
+  }, [options?.visiblePostIds]);
 
   // 댓글 추가 핸들러
   const handleCommentAdded = useCallback(
