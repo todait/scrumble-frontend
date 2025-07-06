@@ -261,6 +261,7 @@ export interface GetUserWithLatestSpaceApiResponse {
   avatar_url: string;
   latest_space_slug: string;
   latest_space_name: string;
+  centrifugo_token?: string;
 }
 
 /**

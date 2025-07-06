@@ -9,11 +9,11 @@ import type { User, UserWithLatestSpace } from '@/shared/types/auth';
 import { authRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AuthContextValue {
   // 사용자 정보
-  user: User | undefined;
+  user: (User & { centrifugoToken?: string }) | undefined;
   latestSpace: UserWithLatestSpace | undefined;
 
   // 인증 상태
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 사용자 정보 쿼리
   const {
-    data: user,
+    data: baseUser,
     isLoading: isUserLoading,
     error,
     isError,
@@ -85,13 +85,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 최신 스페이스 정보 쿼리
   const { data: latestSpace, isLoading: isLatestSpaceLoading } = useQuery({
     queryKey: authKeys.userWithLatestSpace(),
-    queryFn: authApi.getCurrentUserWithLatestSpace,
-    enabled: !!user,
+    queryFn: async () => {
+      const data = await authApi.getCurrentUserWithLatestSpace();
+      
+      // centrifugo_token이 포함된 사용자 정보를 localStorage에 저장
+      if (data.centrifugoToken) {
+        const userWithToken = {
+          ...baseUser,
+          centrifugoToken: data.centrifugoToken,
+        };
+        localStorage.setItem('user', JSON.stringify(userWithToken));
+      }
+      
+      return data;
+    },
+    enabled: !!baseUser,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: authRetry,
   });
+
+  // centrifugoToken이 포함된 user 객체 생성
+  const user = useMemo(() => {
+    if (!baseUser) return undefined;
+    
+    return {
+      ...baseUser,
+      centrifugoToken: latestSpace?.centrifugoToken,
+    };
+  }, [baseUser, latestSpace?.centrifugoToken]);
 
   // 로그아웃 mutation
   const logoutMutation = useMutation({
@@ -101,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSettled: async () => {
       TokenManager.clearTokens();
+      localStorage.removeItem('user'); // 사용자 정보도 삭제
       queryClient.clear();
       router.replace(ROUTES.AUTH);
     },
@@ -134,11 +158,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 관련 쿼리 무효화
     await queryClient.invalidateQueries({ queryKey: authKeys.all });
 
-    // latestSpace 즉시 가져오기
-    await queryClient.fetchQuery({
+    // latestSpace 즉시 가져오기 (centrifugo_token 포함)
+    const latestSpaceData = await queryClient.fetchQuery({
       queryKey: authKeys.userWithLatestSpace(),
       queryFn: authApi.getCurrentUserWithLatestSpace,
     });
+
+    // centrifugo_token이 포함된 사용자 정보를 localStorage에 저장
+    if (latestSpaceData.centrifugoToken) {
+      const userWithToken = {
+        ...userData,
+        centrifugoToken: latestSpaceData.centrifugoToken,
+      };
+      localStorage.setItem('user', JSON.stringify(userWithToken));
+    }
   };
 
   const value: AuthContextValue = {

@@ -26,6 +26,14 @@ export interface UserWithLatestSpace extends User {
 }
 
 /**
+ * Centrifugo 토큰이 포함된 사용자
+ * WebSocket 연결에 사용
+ */
+export interface UserWithCentrifugoToken extends User {
+  centrifugoToken?: string;
+}
+
+/**
  * 사용자 프로필 (확장된 정보)
  * 설정 페이지나 상세 프로필에서 사용
  */
