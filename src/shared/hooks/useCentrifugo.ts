@@ -10,7 +10,7 @@ import {
 } from '../services/centrifugo.service';
 import type { ExtractMessageType, IncomingWebSocketMessage } from '../types/websocket.types';
 import { debug } from '../utils/debug';
-import { reconnectionManager, createDataSyncCallback } from '../utils/reconnection';
+import { createDataSyncCallback, reconnectionManager } from '../utils/reconnection';
 import { useAuth } from './auth/useAuth';
 import { useDebounce } from './useDebounce';
 
@@ -61,19 +61,19 @@ export function useCentrifugo({
   debug('useCentrifugo', 'Hook called with', {
     spaceSlug,
     visiblePostIds,
-    autoConnect
+    autoConnect,
   });
   const { user } = useAuth();
   const eventHandlersRef = useRef<Map<WebSocketEventType, WebSocketEventHandler[]>>(new Map());
   const subscriptionTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const lastVisiblePostIdsRef = useRef<Set<string>>(new Set());
   const [wsConnected, setWsConnected] = useState(false);
-  
+
   // Debug wsConnected state changes
   useEffect(() => {
     debug('useCentrifugo', 'wsConnected state changed to', wsConnected);
   }, [wsConnected]);
-  
+
   // 재연결 감지를 위한 상태 추적
   const hasConnectedOnceRef = useRef<boolean>(false); // 최초 연결 여부
 
@@ -101,10 +101,10 @@ export function useCentrifugo({
     const syncConnectionState = () => {
       const serviceConnected = centrifugoService.connected;
       if (wsConnected !== serviceConnected) {
-        debug('useCentrifugo', 'Syncing connection state', { 
-          wsConnected, 
+        debug('useCentrifugo', 'Syncing connection state', {
+          wsConnected,
           serviceConnected,
-          updating: 'wsConnected to ' + serviceConnected
+          updating: 'wsConnected to ' + serviceConnected,
         });
         setWsConnected(serviceConnected);
       }
@@ -123,16 +123,16 @@ export function useCentrifugo({
   useEffect(() => {
     // 재연결 감지: 한 번 연결되었었고, 현재 연결됨 (즉, 재연결됨)
     const isReconnection = hasConnectedOnceRef.current && wsConnected;
-    
+
     if (isReconnection) {
       // 첫 연결 직후가 아닌 실제 재연결인지 확인하기 위해 약간의 지연
       const timer = setTimeout(() => {
         debug('useCentrifugo', 'Reconnection detected, checking if data sync needed');
-        
+
         // 데이터 동기화 필요 여부 확인
         if (reconnectionManager.shouldRefetchData(dataSyncThresholdMs)) {
           debug('useCentrifugo', 'Data sync needed after reconnection');
-          
+
           // 외부에서 제공된 동기화 함수 실행
           if (onReconnectionDataSync) {
             try {
@@ -143,15 +143,15 @@ export function useCentrifugo({
               }
             }
           }
-          
+
           // 등록된 모든 재연결 콜백 실행
           reconnectionManager.executeReconnectionCallbacks();
-          
+
           // 마지막 활성 시간 업데이트
           reconnectionManager.updateLastActiveTime();
         }
       }, 1000); // 1초 지연으로 첫 연결과 구분
-      
+
       return () => clearTimeout(timer);
     }
   }, [wsConnected, onReconnectionDataSync, dataSyncThresholdMs]);
@@ -203,20 +203,25 @@ export function useCentrifugo({
       serviceConnected: centrifugoService.connected,
       subscribeToAllComments,
       debouncedVisibleIds,
-      visiblePostsCount: debouncedVisibleIds.length
+      visiblePostsCount: debouncedVisibleIds.length,
     });
-    
+
     // 조건 체크: 연결되지 않았거나 모든 댓글 구독 모드이거나 보이는 포스트가 없으면 스킵
-    if (!wsConnected || !centrifugoService.connected || subscribeToAllComments || debouncedVisibleIds.length === 0) {
+    if (
+      !wsConnected ||
+      !centrifugoService.connected ||
+      subscribeToAllComments ||
+      debouncedVisibleIds.length === 0
+    ) {
       debug('useCentrifugo', 'Skipping subscription update', {
         wsConnected,
         serviceConnected: centrifugoService.connected,
         subscribeToAllComments,
-        visiblePostsCount: debouncedVisibleIds.length
+        visiblePostsCount: debouncedVisibleIds.length,
       });
       return;
     }
-    
+
     debug('useCentrifugo', 'Processing subscriptions for visible posts');
 
     const currentVisibleSet = new Set<string>(debouncedVisibleIds);
@@ -224,11 +229,11 @@ export function useCentrifugo({
 
     // 현재 보이는 포스트 ID들과 이전 ID들을 비교
     const isInitialLoad = previousVisibleSet.size === 0;
-    const hasChanged = !isInitialLoad && (
-      currentVisibleSet.size !== previousVisibleSet.size ||
-      [...currentVisibleSet].some(id => !previousVisibleSet.has(id)) ||
-      [...previousVisibleSet].some(id => !currentVisibleSet.has(id))
-    );
+    const hasChanged =
+      !isInitialLoad &&
+      (currentVisibleSet.size !== previousVisibleSet.size ||
+        [...currentVisibleSet].some(id => !previousVisibleSet.has(id)) ||
+        [...previousVisibleSet].some(id => !currentVisibleSet.has(id)));
 
     // 초기 로드이거나 실제로 변경된 경우에만 처리
     if (isInitialLoad || hasChanged) {
@@ -248,9 +253,9 @@ export function useCentrifugo({
       if (newCommentSubscriptions.length > 0 || newReactionSubscriptions.length > 0) {
         debug('useCentrifugo', 'Starting batch subscriptions', {
           newCommentSubscriptions,
-          newReactionSubscriptions
+          newReactionSubscriptions,
         });
-        
+
         try {
           // 배치 구독 (중복 방지됨)
           if (newCommentSubscriptions.length > 0) {
@@ -261,18 +266,23 @@ export function useCentrifugo({
             debug('useCentrifugo', 'Subscribing to reactions for posts', newReactionSubscriptions);
             batchSubscribeToReactions(newReactionSubscriptions);
           }
-          
+
           // 구독 완료 후 상태 확인
           setTimeout(() => {
             debug('useCentrifugo', 'Subscription status after batch subscribe', {
               subscribedComments: centrifugoService.getSubscribedPostIds(),
               subscribedReactions: centrifugoService.getSubscribedReactionPostIds(),
-              totalSubscriptions: centrifugoService.getSubscribedPostIds().length + centrifugoService.getSubscribedReactionPostIds().length
+              totalSubscriptions:
+                centrifugoService.getSubscribedPostIds().length +
+                centrifugoService.getSubscribedReactionPostIds().length,
             });
           }, 1000);
         } catch (error) {
           if (process.env.NODE_ENV === 'development') {
-            console.error('[Centrifugo] Batch subscribe failed, falling back to individual:', error);
+            console.error(
+              '[Centrifugo] Batch subscribe failed, falling back to individual:',
+              error
+            );
           }
           newCommentSubscriptions.forEach((postId: string) => subscribeToComments(postId));
           newReactionSubscriptions.forEach((postId: string) => subscribeToReactions(postId));
@@ -280,7 +290,7 @@ export function useCentrifugo({
       } else {
         debug('useCentrifugo', 'No new subscriptions needed', {
           alreadySubscribedComments: subscribedComments,
-          alreadySubscribedReactions: subscribedReactions
+          alreadySubscribedReactions: subscribedReactions,
         });
       }
 
@@ -382,7 +392,7 @@ export function useCentrifugo({
     if (autoConnect && user?.id && user.centrifugoToken) {
       // 연결 식별자 생성 (동일한 연결인지 확인하기 위해)
       const connectionIdentity = `${user.id}-${spaceSlug}`;
-      
+
       // 이미 같은 연결이 활성화되어 있으면 스킵
       if (isConnectedRef.current && connectionIdentityRef.current === connectionIdentity) {
         debug('useCentrifugo', 'Connection already active for same identity, skipping');
@@ -393,7 +403,7 @@ export function useCentrifugo({
       if (!visibilityCleanup) {
         visibilityCleanup = reconnectionManager.startVisibilityTracking();
       }
-      
+
       // 재연결 콜백 등록 (외부 동기화 함수가 있는 경우)
       if (onReconnectionDataSync) {
         const syncCallback = createDataSyncCallback(onReconnectionDataSync, 'Feed');
@@ -414,25 +424,19 @@ export function useCentrifugo({
 
           // 새 연결 설정
           await centrifugoService.connect(user.id, spaceSlug, user.centrifugoToken!);
-          
+
           // 연결 성공 표시
           isConnectedRef.current = true;
           connectionIdentityRef.current = connectionIdentity;
 
           // 연결 상태 핸들러들 등록
-          centrifugoService.addEventListener(
-            'connection.established',
-            handleConnectionEstablished
-          );
-          centrifugoService.addEventListener(
-            'connection.lost',
-            handleConnectionLost
-          );
+          centrifugoService.addEventListener('connection.established', handleConnectionEstablished);
+          centrifugoService.addEventListener('connection.lost', handleConnectionLost);
 
           // cleanup 함수 설정
           cleanup = () => {
             debug('useCentrifugo', 'Cleaning up connection');
-            
+
             // 타이머 정리
             subscriptionTimersRef.current.forEach(timer => clearTimeout(timer));
             subscriptionTimersRef.current.clear();
@@ -442,10 +446,7 @@ export function useCentrifugo({
               'connection.established',
               handleConnectionEstablished
             );
-            centrifugoService.removeEventListener(
-              'connection.lost',
-              handleConnectionLost
-            );
+            centrifugoService.removeEventListener('connection.lost', handleConnectionLost);
 
             // 사용자 정의 핸들러들 제거
             eventHandlersRef.current.forEach((handlers, eventType) => {
@@ -464,7 +465,7 @@ export function useCentrifugo({
           // 연결 실패 시 상태 리셋
           isConnectedRef.current = false;
           connectionIdentityRef.current = '';
-          
+
           // 개발 환경에서는 핫 리로드로 인한 일시적 연결 실패가 정상적임
           if (process.env.NODE_ENV === 'development') {
             console.warn('[Centrifugo] 일시적 연결 실패 (재연결 시도 중)', error);
