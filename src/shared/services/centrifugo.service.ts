@@ -83,6 +83,10 @@ export class CentrifugoService {
         this.centrifuge = new Centrifuge(this.wsUrl, {
           token: centrifugoToken,
           debug: process.env.NODE_ENV === 'development',
+          // 재연결 설정 (Centrifuge 5.x 형식)
+          minReconnectDelay: 1000,           // 최소 재연결 지연 시간 (1초)
+          maxReconnectDelay: 20000,          // 최대 재연결 지연 시간 (20초)
+          maxServerPingDelay: 10000,         // 서버 핑 최대 지연 시간 (10초)
         });
 
         // 연결 상태 핸들러
@@ -523,14 +527,18 @@ export class CentrifugoService {
 // 싱글톤 인스턴스 생성
 export const centrifugoService = new CentrifugoService();
 
-// 개발 환경에서 전역 디버깅 헬퍼 등록
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).debugCentrifugo = () => centrifugoService.debugInfo();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).centrifugoService = centrifugoService;
+// 개발 환경에서 전역 디버깅 헬퍼 등록 (클라이언트 사이드에서만)
+// SSR과 클라이언트 간 불일치 방지를 위해 useEffect나 별도 클라이언트 컴포넌트에서 처리
+if (typeof window !== 'undefined') {
+  // 클라이언트 사이드에서만 실행되도록 처리
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).debugCentrifugo = () => centrifugoService.debugInfo();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).centrifugoService = centrifugoService;
+  }
 
-  // 디버깅 헬퍼 import
+  // 디버깅 헬퍼 import (클라이언트 사이드에서만)
   import('./centrifugo-debug').catch(() => {});
 }
 

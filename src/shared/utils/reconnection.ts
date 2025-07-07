@@ -29,16 +29,28 @@ class ReconnectionManagerImpl implements ReconnectionManager {
   private visibilityCleanup: (() => void) | null = null;
 
   updateLastActiveTime(): void {
+    // SSR 환경에서는 실행하지 않음
+    if (typeof window === 'undefined') {
+      return;
+    }
     const now = Date.now();
     localStorage.setItem(this.LAST_ACTIVE_KEY, now.toString());
   }
 
   getLastActiveTime(): number {
+    // SSR 환경에서는 기본값 반환
+    if (typeof window === 'undefined') {
+      return 0;
+    }
     const stored = localStorage.getItem(this.LAST_ACTIVE_KEY);
     return stored ? parseInt(stored, 10) : Date.now();
   }
 
   getTimeSinceLastActive(): number {
+    // SSR 환경에서는 0 반환
+    if (typeof window === 'undefined') {
+      return 0;
+    }
     return Date.now() - this.getLastActiveTime();
   }
 
@@ -146,7 +158,10 @@ export const debugReconnectionManager = () => {
   console.groupEnd();
 };
 
-// 전역 디버깅 함수 등록
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).debugReconnectionManager = debugReconnectionManager;
+// 전역 디버깅 함수 등록 (클라이언트 사이드에서만)
+// SSR과 클라이언트 간 불일치 방지를 위해 useEffect나 별도 클라이언트 컴포넌트에서 처리
+if (typeof window !== 'undefined') {
+  if (process.env.NODE_ENV === 'development') {
+    (window as any).debugReconnectionManager = debugReconnectionManager;
+  }
 }
