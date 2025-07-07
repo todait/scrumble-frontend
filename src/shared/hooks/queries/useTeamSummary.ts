@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { mockTeamSummary } from '@/features/feed/data/mockData';
 import type { TeamSummary } from '@/features/feed/types/feed.types';
 import { postsApi } from '@/shared/lib/api/posts';
-import { postsKeys } from './postsKeys';
-import { authRetry } from '@/shared/utils/query';
-import { formatDateToAPIString } from '@/shared/utils';
 import type { GetFeedSummaryResponse } from '@/shared/types/post';
+import { formatDateToAPIString } from '@/shared/utils';
+import { authRetry } from '@/shared/utils/query';
+import { useQuery } from '@tanstack/react-query';
+import { postsKeys } from './postsKeys';
 
 interface UseTeamSummaryOptions {
   spaceSlug: string;
@@ -27,7 +27,9 @@ export const useTeamSummary = (options: UseTeamSummaryOptions) => {
   const useMockData = spaceSlug === 'temp-space-id';
 
   return useQuery({
-    queryKey: useMockData ? ['teamSummary', spaceSlug] : postsKeys.feedSummary(spaceSlug, dateString),
+    queryKey: useMockData
+      ? ['teamSummary', spaceSlug]
+      : postsKeys.feedSummary(spaceSlug, dateString),
     queryFn: async (): Promise<TeamSummary> => {
       if (useMockData) {
         // Mock 데이터 반환
@@ -36,14 +38,14 @@ export const useTeamSummary = (options: UseTeamSummaryOptions) => {
       }
 
       // 실제 API 호출
-      const response: GetFeedSummaryResponse = await postsApi.getFeedSummary({ 
-        spaceSlug, 
-        date: dateString 
+      const response: GetFeedSummaryResponse = await postsApi.getFeedSummary({
+        spaceSlug,
+        date: dateString,
       });
-      
+
       // API 응답을 TeamSummary 타입으로 변환
       return {
-        teamCondition: response.summary?.averageConditionScore ?? 0,
+        teamCondition: Math.round((response.summary?.averageConditionScore ?? 0) * 10) / 10,
         checkedInCount: response.summary?.checkinCount ?? 0,
         totalMembers: response.summary?.totalWorkdayMemberCount ?? 1,
         checkedOutCount: response.summary?.checkOutCount ?? 0,

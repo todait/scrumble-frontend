@@ -90,8 +90,6 @@ export const useCreateComment = (spaceSlug: string) => {
         _isOptimistic: true,
       };
 
-      debug('useCreateComment=============>>>', 'optimisticComment', optimisticComment);
-
       // 이전 데이터들을 백업 (모든 관련 캐시)
       const previousQueries = queryClient.getQueriesData<any>({
         queryKey: postsKeys.lists(spaceSlug),
