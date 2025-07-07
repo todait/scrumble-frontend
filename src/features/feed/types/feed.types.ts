@@ -23,6 +23,7 @@ export interface Comment {
   updatedAt?: Date;
   images?: ImageMetadata[];
   reactions?: Reaction[];
+  _isOptimistic?: boolean;
 }
 
 export interface BasePost {

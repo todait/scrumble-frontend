@@ -4,23 +4,17 @@ import type { Comment } from '@/features/feed/types/feed.types';
 import { EmojiReactions } from '@/shared/components/emoji';
 import type { EmojiData } from '@/shared/components/emoji/EmojiPicker';
 import { SimpleToast } from '@/shared/components/feedback';
-import dynamic from 'next/dynamic';
-
-// Dynamic import for EmojiPicker
-const EmojiPicker = dynamic(
-  () => import('@/shared/components/emoji/EmojiPicker').then(mod => mod.EmojiPicker),
-  { ssr: false }
-);
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
-import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
+import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import type { ForwardedRef, ReactNode } from 'react';
 import { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
@@ -28,6 +22,12 @@ import { EditDeleteMenu } from './EditDeleteMenu';
 import { IconButton } from './IconButton';
 import { ImageGallery } from './ImageGallery';
 import { ImagePreview } from './ImagePreview';
+
+// Dynamic import for EmojiPicker
+const EmojiPicker = dynamic(
+  () => import('@/shared/components/emoji/EmojiPicker').then(mod => mod.EmojiPicker),
+  { ssr: false }
+);
 // import { LoadingSpinner } from './LoadingSpinner'; // 사용하지 않음
 import { ProfileImage } from './ProfileImage';
 
@@ -331,12 +331,16 @@ function CommentItem({
 
   if (isEditing) {
     return (
-      <div ref={editingContainerRef} className={`group relative flex gap-3 overflow-visible ${className}`}>
+      <div
+        ref={editingContainerRef}
+        className={`group relative flex gap-3 overflow-visible ${className}`}
+      >
         <ProfileImage
           src={comment.author.profileImage}
           alt={comment.author.name}
           size={32}
           className="flex-shrink-0"
+          skipLoadingState={comment._isOptimistic}
         />
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-2">
@@ -369,7 +373,7 @@ function CommentItem({
                 autoFocus
                 disabled={false}
               />
-              
+
               {/* 드래그 오버레이 */}
               {isDragging && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-[#9747FF] bg-[#9747FF]/10">
