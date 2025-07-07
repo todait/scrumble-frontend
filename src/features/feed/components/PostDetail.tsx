@@ -1,6 +1,7 @@
 'use client';
 
 import { CommentSection, DeleteConfirmDialog } from '@/shared/components/ui';
+import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
 import {
   useCreateComment,
   useDeleteComment,
@@ -176,7 +177,8 @@ export function PostDetail({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <WebSocketErrorBoundary>
+      <div className="flex h-full flex-col overflow-hidden">
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-[rgba(34,34,34,0.08)] px-4 py-4 md:px-[30px] md:py-5">
         <h2 className="text-base font-bold text-[#222222] md:text-lg">
@@ -237,5 +239,6 @@ export function PostDetail({
         isLoading={isDeletingComment}
       />
     </div>
+    </WebSocketErrorBoundary>
   );
 }

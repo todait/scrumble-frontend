@@ -9,6 +9,7 @@ import {
   GoToFocusedPostButton,
   PostCard,
 } from '@/features/feed/components';
+import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
 
 // Dynamic imports for heavy components
 const PostDetail = dynamic(
@@ -217,7 +218,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const SettingsIcon = RiSettings6Line;
 
   return (
-    <>
+    <WebSocketErrorBoundary>
       <div className="flex h-screen justify-center overflow-hidden">
         {/* 통합 컨테이너 - 중앙 피드와 PostDetail을 하나로 묶어서 중앙 정렬 */}
         <div
@@ -425,6 +426,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         isOpen={isCheckOutModalOpen}
         onClose={closeCheckOutModal}
       />
-    </>
+    </WebSocketErrorBoundary>
   );
 }
