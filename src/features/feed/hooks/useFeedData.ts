@@ -310,18 +310,22 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                 const updatedReactions = [...post.reactions];
                 const reaction = updatedReactions[existingReactionIndex];
 
-                // 중복 체크
+                // 스마트 업데이트: 이미 사용자가 있으면 업데이트하지 않음
                 if (!reaction.userIds.includes(message.data.userId)) {
+                  debug('useFeedData', '리액션 추가 실행 - 새로운 사용자', { emoji: message.data.emoji, userId: message.data.userId });
                   updatedReactions[existingReactionIndex] = {
                     ...reaction,
                     count: reaction.count + 1,
                     userIds: [...reaction.userIds, message.data.userId],
                   };
+                } else {
+                  debug('useFeedData', '리액션 추가 스킵 - 이미 존재하는 사용자', { emoji: message.data.emoji, userId: message.data.userId });
                 }
 
                 return { ...post, reactions: updatedReactions };
               } else {
                 // 새로운 리액션 추가
+                debug('useFeedData', '새로운 리액션 추가', { emoji: message.data.emoji, userId: message.data.userId });
                 return {
                   ...post,
                   reactions: [
@@ -363,18 +367,22 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                     const updatedReactions = [...(comment.reactions || [])];
                     const reaction = updatedReactions[existingReactionIndex];
 
-                    // 중복 체크
+                    // 스마트 업데이트: 이미 사용자가 있으면 업데이트하지 않음
                     if (!reaction.userIds.includes(message.data.userId)) {
+                      debug('useFeedData', '댓글 리액션 추가 실행 - 새로운 사용자', { emoji: message.data.emoji, userId: message.data.userId });
                       updatedReactions[existingReactionIndex] = {
                         ...reaction,
                         count: reaction.count + 1,
                         userIds: [...reaction.userIds, message.data.userId],
                       };
+                    } else {
+                      debug('useFeedData', '댓글 리액션 추가 스킵 - 이미 존재하는 사용자', { emoji: message.data.emoji, userId: message.data.userId });
                     }
 
                     return { ...comment, reactions: updatedReactions };
                   } else {
                     // 새로운 리액션 추가
+                    debug('useFeedData', '새로운 댓글 리액션 추가', { emoji: message.data.emoji, userId: message.data.userId });
                     return {
                       ...comment,
                       reactions: [
@@ -422,21 +430,26 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
             posts: oldData.posts.map((post: Post) => {
               if (post.id !== message.data.targetId) return post;
 
-              // 해당 리액션 업데이트
+              // 스마트 업데이트: 해당 사용자가 실제로 있을 때만 제거
               const updatedReactions = post.reactions
                 .map((reaction: Reaction) => {
                   if (reaction.emoji !== message.data.emoji) {
                     return reaction;
                   }
 
-                  // 사용자 ID 제거
-                  const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
-
-                  return {
-                    ...reaction,
-                    count: Math.max(0, reaction.count - 1),
-                    userIds: newUserIds,
-                  };
+                  // 스마트 업데이트: 해당 사용자가 있는지 확인
+                  if (reaction.userIds.includes(message.data.userId)) {
+                    debug('useFeedData', '리액션 제거 실행 - 사용자 존재', { emoji: message.data.emoji, userId: message.data.userId });
+                    const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
+                    return {
+                      ...reaction,
+                      count: Math.max(0, reaction.count - 1),
+                      userIds: newUserIds,
+                    };
+                  } else {
+                    debug('useFeedData', '리액션 제거 스킵 - 사용자 없음', { emoji: message.data.emoji, userId: message.data.userId });
+                    return reaction;
+                  }
                 })
                 // count가 0인 리액션은 제거
                 .filter((reaction: Reaction) => reaction.count > 0);
@@ -461,21 +474,26 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                   // 해당 댓글이 아니면 그대로 반환
                   if (comment.id !== message.data.targetId) return comment;
 
-                  // 해당 리액션 업데이트
+                  // 스마트 업데이트: 해당 사용자가 실제로 있을 때만 제거
                   const updatedReactions = (comment.reactions || [])
                     .map((reaction: Reaction) => {
                       if (reaction.emoji !== message.data.emoji) {
                         return reaction;
                       }
 
-                      // 사용자 ID 제거
-                      const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
-
-                      return {
-                        ...reaction,
-                        count: Math.max(0, reaction.count - 1),
-                        userIds: newUserIds,
-                      };
+                      // 스마트 업데이트: 해당 사용자가 있는지 확인
+                      if (reaction.userIds.includes(message.data.userId)) {
+                        debug('useFeedData', '댓글 리액션 제거 실행 - 사용자 존재', { emoji: message.data.emoji, userId: message.data.userId });
+                        const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
+                        return {
+                          ...reaction,
+                          count: Math.max(0, reaction.count - 1),
+                          userIds: newUserIds,
+                        };
+                      } else {
+                        debug('useFeedData', '댓글 리액션 제거 스킵 - 사용자 없음', { emoji: message.data.emoji, userId: message.data.userId });
+                        return reaction;
+                      }
                     })
                     // count가 0인 리액션은 제거
                     .filter((reaction: Reaction) => reaction.count > 0);

@@ -110,7 +110,8 @@ export const forceCentrifugoConnect = async () => {
   console.groupEnd();
 };
 
-// 전역에 등록
+// 전역에 등록 (클라이언트 사이드에서만)
+// SSR과 클라이언트 간 불일치 방지를 위해 useEffect나 별도 클라이언트 컴포넌트에서 처리
 if (typeof window !== 'undefined') {
   (window as any).forceCentrifugoConnect = forceCentrifugoConnect;
 }
@@ -155,13 +156,16 @@ export const testCentrifugoMessage = (postId: string, spaceSlug: string) => {
   }, 30000);
 };
 
-// 전역에 등록 (개발 환경에서만)
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).debugCentrifugoConnection = debugCentrifugoConnection;
-  (window as any).testCentrifugoMessage = testCentrifugoMessage;
-  
-  // 재연결 관리자 디버깅 함수도 import하여 등록
-  import('../utils/reconnection').then(({ debugReconnectionManager }) => {
-    (window as any).debugReconnectionManager = debugReconnectionManager;
-  }).catch(() => {});
+// 전역에 등록 (개발 환경에서만, 클라이언트 사이드에서만)
+// SSR과 클라이언트 간 불일치 방지를 위해 useEffect나 별도 클라이언트 컴포넌트에서 처리
+if (typeof window !== 'undefined') {
+  if (process.env.NODE_ENV === 'development') {
+    (window as any).debugCentrifugoConnection = debugCentrifugoConnection;
+    (window as any).testCentrifugoMessage = testCentrifugoMessage;
+    
+    // 재연결 관리자 디버깅 함수도 import하여 등록
+    import('../utils/reconnection').then(({ debugReconnectionManager }) => {
+      (window as any).debugReconnectionManager = debugReconnectionManager;
+    }).catch(() => {});
+  }
 }

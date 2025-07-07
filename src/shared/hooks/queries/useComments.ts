@@ -12,10 +12,10 @@ import type {
 } from '@/shared/types/comment';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { getErrorMessage } from '@/shared/utils';
+import { debug } from '@/shared/utils/debug';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../useToast';
 import { postsKeys } from './postsKeys';
-import { debug } from '@/shared/utils/debug';
 
 /**
  * CommentImage를 ImageMetadata로 변환하는 유틸리티 함수
@@ -52,7 +52,7 @@ export const useCreateComment = (spaceSlug: string) => {
     mutationFn: params => {
       debug('useCreateComment', 'API call', {
         imageCount: params.images?.length || 0,
-        images: params.images
+        images: params.images,
       });
       return commentsApi.createComment(params);
     },
@@ -62,17 +62,18 @@ export const useCreateComment = (spaceSlug: string) => {
 
       // 현재 사용자 정보로 즉시 댓글 생성
       const tempId = `temp-${Date.now()}`;
-      
+
       // 이미지 데이터를 서버 응답과 동일한 형식으로 정규화
-      const normalizedImages = variables.images?.map(img => ({
-        ...img,
-        id: img.id || img.key, // id가 없으면 key를 사용하여 WebSocket 형식과 통일
-        isTemporary: false, // 서버 응답과 동일하게 설정
-      })) || [];
+      const normalizedImages =
+        variables.images?.map(img => ({
+          ...img,
+          id: img.id || img.key, // id가 없으면 key를 사용하여 WebSocket 형식과 통일
+          isTemporary: false, // 서버 응답과 동일하게 설정
+        })) || [];
 
       debug('useCreateComment', 'onMutate', {
         inputImages: variables.images,
-        normalizedImages
+        normalizedImages,
       });
 
       const optimisticComment: Comment = {
@@ -86,6 +87,7 @@ export const useCreateComment = (spaceSlug: string) => {
         createdAt: new Date(),
         images: normalizedImages,
         reactions: [],
+        _isOptimistic: true,
       };
 
       // 이전 데이터들을 백업 (모든 관련 캐시)
@@ -125,11 +127,11 @@ export const useCreateComment = (spaceSlug: string) => {
 
       // 서버 응답에서 이미지 데이터가 없으면 기존 optimistic update의 이미지 유지
       const shouldKeepOptimisticImages = !data.comment.images || data.comment.images.length === 0;
-      
+
       debug('useCreateComment', 'onSuccess', {
         serverImages: data.comment.images,
         convertedImages,
-        shouldKeepOptimisticImages
+        shouldKeepOptimisticImages,
       });
 
       // 서버 응답의 실제 댓글 데이터로 임시 댓글 교체
@@ -164,7 +166,7 @@ export const useCreateComment = (spaceSlug: string) => {
                       if (comment.id === context.tempId) {
                         debug('useCreateComment', 'Replacing optimistic comment', {
                           old: comment,
-                          new: actualComment
+                          new: actualComment,
                         });
                         return actualComment;
                       }
@@ -271,8 +273,8 @@ export const useUpdateComment = (spaceSlug: string) => {
               ...post,
               comments: post.comments.map((comment: any) =>
                 comment.id === variables.commentId
-                  ? { 
-                      ...comment, 
+                  ? {
+                      ...comment,
                       ...updatedComment,
                       // 옵티미스틱 업데이트 시 발생할 수 있는 임시 필드 제거
                       _isOptimistic: undefined,
@@ -338,7 +340,9 @@ export const useDeleteComment = (spaceSlug: string) => {
           return {
             ...oldData,
             posts: oldData.posts.map((post: any) => {
-              const updatedComments = post.comments.filter((comment: any) => comment.id !== variables.commentId);
+              const updatedComments = post.comments.filter(
+                (comment: any) => comment.id !== variables.commentId
+              );
               return {
                 ...post,
                 comments: updatedComments,

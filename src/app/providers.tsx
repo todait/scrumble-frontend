@@ -1,11 +1,11 @@
 'use client';
 
+import { AuthProvider, TimezoneProvider } from '@/shared/contexts';
+import { setQueryClient } from '@/shared/lib/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
-import { setQueryClient } from '@/shared/lib/api';
-import { AuthProvider, TimezoneProvider } from '@/shared/contexts';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // QueryClient를 useState로 생성하여 SSR에서 안전하게 사용
@@ -29,7 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
             // 🪟 refetchOnWindowFocus: 윈도우 포커스 시 리페치
             // - 사용자가 다른 탭에서 돌아왔을 때 데이터 새로고침
-            refetchOnWindowFocus: false,
+            refetchOnWindowFocus: true,
 
             // 📡 refetchOnReconnect: 네트워크 재연결 시 리페치
             refetchOnReconnect: 'always',
@@ -52,9 +52,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <TimezoneProvider>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </TimezoneProvider>
       {/* 개발 환경에서만 DevTools 표시 */}
       {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}

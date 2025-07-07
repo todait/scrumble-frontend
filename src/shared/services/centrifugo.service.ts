@@ -3,23 +3,15 @@
  * Centrifugo를 사용한 실시간 통신을 관리합니다.
  */
 
-import { Centrifuge, type Subscription, type PublicationContext, type State } from 'centrifuge';
 import type {
+  ConnectionState,
   IncomingWebSocketMessage,
   WebSocketEventHandler,
   WebSocketEventType,
-  CommentCreatedMessage,
-  CommentUpdatedMessage,
-  CommentDeletedMessage,
-  ReactionAddedMessage,
-  ReactionRemovedMessage,
-  PostCreatedMessage,
-  PostUpdatedMessage,
-  PostDeletedMessage,
-  ConnectionState,
 } from '@/shared/types/websocket.types';
-import { debugWebSocketMessage, safeParseWebSocketMessage } from '@/shared/utils/typeGuards';
 import { debug } from '@/shared/utils/debug';
+import { debugWebSocketMessage } from '@/shared/utils/typeGuards';
+import { Centrifuge, type PublicationContext, type Subscription } from 'centrifuge';
 
 /**
  * Centrifugo WebSocket 연결을 관리하는 클래스
@@ -36,7 +28,8 @@ export class CentrifugoService {
 
   constructor() {
     // 환경 변수에서 Centrifugo URL 가져오기
-    this.wsUrl = process.env.NEXT_PUBLIC_CENTRIFUGO_URL || 'ws://localhost:8000/connection/websocket';
+    this.wsUrl =
+      process.env.NEXT_PUBLIC_CENTRIFUGO_URL || 'ws://localhost:8000/connection/websocket';
   }
 
   /**
@@ -62,11 +55,13 @@ export class CentrifugoService {
    */
   async connect(userID: string, spaceSlug: string, centrifugoToken: string): Promise<void> {
     // 동일한 연결이 이미 활성화되어 있고 연결 상태가 좋으면 재사용
-    if (this.centrifuge && 
-        this.userID === userID && 
-        this.spaceSlug === spaceSlug && 
-        this.centrifugoToken === centrifugoToken &&
-        this.connectionState === 'connected') {
+    if (
+      this.centrifuge &&
+      this.userID === userID &&
+      this.spaceSlug === spaceSlug &&
+      this.centrifugoToken === centrifugoToken &&
+      this.connectionState === 'connected'
+    ) {
       debug('Centrifugo', '기존 연결 재사용');
       return Promise.resolve();
     }
@@ -88,18 +83,22 @@ export class CentrifugoService {
         this.centrifuge = new Centrifuge(this.wsUrl, {
           token: centrifugoToken,
           debug: process.env.NODE_ENV === 'development',
+          // 재연결 설정 (Centrifuge 5.x 형식)
+          minReconnectDelay: 1000,           // 최소 재연결 지연 시간 (1초)
+          maxReconnectDelay: 20000,          // 최대 재연결 지연 시간 (20초)
+          maxServerPingDelay: 10000,         // 서버 핑 최대 지연 시간 (10초)
         });
 
         // 연결 상태 핸들러
-        this.centrifuge.on('connecting', (ctx) => {
+        this.centrifuge.on('connecting', ctx => {
           this.connectionState = 'connecting';
           debug('Centrifugo', 'Connecting...', ctx);
         });
 
-        this.centrifuge.on('connected', (ctx) => {
+        this.centrifuge.on('connected', ctx => {
           this.connectionState = 'connected';
           debug('Centrifugo', 'Connected', ctx);
-          
+
           // 연결 성공 이벤트 emit
           this.emit('connection.established', {
             type: 'connection.established',
@@ -108,14 +107,14 @@ export class CentrifugoService {
             postId: '',
             userId: this.userID || '',
           });
-          
+
           resolve();
         });
 
-        this.centrifuge.on('disconnected', (ctx) => {
+        this.centrifuge.on('disconnected', ctx => {
           this.connectionState = 'disconnected';
           debug('Centrifugo', 'Disconnected', ctx);
-          
+
           // 연결 끊김 이벤트 emit (React 컴포넌트에서 감지할 수 있도록)
           this.emit('connection.lost', {
             type: 'connection.lost',
@@ -126,7 +125,7 @@ export class CentrifugoService {
           });
         });
 
-        this.centrifuge.on('error', (ctx) => {
+        this.centrifuge.on('error', ctx => {
           this.connectionState = 'error';
           if (process.env.NODE_ENV === 'development') {
             console.error('[Centrifugo] Error', ctx);
@@ -160,7 +159,7 @@ export class CentrifugoService {
   disconnect(): void {
     if (this.centrifuge) {
       // 모든 구독 해제
-      this.subscriptions.forEach((subscription) => {
+      this.subscriptions.forEach(subscription => {
         subscription.unsubscribe();
       });
       this.subscriptions.clear();
@@ -182,14 +181,14 @@ export class CentrifugoService {
       hasCentrifuge: !!this.centrifuge,
       connectionState: this.connectionState,
       centrifugeState: this.centrifuge?.state,
-      connected: this.connected
+      connected: this.connected,
     });
-    
+
     if (!this.centrifuge || this.connectionState !== 'connected') {
       debug('Centrifugo', '연결되지 않았거나 Centrifuge 인스턴스가 없음', {
         hasCentrifuge: !!this.centrifuge,
         connectionState: this.connectionState,
-        channel
+        channel,
       });
       return null;
     }
@@ -210,19 +209,19 @@ export class CentrifugoService {
       this.handleMessage(channel, ctx.data);
     });
 
-    subscription.on('subscribing', (ctx) => {
+    subscription.on('subscribing', ctx => {
       debug('Centrifugo', `Subscribing to ${channel}`, ctx);
     });
 
-    subscription.on('subscribed', (ctx) => {
+    subscription.on('subscribed', ctx => {
       debug('Centrifugo', `✅ Successfully subscribed to ${channel}`, ctx);
     });
 
-    subscription.on('unsubscribed', (ctx) => {
+    subscription.on('unsubscribed', ctx => {
       debug('Centrifugo', `Unsubscribed from ${channel}`, ctx);
     });
 
-    subscription.on('error', (ctx) => {
+    subscription.on('error', ctx => {
       if (process.env.NODE_ENV === 'development') {
         console.error(`[Centrifugo] ❌ Subscription error on ${channel}`, ctx);
       }
@@ -281,7 +280,10 @@ export class CentrifugoService {
   batchSubscribeToComments(postIds: string[]): void {
     debug('Centrifugo', 'batchSubscribeToComments called with postIds', postIds);
     if (!this.spaceSlug || postIds.length === 0) {
-      debug('Centrifugo', 'Skipping batch subscribe', { spaceSlug: this.spaceSlug, postIdsLength: postIds.length });
+      debug('Centrifugo', 'Skipping batch subscribe', {
+        spaceSlug: this.spaceSlug,
+        postIdsLength: postIds.length,
+      });
       return;
     }
 
@@ -334,7 +336,10 @@ export class CentrifugoService {
   batchSubscribeToReactions(postIds: string[]): void {
     debug('Centrifugo', 'batchSubscribeToReactions called with postIds', postIds);
     if (!this.spaceSlug || postIds.length === 0) {
-      debug('Centrifugo', 'Skipping batch subscribe reactions', { spaceSlug: this.spaceSlug, postIdsLength: postIds.length });
+      debug('Centrifugo', 'Skipping batch subscribe reactions', {
+        spaceSlug: this.spaceSlug,
+        postIdsLength: postIds.length,
+      });
       return;
     }
 
@@ -453,7 +458,7 @@ export class CentrifugoService {
       try {
         // data가 이미 객체인 경우 그대로 사용, 문자열인 경우 파싱
         const messageData = typeof data === 'string' ? JSON.parse(data) : data;
-        
+
         // 채널 정보와 spaceSlug 추가
         const message: IncomingWebSocketMessage = {
           ...messageData,
@@ -522,20 +527,20 @@ export class CentrifugoService {
 // 싱글톤 인스턴스 생성
 export const centrifugoService = new CentrifugoService();
 
-// 개발 환경에서 전역 디버깅 헬퍼 등록
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).debugCentrifugo = () => centrifugoService.debugInfo();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).centrifugoService = centrifugoService;
-  
-  // 디버깅 헬퍼 import
+// 개발 환경에서 전역 디버깅 헬퍼 등록 (클라이언트 사이드에서만)
+// SSR과 클라이언트 간 불일치 방지를 위해 useEffect나 별도 클라이언트 컴포넌트에서 처리
+if (typeof window !== 'undefined') {
+  // 클라이언트 사이드에서만 실행되도록 처리
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).debugCentrifugo = () => centrifugoService.debugInfo();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).centrifugoService = centrifugoService;
+  }
+
+  // 디버깅 헬퍼 import (클라이언트 사이드에서만)
   import('./centrifugo-debug').catch(() => {});
 }
 
 // React 훅을 위한 타입 내보내기
-export type {
-  IncomingWebSocketMessage,
-  WebSocketEventHandler,
-  WebSocketEventType,
-};
+export type { IncomingWebSocketMessage, WebSocketEventHandler, WebSocketEventType };

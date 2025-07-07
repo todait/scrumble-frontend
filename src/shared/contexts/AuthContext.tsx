@@ -39,6 +39,7 @@ interface AuthContextValue {
     userId: string;
     userEmail: string;
     userName: string;
+    avatarURL: string;
   }) => Promise<void>;
 }
 
@@ -87,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: authKeys.userWithLatestSpace(),
     queryFn: async () => {
       const data = await authApi.getCurrentUserWithLatestSpace();
-      
+
       // centrifugo_token이 포함된 사용자 정보를 localStorage에 저장
       if (data.centrifugoToken) {
         const userWithToken = {
@@ -96,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         localStorage.setItem('user', JSON.stringify(userWithToken));
       }
-      
+
       return data;
     },
     enabled: !!baseUser,
@@ -109,9 +110,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // centrifugoToken이 포함된 user 객체 생성
   const user = useMemo(() => {
     if (!baseUser) return undefined;
-    
+
     return {
       ...baseUser,
+
       centrifugoToken: latestSpace?.centrifugoToken,
     };
   }, [baseUser, latestSpace?.centrifugoToken]);
@@ -137,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userId: string;
     userEmail: string;
     userName: string;
+    avatarURL: string;
   }) => {
     // 토큰 저장 (만료 시간 자동 추출)
     TokenManager.setTokens({
@@ -149,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: params.userId,
       email: decodeURIComponent(params.userEmail),
       name: decodeURIComponent(params.userName),
-      avatarURL: '',
+      avatarURL: decodeURIComponent(params.avatarURL),
     };
 
     // React Query 캐시 업데이트

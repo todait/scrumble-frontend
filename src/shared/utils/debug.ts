@@ -3,13 +3,22 @@ const logCache = new Map<string, { lastLogged: number; count: number }>();
 const THROTTLE_TIME = 2000; // 2초
 const MAX_REPEATED_LOGS = 3; // 최대 3번까지만 연속 로그 허용
 
+// 클라이언트 사이드에서만 실행되도록 처리
+const getCurrentTime = () => {
+  // SSR 환경에서는 사용 안함
+  if (typeof window === 'undefined') {
+    return 0;
+  }
+  return Date.now();
+};
+
 export const debug = (type: string, message: string, data?: any) => {
-  if (process.env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') {
     return;
   }
 
   const logKey = `${type}:${message}`;
-  const now = Date.now();
+  const now = getCurrentTime();
   const cached = logCache.get(logKey);
 
   // 같은 메시지가 너무 자주 반복되면 스로틀링

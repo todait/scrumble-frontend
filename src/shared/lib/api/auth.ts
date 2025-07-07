@@ -4,6 +4,7 @@
  */
 
 import type {
+  ApiUser,
   GetUserWithLatestSpaceApiResponse,
   RefreshTokenApiResponse,
   TokenPair,
@@ -53,8 +54,13 @@ export const authApi = {
    * @returns 현재 로그인된 사용자 정보
    */
   getCurrentUser: async (): Promise<User> => {
-    const { data } = await apiClient.get<User>('/api/v1/users/me');
-    return data;
+    const { data } = await apiClient.get<ApiUser>('/api/v1/users/me');
+    return {
+      id: data.id,
+      email: data.email,
+      name: data.name,
+      avatarURL: data.avatar_url,
+    };
   },
 
   /**
@@ -62,7 +68,9 @@ export const authApi = {
    * 로그인 후 적절한 페이지로 리다이렉트하기 위해 사용
    * @returns 최신 스페이스 정보가 포함된 사용자 정보
    */
-  getCurrentUserWithLatestSpace: async (): Promise<UserWithLatestSpace & { centrifugoToken?: string }> => {
+  getCurrentUserWithLatestSpace: async (): Promise<
+    UserWithLatestSpace & { centrifugoToken?: string }
+  > => {
     const { data } = await apiClient.get<GetUserWithLatestSpaceApiResponse>(
       '/api/v1/users/me/latest-space'
     );

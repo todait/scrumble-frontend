@@ -9,20 +9,22 @@ interface ProfileImageProps {
   size?: number;
   className?: string;
   variant?: 'square' | 'circle'; // 사각형 또는 원형
+  skipLoadingState?: boolean;
 }
 
-export function ProfileImage({ 
-  src, 
-  alt, 
-  size = 40, 
+export function ProfileImage({
+  src,
+  alt,
+  size = 40,
   className = '',
-  variant = 'square'
+  variant = 'square',
+  skipLoadingState = false,
 }: ProfileImageProps) {
   const [hasError, setHasError] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  
+  const [isLoaded, setIsLoaded] = useState(skipLoadingState);
+
   const textSize = size >= 48 ? 'text-lg' : size >= 32 ? 'text-sm' : 'text-xs';
-  
+
   // 기본 아바타 생성 함수
   const generateDefaultAvatar = (name: string) => {
     const initials = name
@@ -31,17 +33,23 @@ export function ProfileImage({
       .join('')
       .toUpperCase()
       .slice(0, 2);
-    
+
     // 이름 기반으로 배경색 생성
     const colors = [
-      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500',
-      'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500'
+      'bg-blue-500',
+      'bg-green-500',
+      'bg-purple-500',
+      'bg-pink-500',
+      'bg-indigo-500',
+      'bg-yellow-500',
+      'bg-red-500',
+      'bg-teal-500',
     ];
     const colorIndex = name.charCodeAt(0) % colors.length;
-    
+
     return {
       initials,
-      bgColor: colors[colorIndex]
+      bgColor: colors[colorIndex],
     };
   };
 
@@ -63,16 +71,7 @@ export function ProfileImage({
   if (!src || hasError) {
     return (
       <div
-        className={`
-          ${defaultAvatar.bgColor} 
-          ${roundedClass}
-          ${borderClass}
-          flex items-center justify-center 
-          text-white font-semibold 
-          overflow-hidden
-          ${textSize}
-          ${className}
-        `}
+        className={` ${defaultAvatar.bgColor} ${roundedClass} ${borderClass} flex items-center justify-center overflow-hidden font-semibold text-white ${textSize} ${className} `}
         style={{ width: size, height: size }}
         title={alt}
       >
@@ -87,32 +86,23 @@ export function ProfileImage({
       style={{ width: size, height: size }}
     >
       {/* 로딩 중 플레이스홀더 */}
-      {!isLoaded && (
+      {!isLoaded && !skipLoadingState && (
         <div
-          className={`
-            ${defaultAvatar.bgColor} 
-            absolute inset-0 
-            flex items-center justify-center 
-            text-white font-semibold 
-            ${textSize}
-          `}
+          className={` ${defaultAvatar.bgColor} absolute inset-0 flex items-center justify-center font-semibold text-white ${textSize} `}
         >
           {defaultAvatar.initials}
         </div>
       )}
-      
+
       {/* 프로덕션 환경에서 randomuser.me 이미지는 일반 img 태그 사용 */}
       {process.env.NODE_ENV === 'production' && src.includes('randomuser.me') ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
           alt={alt}
-          className={`
-            h-full w-full object-cover
-            ${isLoaded ? 'opacity-100' : 'opacity-0'}
-          `}
-          style={{ 
-            transition: 'opacity 0.3s ease-in-out'
+          className={`h-full w-full object-cover ${isLoaded ? 'opacity-100' : 'opacity-0'} `}
+          style={{
+            transition: 'opacity 0.3s ease-in-out',
           }}
           onLoad={handleLoad}
           onError={handleError}
@@ -124,12 +114,9 @@ export function ProfileImage({
           alt={alt}
           width={size}
           height={size}
-          className={`
-            h-full w-full object-cover
-            ${isLoaded ? 'opacity-100' : 'opacity-0'}
-          `}
-          style={{ 
-            transition: 'opacity 0.3s ease-in-out'
+          className={`h-full w-full object-cover ${isLoaded ? 'opacity-100' : 'opacity-0'} `}
+          style={{
+            transition: 'opacity 0.3s ease-in-out',
           }}
           onLoad={handleLoad}
           onError={handleError}

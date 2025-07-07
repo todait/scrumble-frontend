@@ -1,7 +1,7 @@
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseAuthCallbackReturn {
   isProcessing: boolean;
@@ -15,6 +15,7 @@ interface AuthParams {
   userId: string | null;
   userEmail: string | null;
   userName: string | null;
+  avatarURL: string | null;
 }
 
 interface ProcessingState {
@@ -44,13 +45,17 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
   });
 
   // URL 파라미터에서 인증 정보 추출 (useCallback으로 메모이제이션)
-  const extractAuthParams = useCallback((): AuthParams => ({
-    accessToken: searchParams.get('access_token'),
-    refreshToken: searchParams.get('refresh_token'),
-    userId: searchParams.get('user_id'),
-    userEmail: searchParams.get('user_email'),
-    userName: searchParams.get('user_name'),
-  }), [searchParams]);
+  const extractAuthParams = useCallback(
+    (): AuthParams => ({
+      accessToken: searchParams.get('access_token'),
+      refreshToken: searchParams.get('refresh_token'),
+      userId: searchParams.get('user_id'),
+      userEmail: searchParams.get('user_email'),
+      userName: searchParams.get('user_name'),
+      avatarURL: searchParams.get('avatar_url'),
+    }),
+    [searchParams]
+  );
 
   // 모든 필수 파라미터가 있는지 확인
   const hasAllRequiredParams = useCallback((params: AuthParams): boolean => {
@@ -58,18 +63,21 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
   }, []);
 
   // 에러 처리 함수 (useCallback으로 메모이제이션)
-  const handleError = useCallback((message: string) => {
-    setState(prev => ({ 
-      ...prev, 
-      error: message,
-      isProcessing: false 
-    }));
-    toastError({
-      title: '로그인 오류',
-      message,
-    });
-    router.push('/auth?auth=error&message=' + encodeURIComponent(message));
-  }, [toastError, router]);
+  const handleError = useCallback(
+    (message: string) => {
+      setState(prev => ({
+        ...prev,
+        error: message,
+        isProcessing: false,
+      }));
+      toastError({
+        title: '로그인 오류',
+        message,
+      });
+      router.push('/auth?auth=error&message=' + encodeURIComponent(message));
+    },
+    [toastError, router]
+  );
 
   // OAuth 콜백 처리 로직
   useEffect(() => {
@@ -98,6 +106,7 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
             userId: authParams.userId!,
             userEmail: authParams.userEmail!,
             userName: authParams.userName!,
+            avatarURL: authParams.avatarURL || '',
           });
 
           success({
@@ -119,12 +128,11 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
         }
 
         // 처리 완료 표시
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           hasProcessed: true,
-          isProcessing: false 
+          isProcessing: false,
         }));
-
       } catch (error) {
         console.error('Auth callback processing error:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -170,8 +178,8 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
   }, [user, latestSpace, isLoading, router, state]);
 
   return {
-    isProcessing: state.isProcessing || 
-                 (state.hasProcessed && !state.hasRedirected && !state.error),
+    isProcessing:
+      state.isProcessing || (state.hasProcessed && !state.hasRedirected && !state.error),
     hasCompleted: state.hasProcessed && state.hasRedirected,
     error: state.error,
   };
