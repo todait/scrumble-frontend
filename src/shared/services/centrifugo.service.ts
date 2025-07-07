@@ -200,40 +200,77 @@ export class CentrifugoService {
       return existingSubscription;
     }
 
-    debug('Centrifugo', `Creating new subscription for ${channel}`);
-    const subscription = this.centrifuge.newSubscription(channel);
+    try {
+      debug('Centrifugo', `Creating new subscription for ${channel}`);
+      const subscription = this.centrifuge.newSubscription(channel);
 
-    // 메시지 수신 핸들러
-    subscription.on('publication', (ctx: PublicationContext) => {
-      debug('Centrifugo', `Message received on ${channel}`, ctx.data);
-      this.handleMessage(channel, ctx.data);
-    });
+      // 메시지 수신 핸들러
+      subscription.on('publication', (ctx: PublicationContext) => {
+        debug('Centrifugo', `Message received on ${channel}`, ctx.data);
+        this.handleMessage(channel, ctx.data);
+      });
 
-    subscription.on('subscribing', ctx => {
-      debug('Centrifugo', `Subscribing to ${channel}`, ctx);
-    });
+      subscription.on('subscribing', ctx => {
+        debug('Centrifugo', `Subscribing to ${channel}`, ctx);
+      });
 
-    subscription.on('subscribed', ctx => {
-      debug('Centrifugo', `✅ Successfully subscribed to ${channel}`, ctx);
-    });
+      subscription.on('subscribed', ctx => {
+        debug('Centrifugo', `✅ Successfully subscribed to ${channel}`, ctx);
+      });
 
-    subscription.on('unsubscribed', ctx => {
-      debug('Centrifugo', `Unsubscribed from ${channel}`, ctx);
-    });
+      subscription.on('unsubscribed', ctx => {
+        debug('Centrifugo', `Unsubscribed from ${channel}`, ctx);
+      });
 
-    subscription.on('error', ctx => {
-      if (process.env.NODE_ENV === 'development') {
-        console.error(`[Centrifugo] ❌ Subscription error on ${channel}`, ctx);
+      subscription.on('error', ctx => {
+        // 에러가 발생해도 서비스는 계속 동작하도록 함
+        const errorMessage = ctx.error?.message || 'Unknown error';
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[Centrifugo] ⚠️ Subscription error on ${channel}:`, errorMessage);
+        }
+        
+        // 중복 구독 에러인 경우 구독 목록에서 제거
+        if (errorMessage.includes('already exists')) {
+          this.subscriptions.delete(channel);
+        }
+      });
+
+      // 구독 시작
+      debug('Centrifugo', `Starting subscription to ${channel}`);
+      
+      try {
+        subscription.subscribe();
+        this.subscriptions.set(channel, subscription);
+        debug('Centrifugo', `Total subscriptions now: ${this.subscriptions.size}`);
+        return subscription;
+      } catch (subscribeError) {
+        // 구독 시작 중 에러 발생 시
+        const errorMessage = (subscribeError as Error)?.message || 'Unknown subscription error';
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[Centrifugo] ⚠️ Failed to subscribe to ${channel}:`, errorMessage);
+        }
+        
+        // 중복 구독 에러인 경우 무시하고 null 반환
+        if (errorMessage.includes('already exists')) {
+          debug('Centrifugo', `Channel ${channel} already has a subscription, skipping`);
+          return null;
+        }
+        
+        // 다른 에러는 다시 던짐
+        throw subscribeError;
       }
-    });
-
-    // 구독 시작
-    debug('Centrifugo', `Starting subscription to ${channel}`);
-    subscription.subscribe();
-    this.subscriptions.set(channel, subscription);
-
-    debug('Centrifugo', `Total subscriptions now: ${this.subscriptions.size}`);
-    return subscription;
+    } catch (error) {
+      // 전체 구독 프로세스 중 에러 발생
+      const errorMessage = (error as Error)?.message || 'Unknown error';
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[Centrifugo] ⚠️ Error creating subscription for ${channel}:`, errorMessage);
+      }
+      
+      // 서비스가 다운되지 않도록 null 반환
+      return null;
+    }
   }
 
   /**
@@ -452,7 +489,7 @@ export class CentrifugoService {
   /**
    * Centrifugo로부터 받은 메시지를 처리합니다
    */
-  private handleMessage(channel: string, data: any): void {
+  private handleMessage(channel: string, data: unknown): void {
     // 비동기로 메시지 처리하여 스레드 블로킹 방지
     setTimeout(() => {
       try {
