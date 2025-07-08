@@ -70,18 +70,19 @@ export const PostForm = ({
   // 제출 핸들러
   const handleSubmit = () => {
     if (message.trim() || completedImages.length > 0) {
-      // 이미지 상태를 먼저 복사해서 안전하게 전달
-      const imagesToSubmit = [...completedImages];
-      const messageToSubmit = message;
-
-      // 상태 초기화를 먼저 수행
-      clearImages();
-      setMessage('');
-
-      // 복사된 데이터로 제출
-      onSubmit({ message: messageToSubmit, images: imagesToSubmit });
+      // 상태 초기화하지 않고 그대로 전달
+      onSubmit({ message, images: completedImages });
     }
   };
+
+  // 외부에서 저장 성공 시 상태를 초기화할 수 있도록 useEffect 추가
+  useEffect(() => {
+    // isLoading이 true에서 false로 변경되면 (저장 완료) 상태 초기화
+    if (!isLoading && !initialMessage && initialImages.length === 0) {
+      clearImages();
+      setMessage('');
+    }
+  }, [isLoading, initialMessage, initialImages.length, clearImages]);
 
   // 업로드 중인 이미지가 있는지 확인
   const hasUploadingImages = uploadingImages.some(
@@ -101,13 +102,19 @@ export const PostForm = ({
       {children}
 
       <div className={`px-2 transition-colors md:px-7 ${isDragging ? 'bg-blue-50' : ''}`}>
-        <div className="cursor-text rounded-xl py-3" onClick={onTextAreaClick}>
+        <div className="relative cursor-text rounded-xl py-3" onClick={onTextAreaClick}>
           <textarea
             {...textareaProps}
             value={message}
             onChange={e => setMessage(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && e.metaKey && !isSubmitDisabled) {
+                e.preventDefault();
+                handleSubmit();
+              }
+            }}
             placeholder={placeholder}
-            className="h-[240px] w-full resize-none border-none p-[10px] text-base text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 md:text-[15px]"
+            className="h-[240px] w-full resize-none border-none p-[10px] text-base text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed md:text-[15px]"
             disabled={disabled}
           />
         </div>

@@ -1,5 +1,6 @@
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useToast } from '@/shared/hooks/useToast';
+import { debug } from '@/shared/utils/debug';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -59,7 +60,11 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
 
   // 모든 필수 파라미터가 있는지 확인
   const hasAllRequiredParams = useCallback((params: AuthParams): boolean => {
-    return Object.values(params).every(param => param !== null && param !== '');
+    const required = ['accessToken', 'refreshToken', 'userId', 'userEmail', 'userName'];
+    return required.every(key => {
+      const value = params[key as keyof AuthParams];
+      return value !== null && value !== '';
+    });
   }, []);
 
   // 에러 처리 함수 (useCallback으로 메모이제이션)
@@ -82,6 +87,7 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
   // OAuth 콜백 처리 로직
   useEffect(() => {
     // 이미 처리 중이거나 완료되었으면 실행하지 않음
+    debug('useAuthCallback=============>>>', 'state', state);
     if (state.isProcessing || state.hasProcessed) return;
 
     setState(prev => ({ ...prev, isProcessing: true }));
@@ -97,6 +103,7 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
 
         // 2. URL 파라미터에서 토큰 추출
         const authParams = extractAuthParams();
+        debug('useAuthCallback=============>>>', 'authParams', authParams);
 
         if (hasAllRequiredParams(authParams)) {
           // URL 파라미터로 인증 데이터 설정
@@ -108,6 +115,9 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
             userName: authParams.userName!,
             avatarURL: authParams.avatarURL || '',
           });
+
+          console.log('Token saved in localStorage:', localStorage.getItem('access_token'));
+          console.log('Token saved in cookie:', document.cookie);
 
           success({
             title: '로그인 성공',
