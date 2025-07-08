@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Todo, TodoContainerProps, TodoMode } from '../types';
 import { copyTodosForToday, normalizeOrders } from '../utils';
 import { CollapseTodoListSection } from './CollapseTodoListSection';
-import { TodoList } from './TodoList';
+import { TodoList, TodoListRef } from './TodoList';
 
 export function TodoContainer({
   yesterdayTodos,
@@ -20,6 +20,7 @@ export function TodoContainer({
   const [isYesterdayCollapsed, setIsYesterdayCollapsed] = useState(false); // 처음에는 열려있음
   const [broughtTodoIds, setBroughtTodoIds] = useState<Set<string>>(new Set()); // 이미 가져온 Todo ID 추적
   const [todoIdMapping, setTodoIdMapping] = useState<Map<string, string>>(new Map()); // 새 ID -> 원본 ID 매핑
+  const todayTodoListRef = useRef<TodoListRef>(null);
 
   const handleToggleMode = useCallback(() => {
     if (forceEditMode) return; // 편집 모드 강제일 때는 토글 불가
@@ -122,6 +123,11 @@ export function TodoContainer({
       setIsYesterdayCollapsed(true);
 
       // 선택된 항목은 계속 체크 상태 유지 (ID 유지)
+      
+      // 가져오기 후 TodoInput에 포커스
+      setTimeout(() => {
+        todayTodoListRef.current?.focusInput();
+      }, 300); // 트랜지션 후 포커스
     },
     [todayTodos, onUpdateTodayTodos, broughtTodoIds]
   );
@@ -173,16 +179,19 @@ export function TodoContainer({
           <h4 className="text-sm font-medium text-gray-600">오늘의 투두</h4>
         </div> */}
 
-        {todayTodos.length > 0 ? (
-          <TodoList
-            todos={todayTodos}
-            isEditable={isEditable}
-            mode={mode}
-            onUpdate={handleUpdateTodayTodos}
-            onToggleComplete={handleTodayToggleComplete}
-            broughtFromYesterdayIds={new Set(todoIdMapping.keys())}
-          />
-        ) : (
+        {/* 항상 TodoList를 렌더링 (빈 배열이라도) */}
+        <TodoList
+          ref={todayTodoListRef}
+          todos={todayTodos}
+          isEditable={isEditable}
+          mode={mode}
+          onUpdate={handleUpdateTodayTodos}
+          onToggleComplete={handleTodayToggleComplete}
+          broughtFromYesterdayIds={new Set(todoIdMapping.keys())}
+        />
+        
+        {/* 빈 리스트 메시지 (편집 모드가 아닐 때만) */}
+        {todayTodos.length === 0 && mode !== 'edit' && (
           <div className="py-8 text-center">
             <div className="mb-3 text-sm text-gray-500">오늘의 투두가 없습니다</div>
           </div>

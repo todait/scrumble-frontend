@@ -11,9 +11,11 @@ export interface TodoInputProps {
   onFocus: () => void;
   /** 포커스 해제 콜백 */
   onBlur: () => void;
+  /** 맨 아래 기본 TodoInput인지 여부 */
+  isBottomInput?: boolean;
 }
 
-export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur }: TodoInputProps) {
+export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur, isBottomInput = false }: TodoInputProps) {
   const [inputText, setInputText] = useState('');
   const [isEscPressed, setIsEscPressed] = useState(false);
   const [isComposing, setIsComposing] = useState(false); // IME 조합 상태
@@ -48,11 +50,14 @@ export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur }: TodoInputPr
     
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (e.shiftKey) {
-        // Shift+Enter: 추가 후 계속 입력 가능 (중간 삽입 유지)
+      if (isBottomInput) {
+        // 맨 아래 TodoInput: Enter와 Shift+Enter 모두 계속 입력 가능
+        handleSubmit(true);
+      } else if (e.shiftKey) {
+        // 중간 TodoInput + Shift+Enter: 추가 후 계속 입력 가능 (중간 삽입 유지)
         handleSubmit(true);
       } else {
-        // Enter: 추가 후 포커스 해제
+        // 중간 TodoInput + Enter: 추가 후 포커스 해제
         handleSubmit(false);
         onBlur();
       }
@@ -100,7 +105,7 @@ export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur }: TodoInputPr
         }
       }}
       className={`group relative flex h-9 cursor-text items-center gap-1.5 rounded-lg px-1.5 py-1 transition-colors hover:bg-purple-50 ${
-        isFocused ? 'bg-purple-50 border border-purple-400' : ''
+        isFocused ? 'bg-white border border-purple-400' : ''
       }`}
     >
       {/* 보라색 원형 체크박스 */}

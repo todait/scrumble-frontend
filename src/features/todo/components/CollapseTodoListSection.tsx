@@ -43,9 +43,9 @@ export function CollapseTodoListSection({
     <div className="overflow-hidden rounded-lg border border-gray-200">
       {/* 헤더 */}
       <div
-        className={`flex cursor-pointer items-center justify-between p-3 transition-colors ${
+        className={`flex cursor-pointer items-center justify-between p-3 transition-all duration-300 ease-in-out ${
           isCollapsed ? 'border-b-0' : 'border-b border-gray-200'
-        } ${isCollapsed ? 'bg-gray-50' : 'bg-gray-50'}`}
+        } bg-gray-50`}
         onClick={onToggleCollapse}
       >
         <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export function CollapseTodoListSection({
         </div>
 
         <button
-          className={`flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 opacity-50 transition-transform hover:opacity-100 ${
+          className={`flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 opacity-50 transition-all duration-300 ease-in-out hover:opacity-100 ${
             isCollapsed ? '' : 'rotate-180'
           }`}
         >
@@ -62,20 +62,26 @@ export function CollapseTodoListSection({
       </div>
 
       {/* 콘텐츠 */}
-      {!isCollapsed && (
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'
+        }`}
+      >
         <div className="p-3">
-          {todos.length > 0 ? (
-            <TodoList
-              todos={todos}
-              isEditable={isEditable}
-              mode={mode}
-              onUpdate={onUpdate || (() => {})}
-              onToggleComplete={onToggleComplete}
-              selectedIds={selectedIds}
-              onSelectionChange={onSelectionChange}
-              disabledIds={broughtTodoIds}
-            />
-          ) : (
+          {/* 항상 TodoList를 렌더링 (빈 배열이라도) */}
+          <TodoList
+            todos={todos}
+            isEditable={isEditable}
+            mode={mode}
+            onUpdate={onUpdate || (() => {})}
+            onToggleComplete={onToggleComplete}
+            selectedIds={selectedIds}
+            onSelectionChange={onSelectionChange}
+            disabledIds={broughtTodoIds}
+          />
+          
+          {/* 빈 리스트 메시지 (편집 모드가 아닐 때만) */}
+          {todos.length === 0 && mode !== 'edit' && (
             <div className="py-8 text-center text-sm text-gray-500">투두가 없습니다</div>
           )}
 
@@ -101,7 +107,7 @@ export function CollapseTodoListSection({
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

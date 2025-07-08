@@ -262,11 +262,13 @@ export function TodoItem({
           />
         ) : (
           <div
-            className={`flex h-6 items-center px-2 py-1.5 text-sm leading-tight ${
+            className={`flex h-6 items-center px-2 py-1.5 text-sm leading-tight overflow-hidden ${
               isCompleted ? 'text-gray-500 line-through opacity-60' : 'text-gray-900'
             }`}
           >
-            {todo.text}
+            <span className="truncate">
+              {todo.text}
+            </span>
           </div>
         )}
       </div>
