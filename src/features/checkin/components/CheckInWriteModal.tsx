@@ -1,15 +1,15 @@
 'use client';
 
+import type { Todo } from '@/features/todo';
+import { TodoContainer } from '@/features/todo';
 import { useCreateCheckIn, useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { ErrorCode } from '@/shared/types/api';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
-import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { CheckInForm } from './forms';
 import { CheckInModalLayout } from './layout';
 
 interface CheckInWriteModalProps {
@@ -25,6 +25,69 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const [dateString, setDateString] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const { error, info } = useToast();
+
+  // Todo 관련 상태 (임시 데이터로 동작)
+  const [yesterdayTodos, setYesterdayTodos] = useState<Todo[]>([
+    {
+      id: 'y1',
+      text: '피드 리스트 API 연동',
+      completedAt: new Date(),
+      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      order: 10,
+    },
+    {
+      id: 'y2',
+      text: '[투두] 체크인 : 투두 입력 흐름 전체 병합 (전일투두 + 오늘투두)',
+      completedAt: new Date(),
+      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      order: 20,
+    },
+    {
+      id: 'y3',
+      text: '피드 리스트 백엔드 API',
+      completedAt: null,
+      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      order: 30,
+    },
+    {
+      id: 'y4',
+      text: 'George 전달용 개발 문서 작성',
+      completedAt: null,
+      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      order: 40,
+    },
+    {
+      id: 'y5',
+      text: '[투두] 체크인 : 전일 투두 가져오기 흐름',
+      completedAt: null,
+      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      order: 50,
+    },
+  ]);
+
+  const [todayTodos, setTodayTodos] = useState<Todo[]>([
+    {
+      id: 't1',
+      text: '1차 내부용 버전 배포 목표 명세 ( 내부 베타용 최소 릴리즈 버전 )',
+      completedAt: null,
+      date: new Date(),
+      order: 10,
+    },
+    {
+      id: 't2',
+      text: '팀 피드 디자인',
+      completedAt: new Date(),
+      date: new Date(),
+      order: 20,
+    },
+    {
+      id: 't3',
+      text: '텍스트 생성 UX 개선 (tiptap 적용)',
+      completedAt: new Date(),
+      date: new Date(),
+      order: 30,
+    },
+  ]);
 
   const { mutate: createCheckIn, isPending } = useCreateCheckIn();
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
@@ -53,11 +116,11 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
-    
+
     // 디버깅: 제출 데이터 로깅
     console.warn('CheckIn Submit - Images count:', data.images?.length || 0);
     console.warn('CheckIn Submit - Images:', data.images);
-    
+
     createCheckIn(
       {
         spaceSlug,
@@ -106,9 +169,34 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     });
   };
 
+  // Todo 핸들러 함수들
+  const handleUpdateYesterdayTodos = (updatedTodos: Todo[]) => {
+    setYesterdayTodos(updatedTodos);
+  };
+
+  const handleUpdateTodayTodos = (updatedTodos: Todo[]) => {
+    setTodayTodos(updatedTodos);
+  };
+
+  const handleToggleComplete = (todoId: string, isYesterday: boolean) => {
+    if (isYesterday) {
+      setYesterdayTodos(prev =>
+        prev.map(todo =>
+          todo.id === todoId ? { ...todo, completedAt: todo.completedAt ? null : new Date() } : todo
+        )
+      );
+    } else {
+      setTodayTodos(prev =>
+        prev.map(todo =>
+          todo.id === todoId ? { ...todo, completedAt: todo.completedAt ? null : new Date() } : todo
+        )
+      );
+    }
+  };
+
   return (
     <CheckInModalLayout isOpen={isOpen} onClose={onClose}>
-      <div className="border-b border-black/8 px-5 py-6 md:px-7 md:py-8">
+      {/* <div className="border-b border-black/8 px-5 py-6 md:px-7 md:py-8">
         <div className="mb-2 text-sm font-bold text-black md:text-[15px]">{dateString}</div>
         <div className="mb-2 flex items-center gap-2">
           <RiPokerClubsFill className="h-5 w-5 text-green-500 md:h-6 md:w-6" />
@@ -124,7 +212,20 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         disabled={isPending || isProcessing}
         isLoading={isPending || isProcessing}
         onScoreRequiredToast={handleScoreRequiredToast}
-      />
+      /> */}
+
+      {/* Todo 컴포넌트 */}
+      <div className="border-t border-black/8 px-5 py-6 md:px-7 md:py-8">
+        <TodoContainer
+          yesterdayTodos={yesterdayTodos}
+          todayTodos={todayTodos}
+          isEditable={true}
+          onUpdateYesterdayTodos={handleUpdateYesterdayTodos}
+          onUpdateTodayTodos={handleUpdateTodayTodos}
+          onToggleComplete={handleToggleComplete}
+          forceEditMode={true}
+        />
+      </div>
     </CheckInModalLayout>
   );
 }
