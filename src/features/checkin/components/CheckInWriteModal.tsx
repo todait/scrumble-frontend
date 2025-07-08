@@ -105,6 +105,16 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        // Todo 수정 중인지 확인 (textarea에 포커스가 있는지 확인)
+        const activeElement = document.activeElement;
+        const isEditingTodo = activeElement?.tagName === 'TEXTAREA' && 
+                              activeElement?.className?.includes('resize-none');
+        
+        // Todo 수정 중이면 모달을 닫지 않음
+        if (isEditingTodo) {
+          return;
+        }
+        
         e.stopPropagation();
         onClose();
       }

@@ -16,11 +16,14 @@ export function TodoItem({
   onTextChange,
   onToggleComplete,
   onToggleSelect,
+  onShiftSelectRange,
   onStartEdit,
   onFinishEdit,
+  onAddTodo,
   onDeleteTodo,
 }: TodoItemProps) {
   const [editText, setEditText] = useState(todo.text);
+  const [isComposing, setIsComposing] = useState(false); // IME 조합 상태
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -35,12 +38,28 @@ export function TodoItem({
     }
   }, [isEditing]);
 
-  // 텍스트 변경 시 editText 동기화
   useEffect(() => {
-    setEditText(todo.text);
-  }, [todo.text]);
+    if (isEditing) {
+      setEditText(todo.text);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, todo.id]);
 
   const handleTextSubmit = () => {
+    const trimmedText = editText.trim();
+    if (!trimmedText) {
+      onDeleteTodo?.(todo.id, true);
+    } else if (trimmedText !== todo.text) {
+      // 상태를 먼저 업데이트하고
+      setEditText(trimmedText); // 이 줄 추가!
+      onTextChange(todo.id, trimmedText);
+    }
+    setTimeout(() => {
+      onFinishEdit?.(todo.id);
+    }, 0);
+  };
+
+  const handleEscapeSubmit = () => {
     const trimmedText = editText.trim();
     if (!trimmedText) {
       // 빈 텍스트면 Todo 삭제하고 이전 Todo로 편집 모드 진입
@@ -48,19 +67,36 @@ export function TodoItem({
     } else if (trimmedText !== todo.text) {
       onTextChange(todo.id, trimmedText);
     }
-    onFinishEdit?.(todo.id);
+    // ESC의 경우 바로 편집 모드 해제하지 않고 setTimeout으로 지연
+    setTimeout(() => {
+      onFinishEdit?.(todo.id);
+    }, 0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // IME 조합 중일 때는 Enter 키 처리하지 않음
+    if (isComposing && e.key === 'Enter') {
+      return;
+    }
+    
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleTextSubmit();
-      // Enter, Shift+Enter 모두 동일하게 수정 완료 처리
+      if (e.shiftKey) {
+        // Shift+Enter: 현재 Todo 저장 후 TodoInput 중간 삽입
+        handleTextSubmit();
+        
+        setTimeout(() => {
+          // TodoInput 중간 삽입
+          onAddTodo?.(todo.id);
+        }, 100);
+      } else {
+        // Enter: 저장만
+        handleTextSubmit();
+      }
     } else if (e.key === 'Escape') {
       e.preventDefault();
       e.stopPropagation();
-      setEditText(todo.text);
-      onFinishEdit?.(todo.id);
+      handleEscapeSubmit();
     } else if (e.key === 'Backspace' && editText.trim() === '') {
       e.preventDefault();
       onDeleteTodo?.(todo.id, true);
@@ -68,12 +104,40 @@ export function TodoItem({
     }
   };
 
+  // IME 조합 이벤트 핸들러
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
+  };
+
   const handleItemClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+
+    // 체크박스나 삭제 버튼 클릭은 제외
+    if (target.closest('[data-checkbox]') || target.closest('[data-delete-button]')) {
+      return;
+    }
+
+    // Shift 클릭 시 텍스트 선택 방지
+    if (e.shiftKey) {
+      e.preventDefault();
+    }
+
+    // 편집 모드이고 편집 중이 아니며 수정 가능한 경우 - 편집 모드 진입
     if (mode === 'edit' && !isEditing && isEditable) {
-      // 체크박스 클릭이 아닌 경우에만
-      const target = e.target as HTMLElement;
-      if (!target.closest('[data-checkbox]')) {
-        onStartEdit?.(todo.id);
+      onStartEdit?.(todo.id);
+    }
+    // 선택 기능이 있고 비활성화되지 않은 경우 - 선택/해제 토글
+    else if (onToggleSelect && !isSelectDisabled) {
+      if (e.shiftKey) {
+        // Shift + 클릭: 범위 선택
+        onShiftSelectRange?.(todo.id);
+      } else {
+        // 일반 클릭: 단일 선택/해제
+        onToggleSelect(todo.id);
       }
     }
   };
@@ -87,7 +151,13 @@ export function TodoItem({
 
   const handleSelectClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onToggleSelect?.(todo.id);
+    if (e.shiftKey && onShiftSelectRange) {
+      // Shift + 체크박스 클릭: 범위 선택
+      onShiftSelectRange(todo.id);
+    } else {
+      // 일반 체크박스 클릭: 단일 선택/해제
+      onToggleSelect?.(todo.id);
+    }
   };
 
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -112,6 +182,9 @@ export function TodoItem({
     /* ✅ 편집 모드의 나머지 행은 cursor 표시 + 기존 hover 효과만 */
     mode === 'edit' && isEditable && !isEditing && 'cursor-text hover:bg-purple-50',
 
+    /* ✅ 선택 가능한 항목은 pointer 커서 */
+    onToggleSelect && !isSelectDisabled && 'cursor-pointer',
+
     /* ✅ 편집 중에는 강제로 흰 배경으로 덮어쓰기 */
     isEditing && 'bg-white',
   ]
@@ -132,6 +205,10 @@ export function TodoItem({
         }
       }}
       tabIndex={mode === 'edit' ? 0 : -1}
+      style={{
+        userSelect: onToggleSelect && !isSelectDisabled ? 'none' : 'auto',
+        WebkitUserSelect: onToggleSelect && !isSelectDisabled ? 'none' : 'auto',
+      }}
     >
       {/* 가져온 투두 하이픈 표시 */}
       {isBroughtFromYesterday && (
@@ -167,6 +244,8 @@ export function TodoItem({
             onChange={handleTextAreaChange}
             onBlur={handleTextSubmit}
             onKeyDown={handleKeyDown}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             onPaste={e => {
               // 붙여넣기 시에도 줄바꿈 방지
               e.preventDefault();
@@ -216,11 +295,12 @@ export function TodoItem({
       {/* 삭제 버튼 (수정 모드에서만) */}
       {mode === 'edit' && isEditable && !isEditing && (
         <button
+          data-delete-button
           onClick={e => {
             e.stopPropagation();
             onDeleteTodo?.(todo.id);
           }}
-          className="h-4 w-4 flex-shrink-0 text-gray-400 transition-colors hover:text-gray-600"
+          className="flex h-8 w-6 flex-shrink-0 items-center justify-center text-gray-400 transition-colors hover:text-gray-600"
         >
           <RiCloseLine className="h-4 w-4" />
         </button>

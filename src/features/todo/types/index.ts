@@ -51,6 +51,8 @@ export interface TodoItemProps {
   onToggleComplete: (todoId: string) => void;
   /** 선택 토글 콜백 */
   onToggleSelect?: (todoId: string) => void;
+  /** Shift + 클릭으로 범위 선택 콜백 */
+  onShiftSelectRange?: (todoId: string) => void;
   /** 편집 시작 콜백 */
   onStartEdit?: (todoId: string) => void;
   /** 편집 완료 콜백 */
@@ -59,6 +61,8 @@ export interface TodoItemProps {
   onAddTodo?: (afterTodoId: string) => void;
   /** 투두 삭제 콜백 */
   onDeleteTodo?: (todoId: string, enterEditMode?: boolean) => void;
+  /** Shift+Enter 제출 콜백 */
+  onShiftEnterSubmit?: (todoId: string, newText: string) => void;
   /** 선택 비활성화 여부 */
   isSelectDisabled?: boolean;
   /** 가져온 투두인지 여부 */
