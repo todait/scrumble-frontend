@@ -30,12 +30,13 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.stopPropagation();
         onClose();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown, true); // capture phase에서 먼저 처리
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, onClose]);
 
   const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {

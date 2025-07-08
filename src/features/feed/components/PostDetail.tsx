@@ -82,11 +82,13 @@ export function PostDetail({
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        // 모달들이 capture phase에서 stopPropagation을 호출하므로
+        // 여기까지 이벤트가 도달했다면 모달이 열려있지 않다는 의미
         onClose();
       }
     };
 
-    document.addEventListener('keydown', handleEscKey);
+    document.addEventListener('keydown', handleEscKey); // bubble phase에서 듣기
     return () => {
       document.removeEventListener('keydown', handleEscKey);
     };
