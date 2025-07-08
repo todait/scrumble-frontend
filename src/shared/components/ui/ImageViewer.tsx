@@ -46,6 +46,7 @@ export function ImageViewer({ images, initialIndex = 0, isOpen, onClose }: Image
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
+      e.stopPropagation();
       onClose();
     } else if (e.key === 'ArrowLeft') {
       handlePrevious();
@@ -56,8 +57,8 @@ export function ImageViewer({ images, initialIndex = 0, isOpen, onClose }: Image
 
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
+      document.addEventListener('keydown', handleKeyDown, true); // capture phase에서 먼저 처리
+      return () => document.removeEventListener('keydown', handleKeyDown, true);
     }
   }, [isOpen, handleKeyDown]);
 

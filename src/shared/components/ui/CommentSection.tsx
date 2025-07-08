@@ -458,6 +458,7 @@ function CommentItem({
           alt={comment.author.name}
           size={32}
           className="flex-shrink-0"
+          skipLoadingState={comment._isOptimistic}
         />
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="mb-1 flex items-center gap-2">
