@@ -62,7 +62,7 @@ export function CollapseTodoListSection({
       </div>
 
       {/* 콘텐츠 */}
-      <div 
+      <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
           isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'
         }`}
@@ -79,7 +79,7 @@ export function CollapseTodoListSection({
             onSelectionChange={onSelectionChange}
             disabledIds={broughtTodoIds}
           />
-          
+
           {/* 빈 리스트 메시지 (편집 모드가 아닐 때만) */}
           {todos.length === 0 && mode !== 'edit' && (
             <div className="py-8 text-center text-sm text-gray-500">투두가 없습니다</div>
@@ -91,7 +91,7 @@ export function CollapseTodoListSection({
               <button
                 onClick={handleBringToToday}
                 disabled={!canBring}
-                className={`w-full rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                className={`w-full rounded-lg border px-4 py-4 text-sm font-medium transition-colors ${
                   canBring
                     ? 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     : 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'

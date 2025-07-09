@@ -8,6 +8,7 @@ import { TodoItem } from './TodoItem';
 
 export interface TodoListRef {
   focusInput: () => void;
+  hasFocus: () => boolean;
 }
 
 export const TodoList = forwardRef<TodoListRef, TodoListProps>(
@@ -43,8 +44,11 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
           setFocusedTodoId(null);
           setInsertPosition(null);
         },
+        hasFocus: () => {
+          return focusedTodoId !== null || isInputFocused;
+        },
       }),
-      []
+      [focusedTodoId, isInputFocused]
     );
 
     // TodoInput에서 텍스트를 받아서 Todo 생성
@@ -85,8 +89,10 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
           // 중간 삽입 + Shift+Enter: 새로 추가된 Todo 아래에 계속 삽입
           setInsertPosition(insertPosition + 1);
         } else {
-          // 중간 삽입 + Enter/Blur: 중간 삽입 해제
+          // 중간 삽입 + Enter/Blur: 중간 삽입 해제하고 새로 추가된 Todo에 포커스
           setInsertPosition(null);
+          setIsInputFocused(false);
+          setFocusedTodoId(newTodo.id);
         }
       },
       [isEditable, sortedTodos, todos, onUpdate, insertPosition]
@@ -251,7 +257,7 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
         // Todo 편집 중일 때는 처리하지 않음
         if (editingTodoId) return;
 
-        // 포커스된 투두가 없고 TodoInput도 포커스되지 않은 경우 방향키 입력 시 처리
+        // 포커스된 투두가 없고 TodoInput도 포커스되지 않은 경우 키 입력 시 처리
         if (!focusedTodoId && !isInputFocused) {
           if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
             e.preventDefault();
@@ -267,6 +273,11 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
               // Todo가 없으면 TodoInput에 포커스
               setIsInputFocused(true);
             }
+          } else if (e.key === 'Enter') {
+            // Enter: TodoInput 활성화
+            e.preventDefault();
+            setIsInputFocused(true);
+            setInsertPosition(null); // 하단 TodoInput으로 포커스
           }
           return;
         }
@@ -301,6 +312,14 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
             e.preventDefault();
             if (focusedTodoId) {
               handleStartEdit(focusedTodoId);
+            }
+            break;
+          case 'Escape':
+            if (focusedTodoId && !editingTodoId) {
+              // 포커스된 Todo가 있고 편집 중이 아닐 때 포커스 해제
+              e.preventDefault();
+              e.stopPropagation();
+              setFocusedTodoId(null);
             }
             break;
           case 'ArrowUp':

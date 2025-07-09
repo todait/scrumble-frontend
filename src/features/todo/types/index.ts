@@ -113,6 +113,10 @@ export interface TodoContainerProps {
   onToggleComplete: (todoId: string, isYesterday: boolean) => void;
   /** 편집 모드 강제 (토글 버튼 숨김) */
   forceEditMode?: boolean;
+  /** 투두 저장 콜백 */
+  onSaveTodos?: () => void;
+  /** 저장 처리 중 상태 */
+  isProcessing?: boolean;
 }
 
 export type TodoMode = 'view' | 'edit';
