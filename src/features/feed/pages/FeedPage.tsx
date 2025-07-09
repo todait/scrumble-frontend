@@ -1,6 +1,5 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import {
   FeedHeader,
   FeedListSkeleton,
@@ -9,12 +8,27 @@ import {
   GoToFocusedPostButton,
   PostCard,
 } from '@/features/feed/components';
+import {
+  useFeedActions,
+  useFeedData,
+  useFeedModal,
+  useFeedNavigation,
+  useFeedScroll,
+  useVisiblePosts,
+} from '@/features/feed/hooks';
+import type { Post as FeedPost } from '@/features/feed/types/feed.types';
 import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
+import { ROUTES } from '@/shared/constants';
+import { useAuth } from '@/shared/contexts/AuthContext';
+import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
+import { usePostDate } from '@/shared/hooks/queries/usePostDate';
+import dynamic from 'next/dynamic';
 
 // Dynamic imports for heavy components
 const PostDetail = dynamic(
   () => import('@/features/feed/components').then(mod => mod.PostDetail),
-  { 
+  {
     ssr: false,
     loading: () => <div className="animate-pulse bg-gray-100 h-full w-full rounded-xl" />
   }
@@ -29,19 +43,6 @@ const CheckOutWriteModal = dynamic(
   () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
   { ssr: false }
 );
-import {
-  useFeedActions,
-  useFeedData,
-  useFeedModal,
-  useFeedNavigation,
-  useFeedScroll,
-  useVisiblePosts,
-} from '@/features/feed/hooks';
-import type { Post as FeedPost } from '@/features/feed/types/feed.types';
-import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
-import { ROUTES } from '@/shared/constants';
-import { useAuth } from '@/shared/contexts/AuthContext';
-import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
 // import { useWebSocket } from '@/shared/hooks/useWebSocket'; // 사용하지 않음 - useFeedData에서 처리
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
@@ -68,32 +69,59 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // URL 파라미터에서 post 값 확인
+  const selectedPostId = searchParams.get('post');
+
+  // 포스트 ID가 있을 때 해당 포스트의 날짜 조회
+  const postDateQuery = usePostDate({
+    spaceSlug,
+    postId: selectedPostId || '',
+    enabled: !!selectedPostId,
+  });
+
   // URL 파라미터에서 날짜 초기화 (URL → localStorage → 오늘 순서)
   useEffect(() => {
     const dateParam = searchParams.get('date');
-    initializeFromUrl(dateParam);
 
-    // 미래 날짜로 접근한 경우 오늘 날짜로 리다이렉트
-    if (dateParam) {
-      try {
-        const date = new Date(dateParam);
-        if (!isNaN(date.getTime())) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const targetDate = new Date(date);
-          targetDate.setHours(0, 0, 0, 0);
+        // 포스트 ID가 있고 포스트 날짜를 성공적으로 조회한 경우
+    if (selectedPostId && postDateQuery.data && 'date' in postDateQuery.data) {
+      const postDate = new Date(postDateQuery.data.date);
+      setSelectedDate(postDate);
 
-          if (targetDate > today) {
-            const todayString = formatDateToAPIString(new Date());
-            const newUrl = `/${spaceSlug}/feed?date=${todayString}`;
-            router.replace(newUrl);
+      // URL에 날짜 파라미터가 없거나 다른 경우 업데이트
+      if (dateParam !== postDateQuery.data.date) {
+        const newUrl = `/${spaceSlug}/feed?date=${postDateQuery.data.date}&post=${selectedPostId}`;
+        router.replace(newUrl);
+      }
+      return;
+    }
+
+    // 포스트 ID가 없는 경우 기존 로직 실행
+    if (!selectedPostId) {
+      initializeFromUrl(dateParam);
+
+      // 미래 날짜로 접근한 경우 오늘 날짜로 리다이렉트
+      if (dateParam) {
+        try {
+          const date = new Date(dateParam);
+          if (!isNaN(date.getTime())) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const targetDate = new Date(date);
+            targetDate.setHours(0, 0, 0, 0);
+
+            if (targetDate > today) {
+              const todayString = formatDateToAPIString(new Date());
+              const newUrl = `/${spaceSlug}/feed?date=${todayString}`;
+              router.replace(newUrl);
+            }
           }
+        } catch {
+          // 유효하지 않은 날짜면 무시
         }
-      } catch {
-        // 유효하지 않은 날짜면 무시
       }
     }
-  }, [searchParams, initializeFromUrl, spaceSlug, router]);
+  }, [searchParams, initializeFromUrl, spaceSlug, router, selectedPostId, postDateQuery.data, setSelectedDate]);
 
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
@@ -120,7 +148,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 가시성 추적
   const { visiblePostIds, observePost, unobservePost, unobserveAll } = useVisiblePosts();
-  
+
   // 디버깅을 위한 로그
   useEffect(() => {
     logDebug('FeedPage', 'Visible post IDs changed', visiblePostIds);
@@ -201,7 +229,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   }, [unobserveAll]);
 
   // URL 파라미터 처리
-  const selectedPostId = searchParams.get('post');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
 
   // selectedPostId가 변경될 때 isPostDetailVisible 업데이트

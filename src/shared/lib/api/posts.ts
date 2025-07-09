@@ -35,9 +35,9 @@ import type {
   UpdateCheckOutRequest,
   UpdateCheckOutResponse,
 } from '@/shared/types/post';
+import { convertApiReactionsToReactions } from '@/shared/utils/reactions.utils';
 import { apiClient } from '../api';
 import { convertApiCommentToComment } from './comments';
-import { convertApiReactionsToReactions } from '@/shared/utils/reactions.utils';
 
 /**
  * 백엔드 API 응답을 프론트엔드 타입으로 변환하는 함수
@@ -251,5 +251,19 @@ export const postsApi = {
     return {
       message: data.message,
     };
+  },
+
+  /**
+   * 특정 포스트의 날짜 정보 조회
+   * @param spaceSlug 스페이스 슬러그
+   * @param postId 포스트 ID
+   * @returns 포스트의 날짜 정보
+   */
+  getPostDate: async (spaceSlug: string, postId: string): Promise<{ date: string }> => {
+    const { data } = await apiClient.get<{ date: string }>(
+      `/api/v1/spaces/${spaceSlug}/posts/${postId}/date`
+    );
+
+    return data;
   },
 };
