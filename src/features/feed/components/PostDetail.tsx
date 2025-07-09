@@ -1,7 +1,7 @@
 'use client';
 
-import { CommentSection, DeleteConfirmDialog } from '@/shared/components/ui';
 import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { CommentSection, DeleteConfirmDialog } from '@/shared/components/ui';
 import {
   useCreateComment,
   useDeleteComment,
@@ -36,15 +36,44 @@ export function PostDetail({
   const scrollableAreaRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
+  const commentId = searchParams.get('comment');
   const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(spaceSlug);
   const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(spaceSlug);
   const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment(spaceSlug);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [highlightedCommentId, setHighlightedCommentId] = useState<string | null>(null);
   const prevCommentCountRef = useRef(post.commentCount);
 
   // WebSocket 구독은 이제 FeedPage에서 전역적으로 관리됩니다
+
+  // 특정 댓글로 스크롤하는 함수
+  const scrollToComment = (commentId: string) => {
+    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (commentElement && scrollableAreaRef.current) {
+      const scrollContainer = scrollableAreaRef.current;
+      const elementRect = commentElement.getBoundingClientRect();
+      const containerRect = scrollContainer.getBoundingClientRect();
+
+      // 댓글 요소가 컨테이너 내에서 중앙에 위치하도록 스크롤
+      const scrollTop = elementRect.top - containerRect.top + scrollContainer.scrollTop -
+                      (containerRect.height / 2) + (elementRect.height / 2);
+
+      scrollContainer.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth',
+      });
+
+      // 댓글 하이라이트
+      setHighlightedCommentId(commentId);
+
+      // 3초 후 하이라이트 제거
+      setTimeout(() => {
+        setHighlightedCommentId(null);
+      }, 3000);
+    }
+  };
 
   // 실시간 댓글 추가 시 자동 스크롤
   useEffect(() => {
@@ -78,6 +107,16 @@ export function PostDetail({
     }
   }, [commentsParam]);
 
+  // 댓글 ID가 있을 때 해당 댓글로 스크롤
+  useEffect(() => {
+    if (commentId && post.comments.length > 0) {
+      // 댓글이 렌더링될 때까지 약간 대기
+      setTimeout(() => {
+        scrollToComment(commentId);
+      }, 300);
+    }
+  }, [commentId, post.comments.length]);
+
   // ESC 키 눌렀을 때 닫기
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -100,7 +139,7 @@ export function PostDetail({
   const handleCommentUpdate = (commentId: string, content: string, images: ImageMetadata[]) => {
     // Optimistic UI: 즉시 편집 모드 종료
     setEditingCommentId(null);
-    
+
     updateComment(
       {
         commentId,
@@ -131,7 +170,7 @@ export function PostDetail({
       setDeleteDialogOpen(false);
       setSelectedCommentId(null);
       onDeleteDialogChange?.(false);
-      
+
       // 삭제 수행
       deleteComment(
         { commentId: selectedCommentId, postId: post.id },
@@ -212,6 +251,7 @@ export function PostDetail({
           onCommentUpdate={handleCommentUpdate}
           editingCommentId={editingCommentId}
           isUpdating={isUpdatingComment}
+          highlightedCommentId={highlightedCommentId}
         />
       </div>
 

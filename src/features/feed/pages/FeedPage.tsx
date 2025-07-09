@@ -69,10 +69,11 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // URL 파라미터에서 post 값 확인
+    // URL 파라미터에서 post 값 확인
   const selectedPostId = searchParams.get('post');
+  const selectedCommentId = searchParams.get('comment');
 
-  // 포스트 ID가 있을 때 해당 포스트의 날짜 조회
+  // 포스트 ID가 있을 때 해당 포스트의 날짜 조회 (댓글 링크 포함)
   const postDateQuery = usePostDate({
     spaceSlug,
     postId: selectedPostId || '',
@@ -83,14 +84,20 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   useEffect(() => {
     const dateParam = searchParams.get('date');
 
-        // 포스트 ID가 있고 포스트 날짜를 성공적으로 조회한 경우
+            // 포스트 ID가 있고 포스트 날짜를 성공적으로 조회한 경우
     if (selectedPostId && postDateQuery.data && 'date' in postDateQuery.data) {
       const postDate = new Date(postDateQuery.data.date);
       setSelectedDate(postDate);
 
       // URL에 날짜 파라미터가 없거나 다른 경우 업데이트
       if (dateParam !== postDateQuery.data.date) {
-        const newUrl = `/${spaceSlug}/feed?date=${postDateQuery.data.date}&post=${selectedPostId}`;
+        const queryParams = new URLSearchParams();
+        queryParams.set('date', postDateQuery.data.date);
+        queryParams.set('post', selectedPostId);
+        if (selectedCommentId) {
+          queryParams.set('comment', selectedCommentId);
+        }
+        const newUrl = `/${spaceSlug}/feed?${queryParams.toString()}`;
         router.replace(newUrl);
       }
       return;

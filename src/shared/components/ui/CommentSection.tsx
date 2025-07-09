@@ -43,6 +43,7 @@ interface CommentSectionProps {
   onCommentUpdate?: (commentId: string, content: string, images: ImageMetadata[]) => void;
   editingCommentId?: string | null;
   isUpdating?: boolean;
+  highlightedCommentId?: string | null; // 하이라이트할 댓글 ID
 }
 
 export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
@@ -58,6 +59,7 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
       onCommentUpdate,
       editingCommentId,
       isUpdating,
+      highlightedCommentId,
     },
     ref
   ) => {
@@ -94,6 +96,7 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
                 onUpdate={onCommentUpdate}
                 editingCommentId={editingCommentId}
                 isUpdating={isUpdating}
+                isHighlighted={highlightedCommentId === comment.id}
               />
             )
           )}
@@ -133,6 +136,7 @@ interface CommentItemProps {
   onUpdate?: (commentId: string, content: string, images: ImageMetadata[]) => void;
   editingCommentId?: string | null;
   isUpdating?: boolean;
+  isHighlighted?: boolean; // 댓글 하이라이트 여부
 }
 
 function CommentItem({
@@ -144,6 +148,7 @@ function CommentItem({
   onUpdate,
   editingCommentId,
   isUpdating: _isUpdating, // _ prefix로 사용하지 않음을 명시
+  isHighlighted = false,
 }: CommentItemProps) {
   const { user } = useAuth();
   const params = useParams();
@@ -333,7 +338,10 @@ function CommentItem({
     return (
       <div
         ref={editingContainerRef}
-        className={`group relative flex gap-3 overflow-visible ${className}`}
+        data-comment-id={comment.id}
+        className={`group relative flex gap-3 overflow-visible ${className} ${
+          isHighlighted ? 'rounded-lg bg-yellow-50 ring-2 ring-yellow-200' : ''
+        }`}
       >
         <ProfileImage
           src={comment.author.profileImage}
@@ -452,7 +460,12 @@ function CommentItem({
 
   return (
     <>
-      <div className={`group relative flex gap-3 overflow-visible ${className}`}>
+      <div
+        data-comment-id={comment.id}
+        className={`group relative flex gap-3 overflow-visible ${className} ${
+          isHighlighted ? 'rounded-lg bg-yellow-50 ring-2 ring-yellow-200' : ''
+        }`}
+      >
         <ProfileImage
           src={comment.author.profileImage}
           alt={comment.author.name}
@@ -524,11 +537,13 @@ const MemoizedCommentItem = memo(CommentItem, (prevProps, nextProps) => {
   // 1. comment 객체가 변경됨 (내용, 리액션 등)
   // 2. 편집 상태가 변경됨
   // 3. 업데이트 중 상태가 변경됨
+  // 4. 하이라이트 상태가 변경됨
   return (
     prevProps.comment === nextProps.comment &&
     prevProps.editingCommentId === nextProps.editingCommentId &&
     prevProps.isUpdating === nextProps.isUpdating &&
-    prevProps.postId === nextProps.postId
+    prevProps.postId === nextProps.postId &&
+    prevProps.isHighlighted === nextProps.isHighlighted
   );
 });
 
