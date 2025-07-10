@@ -117,6 +117,12 @@ export interface TodoContainerProps {
   onSaveTodos?: () => void;
   /** 저장 처리 중 상태 */
   isProcessing?: boolean;
+  /** 커스텀 버튼 텍스트 (완료 개수 기반) */
+  customButtonText?: (completedCount: number, totalCount: number) => string;
+  /** 커스텀 버튼 아이콘 */
+  customButtonIcon?: React.ReactNode;
+  /** 오늘의 투두 없음 버튼 숨기기 */
+  hideNoTodosButton?: boolean;
 }
 
 export type TodoMode = 'view' | 'edit';

@@ -330,3 +330,92 @@ export interface DeleteCheckInApiResponse {
 export interface DeleteCheckOutApiResponse {
   message: string;
 }
+
+// =========================
+// Todo API 응답 타입들
+// =========================
+
+/**
+ * Todo 생성 API 응답 (백엔드)
+ * 계층적 구조의 Todo 생성 성공 시 반환
+ */
+export interface CreateTodosApiResponse {
+  message: string;
+}
+
+/**
+ * Todo 조회 API 응답 (백엔드)
+ * 날짜별 Todo 목록 조회 시 반환
+ */
+export interface GetTodosApiResponse {
+  todos: ApiTodo[];
+}
+
+/**
+ * Todo 수정 API 응답 (백엔드)
+ * Todo 필드 수정 성공 시 반환
+ */
+export interface UpdateTodoApiResponse {
+  message: string;
+}
+
+/**
+ * Todo 완료 토글 API 응답 (백엔드)
+ * Todo 완료 상태 토글 성공 시 반환
+ */
+export interface ToggleTodoApiResponse {
+  message: string;
+}
+
+/**
+ * API Todo 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 계층적 구조의 Todo 데이터
+ */
+export interface ApiTodo {
+  id: string;
+  name: string;
+  description?: string;
+  scheduled_date: string;
+  order: number;
+  thirdparty_url?: string;
+  parent_id?: string;
+  origin_todo_id?: string;
+  depth: number;
+  completed_at?: string;
+  children: ApiTodo[];
+}
+
+/**
+ * Todo 생성 요청 타입 (백엔드로 전송하는 snake_case 형태)
+ * 계층적 구조의 Todo 생성 시 사용
+ */
+/**
+ * Todo 생성 요청 아이템 타입 (재귀적 구조)
+ * 계층적 구조의 Todo 생성 시 사용
+ */
+export interface ApiCreateTodoItem {
+  name: string;
+  description?: string;
+  scheduled_date: string;
+  origin_todo_id?: string;
+  thirdparty_url?: string;
+  children: ApiCreateTodoItem[];
+}
+
+export interface ApiCreateTodoRequest {
+  todos: ApiCreateTodoItem[];
+}
+
+/**
+ * Todo 수정 요청 타입 (백엔드로 전송하는 snake_case 형태)
+ * Todo 필드 부분 수정 시 사용
+ */
+export interface ApiUpdateTodoRequest {
+  name?: string;
+  description?: string;
+  scheduled_date?: string;
+  order?: number;
+  thirdparty_url?: string;
+  parent_id?: string;
+  origin_todo_id_is_nil?: boolean;
+}

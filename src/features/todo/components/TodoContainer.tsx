@@ -22,6 +22,9 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
       forceEditMode = false,
       onSaveTodos,
       isProcessing = false,
+      customButtonText,
+      customButtonIcon,
+      hideNoTodosButton = false,
     },
     ref
   ) => {
@@ -224,22 +227,33 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
               disabled={isProcessing}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-4 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-              {isProcessing ? '완료 중...' : `총 ${todayTodos.length}개의 투두`}
+              {customButtonIcon || (
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+              )}
+              {isProcessing ? '완료 중...' : (
+                customButtonText 
+                  ? customButtonText(
+                      todayTodos.filter(todo => todo.completedAt).length,
+                      todayTodos.length
+                    )
+                  : `총 ${todayTodos.length}개의 투두`
+              )}
             </button>
 
             {/* 오늘의 투두 없음 텍스트 링크 */}
-            <div className="mt-2 flex justify-end">
-              <button
-                onClick={handleNoTodosToday}
-                className="text-gray-400 transition-colors hover:text-gray-600"
-                style={{ fontSize: '13px' }}
-              >
-                오늘의 투두 없음
-              </button>
-            </div>
+            {!hideNoTodosButton && (
+              <div className="mt-2 flex justify-end">
+                <button
+                  onClick={handleNoTodosToday}
+                  className="text-gray-400 transition-colors hover:text-gray-600"
+                  style={{ fontSize: '13px' }}
+                >
+                  오늘의 투두 없음
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -60,9 +60,6 @@ export function PostContent({
   const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
   const imageUrls = post.images?.map(image => image.url);
 
-
-
-
   const handleEdit = () => {
     setShowEditModal(true);
   };
@@ -74,7 +71,7 @@ export function PostContent({
   const handleConfirmDelete = () => {
     // 즉시 다이얼로그 닫기 (optimistic update)
     setShowDeleteDialog(false);
-    
+
     // 삭제 성공 후 토스트 표시
     const onSuccess = () => {
       setShowToast({ message: '해당 게시물이 삭제되었습니다' });
@@ -101,7 +98,7 @@ export function PostContent({
               router.replace(`/${spaceSlug}/posts/checkins/new`);
             }
           },
-          onError: (error) => {
+          onError: error => {
             console.error('체크인 삭제 오류:', error);
             // 에러 발생 시 사용자에게 알림 (토스트 메시지는 이미 mutation에서 처리됨)
           },
@@ -115,9 +112,9 @@ export function PostContent({
           spaceSlug,
           postId: post.id,
         },
-        { 
+        {
           onSuccess,
-          onError: (error) => {
+          onError: error => {
             console.error('체크아웃 삭제 오류:', error);
             // 에러 발생 시 사용자에게 알림 (토스트 메시지는 이미 mutation에서 처리됨)
           },
@@ -137,7 +134,6 @@ export function PostContent({
   const handleToastAction = () => {
     setShowToast(null);
   };
-
 
   const handleReactionToggle = (emoji: string) => {
     if (onReaction) {
@@ -189,14 +185,12 @@ export function PostContent({
     setShowToast({ message });
   };
 
-
   const profileImageSize = isDetailView ? 48 : 40;
   const nameTextSize = isDetailView ? 'text-lg md:text-[17px]' : 'text-base md:text-[15px]';
   const contentTextSize = isDetailView
     ? 'text-base leading-[1.5] md:text-[16px] md:leading-[1.5]'
     : 'text-base leading-[1.4] md:text-[15px] md:leading-[1.4]';
   const padding = isDetailView ? 'p-4 md:p-6' : 'p-5 md:p-[30px]';
-
 
   return (
     <>
@@ -213,7 +207,6 @@ export function PostContent({
         {!isDetailView && isSelected && (
           <div className="absolute left-0 top-0 h-full w-1 bg-[#9747FF]" />
         )}
-
 
         {/* 프로필 이미지 */}
         <div className="flex-shrink-0">
@@ -264,24 +257,18 @@ export function PostContent({
                 </div>
                 {/* 내 포스트일 때 수정/삭제 메뉴 (카드 뷰에서만) */}
                 {isMyPost && !isDetailView && (
-                  <EditDeleteMenu
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
+                  <EditDeleteMenu onEdit={handleEdit} onDelete={handleDelete} />
                 )}
               </div>
             ) : (
               /* 체크아웃인 경우 더보기 메뉴만 */
-              isMyPost && !isDetailView && (
+              isMyPost &&
+              !isDetailView && (
                 <div className="flex-shrink-0">
-                  <EditDeleteMenu
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
+                  <EditDeleteMenu onEdit={handleEdit} onDelete={handleDelete} />
                 </div>
               )
             )}
-
           </div>
 
           {/* 본문 */}
@@ -328,6 +315,8 @@ export function PostContent({
               }}
             />
           )}
+
+          {/* Todo 리스트 섹션 */}
 
           {/* 리액션 및 댓글 섹션 */}
           <div className="flex flex-col gap-[10px] py-2">
