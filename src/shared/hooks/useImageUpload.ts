@@ -16,7 +16,14 @@ interface UseImageUploadOptions {
 export function useImageUpload({
   maxSize = 10 * 1024 * 1024, // 10MB
   maxFiles = 10,
-  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'],
+  acceptedFormats = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/heic',
+    'image/heif',
+  ],
   initialImages = [],
   onUploadComplete,
   onError,
@@ -33,33 +40,35 @@ export function useImageUpload({
   });
   const uploadIdCounter = useRef(0);
 
-
   // 파일 유효성 검사
-  const validateFiles = useCallback((files: File[]): { valid: File[]; errors: string[] } => {
-    const valid: File[] = [];
-    const errors: string[] = [];
+  const validateFiles = useCallback(
+    (files: File[]): { valid: File[]; errors: string[] } => {
+      const valid: File[] = [];
+      const errors: string[] = [];
 
-    files.forEach(file => {
-      // HEIC 파일은 확장자로도 허용 (MIME type이 정확하지 않을 수 있음)
-      const isValidFormat = acceptedFormats.includes(file.type) || isHeicFile(file);
-      
-      if (!isValidFormat) {
-        errors.push(`${file.name}: 지원하지 않는 파일 형식입니다.`);
-      } else if (file.size > maxSize) {
-        errors.push(`${file.name}: 파일 크기가 10MB를 초과합니다.`);
-      } else if (uploadingImages.filter(img => !img.error).length + valid.length >= maxFiles) {
-        errors.push(`${file.name}: 최대 ${maxFiles}개까지만 업로드 가능합니다.`);
-      } else {
-        // HEIC 파일에 대한 안내 메시지
-        if (isHeicFile(file)) {
-          debug('UPLOAD', `${file.name}: HEIC 파일을 JPEG로 변환합니다.`);
+      files.forEach(file => {
+        // HEIC 파일은 확장자로도 허용 (MIME type이 정확하지 않을 수 있음)
+        const isValidFormat = acceptedFormats.includes(file.type) || isHeicFile(file);
+
+        if (!isValidFormat) {
+          errors.push(`${file.name}: 지원하지 않는 파일 형식입니다.`);
+        } else if (file.size > maxSize) {
+          errors.push(`${file.name}: 파일 크기가 10MB를 초과합니다.`);
+        } else if (uploadingImages.filter(img => !img.error).length + valid.length >= maxFiles) {
+          errors.push(`${file.name}: 최대 ${maxFiles}개까지만 업로드 가능합니다.`);
+        } else {
+          // HEIC 파일에 대한 안내 메시지
+          if (isHeicFile(file)) {
+            debug('UPLOAD', `${file.name}: HEIC 파일을 JPEG로 변환합니다.`);
+          }
+          valid.push(file);
         }
-        valid.push(file);
-      }
-    });
+      });
 
-    return { valid, errors };
-  }, [acceptedFormats, maxSize, maxFiles, uploadingImages]);
+      return { valid, errors };
+    },
+    [acceptedFormats, maxSize, maxFiles, uploadingImages]
+  );
 
   // 단일 이미지 업로드
   const uploadSingleImage = async (file: File, uploadId: string): Promise<ImageMetadata> => {
@@ -107,7 +116,7 @@ export function useImageUpload({
 
       // 파일 처리 및 HEIC 변환
       const processedImages: UploadingImage[] = [];
-      
+
       // 각 파일을 순차적으로 처리
       for (const file of valid) {
         const uniqueId = `upload-${Date.now()}-${Math.random().toString(36).slice(2, 11)}-${uploadIdCounter.current++}`;
@@ -123,14 +132,14 @@ export function useImageUpload({
             progress: 0,
             isConverting: true,
           };
-          
+
           // 변환 중 상태를 즉시 표시
           setUploadingImages(prev => [...prev, convertingImage]);
 
           try {
             // HEIC 파일을 JPEG로 변환
             processedFile = await convertHeicToJpeg(file);
-            
+
             // 이전 preview URL 정리
             URL.revokeObjectURL(preview);
             preview = URL.createObjectURL(processedFile);
@@ -143,7 +152,7 @@ export function useImageUpload({
                   : img
               )
             );
-            
+
             // 업로드 대상 목록에 추가
             processedImages.push({
               id: uniqueId,
@@ -170,7 +179,7 @@ export function useImageUpload({
             preview,
             progress: 0,
           };
-          
+
           // 일반 이미지는 즉시 추가
           setUploadingImages(prev => [...prev, normalImage]);
           processedImages.push(normalImage);
