@@ -1,5 +1,7 @@
 import { r2Service } from '@/shared/services/r2.service';
 import type { ImageMetadata, UploadingImage } from '@/shared/types/upload.types';
+import { convertHeicToJpeg, isHeicFile } from '@/shared/utils';
+import { debug } from '@/shared/utils/debug';
 import { useCallback, useRef, useState } from 'react';
 
 interface UseImageUploadOptions {
@@ -14,7 +16,7 @@ interface UseImageUploadOptions {
 export function useImageUpload({
   maxSize = 10 * 1024 * 1024, // 10MB
   maxFiles = 10,
-  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'],
   initialImages = [],
   onUploadComplete,
   onError,
@@ -31,19 +33,27 @@ export function useImageUpload({
   });
   const uploadIdCounter = useRef(0);
 
+
   // 파일 유효성 검사
   const validateFiles = useCallback((files: File[]): { valid: File[]; errors: string[] } => {
     const valid: File[] = [];
     const errors: string[] = [];
 
     files.forEach(file => {
-      if (!acceptedFormats.includes(file.type)) {
+      // HEIC 파일은 확장자로도 허용 (MIME type이 정확하지 않을 수 있음)
+      const isValidFormat = acceptedFormats.includes(file.type) || isHeicFile(file);
+      
+      if (!isValidFormat) {
         errors.push(`${file.name}: 지원하지 않는 파일 형식입니다.`);
       } else if (file.size > maxSize) {
         errors.push(`${file.name}: 파일 크기가 10MB를 초과합니다.`);
       } else if (uploadingImages.filter(img => !img.error).length + valid.length >= maxFiles) {
         errors.push(`${file.name}: 최대 ${maxFiles}개까지만 업로드 가능합니다.`);
       } else {
+        // HEIC 파일에 대한 안내 메시지
+        if (isHeicFile(file)) {
+          debug('UPLOAD', `${file.name}: HEIC 파일을 JPEG로 변환합니다.`);
+        }
         valid.push(file);
       }
     });
@@ -95,21 +105,77 @@ export function useImageUpload({
 
       if (valid.length === 0) return;
 
-      const newUploadingImages: UploadingImage[] = [];
-
+      // 파일 처리 및 HEIC 변환
+      const processedImages: UploadingImage[] = [];
+      
+      // 각 파일을 순차적으로 처리
       for (const file of valid) {
-        const id = `upload-${uploadIdCounter.current++}`;
-        const preview = URL.createObjectURL(file);
+        const uniqueId = `upload-${Date.now()}-${Math.random().toString(36).slice(2, 11)}-${uploadIdCounter.current++}`;
+        let processedFile = file;
+        let preview = URL.createObjectURL(file);
 
-        newUploadingImages.push({
-          id,
-          file,
-          preview,
-          progress: 0,
-        });
+        if (isHeicFile(file)) {
+          // HEIC 파일 변환 중 상태 먼저 추가
+          const convertingImage: UploadingImage = {
+            id: uniqueId,
+            file,
+            preview,
+            progress: 0,
+            isConverting: true,
+          };
+          
+          // 변환 중 상태를 즉시 표시
+          setUploadingImages(prev => [...prev, convertingImage]);
+
+          try {
+            // HEIC 파일을 JPEG로 변환
+            processedFile = await convertHeicToJpeg(file);
+            
+            // 이전 preview URL 정리
+            URL.revokeObjectURL(preview);
+            preview = URL.createObjectURL(processedFile);
+
+            // 변환 완료 상태로 업데이트
+            setUploadingImages(prev =>
+              prev.map(img =>
+                img.id === uniqueId
+                  ? { ...img, file: processedFile, preview, isConverting: false }
+                  : img
+              )
+            );
+            
+            // 업로드 대상 목록에 추가
+            processedImages.push({
+              id: uniqueId,
+              file: processedFile,
+              preview,
+              progress: 0,
+            });
+          } catch (error) {
+            // 변환 실패 시 에러 상태로 업데이트
+            setUploadingImages(prev =>
+              prev.map(img =>
+                img.id === uniqueId
+                  ? { ...img, error: `변환 실패: ${error}`, isConverting: false }
+                  : img
+              )
+            );
+            continue;
+          }
+        } else {
+          // 일반 이미지 파일
+          const normalImage: UploadingImage = {
+            id: uniqueId,
+            file: processedFile,
+            preview,
+            progress: 0,
+          };
+          
+          // 일반 이미지는 즉시 추가
+          setUploadingImages(prev => [...prev, normalImage]);
+          processedImages.push(normalImage);
+        }
       }
-
-      setUploadingImages(prev => [...prev, ...newUploadingImages]);
 
       // 병렬 업로드 (최대 3개씩)
       const uploadQueue = async (images: UploadingImage[], concurrency = 3) => {
@@ -154,15 +220,19 @@ export function useImageUpload({
       };
 
       try {
-        const completedImages = await uploadQueue(newUploadingImages);
-        if (completedImages.length > 0) {
-          onUploadComplete?.(completedImages);
+        // 처리된 이미지들만 업로드 큐에 전달 (에러가 없는 것들)
+        const imagesToUpload = processedImages.filter(img => !img.error);
+        if (imagesToUpload.length > 0) {
+          const completedImages = await uploadQueue(imagesToUpload);
+          if (completedImages.length > 0) {
+            onUploadComplete?.(completedImages);
+          }
         }
       } catch (error) {
-        console.error('Upload queue error:', error);
+        debug('UPLOAD', `Upload queue error: ${error}`);
       }
     },
-    [uploadingImages, maxFiles, acceptedFormats, maxSize, onError, onUploadComplete]
+    [validateFiles, onError, onUploadComplete]
   );
 
   // 이미지 제거
@@ -189,8 +259,11 @@ export function useImageUpload({
   }, []);
 
   const isUploading = uploadingImages.some(
-    img => img.progress > 0 && img.progress < 100 && !img.error
+    img => (img.progress > 0 && img.progress < 100 && !img.error) || img.isConverting
   );
+
+  const isConverting = uploadingImages.some(img => img.isConverting);
+  const convertingCount = uploadingImages.filter(img => img.isConverting).length;
 
   const completedImages = uploadingImages
     .filter(img => img.metadata && !img.error)
@@ -215,6 +288,10 @@ export function useImageUpload({
     removeImage,
     clearImages,
     isUploading,
+    isConverting,
+    convertingCount,
     initializeWithImages,
+    // HEIC 지원 여부 체크
+    isHeicSupported: typeof window !== 'undefined',
   };
 }

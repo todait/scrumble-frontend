@@ -3,6 +3,7 @@
 import type { UploadingImage } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
 import Image from 'next/image';
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface ImagePreviewProps {
   image: UploadingImage;
@@ -13,14 +14,16 @@ interface ImagePreviewProps {
 
 export const ImagePreview = ({ image, onRemove, onClick, disabled = false }: ImagePreviewProps) => {
   const isUploading = image.progress > 0 && image.progress < 100 && !image.error;
+  const isConverting = image.isConverting || false;
   const isCompleted = image.progress === 100 && image.metadata && !image.error;
+  const isProcessing = isUploading || isConverting;
 
   return (
     <div className="group relative flex-shrink-0">
       <div
         className={`relative h-[80px] w-[80px] overflow-hidden rounded-lg bg-gray-100 transition-opacity ${
           isCompleted && onClick ? 'cursor-pointer' : ''
-        } ${isUploading ? 'opacity-60' : 'opacity-100'}`}
+        } ${isProcessing ? 'opacity-60' : 'opacity-100'}`}
         onClick={onClick}
       >
         <Image
@@ -29,13 +32,23 @@ export const ImagePreview = ({ image, onRemove, onClick, disabled = false }: Ima
           width={80}
           height={80}
           className={`h-full w-full object-cover transition-all ${
-            isUploading ? 'blur-[1px] brightness-75' : ''
+            isProcessing ? 'blur-[1px] brightness-75' : ''
           }`}
           draggable={false}
         />
 
+        {/* HEIC 변환 중 */}
+        {isConverting && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+            <LoadingSpinner size="sm" className="mb-2 text-white" />
+            <div className="text-xs font-medium text-white">
+              변환 중
+            </div>
+          </div>
+        )}
+
         {/* 업로드 진행률 */}
-        {isUploading && (
+        {isUploading && !isConverting && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-40">
             <div className="mb-2 h-1.5 w-12 rounded-full bg-white bg-opacity-30">
               <div
@@ -63,7 +76,7 @@ export const ImagePreview = ({ image, onRemove, onClick, disabled = false }: Ima
             onRemove(image.id);
           }}
           className="absolute right-2 top-2 rounded-full bg-black bg-opacity-50 p-1.5 opacity-0 transition-opacity group-hover:opacity-100"
-          disabled={isUploading || disabled}
+          disabled={isProcessing || disabled}
         >
           <RiCloseLine className="h-4 w-4 text-white" />
         </button>
