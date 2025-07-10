@@ -122,7 +122,7 @@ class ReconnectionManagerImpl implements ReconnectionManager {
         callback();
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
-          console.error('[ReconnectionManager] 콜백 실행 중 에러:', error);
+          debug('ReconnectionManager', '콜백 실행 중 에러:', error);
         }
       }
     });
@@ -140,7 +140,7 @@ export const createDataSyncCallback = (refetchFn: () => void, description: strin
       refetchFn();
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        console.error(`[ReconnectionManager] ${description} 동기화 실패:`, error);
+        debug('ReconnectionManager', `${description} 동기화 실패:`, error);
       }
     }
   };
@@ -151,11 +151,10 @@ export const debugReconnectionManager = () => {
   if (process.env.NODE_ENV !== 'development') {
     return;
   }
-  console.group('🔄 ReconnectionManager 상태');
-  console.log('마지막 활성 시간:', new Date(reconnectionManager.getLastActiveTime()).toLocaleString());
-  console.log('비활성 시간:', `${Math.round(reconnectionManager.getTimeSinceLastActive() / 1000)}초`);
-  console.log('동기화 필요 여부:', reconnectionManager.shouldRefetchData());
-  console.groupEnd();
+  debug('ReconnectionManager', '🔄 ReconnectionManager 상태');
+  debug('ReconnectionManager', '마지막 활성 시간:', new Date(reconnectionManager.getLastActiveTime()).toLocaleString());
+  debug('ReconnectionManager', '비활성 시간:', `${Math.round(reconnectionManager.getTimeSinceLastActive() / 1000)}초`);
+  debug('ReconnectionManager', '동기화 필요 여부:', reconnectionManager.shouldRefetchData());
 };
 
 // 전역 디버깅 함수 등록 (클라이언트 사이드에서만)

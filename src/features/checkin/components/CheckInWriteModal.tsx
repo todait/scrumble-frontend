@@ -189,7 +189,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       // create 모드에서는 onSuccess 콜백에서 step을 'todo'로 변경
       // edit 모드에서는 처리 완료
       setIsProcessing(false);
-    } catch (err) {
+    } catch {
       setIsProcessing(false);
       // 에러 처리는 useCheckInForm의 onError에서 처리됨
     }
@@ -234,7 +234,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
           message: '체크인 완료 중 오류가 발생했습니다. 다시 시도해주세요.',
         });
       }
-    } catch (err) {
+    } catch {
       setIsProcessing(false);
       error({
         title: '체크인 완료 실패',

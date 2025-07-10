@@ -12,6 +12,7 @@ const getCurrentTime = () => {
   return Date.now();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const debug = (type: string, message: string, data?: any) => {
   if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') {
     return;
@@ -52,5 +53,6 @@ export const debug = (type: string, message: string, data?: any) => {
     return;
   }
 
+  // eslint-disable-next-line no-console
   console.log(`[${type}] ${message}`, data || '');
 };
