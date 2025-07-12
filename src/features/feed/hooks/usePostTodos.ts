@@ -7,20 +7,24 @@ import { usePostTodoStore } from '../stores/usePostTodoStore';
 interface UsePostTodosProps {
   spaceSlug: string;
   postDate: Date;
+  postId: string; // 현재 post의 ID
   userId?: string; // 포스트 작성자의 ID
   enabled: boolean;
 }
 
-export function usePostTodos({ spaceSlug, postDate, userId, enabled }: UsePostTodosProps) {
+export function usePostTodos({ spaceSlug, postDate, postId, userId, enabled }: UsePostTodosProps) {
   const dateString = formatDateToAPIString(postDate);
   
   // Zustand store 사용 (편집 모드에서만)
   const { 
     todos: storeTodos, 
-    isEditMode, 
+    editingPostId,
     setTodos, 
     updateTodo 
   } = usePostTodoStore();
+  
+  // 현재 post가 편집 중인지 확인
+  const isEditMode = editingPostId === postId;
 
   // Lazy loading: Collapse가 열릴 때만 쿼리 실행
   const { data, isLoading } = useTodos({

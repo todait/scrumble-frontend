@@ -9,6 +9,9 @@ interface PostTodoState {
   // 편집 모드 여부
   isEditMode: boolean;
   
+  // 편집 중인 post의 ID
+  editingPostId: string | null;
+  
   // 원본 데이터 (편집 취소용)
   originalTodos: Todo[] | null;
   
@@ -18,6 +21,7 @@ interface PostTodoState {
   // Actions
   setTodos: (todos: Todo[]) => void;
   setIsEditMode: (isEditMode: boolean) => void;
+  setEditingPostId: (postId: string | null) => void;
   setOriginalTodos: (todos: Todo[] | null) => void;
   setIsLoading: (isLoading: boolean) => void;
   
@@ -27,7 +31,7 @@ interface PostTodoState {
   removeTodo: (id: string) => void;
   
   // 편집 모드 관련 액션들
-  startEdit: () => void;
+  startEdit: (postId: string) => void;
   cancelEdit: () => void;
   applyChanges: (newTodos: Todo[]) => void;
   
@@ -38,11 +42,13 @@ interface PostTodoState {
 export const usePostTodoStore = create<PostTodoState>((set, get) => ({
   todos: [],
   isEditMode: false,
+  editingPostId: null,
   originalTodos: null,
   isLoading: false,
 
   setTodos: (todos) => set({ todos }),
   setIsEditMode: (isEditMode) => set({ isEditMode }),
+  setEditingPostId: (editingPostId) => set({ editingPostId }),
   setOriginalTodos: (originalTodos) => set({ originalTodos }),
   setIsLoading: (isLoading) => set({ isLoading }),
 
@@ -63,10 +69,11 @@ export const usePostTodoStore = create<PostTodoState>((set, get) => ({
       todos: state.todos.filter((todo) => todo.id !== id),
     })),
 
-  startEdit: () => {
+  startEdit: (postId) => {
     const { todos } = get();
     set({ 
       isEditMode: true, 
+      editingPostId: postId,
       originalTodos: [...todos] // 깊은 복사로 원본 백업
     });
   },
@@ -76,11 +83,15 @@ export const usePostTodoStore = create<PostTodoState>((set, get) => ({
     if (originalTodos) {
       set({ 
         isEditMode: false, 
+        editingPostId: null,
         todos: [...originalTodos],
         originalTodos: null 
       });
     } else {
-      set({ isEditMode: false });
+      set({ 
+        isEditMode: false,
+        editingPostId: null 
+      });
     }
   },
 
@@ -88,12 +99,14 @@ export const usePostTodoStore = create<PostTodoState>((set, get) => ({
     set({ 
       todos: newTodos,
       isEditMode: false,
+      editingPostId: null,
       originalTodos: null 
     }),
 
   reset: () => set({ 
     todos: [], 
     isEditMode: false, 
+    editingPostId: null,
     originalTodos: null, 
     isLoading: false 
   }),

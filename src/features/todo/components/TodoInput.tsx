@@ -148,16 +148,22 @@ export function TodoInput({
               const newValue = inputText.slice(0, start) + text + inputText.slice(end);
               setInputText(newValue);
             }}
-            className="todo-input-textarea h-6 w-full resize-none overflow-hidden border-none bg-transparent px-2 py-1.5 text-sm leading-tight text-[#222222] outline-none"
+            className="todo-input-textarea w-full resize-none overflow-hidden border-none bg-transparent px-2 py-1 text-sm leading-none text-[#222222] outline-none"
             placeholder="투두를 입력하세요..."
             rows={1}
             style={{
+              height: '24px',
+              minHeight: '24px',
+              maxHeight: '24px',
+              lineHeight: '24px',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
+              overflowY: 'hidden',
+              overscrollBehavior: 'none',
             }}
           />
         ) : (
-          <div className="flex h-6 items-center px-2 py-1.5 text-sm leading-tight text-gray-400">
+          <div className="flex h-6 items-center px-2 py-1 text-sm leading-none text-gray-400">
             투두 추가
           </div>
         )}

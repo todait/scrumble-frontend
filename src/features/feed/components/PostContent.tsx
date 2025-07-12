@@ -53,11 +53,14 @@ export function PostContent({
   
   // Zustand store에서 편집 모드 상태 가져오기
   const { 
-    isEditMode: isTodoEditMode, 
+    editingPostId,
     startEdit, 
     cancelEdit, 
     applyChanges
   } = usePostTodoStore();
+  
+  // 현재 post가 편집 중인지 확인
+  const isTodoEditMode = editingPostId === post.id;
   const { user } = useAuth();
   
   // Todo 저장을 위한 공통 훅
@@ -80,6 +83,7 @@ export function PostContent({
   const { todos, isLoading: isTodosLoading, handleToggleComplete, handleUpdateTodos } = usePostTodos({
     spaceSlug,
     postDate: new Date(post.postedAt),
+    postId: post.id, // 현재 post의 ID 전달
     userId: post.author.id, // 포스트 작성자의 Todo 조회
     enabled: !isTodoCollapsed || isDetailView, // Collapse가 열릴 때 또는 상세보기에서 로딩
   });
@@ -215,7 +219,7 @@ export function PostContent({
       // 편집 모드 진입: React Query 데이터를 zustand store에 복사
       const { setTodos } = usePostTodoStore.getState();
       setTodos(todos); // 현재 React Query 데이터를 store에 설정
-      startEdit();
+      startEdit(post.id);
     } else {
       // 편집 모드 종료 (취소)
       cancelEdit();
