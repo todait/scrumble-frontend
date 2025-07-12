@@ -56,7 +56,7 @@ export function getSelectButtonClasses(isSelectDisabled: boolean, isSelected?: b
 }
 
 export function getTextClasses(isCompleted: boolean): string {
-  return `flex h-6 items-center px-2 py-1.5 text-sm leading-tight overflow-hidden group-hover:text-[#9747FF] transition-colors ${
+  return `flex h-6 items-center px-2 py-1.5 text-sm leading-tight overflow-hidden hover:text-[#9747FF] transition-colors ${
     isCompleted ? 'text-[#222222] line-through opacity-60' : 'text-[#222222]'
   }`;
 }
