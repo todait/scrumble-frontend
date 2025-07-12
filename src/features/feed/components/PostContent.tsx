@@ -79,7 +79,7 @@ export function PostContent({
   // Todo 리스트용 hook (lazy loading)
   const { todos, isLoading: isTodosLoading, handleToggleComplete, handleUpdateTodos } = usePostTodos({
     spaceSlug,
-    postDate: new Date(post.createdAt),
+    postDate: new Date(post.postedAt),
     userId: post.author.id, // 포스트 작성자의 Todo 조회
     enabled: !isTodoCollapsed || isDetailView, // Collapse가 열릴 때 또는 상세보기에서 로딩
   });
@@ -226,7 +226,7 @@ export function PostContent({
     if (!todos) return;
     
     try {
-      const dateString = formatDateToAPIString(new Date(post.createdAt));
+      const dateString = formatDateToAPIString(new Date(post.postedAt));
       
       // 공통 저장 함수 사용
       await saveTodosApi(dateString, todos);

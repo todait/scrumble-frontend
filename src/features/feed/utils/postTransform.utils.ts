@@ -20,6 +20,7 @@ export const getConditionEmoji = (score: number): string => {
 export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
   const basePost = {
     id: apiPost.id,
+    postedAt: new Date(apiPost.postedAt),
     createdAt: new Date(apiPost.createdAt),
     updatedAt: apiPost.updatedAt ? new Date(apiPost.updatedAt) : undefined,
     reactions: apiPost.reactions || [], // API에서 받은 reactions 사용
