@@ -1,154 +1,1128 @@
 name: Scrumble
-lastModified: '2025-06-25T01:32:55Z'
+lastModified: '2025-07-08T06:40:16Z'
 thumbnailUrl: >-
-  https://s3-alpha.figma.com/thumbnails/98129c6d-d7db-48d4-9a59-50094a33c97b?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCZGWUDXPX%2F20250622%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250622T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=31791f9ca706c509ef1085ed8aa09221c7b6bf87d7d2c9c3aed3484a1b2fa920
+  https://s3-alpha.figma.com/thumbnails/6aa9c129-480c-48ac-b877-d496a7eaf907?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCU3RHYTUS%2F20250706%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250706T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=6de2d1dcebbc8882b3823dc4c2dc6dca414d0c507c7b320a542d99348bd01aa8
 nodes:
-  - id: '1201:14141'
-    name: Emojis
+  - id: '1287:14745'
+    name: Todo Check List
     type: FRAME
-    layout: layout_ZW08GC
+    fills: fill_AXYAUS
+    layout: layout_HK6PUL
     children:
-      - id: '1201:14142'
-        name: Emoji
+      - id: '1287:14746'
+        name: 오늘 투두
         type: FRAME
-        fills: fill_9S69C5
-        strokes: stroke_0HBIAL
-        layout: layout_XEOFB2
-        borderRadius: 1000px
+        layout: layout_9LVGWI
         children:
-          - id: '1201:14143'
-            name: '======='
-            type: TEXT
-            textStyle: style_1XZ0HN
-            fills: fill_T1UIZI
-            layout: layout_296ZHE
-            text: 🌼
-          - id: '1201:14144'
-            name: '======='
-            type: TEXT
-            textStyle: style_1XZ0HN
-            fills: fill_T1UIZI
-            layout: layout_VWVXJY
-            text: '12'
-      - id: '1201:14145'
-        name: Emoji
-        type: FRAME
-        fills: fill_Q3HYI4
-        layout: layout_XEOFB2
-        borderRadius: 1000px
-        children:
-          - id: '1201:14146'
-            name: '======='
-            type: TEXT
-            textStyle: style_1XZ0HN
-            fills: fill_69QVX5
-            layout: layout_296ZHE
-            text: 💕
-      - id: '1201:14148'
-        name: Emoji
-        type: FRAME
-        fills: fill_Q3HYI4
-        layout: layout_XEOFB2
-        borderRadius: 1000px
-        children:
-          - id: '1201:14149'
-            name: '======='
-            type: TEXT
-            textStyle: style_1XZ0HN
-            fills: fill_69QVX5
-            layout: layout_296ZHE
-            text: 😍
-      - id: '1201:14151'
-        name: Emoji
-        type: FRAME
-        fills: fill_9S69C5
-        strokes: stroke_0HBIAL
-        layout: layout_XEOFB2
-        borderRadius: 1000px
-        children:
-          - id: '1201:14152'
-            name: '======='
-            type: TEXT
-            textStyle: style_1XZ0HN
-            fills: fill_T1UIZI
-            layout: layout_296ZHE
-            text: 🥰
-          - id: '1201:14153'
-            name: '======='
-            type: TEXT
-            textStyle: style_1XZ0HN
-            fills: fill_T1UIZI
-            layout: layout_VWVXJY
-            text: '12'
-      - id: '1201:14154'
-        name: Emoji
-        type: FRAME
-        fills: fill_Q3HYI4
-        layout: layout_XEOFB2
-        borderRadius: 1000px
-        children:
-          - id: '1201:14155'
-            name: ri:emoji-sticker-line
+          - id: '1287:14747'
+            name: Yesterday
             type: FRAME
-            fills: fill_Z116DW
-            layout: layout_LTVJIJ
-            opacity: 0.5
+            layout: layout_SFX2ST
             children:
-              - id: '1201:14156'
-                name: Vector
-                type: IMAGE-SVG
-                fills: fill_69QVX5
-                layout: layout_GDOA56
+              - id: '1287:14748'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18720'
+                componentProperties:
+                  - name: Depth
+                    value: '0'
+                    type: VARIANT
+                layout: layout_66B79R
+                children:
+                  - id: I1287:14748;959:18544
+                    name: "\bSPACE"
+                    type: INSTANCE
+                    componentId: '1063:21320'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_GPW1N9
+                    opacity: 0
+                    borderRadius: 4px
+                  - id: I1287:14748;959:18507
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18352'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'On'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'On'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14748;959:18507;959:18230
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17859'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14748;959:18507;959:18230;959:17860
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            children:
+                              - id: I1287:14748;959:18507;959:18230;959:17863
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_DBEP5Z
+                                layout: layout_KC2D0W
+                      - id: I1287:14748;959:18507;959:18231
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18105'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14748;959:18507;959:18231;959:18089
+                            name: 투두 / 완료
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: 피드 리스트 API 연동
+                            opacity: 0.6000000238418579
+              - id: '1287:14749'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18720'
+                componentProperties:
+                  - name: Depth
+                    value: '0'
+                    type: VARIANT
+                layout: layout_66B79R
+                children:
+                  - id: I1287:14749;959:18544
+                    name: "\bSPACE"
+                    type: INSTANCE
+                    componentId: '1063:21320'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_GPW1N9
+                    opacity: 0
+                    borderRadius: 4px
+                  - id: I1287:14749;959:18507
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18352'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'On'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'On'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14749;959:18507;959:18230
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17859'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14749;959:18507;959:18230;959:17860
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            children:
+                              - id: I1287:14749;959:18507;959:18230;959:17863
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_DBEP5Z
+                                layout: layout_KC2D0W
+                      - id: I1287:14749;959:18507;959:18231
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18105'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14749;959:18507;959:18231;959:18089
+                            name: 투두 / 완료
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: '[투두] 체크인 : 투두 입력 흐름 전체 병합 (전일투두 + 오늘투두)'
+                            opacity: 0.6000000238418579
+              - id: '1287:14750'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18720'
+                componentProperties:
+                  - name: Depth
+                    value: '0'
+                    type: VARIANT
+                layout: layout_66B79R
+                children:
+                  - id: I1287:14750;959:18544
+                    name: "\bSPACE"
+                    type: INSTANCE
+                    componentId: '1063:21320'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_GPW1N9
+                    opacity: 0
+                    borderRadius: 4px
+                  - id: I1287:14750;959:18507
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18352'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'On'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'On'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14750;959:18507;959:18230
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17859'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14750;959:18507;959:18230;959:17860
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            children:
+                              - id: I1287:14750;959:18507;959:18230;959:17863
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_DBEP5Z
+                                layout: layout_KC2D0W
+                      - id: I1287:14750;959:18507;959:18231
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18105'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14750;959:18507;959:18231;959:18089
+                            name: 투두 / 완료
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: '피드 리스트 백엔드 API '
+                            opacity: 0.6000000238418579
+              - id: '1287:14751'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18720'
+                componentProperties:
+                  - name: Depth
+                    value: '0'
+                    type: VARIANT
+                layout: layout_66B79R
+                children:
+                  - id: I1287:14751;959:18544
+                    name: "\bSPACE"
+                    type: INSTANCE
+                    componentId: '1063:21320'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_GPW1N9
+                    opacity: 0
+                    borderRadius: 4px
+                  - id: I1287:14751;959:18507
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18356'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'Off'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'Off'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14751;959:18507;959:18226
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17841'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: "\bOff"
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14751;959:18507;959:18226;959:17822
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            opacity: 0.20000000298023224
+                            children:
+                              - id: I1287:14751;959:18507;959:18226;959:17823
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_J66C6R
+                                layout: layout_CGA30T
+                      - id: I1287:14751;959:18507;959:18227
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18103'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14751;959:18507;959:18227;959:18086
+                            name: 투두 기본
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: 오늘 체크인을 작성했는지 확인하는 API 필요
+              - id: '1287:14752'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18720'
+                componentProperties:
+                  - name: Depth
+                    value: '0'
+                    type: VARIANT
+                layout: layout_66B79R
+                children:
+                  - id: I1287:14752;959:18544
+                    name: "\bSPACE"
+                    type: INSTANCE
+                    componentId: '1063:21320'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_GPW1N9
+                    opacity: 0
+                    borderRadius: 4px
+                  - id: I1287:14752;959:18507
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18352'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'On'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'On'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14752;959:18507;959:18230
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17859'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14752;959:18507;959:18230;959:17860
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            children:
+                              - id: I1287:14752;959:18507;959:18230;959:17863
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_DBEP5Z
+                                layout: layout_KC2D0W
+                      - id: I1287:14752;959:18507;959:18231
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18105'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14752;959:18507;959:18231;959:18089
+                            name: 투두 / 완료
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: '[투두] 체크인 : 전일 투두 가져오기 흐름'
+                            opacity: 0.6000000238418579
+          - id: '1287:14753'
+            name: Today
+            type: FRAME
+            layout: layout_86CZWT
+            children:
+              - id: '1287:14754'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18720'
+                componentProperties:
+                  - name: Depth
+                    value: '0'
+                    type: VARIANT
+                layout: layout_21071U
+                children:
+                  - id: I1287:14754;959:18544
+                    name: Draggable
+                    type: INSTANCE
+                    componentId: '959:18527'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                      - name: Type
+                        value: Draggable
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_DB3V5I
+                    opacity: 0
+                    borderRadius: 4px
+                    children:
+                      - id: I1287:14754;959:18544;959:18520
+                        name: ri:draggable
+                        type: FRAME
+                        fills: fill_AXYAUS
+                        layout: layout_GX4AU3
+                        opacity: 0.5
+                        children:
+                          - id: I1287:14754;959:18544;959:18521
+                            name: Vector
+                            type: IMAGE-SVG
+                            fills: fill_J66C6R
+                            layout: layout_ABU0B8
+                  - id: I1287:14754;959:18507
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18356'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'Off'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'Off'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14754;959:18507;959:18226
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17841'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: "\bOff"
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14754;959:18507;959:18226;959:17822
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            opacity: 0.20000000298023224
+                            children:
+                              - id: I1287:14754;959:18507;959:18226;959:17823
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_J66C6R
+                                layout: layout_CGA30T
+                      - id: I1287:14754;959:18507;959:18227
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18103'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14754;959:18507;959:18227;959:18086
+                            name: 투두 기본
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: '1차 내부용 버전 배포 목표 명세 ( 내부 베타용 최소 릴리즈 버전 ) '
+              - id: '1287:14755'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18720'
+                componentProperties:
+                  - name: Depth
+                    value: '0'
+                    type: VARIANT
+                layout: layout_21071U
+                children:
+                  - id: I1287:14755;959:18544
+                    name: Draggable
+                    type: INSTANCE
+                    componentId: '959:18527'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                      - name: Type
+                        value: Draggable
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_DB3V5I
+                    opacity: 0
+                    borderRadius: 4px
+                    children:
+                      - id: I1287:14755;959:18544;959:18520
+                        name: ri:draggable
+                        type: FRAME
+                        fills: fill_AXYAUS
+                        layout: layout_GX4AU3
+                        opacity: 0.5
+                        children:
+                          - id: I1287:14755;959:18544;959:18521
+                            name: Vector
+                            type: IMAGE-SVG
+                            fills: fill_J66C6R
+                            layout: layout_ABU0B8
+                  - id: I1287:14755;959:18507
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18352'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'On'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'On'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14755;959:18507;959:18230
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17859'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14755;959:18507;959:18230;959:17860
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            children:
+                              - id: I1287:14755;959:18507;959:18230;959:17863
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_DBEP5Z
+                                layout: layout_KC2D0W
+                      - id: I1287:14755;959:18507;959:18231
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18105'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14755;959:18507;959:18231;959:18089
+                            name: 투두 / 완료
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: 팀 피드 디자인
+                            opacity: 0.6000000238418579
+              - id: '1287:14756'
+                name: Todo Depth
+                type: INSTANCE
+                componentId: '963:18719'
+                componentProperties:
+                  - name: Depth
+                    value: '1'
+                    type: VARIANT
+                layout: layout_21071U
+                children:
+                  - id: I1287:14756;1063:22223
+                    name: "\bSPACE"
+                    type: INSTANCE
+                    componentId: '1063:21320'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_GPW1N9
+                    opacity: 0
+                    borderRadius: 4px
+                  - id: I1287:14756;963:18683
+                    name: Draggable
+                    type: INSTANCE
+                    componentId: '959:18527'
+                    componentProperties:
+                      - name: Status
+                        value: Default
+                        type: VARIANT
+                      - name: Type
+                        value: Draggable
+                        type: VARIANT
+                    fills: fill_CTH1I1
+                    layout: layout_DB3V5I
+                    opacity: 0
+                    borderRadius: 4px
+                    children:
+                      - id: I1287:14756;963:18683;959:18520
+                        name: ri:draggable
+                        type: FRAME
+                        fills: fill_AXYAUS
+                        layout: layout_GX4AU3
+                        opacity: 0.5
+                        children:
+                          - id: I1287:14756;963:18683;959:18521
+                            name: Vector
+                            type: IMAGE-SVG
+                            fills: fill_J66C6R
+                            layout: layout_ABU0B8
+                  - id: I1287:14756;963:18684
+                    name: Todo
+                    type: INSTANCE
+                    componentId: '959:18352'
+                    componentProperties:
+                      - name: Type
+                        value: Default
+                        type: VARIANT
+                      - name: ✅ Completed
+                        value: 'On'
+                        type: VARIANT
+                      - name: 🎯 Focus (Action)
+                        value: 'On'
+                        type: VARIANT
+                      - name: 💬 Typing
+                        value: 'Off'
+                        type: VARIANT
+                    fills: fill_3PUGGP
+                    layout: layout_5LKE7T
+                    borderRadius: 8px
+                    children:
+                      - id: I1287:14756;963:18684;959:18230
+                        name: Check Icon
+                        type: INSTANCE
+                        componentId: '959:17859'
+                        componentProperties:
+                          - name: Type
+                            value: Check
+                            type: VARIANT
+                          - name: ➕ Add
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Status
+                            value: Default
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                        layout: layout_OWSRT5
+                        children:
+                          - id: I1287:14756;963:18684;959:18230;959:17860
+                            name: checkbox
+                            type: FRAME
+                            fills: fill_AXYAUS
+                            layout: layout_T9OD19
+                            children:
+                              - id: I1287:14756;963:18684;959:18230;959:17863
+                                name: Vector
+                                type: IMAGE-SVG
+                                fills: fill_DBEP5Z
+                                layout: layout_KC2D0W
+                      - id: I1287:14756;963:18684;959:18231
+                        name: Lable
+                        type: INSTANCE
+                        componentId: '959:18105'
+                        componentProperties:
+                          - name: 💬 Typing
+                            value: 'Off'
+                            type: VARIANT
+                          - name: ✅ Completed
+                            value: 'On'
+                            type: VARIANT
+                          - name: Init. Input
+                            value: 'Off'
+                            type: VARIANT
+                          - name: Time
+                            value: Today
+                            type: VARIANT
+                        layout: layout_TXBV6W
+                        borderRadius: 12px
+                        children:
+                          - id: I1287:14756;963:18684;959:18231;959:18089
+                            name: 투두 / 완료
+                            type: TEXT
+                            textStyle: style_O8AJZA
+                            fills: fill_J66C6R
+                            layout: layout_X7L77M
+                            text: 텍스트 생성 UX 개선 (tiptap 적용)
+                            opacity: 0.6000000238418579
+components:
+  '963:18720':
+    id: '963:18720'
+    key: 6227b4c206a3e962d9fe8c9f800284ea8226dc82
+    name: Depth=0
+    componentSetId: '963:18725'
+  '1063:21320':
+    id: '1063:21320'
+    key: 65a9306c269b85337771505f3ccff6a205285f8a
+    name: Status=Default
+    componentSetId: '1063:21316'
+  '959:18352':
+    id: '959:18352'
+    key: 312c3bad45fd3cfa20ccc811cb2959acdbf8c7a4
+    name: Type=Default, ✅ Completed=On, 🎯 Focus (Action)=On, 💬 Typing=Off
+    componentSetId: '959:18489'
+  '959:17859':
+    id: '959:17859'
+    key: f8222a72da02133388c19a60ba293ddb61ae7950
+    name: Type=Check, ➕ Add=Off, Status=Default, ✅ Completed=On
+    componentSetId: '959:17844'
+  '959:18105':
+    id: '959:18105'
+    key: 531c86860b9a128058fd5af607b56fd2f06ef96a
+    name: 💬 Typing=Off, ✅ Completed=On, Init. Input=Off, Time=Today
+    componentSetId: '959:18109'
+  '135:367':
+    id: '135:367'
+    key: 1d055c8a8721df52145126b5bbfd9918f4f56f49
+    name: 속성 1=깜
+    componentSetId: '135:369'
+  '959:18356':
+    id: '959:18356'
+    key: 81a51a36e9088cff0b2f1278d85f0ffa898eeb27
+    name: Type=Default, ✅ Completed=Off, 🎯 Focus (Action)=Off, 💬 Typing=Off
+    componentSetId: '959:18489'
+  '959:17841':
+    id: '959:17841'
+    key: bef65471f1d5337b15f1af87995337fbbfbd2c40
+    name: "Type=Check, ➕ Add=Off, Status=Default, ✅ Completed=\bOff"
+    componentSetId: '959:17844'
+  '959:18103':
+    id: '959:18103'
+    key: 1995d741bf896760ad5e26fa0ae051c0284f4d28
+    name: 💬 Typing=Off, ✅ Completed=Off, Init. Input=Off, Time=Today
+    componentSetId: '959:18109'
+  '959:18527':
+    id: '959:18527'
+    key: 0bbd9ea1d6e2cdfdab1d65d3eb789a2b91612266
+    name: Status=Default, Type=Draggable
+    componentSetId: '959:18529'
+  '963:18719':
+    id: '963:18719'
+    key: 7b05366831c3f4ae107ee3be91ae59247ed7938e
+    name: Depth=1
+    componentSetId: '963:18725'
+componentSets:
+  '963:18725':
+    id: '963:18725'
+    key: ed5a922a469d2661927b5c0db77b2cbd741a46f7
+    name: Todo Depth
+    description: ''
+  '1063:21316':
+    id: '1063:21316'
+    key: b2a082033a658062ba3708de684744c9e043fe7e
+    name: "\bSPACE"
+    description: ''
+  '959:18489':
+    id: '959:18489'
+    key: 2468f16c8f08dfcc889e88273bb7709af9bc118d
+    name: Todo
+    description: ''
+  '959:17844':
+    id: '959:17844'
+    key: fa9f9482ac7428d401b48724cc5e79cb823ec083
+    name: Check Icon
+    description: ''
+  '959:18109':
+    id: '959:18109'
+    key: bfebdbd3c374c31aa78ed7ccdc5d8dccce33a4a1
+    name: Lable
+    description: ''
+  '135:369':
+    id: '135:369'
+    key: f223fcfdb626bd09f42922e11a316dcf8522c7c1
+    name: "\bInput Cursor Animation"
+    description: ''
+  '959:18529':
+    id: '959:18529'
+    key: 6426abaf377a3642b4337f5ca259f639e1218c0c
+    name: Draggable
+    description: ''
 globalVars:
   styles:
-    layout_ZW08GC:
+    fill_AXYAUS:
+      - '#FFFFFF'
+    layout_HK6PUL:
+      mode: column
+      gap: 10px
+      sizing:
+        horizontal: fixed
+        vertical: hug
+      dimensions:
+        width: 640
+    layout_9LVGWI:
+      mode: column
+      alignSelf: stretch
+      padding: 10px 0px
+      sizing:
+        horizontal: fill
+        vertical: hug
+    layout_SFX2ST:
+      mode: column
+      alignSelf: stretch
+      padding: 0px 30px 0px 0px
+      sizing:
+        horizontal: fill
+        vertical: hug
+    layout_66B79R:
       mode: row
       alignItems: center
-      gap: 8px
+      alignSelf: stretch
+      gap: 4px
       sizing:
-        horizontal: hug
+        horizontal: fill
         vertical: hug
-    fill_9S69C5:
-      - rgba(151, 71, 255, 0.1)
-    stroke_0HBIAL:
-      colors:
-        - '#9747FF'
-      strokeWeight: 1px
-    layout_XEOFB2:
+    fill_CTH1I1:
+      - rgba(34, 34, 34, 0.08)
+    layout_GPW1N9:
+      mode: row
+      alignItems: center
+      gap: 10px
+      padding: 6px 2px
+      sizing:
+        horizontal: fixed
+        vertical: fixed
+      dimensions:
+        width: 20
+        height: 28
+    fill_3PUGGP:
+      - '#F1F1F1'
+    layout_5LKE7T:
+      mode: row
+      alignItems: center
+      gap: 6px
+      padding: 6px
+      sizing:
+        horizontal: fill
+        vertical: hug
+    layout_OWSRT5:
       mode: row
       justifyContent: center
       alignItems: center
-      gap: 4px
-      padding: 6px 10px
+      gap: 10px
       sizing:
-        horizontal: hug
+        horizontal: fixed
+        vertical: fixed
+      dimensions:
+        width: 20
+        height: 20
+    layout_T9OD19:
+      mode: none
+      sizing:
+        horizontal: fixed
+        vertical: fixed
+      dimensions:
+        width: 20
+        height: 20
+    fill_DBEP5Z:
+      - '#9747FF'
+    layout_KC2D0W:
+      mode: none
+      locationRelativeToParent:
+        x: 1.67
+        'y': 1.67
+      dimensions:
+        width: 16.67
+        height: 16.67
+    layout_TXBV6W:
+      mode: row
+      alignItems: center
+      padding: 2px 0px
+      sizing:
+        horizontal: fill
         vertical: hug
-    style_1XZ0HN:
+    style_O8AJZA:
       fontFamily: Pretendard
       fontWeight: 400
-      fontSize: 13
-      lineHeight: 1.200000029343825em
-      textAlignHorizontal: CENTER
+      fontSize: 15
+      lineHeight: 1.2em
+      textAlignHorizontal: LEFT
       textAlignVertical: CENTER
-    fill_T1UIZI:
-      - '#9747FF'
-    layout_296ZHE:
+    fill_J66C6R:
+      - '#222222'
+    layout_X7L77M:
       mode: none
       sizing:
         horizontal: fill
         vertical: hug
-    layout_VWVXJY:
+    layout_CGA30T:
       mode: none
+      locationRelativeToParent:
+        x: 1.66
+        'y': 1.67
+      dimensions:
+        width: 16.67
+        height: 16.67
+    layout_86CZWT:
+      mode: column
       sizing:
         horizontal: hug
         vertical: hug
-    fill_Q3HYI4:
-      - rgba(241, 241, 241, 0.5)
-    fill_69QVX5:
-      - '#222222'
-    fill_Z116DW:
-      - '#FFFFFF'
-    layout_LTVJIJ:
+    layout_21071U:
+      mode: row
+      alignItems: center
+      gap: 4px
+      padding: 0px 30px 0px 0px
+      sizing:
+        horizontal: fixed
+        vertical: hug
+      dimensions:
+        width: 640
+    layout_DB3V5I:
+      mode: row
+      alignItems: center
+      gap: 10px
+      padding: 6px 2px
+      sizing:
+        horizontal: hug
+        vertical: hug
+    layout_GX4AU3:
       mode: none
       sizing:
         horizontal: fixed
@@ -156,11 +1130,11 @@ globalVars:
       dimensions:
         width: 16
         height: 16
-    layout_GDOA56:
+    layout_ABU0B8:
       mode: none
       locationRelativeToParent:
-        x: 1.33
-        'y': 1.33
+        x: 4.66
+        'y': 2.67
       dimensions:
-        width: 13.33
-        height: 13.33
+        width: 6.67
+        height: 10.67

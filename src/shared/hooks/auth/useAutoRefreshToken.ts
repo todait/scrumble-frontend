@@ -1,5 +1,6 @@
 import { authApi } from '@/shared/lib/api/auth';
 import { TokenManager } from '@/shared/lib/token';
+import { debug } from '@/shared/utils/debug';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { authKeys } from '../queries/authKeys';
@@ -44,7 +45,7 @@ export function useAutoRefreshToken() {
           // 다음 갱신 스케줄
           scheduleTokenRefresh();
         } catch (error) {
-          console.error('❌ Auto refresh failed:', error);
+          debug('AutoRefreshToken', 'Auto refresh failed:', error);
           // 실패 시 로그아웃 처리는 API 인터셉터가 담당
         }
       }, refreshTime);

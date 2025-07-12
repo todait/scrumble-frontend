@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { debug } from '@/shared/utils/debug';
 
 interface Props {
   children?: ReactNode;
@@ -31,7 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // 에러 로깅 서비스에 에러를 기록할 수 있습니다.
     if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      debug('ErrorBoundary', 'ErrorBoundary caught an error:', { error, errorInfo });
     }
 
     // 외부에서 제공된 에러 핸들러 실행
@@ -88,14 +89,14 @@ export class ErrorBoundary extends Component<Props, State> {
  * 웹소켓 에러를 위한 특화된 에러 바운더리
  */
 export const WebSocketErrorBoundary: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const handleError = (error: Error, errorInfo: ErrorInfo) => {
+  const handleError = (error: Error, _errorInfo: ErrorInfo) => {
     // 웹소켓 관련 에러인 경우 특별 처리
     if (
       error.message.includes('WebSocket') ||
       error.message.includes('subscription') ||
       error.message.includes('already exists')
     ) {
-      console.warn('[WebSocket] 에러가 발생했지만 서비스는 계속 동작합니다:', error.message);
+      debug('WebSocket', '에러가 발생했지만 서비스는 계속 동작합니다:', error.message);
       // 여기서 추가적인 에러 보고나 모니터링 로직을 추가할 수 있습니다.
     }
   };

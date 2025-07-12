@@ -116,8 +116,8 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
             avatarURL: authParams.avatarURL || '',
           });
 
-          console.log('Token saved in localStorage:', localStorage.getItem('access_token'));
-          console.log('Token saved in cookie:', document.cookie);
+          debug('useAuthCallback', 'Token saved in localStorage:', localStorage.getItem('access_token'));
+          debug('useAuthCallback', 'Token saved in cookie:', document.cookie);
 
           success({
             title: '로그인 성공',
@@ -144,7 +144,7 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
           isProcessing: false,
         }));
       } catch (error) {
-        console.error('Auth callback processing error:', error);
+        debug('useAuthCallback', 'Auth callback processing error:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
         handleError(`로그인 처리 중 오류가 발생했습니다. ${errorMessage}`);
       }

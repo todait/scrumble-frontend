@@ -1,13 +1,14 @@
+// CheckInEditModal 수정 - useCheckInForm 훅 사용으로 로직 공통화
 'use client';
 
 import type { CheckinPost } from '@/features/feed/types/feed.types';
 import { useToast } from '@/shared/hooks';
-import { useUpdateCheckIn } from '@/shared/hooks/queries';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useEffect } from 'react';
 import { CheckInForm } from './forms';
+import { useCheckInForm } from '../hooks/useCheckInForm';
 import { CheckInModalLayout } from './layout';
 
 interface CheckInEditModalProps {
@@ -25,33 +26,54 @@ export function CheckInEditModal({
   post,
   onSubmit,
 }: CheckInEditModalProps) {
-  const { mutate: updateCheckIn, isPending } = useUpdateCheckIn();
   const { error } = useToast();
+  
+  // useCheckInForm 훅 사용으로 로직 단순화
+  const {
+    values,
+    setValue,
+    save,
+    isLoading,
+  } = useCheckInForm({
+    mode: 'edit',
+    spaceSlug,
+    postId: post.id,
+    initialData: {
+      score: post.conditionScore,
+      message: post.conditionText,
+      images: post.images,
+    },
+    onSuccess: () => {
+      onSubmit?.();
+      onClose();
+    },
+    onError: () => {
+      error({
+        title: '체크인 수정 실패',
+        message: '체크인 수정 중 오류가 발생했습니다. 다시 시도해주세요.',
+      });
+    },
+  });
 
-  const handleSubmit = (data: { score: number; message: string; images: ImageMetadata[] }) => {
-    data.message = data.message.trim();
-    if (data.message === '') {
+  const handleSubmit = async (data: { score: number; message: string; images: ImageMetadata[] }) => {
+    const trimmedMessage = data.message.trim();
+    if (trimmedMessage === '') {
       error({
         title: '메시지를 입력해주세요.',
       });
       return;
     }
 
-    updateCheckIn(
-      {
-        spaceSlug,
-        postId: post.id,
-        conditionScore: data.score,
-        conditionText: data.message,
-        images: data.images,
-      },
-      {
-        onSuccess: () => {
-          onSubmit?.();
-          onClose();
-        },
-      }
-    );
+    // 값을 스토어에 저장하면서 동시에 save 함수에 전달
+    setValue('score', data.score);
+    setValue('message', trimmedMessage);
+    setValue('images', data.images);
+    
+    await save({
+      score: data.score,
+      message: trimmedMessage,
+      images: data.images,
+    });
   };
 
   // ESC 키로 모달 닫기
@@ -69,14 +91,12 @@ export function CheckInEditModal({
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, onClose]);
 
-  const initialData = {
-    score: post.conditionScore,
-    message: post.conditionText,
-    images: post.images,
-  };
-
   return (
-    <CheckInModalLayout isOpen={isOpen} onClose={onClose}>
+    <CheckInModalLayout 
+      isOpen={isOpen} 
+      onClose={onClose}
+      showBackButton={false}
+    >
       <div className="border-b border-black/8 px-8 py-8">
         <div className="mb-2 text-[15px] font-bold text-black">
           {formatDate(new Date(post.createdAt))}
@@ -88,9 +108,13 @@ export function CheckInEditModal({
       </div>
       <CheckInForm
         onSubmit={handleSubmit}
-        initialData={initialData}
-        disabled={isPending}
-        isLoading={isPending}
+        initialData={{
+          score: values.score,
+          message: values.message,
+          images: values.images,
+        }}
+        disabled={isLoading}
+        isLoading={isLoading}
       />
     </CheckInModalLayout>
   );
