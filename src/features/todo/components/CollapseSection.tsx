@@ -20,7 +20,7 @@ export function CollapseSection({
       <div
         className={`flex cursor-pointer items-center justify-between p-3 transition-all duration-300 ease-in-out ${
           isCollapsed ? 'border-b-0' : 'border-b border-gray-200'
-        } bg-gray-50`}
+        } bg-white`}
         onClick={e => {
           e.stopPropagation();
           onToggleCollapse();

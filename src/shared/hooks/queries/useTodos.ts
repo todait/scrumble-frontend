@@ -1,4 +1,5 @@
 import { todosApi } from '@/shared/lib/api/todos';
+import { isTemporaryId } from '@/features/todo/utils/todoConverters';
 import { ErrorCode } from '@/shared/types/api';
 import type {
   BulkUpdateTodosRequest,
@@ -18,6 +19,7 @@ import type {
 import { getErrorMessage, isErrorCode } from '@/shared/utils';
 import { authRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { useToast } from '../useToast';
 import { todoInvalidateHelpers, todosKeys } from './todosKeys';
 
@@ -337,4 +339,46 @@ export const useBulkUpdateTodos = (spaceSlug: string) => {
       }
     },
   });
+};
+
+/**
+ * 투두 저장을 위한 공통 훅
+ * CheckInWriteModal과 PostContent에서 공통으로 사용
+ */
+export const useSaveTodos = (spaceSlug: string) => {
+  const { mutate: bulkUpdateTodos, isPending: isSaving } = useBulkUpdateTodos(spaceSlug);
+  
+  const saveTodos = useCallback(async (scheduledDate: string, todos: Todo[]): Promise<void> => {
+    // 빈 투두 배열이면 처리하지 않음
+    if (todos.length === 0) {
+      return Promise.resolve();
+    }
+    
+    return new Promise<void>((resolve, reject) => {
+      bulkUpdateTodos(
+        {
+          scheduledDate,
+          todos: todos.map(todo => ({
+            id: !isTemporaryId(todo.id) ? todo.id : undefined, // 임시 ID는 undefined로 처리
+            name: todo.name,
+            description: todo.description,
+            scheduledDate: todo.scheduledDate,
+            order: todo.order,
+            thirdpartyUrl: todo.thirdpartyUrl,
+            parentId: todo.parentId,
+            originTodoIdIsNil: !todo.originTodoId,
+          })),
+        },
+        {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error),
+        }
+      );
+    });
+  }, [bulkUpdateTodos]);
+  
+  return {
+    saveTodos,
+    isSaving,
+  };
 };

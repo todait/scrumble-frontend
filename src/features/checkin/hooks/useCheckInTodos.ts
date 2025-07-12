@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import type { Todo } from '@/features/todo/types';
-import { isTemporaryId } from '@/features/todo/utils/todoConverters';
-import { useTodos, useBulkUpdateTodos } from '@/shared/hooks/queries';
+import { useTodos, useSaveTodos } from '@/shared/hooks/queries';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 import { useCheckInTodoStore } from '../stores/useCheckInTodoStore';
@@ -56,8 +55,8 @@ export const useCheckInTodos = (spaceSlug: string, mode: 'new' | 'edit' = 'new')
     }
   }, [todayData, setTodayTodos]);
   
-  // Todo 저장 함수
-  const { mutate: bulkUpdateTodos, isPending: isSaving } = useBulkUpdateTodos(spaceSlug);
+  // 공통 Todo 저장 훅 사용
+  const { saveTodos: saveTodosApi, isSaving } = useSaveTodos(spaceSlug);
   
   const saveTodos = useCallback(async (todosWithOrigin: Map<string, Todo>) => {
     // new 모드에서만 처리
@@ -69,38 +68,9 @@ export const useCheckInTodos = (spaceSlug: string, mode: 'new' | 'edit' = 'new')
     // todosWithOrigin Map에서 Todo 목록 추출
     const todos = Array.from(todosWithOrigin.values());
     
-    // 새로 생성된 Todo와 기존 Todo 분리
-    const newTodos = todos.filter(todo => isTemporaryId(todo.id));
-    const existingTodos = todos.filter(todo => !isTemporaryId(todo.id));
-    
-    // 기존 Todo가 있으면 일괄 업데이트 API 사용
-    if (existingTodos.length > 0 || newTodos.length > 0) {
-      return new Promise((resolve, reject) => {
-        bulkUpdateTodos(
-          {
-            scheduledDate: todayDateString,
-            todos: todos.map(todo => ({
-              id: !isTemporaryId(todo.id) ? todo.id : undefined, // 기존 Todo는 ID 포함, 새 Todo는 ID 없음
-              name: todo.name,
-              description: todo.description,
-              scheduledDate: todo.scheduledDate,
-              order: todo.order,
-              thirdpartyUrl: todo.thirdpartyUrl,
-              parentId: todo.parentId,
-              originTodoIdIsNil: !todo.originTodoId,
-            })),
-          },
-          {
-            onSuccess: () => resolve(true),
-            onError: (error) => reject(error),
-          }
-        );
-      });
-    }
-    
-    // Todo가 없으면 처리하지 않음
-    return Promise.resolve();
-  }, [mode, bulkUpdateTodos, todayDateString]);
+    // 공통 저장 함수 사용
+    return saveTodosApi(todayDateString, todos);
+  }, [mode, saveTodosApi, todayDateString]);
   
   // 어제 Todo를 오늘로 가져오는 헬퍼 함수
   const getYesterdayTodoData = useCallback((todoId: string): Todo | undefined => {
