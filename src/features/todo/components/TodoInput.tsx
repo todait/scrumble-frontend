@@ -15,7 +15,13 @@ export interface TodoInputProps {
   isBottomInput?: boolean;
 }
 
-export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur, isBottomInput = false }: TodoInputProps) {
+export function TodoInput({
+  onAddTodo,
+  isFocused,
+  onFocus,
+  onBlur,
+  isBottomInput = false,
+}: TodoInputProps) {
   const [inputText, setInputText] = useState('');
   const [isEscPressed, setIsEscPressed] = useState(false);
   const [isComposing, setIsComposing] = useState(false); // IME 조합 상태
@@ -47,7 +53,7 @@ export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur, isBottomInput
     if (isComposing && e.key === 'Enter') {
       return;
     }
-    
+
     if (e.key === 'Enter') {
       e.preventDefault();
       if (isBottomInput) {
@@ -104,8 +110,8 @@ export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur, isBottomInput
           }
         }
       }}
-      className={`group relative flex h-9 cursor-text items-center gap-1.5 rounded-lg px-1.5 py-1 transition-colors hover:bg-purple-50 ${
-        isFocused ? 'bg-white border border-purple-400' : ''
+      className={`group relative flex h-9 cursor-text items-center gap-1.5 rounded-lg px-1.5 py-1 transition-colors ${
+        isFocused ? 'border border-purple-400 bg-white' : ''
       }`}
     >
       {/* 보라색 원형 체크박스 */}
@@ -142,9 +148,13 @@ export function TodoInput({ onAddTodo, isFocused, onFocus, onBlur, isBottomInput
               const newValue = inputText.slice(0, start) + text + inputText.slice(end);
               setInputText(newValue);
             }}
-            className="h-6 w-full resize-none border-none bg-transparent px-2 py-1.5 text-sm leading-tight text-[#222222] outline-none"
+            className="todo-input-textarea h-6 w-full resize-none overflow-hidden border-none bg-transparent px-2 py-1.5 text-sm leading-tight text-[#222222] outline-none"
             placeholder="투두를 입력하세요..."
             rows={1}
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
           />
         ) : (
           <div className="flex h-6 items-center px-2 py-1.5 text-sm leading-tight text-gray-400">

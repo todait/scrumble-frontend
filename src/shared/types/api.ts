@@ -172,6 +172,7 @@ export interface GetPostsApiResponse {
     images: ApiImage[];
     comments: ApiComment[];
     reactions?: ApiReaction[];
+    todo_count?: number;
   }>;
   nextCursor?: string;
   hasMore: boolean;

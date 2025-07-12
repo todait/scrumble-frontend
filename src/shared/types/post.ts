@@ -47,6 +47,7 @@ export interface Post {
   images: ImageMetadata[];
   comments: Comment[];
   reactions: Reaction[];
+  todoCount?: number; // 해당 날짜의 Todo 개수
 }
 
 /**

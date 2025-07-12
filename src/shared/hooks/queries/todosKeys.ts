@@ -23,9 +23,11 @@ export const todosKeys = {
   detail: (spaceSlug: string, todoId: string) => 
     [...todosKeys.details(spaceSlug), todoId] as const,
   
-  // 날짜별 Todo 키
-  byDate: (spaceSlug: string, date: string) =>
-    [...todosKeys.bySpace(spaceSlug), 'date', date] as const,
+  // 날짜별 Todo 키 (userId 옵션 추가)
+  byDate: (spaceSlug: string, date: string, userId?: string) =>
+    userId 
+      ? [...todosKeys.bySpace(spaceSlug), 'date', date, 'user', userId] as const
+      : [...todosKeys.bySpace(spaceSlug), 'date', date] as const,
 };
 
 // 선택적 무효화 헬퍼 함수들
@@ -71,9 +73,9 @@ export const todoInvalidateHelpers = {
   },
   
   // 날짜별 Todo 캐시 무효화
-  invalidateDateTodos: (queryClient: QueryClient, spaceSlug: string, date: string) => {
+  invalidateDateTodos: (queryClient: QueryClient, spaceSlug: string, date: string, userId?: string) => {
     queryClient.invalidateQueries({
-      queryKey: todosKeys.byDate(spaceSlug, date),
+      queryKey: todosKeys.byDate(spaceSlug, date, userId),
     });
   },
   

@@ -117,6 +117,9 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
       [addTodoFromInput]
     );
 
+    // 마지막 TodoItem의 id 계산
+    const lastTodoId = sortedTodos.length > 0 ? sortedTodos[sortedTodos.length - 1].id : null;
+
     return (
       <div className="space-y-1">
 
@@ -157,8 +160,8 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
           </div>
         ))}
 
-        {/* 하단 고정 TodoInput (항상 표시) */}
-        {mode === 'edit' && (
+        {/* 하단 고정 TodoInput (마지막 TodoItem 바로 다음에 삽입하는 경우가 아닐 때만 표시) */}
+        {mode === 'edit' && (insertAfterId === null || insertAfterId !== lastTodoId) && (
           <TodoInput
             onAddTodo={handleInputAddTodo}
             isFocused={insertAfterId === null && isInputFocused}

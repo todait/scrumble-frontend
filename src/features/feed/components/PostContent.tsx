@@ -47,7 +47,7 @@ export function PostContent({
   const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isTodoCollapsed, setIsTodoCollapsed] = useState(true);
+  const [isTodoCollapsed, setIsTodoCollapsed] = useState(!isDetailView);
   const { user } = useAuth();
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
@@ -64,10 +64,11 @@ export function PostContent({
   const imageUrls = post.images?.map(image => image.url);
 
   // Todo 리스트용 hook (lazy loading)
-  const { todos, handleToggleComplete, handleUpdateTodos } = usePostTodos({
+  const { todos, isLoading: isTodosLoading, handleToggleComplete, handleUpdateTodos } = usePostTodos({
     spaceSlug,
     postDate: new Date(post.createdAt),
-    enabled: !isTodoCollapsed, // Collapse가 열릴 때만 로딩
+    userId: post.author.id, // 포스트 작성자의 Todo 조회
+    enabled: !isTodoCollapsed || isDetailView, // Collapse가 열릴 때 또는 상세보기에서 로딩
   });
 
   const handleEdit = () => {
@@ -327,30 +328,62 @@ export function PostContent({
           )}
 
           {/* Todo 리스트 섹션 */}
-          {todos && todos.length > 0 && (
-            <CollapseSection
-              title=""
-              isCollapsed={isTodoCollapsed}
-              onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
-              className="mt-3"
-              headerContent={
+          {(post.todoCount !== undefined || todos) && (() => {
+            const hasTodos = todos && todos.length > 0;
+            const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : 0;
+            const totalCount = hasTodos ? todos.length : (post.todoCount || 0);
+            const completionRate = hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            
+            // 헤더 컨텐츠 결정
+            let headerContent;
+            if (!todos || isTodosLoading) {
+              // Todo 로드 전 또는 로딩 중
+              headerContent = (
                 <div className="text-xs font-bold">
-                  <span className="text-[#222222] text-opacity-60">오늘의 투두</span>
-                  <span className="text-[#222222]"> • {todos.length}개 목표</span>
+                  <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
+                  <span className="text-[#222222]">{post.todoCount || 0}개</span>
                 </div>
-              }
-            >
-              <TodoContainer
-                mode="postContent"
-                yesterdayTodos={[]}
-                todayTodos={todos}
-                isEditable={isMyPost}
-                onUpdateTodayTodos={handleUpdateTodos}
-                onToggleComplete={todoId => handleToggleComplete(todoId)}
-                forceEditMode={false}
-              />
-            </CollapseSection>
-          )}
+              );
+            } else {
+              // Todo 로드 완료
+              headerContent = (
+                <div className="text-xs font-bold">
+                  <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
+                  <span className="text-[#222222]">{completionRate}% 달성 ({completedCount}/{totalCount})</span>
+                </div>
+              );
+            }
+            
+            return (
+              <CollapseSection
+                title=""
+                isCollapsed={isTodoCollapsed}
+                onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
+                className="mt-3"
+                headerContent={headerContent}
+              >
+                {isTodosLoading ? (
+                  <div className="flex justify-center py-4">
+                    <div className="text-sm text-gray-500">투두를 불러오는 중...</div>
+                  </div>
+                ) : hasTodos ? (
+                  <TodoContainer
+                    mode="postContent"
+                    yesterdayTodos={[]}
+                    todayTodos={todos}
+                    isEditable={isMyPost}
+                    onUpdateTodayTodos={handleUpdateTodos}
+                    onToggleComplete={todoId => handleToggleComplete(todoId)}
+                    forceEditMode={false}
+                  />
+                ) : (
+                  <div className="py-4 text-center text-sm text-gray-500">
+                    투두가 없습니다
+                  </div>
+                )}
+              </CollapseSection>
+            );
+          })()}
 
           {/* 리액션 및 댓글 섹션 */}
           <div className="flex flex-col gap-[10px] py-2">
