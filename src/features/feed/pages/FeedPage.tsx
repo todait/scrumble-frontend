@@ -97,6 +97,9 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
+    // 스크롤을 맨 위로 초기화
+    scrollContainerRef.current?.scrollTo(0, 0);
+    
     // 미래 날짜인지 확인
     const today = new Date();
     today.setHours(0, 0, 0, 0);

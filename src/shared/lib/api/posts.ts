@@ -64,6 +64,7 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     images: apiPost.images || [],
     comments: apiPost.comments ? apiPost.comments.map(convertApiCommentToComment) : [],
     reactions: convertApiReactionsToReactions(apiPost.reactions),
+    todoCount: apiPost.todo_count,
   };
 };
 
