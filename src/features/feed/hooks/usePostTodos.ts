@@ -6,16 +6,18 @@ import type { Todo } from '@/features/todo';
 interface UsePostTodosProps {
   spaceSlug: string;
   postDate: Date;
+  userId?: string; // 포스트 작성자의 ID
   enabled: boolean;
 }
 
-export function usePostTodos({ spaceSlug, postDate, enabled }: UsePostTodosProps) {
+export function usePostTodos({ spaceSlug, postDate, userId, enabled }: UsePostTodosProps) {
   const dateString = formatDateToAPIString(postDate);
 
   // Lazy loading: Collapse가 열릴 때만 쿼리 실행
   const { data, isLoading } = useTodos({
     spaceSlug,
     date: dateString,
+    userId, // 특정 사용자의 Todo 조회
     enabled,
   });
 

@@ -150,6 +150,11 @@ export const todosApi = {
   getTodos: async (request: GetTodosRequest): Promise<GetTodosResponse> => {
     const queryParams = new URLSearchParams();
     queryParams.append('date', request.date);
+    
+    // userId가 있으면 쿼리 파라미터에 추가
+    if (request.userId) {
+      queryParams.append('userId', request.userId);
+    }
 
     const { data } = await apiClient.get<GetTodosApiResponse>(
       `/api/v1/spaces/${request.spaceSlug}/todos?${queryParams.toString()}`

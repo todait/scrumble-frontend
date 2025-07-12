@@ -113,6 +113,7 @@ X-Timezone: Asia/Seoul
 **쿼리 파라미터**:
 
 - `date` (string, required): 날짜 (YYYY-MM-DD 형식) 예: `2024-01-15`
+- `userId` (string, optional): 조회할 사용자 ID (UUID 형식). 예: `123e4567-e89b-12d3-a456-426614174000`. 미제공 시 현재 사용자의 Todo 조회
 
 **헤더**:
 
@@ -593,7 +594,23 @@ Headers:
 }
 ```
 
-### 시나리오 5: 다중 타임존 환경에서의 사용법
+### 시나리오 5: 특정 사용자의 Todo 조회
+
+```bash
+# 다른 사용자의 Todo 목록 조회 (권한이 있는 경우)
+GET /api/v1/spaces/my-team/todos?date=2024-03-05&userId=456e7890-e89b-12d3-a456-426614174001
+Headers:
+  Authorization: Bearer {token}
+  X-Timezone: Asia/Seoul
+
+# 본인의 Todo 목록 조회 (userId 파라미터 생략)
+GET /api/v1/spaces/my-team/todos?date=2024-03-05
+Headers:
+  Authorization: Bearer {token}
+  X-Timezone: Asia/Seoul
+```
+
+### 시나리오 6: 다중 타임존 환경에서의 사용법
 
 ```bash
 # 뉴욕 사용자가 같은 날짜로 할 일 생성
@@ -652,6 +669,12 @@ Headers:
 ---
 
 ## 변경 이력
+
+### v2.1.2 (2025-01-12)
+
+- ✨ **날짜별 Todo 조회 API 개선**: `GET /api/v1/spaces/{spaceSlug}/todos`에 `userId` 쿼리 파라미터 추가
+- 🔧 **다른 사용자 Todo 조회 가능**: userId 파라미터로 특정 사용자의 Todo 조회 가능 (권한 검증 유지)
+- 📝 **문서 업데이트**: API 스펙 및 시나리오 예제 추가
 
 ### v2.1.1 (2025-01-11)
 

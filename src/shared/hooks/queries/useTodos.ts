@@ -24,6 +24,7 @@ import { todoInvalidateHelpers, todosKeys } from './todosKeys';
 interface UseTodosOptions {
   spaceSlug: string;
   date: string; // YYYY-MM-DD 형식
+  userId?: string; // 특정 사용자의 Todo 조회
   enabled?: boolean;
 }
 
@@ -33,15 +34,16 @@ interface UseTodosOptions {
  * @returns React Query 결과
  */
 export const useTodos = (options: UseTodosOptions) => {
-  const { spaceSlug, date, enabled = true } = options;
+  const { spaceSlug, date, userId, enabled = true } = options;
 
   const queryParams: GetTodosRequest = {
     spaceSlug,
     date,
+    userId,
   };
 
   return useQuery<GetTodosResponse, Error>({
-    queryKey: todosKeys.byDate(spaceSlug, date),
+    queryKey: todosKeys.byDate(spaceSlug, date, userId),
     queryFn: () => todosApi.getTodos(queryParams),
     enabled: enabled && !!spaceSlug && !!date,
     retry: authRetry,

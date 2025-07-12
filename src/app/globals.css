@@ -296,3 +296,8 @@ div.rdp td.rdp-day_selected button.rdp-button:hover {
 div.rdp td.rdp-day_selected button.rdp-button:hover {
   background-color: #9f7aea !important;
 }
+
+/* TodoInput textarea 스크롤바 숨기기 */
+.todo-input-textarea::-webkit-scrollbar {
+  display: none;
+}

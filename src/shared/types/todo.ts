@@ -48,6 +48,7 @@ export interface CreateTodosRequest {
 export interface GetTodosRequest {
   spaceSlug: string;
   date: string; // YYYY-MM-DD 형식
+  userId?: string; // 특정 사용자의 Todo 조회 (선택사항)
 }
 
 /**

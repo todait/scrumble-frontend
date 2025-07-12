@@ -36,6 +36,7 @@ export interface BasePost {
   commentCount: number;
   lastCommentTime?: Date;
   images?: ImageMetadata[];
+  todoCount?: number;
 }
 
 export interface CheckinPost extends BasePost {
