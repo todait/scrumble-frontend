@@ -25,14 +25,11 @@ export function getTodoItemClasses({
     /* ✅ 선택/포커스 하이라이트 */
     (isSelected || isFocused) && 'bg-purple-50',
 
-    /* ✅ 뷰 모드에서도 hover 하이라이트 유지 */
-    mode === 'view' && 'hover:bg-purple-50',
-
     /* ✅ 편집 모드: 편집 "중"인 행만 보라색 테두리 */
     mode === 'edit' && isEditable && isEditing && 'border border-purple-400',
 
-    /* ✅ 편집 모드의 나머지 행은 cursor 표시 + 기존 hover 효과만 */
-    mode === 'edit' && isEditable && !isEditing && 'cursor-text hover:bg-purple-50',
+    /* ✅ 편집 모드의 나머지 행은 cursor 표시 */
+    mode === 'edit' && isEditable && !isEditing && 'cursor-text',
 
     /* ✅ 선택 가능한 항목은 pointer 커서 */
     onToggleSelect && !isSelectDisabled && 'cursor-pointer',
@@ -53,13 +50,13 @@ export function getSelectButtonClasses(isSelectDisabled: boolean, isSelected?: b
     isSelectDisabled && !isSelected
       ? 'cursor-not-allowed border-gray-200 bg-gray-100'
       : isSelectDisabled && isSelected
-      ? 'cursor-not-allowed'
-      : 'border-gray-300 hover:border-purple-400'
+        ? 'cursor-not-allowed'
+        : 'border-gray-300 hover:border-purple-400'
   }`;
 }
 
 export function getTextClasses(isCompleted: boolean): string {
-  return `flex h-6 items-center px-2 py-1.5 text-sm leading-tight overflow-hidden ${
+  return `flex h-6 items-center px-2 py-1.5 text-sm leading-tight overflow-hidden group-hover:text-[#9747FF] transition-colors ${
     isCompleted ? 'text-[#222222] line-through opacity-60' : 'text-[#222222]'
   }`;
 }
