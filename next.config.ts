@@ -55,6 +55,27 @@ const nextConfig: NextConfig = {
     // 폰트 로딩 최적화
     optimizePackageImports: ['next/font/google', '@emoji-mart/react', 'lucide-react', '@remixicon/react'],
   },
+
+  // Webpack 설정
+  webpack: (config, { isServer }) => {
+    // HEIC 변환 라이브러리들이 Node.js 환경에서 실행되지 않도록 설정
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+      };
+    }
+
+    // libheif-js 관련 경고 억제
+    config.module = {
+      ...config.module,
+      exprContextCritical: false,
+    };
+
+    return config;
+  },
 };
 
 const pwaConfig = withPWA({

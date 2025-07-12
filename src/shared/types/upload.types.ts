@@ -17,6 +17,7 @@ export interface UploadingImage {
   progress: number;
   error?: string;
   metadata?: ImageMetadata;
+  isConverting?: boolean; // HEIC 변환 중 상태
 }
 
 export interface PresignedUrlResponse {
