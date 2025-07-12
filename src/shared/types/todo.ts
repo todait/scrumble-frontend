@@ -85,6 +85,31 @@ export interface DeleteTodoRequest {
 }
 
 /**
+ * Todo 일괄 업데이트 요청 타입 (프론트엔드)
+ * 여러 Todo를 한 번에 생성/수정/삭제할 때 사용
+ */
+export interface BulkUpdateTodosRequest {
+  spaceSlug: string;
+  scheduledDate: string; // YYYY-MM-DD 형식 (필수)
+  todos: BulkUpdateTodoItem[];
+}
+
+/**
+ * Todo 일괄 업데이트 아이템 타입 (프론트엔드)
+ * 일괄 업데이트 시 각 Todo 아이템에 사용
+ */
+export interface BulkUpdateTodoItem {
+  id?: string; // UUID, 없으면 새로 생성
+  name?: string;
+  description?: string;
+  scheduledDate?: string; // YYYY-MM-DD 형식
+  order?: number;
+  thirdpartyUrl?: string;
+  parentId?: string; // UUID
+  originTodoIdIsNil?: boolean; // true 시 originTodoId를 null로 설정
+}
+
+/**
  * Todo 생성 응답 타입 (프론트엔드)
  * Todo 생성 성공 시 반환
  */
@@ -121,3 +146,22 @@ export interface ToggleTodoResponse {
  * Todo 삭제 성공 시 반환 (204 No Content)
  */
 export type DeleteTodoResponse = void;
+
+/**
+ * Todo 일괄 업데이트 응답 타입 (프론트엔드)
+ * 일괄 업데이트 성공 시 반환
+ */
+export interface BulkUpdateTodosResponse {
+  message: string;
+  result: BulkUpdateResult;
+}
+
+/**
+ * Todo 일괄 업데이트 결과 타입 (프론트엔드)
+ * 일괄 업데이트 성공 시 반환되는 결과
+ */
+export interface BulkUpdateResult {
+  created: number; // 생성된 할 일 개수
+  updated: number; // 수정된 할 일 개수
+  deleted: number; // 삭제된 할 일 개수
+}

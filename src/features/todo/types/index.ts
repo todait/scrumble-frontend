@@ -2,13 +2,25 @@ export interface Todo {
   /** 고유 식별자 */
   id: string;
   /** 투두 내용 */
-  text: string;
-  /** 완료 시간 (완료되지 않았으면 null) */
-  completedAt: Date | null;
-  /** 투두 생성 날짜 */
-  date: Date;
+  name: string; // text → name으로 변경
+  /** 투두 설명 */
+  description?: string;
+  /** 예정 날짜 */
+  scheduledDate: string; // date → scheduledDate로 변경
   /** 표시 순서를 위한 숫자값 */
   order: number;
+  /** 외부 서비스 URL */
+  thirdpartyUrl?: string;
+  /** 부모 Todo ID */
+  parentId?: string;
+  /** 원본 Todo ID (복사된 경우) */
+  originTodoId?: string;
+  /** 계층 깊이 */
+  depth: number;
+  /** 완료 시간 (ISO 8601 형식) */
+  completedAt?: string; // null 대신 undefined 사용
+  /** 하위 Todo 목록 */
+  children: Todo[]; // 현재는 빈 배열로 유지
 }
 
 export interface TodoListProps {
@@ -30,6 +42,12 @@ export interface TodoListProps {
   disabledIds?: Set<string>;
   /** 어제에서 가져온 Todo ID 목록 */
   broughtFromYesterdayIds?: Set<string>;
+  /** 가져오기 버튼 표시 여부 */
+  showBringButton?: boolean;
+  /** 가져오기 콜백 */
+  onBringToToday?: (selectedTodos: Todo[]) => void;
+  /** 표시 모드 (체크박스 또는 bullet) */
+  displayMode?: 'checkbox' | 'bullet';
 }
 
 export interface TodoItemProps {
@@ -67,38 +85,28 @@ export interface TodoItemProps {
   isSelectDisabled?: boolean;
   /** 가져온 투두인지 여부 */
   isBroughtFromYesterday?: boolean;
+  /** 표시 모드 (체크박스 또는 bullet) */
+  displayMode?: 'checkbox' | 'bullet';
 }
 
-export interface CollapseTodoListSectionProps {
+export interface CollapseSectionProps {
   /** 섹션 제목 */
   title: string;
-  /** Todo 배열 */
-  todos: Todo[];
   /** 접힘 상태 */
   isCollapsed: boolean;
   /** 접힘 상태 변경 콜백 */
   onToggleCollapse: () => void;
-  /** 수정 가능 여부 */
-  isEditable: boolean;
-  /** 보기 또는 수정 모드 */
-  mode: 'view' | 'edit';
-  /** 선택된 투두 ID 배열 */
-  selectedIds?: string[];
-  /** 선택 변경 콜백 */
-  onSelectionChange?: (selectedIds: string[]) => void;
-  /** 완료 토글 콜백 */
-  onToggleComplete: (todoId: string) => void;
-  /** todos 업데이트 콜백 */
-  onUpdate?: (todos: Todo[]) => void;
-  /** 가져오기 버튼 표시 여부 */
-  showBringButton?: boolean;
-  /** 가져오기 콜백 */
-  onBringToToday?: (selectedTodos: Todo[]) => void;
-  /** 이미 가져온 Todo ID 목록 */
-  broughtTodoIds?: Set<string>;
+  /** 자식 컴포넌트 */
+  children: React.ReactNode;
+  /** 커스텀 헤더 콘텐츠 (선택적) */
+  headerContent?: React.ReactNode;
+  /** 섹션 클래스명 (선택적) */
+  className?: string;
 }
 
 export interface TodoContainerProps {
+  /** 컨테이너 모드 */
+  mode?: 'checkIn' | 'checkOut' | 'postContent';
   /** 어제 투두 목록 */
   yesterdayTodos: Todo[];
   /** 오늘 투두 목록 */
@@ -123,6 +131,10 @@ export interface TodoContainerProps {
   customButtonIcon?: React.ReactNode;
   /** 오늘의 투두 없음 버튼 숨기기 */
   hideNoTodosButton?: boolean;
+  /** 초기 가져온 Todo ID 목록 */
+  initialBroughtTodoIds?: Set<string>;
+  /** 초기 Todo ID 매핑 (새 ID -> 원본 ID) */
+  initialTodoIdMapping?: Map<string, string>;
 }
 
 export type TodoMode = 'view' | 'edit';

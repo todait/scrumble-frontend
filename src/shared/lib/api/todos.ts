@@ -7,12 +7,16 @@ import type {
   ApiCreateTodoRequest,
   ApiTodo,
   ApiUpdateTodoRequest,
+  ApiBulkUpdateTodosRequest,
+  BulkUpdateTodosApiResponse,
   CreateTodosApiResponse,
   GetTodosApiResponse,
   ToggleTodoApiResponse,
   UpdateTodoApiResponse,
 } from '@/shared/types/api';
 import type {
+  BulkUpdateTodosRequest,
+  BulkUpdateTodosResponse,
   CreateTodosRequest,
   CreateTodosResponse,
   DeleteTodoRequest,
@@ -25,6 +29,7 @@ import type {
   UpdateTodoRequest,
   UpdateTodoResponse,
 } from '@/shared/types/todo';
+import { debug } from '@/shared/utils/debug';
 import { apiClient } from '../api';
 
 /**
@@ -70,7 +75,9 @@ const convertCreateTodoRequestToApi = (request: CreateTodosRequest): ApiCreateTo
  * 프론트엔드 Todo 수정 요청을 백엔드 API 요청으로 변환하는 함수
  * camelCase에서 snake_case로 변환
  */
-const convertUpdateTodoRequestToApi = (request: Omit<UpdateTodoRequest, 'spaceSlug' | 'todoId'>): ApiUpdateTodoRequest => {
+const convertUpdateTodoRequestToApi = (
+  request: Omit<UpdateTodoRequest, 'spaceSlug' | 'todoId'>
+): ApiUpdateTodoRequest => {
   return {
     name: request.name,
     description: request.description,
@@ -79,6 +86,28 @@ const convertUpdateTodoRequestToApi = (request: Omit<UpdateTodoRequest, 'spaceSl
     thirdparty_url: request.thirdpartyUrl,
     parent_id: request.parentId,
     origin_todo_id_is_nil: request.originTodoIdIsNil,
+  };
+};
+
+/**
+ * 프론트엔드 Todo 일괄 업데이트 요청을 백엔드 API 요청으로 변환하는 함수
+ * camelCase에서 snake_case로 변환
+ */
+const convertBulkUpdateTodoRequestToApi = (
+  request: Omit<BulkUpdateTodosRequest, 'spaceSlug'>
+): ApiBulkUpdateTodosRequest => {
+  return {
+    scheduled_date: request.scheduledDate,
+    todos: request.todos.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      scheduled_date: item.scheduledDate,
+      order: item.order,
+      thirdparty_url: item.thirdpartyUrl,
+      parent_id: item.parentId,
+      origin_todo_id_is_nil: item.originTodoIdIsNil,
+    })),
   };
 };
 
@@ -92,8 +121,17 @@ export const todosApi = {
    * @returns 성공 메시지
    */
   createTodos: async (request: CreateTodosRequest): Promise<CreateTodosResponse> => {
+    request.todos.forEach(todo => {
+      debug('createTodos', String(todo.name));
+      debug('createTodos', String(todo.description));
+      debug('createTodos', String(todo.scheduledDate));
+      debug('createTodos', String(todo.originTodoId));
+      debug('createTodos', String(todo.thirdpartyUrl));
+      debug('createTodos', String(todo.children.length));
+    });
+
     const apiRequest = convertCreateTodoRequestToApi(request);
-    
+
     const { data } = await apiClient.post<CreateTodosApiResponse>(
       `/api/v1/spaces/${request.spaceSlug}/todos`,
       apiRequest
@@ -129,7 +167,7 @@ export const todosApi = {
    */
   updateTodo: async (request: UpdateTodoRequest): Promise<UpdateTodoResponse> => {
     const apiRequest = convertUpdateTodoRequestToApi(request);
-    
+
     const { data } = await apiClient.patch<UpdateTodoApiResponse>(
       `/api/v1/spaces/${request.spaceSlug}/todos/${request.todoId}`,
       apiRequest
@@ -161,8 +199,25 @@ export const todosApi = {
    * @returns 빈 응답 (204 No Content)
    */
   deleteTodo: async (request: DeleteTodoRequest): Promise<DeleteTodoResponse> => {
-    await apiClient.delete(
-      `/api/v1/spaces/${request.spaceSlug}/todos/${request.todoId}`
+    await apiClient.delete(`/api/v1/spaces/${request.spaceSlug}/todos/${request.todoId}`);
+  },
+
+  /**
+   * 할 일 일괄 업데이트
+   * @param request 할 일 일괄 업데이트 요청
+   * @returns 일괄 업데이트 결과
+   */
+  bulkUpdateTodos: async (request: BulkUpdateTodosRequest): Promise<BulkUpdateTodosResponse> => {
+    const apiRequest = convertBulkUpdateTodoRequestToApi(request);
+
+    const { data } = await apiClient.post<BulkUpdateTodosApiResponse>(
+      `/api/v1/spaces/${request.spaceSlug}/todos`,
+      apiRequest
     );
+
+    return {
+      message: data.message,
+      result: data.result,
+    };
   },
 };

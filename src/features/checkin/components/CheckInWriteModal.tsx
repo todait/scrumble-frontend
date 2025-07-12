@@ -3,6 +3,7 @@
 
 import type { Todo } from '@/features/todo';
 import { TodoContainer, TodoContainerRef } from '@/features/todo';
+import { convertTodoDraftToTodo } from '@/features/todo/utils/todoConverters';
 import { useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
 import { useDateStore } from '@/shared/stores/useDateStore';
@@ -11,12 +12,14 @@ import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { CheckInForm } from './forms';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { useCheckInForm } from '../hooks/useCheckInForm';
-import { CheckInModalLayout } from './layout';
+import { useCheckInTodos } from '../hooks/useCheckInTodos';
 import { useCheckInModalStore } from '../stores/useCheckInModalStore';
+import type { TodoDraft } from '../stores/useCheckInTodoStore';
 import { useCheckInTodoStore } from '../stores/useCheckInTodoStore';
+import { CheckInForm } from './forms';
+import { CheckInModalLayout } from './layout';
 import { PagerDots } from './PagerDots';
 
 interface CheckInWriteModalProps {
@@ -33,37 +36,35 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { error, info } = useToast();
   const todoContainerRef = useRef<TodoContainerRef>(null);
-  
+
+  // Todo 데이터 관리용 Map (origin_todo_id 추적)
+  const [todosWithOrigin, setTodosWithOrigin] = useState<Map<string, Todo>>(new Map());
+
   // 2-step 관리를 위한 스토어
   const { step, postId, setStep, setPostId, reset: resetModalStore } = useCheckInModalStore();
-  const { 
-    yesterdayTodos, 
-    todayTodos, 
-    setYesterdayTodos, 
+  const {
+    yesterdayTodos,
+    todayTodos,
+    setYesterdayTodos,
     setTodayTodos,
-    reset: resetTodoStore 
+    reset: resetTodoStore,
   } = useCheckInTodoStore();
 
   // postId가 있으면 edit 모드, 없으면 create 모드
   const mode = postId && step === 'note' ? 'edit' : 'create';
-  
+
   // 체크인 폼 훅 사용
-  const {
-    values,
-    setValue,
-    save,
-    isLoading
-  } = useCheckInForm({
+  const { values, setValue, save, isLoading } = useCheckInForm({
     mode,
     spaceSlug,
     postId,
-    onSuccess: (newPostId) => {
+    onSuccess: newPostId => {
       if (step === 'note') {
         setPostId(newPostId);
         setStep('todo');
       }
     },
-    onError: (err) => {
+    onError: err => {
       if (isErrorCode(err, ErrorCode.CHECKIN_ALREADY_EXISTS)) {
         router.replace(`/${spaceSlug}/feed`);
       } else {
@@ -73,7 +74,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         });
       }
       setIsProcessing(false);
-    }
+    },
   });
 
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
@@ -93,56 +94,11 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     }
   }, [isOpen, resetModalStore, resetTodoStore]);
 
-  // 초기 Todo 데이터 설정 (임시)
-  useEffect(() => {
-    if (isOpen && yesterdayTodos.length === 0) {
-      setYesterdayTodos([
-        {
-          id: 'y1',
-          text: '피드 리스트 API 연동',
-          completed: true,
-        },
-        {
-          id: 'y2',
-          text: '[투두] 체크인 : 투두 입력 흐름 전체 병합 (전일투두 + 오늘투두)',
-          completed: true,
-        },
-        {
-          id: 'y3',
-          text: '피드 리스트 백엔드 API',
-          completed: false,
-        },
-        {
-          id: 'y4',
-          text: 'George 전달용 개발 문서 작성',
-          completed: false,
-        },
-        {
-          id: 'y5',
-          text: '[투두] 체크인 : 전일 투두 가져오기 흐름',
-          completed: false,
-        },
-      ]);
-      
-      setTodayTodos([
-        {
-          id: 't1',
-          text: '1차 내부용 버전 배포 목표 명세 ( 내부 베타용 최소 릴리즈 버전 )',
-          completed: false,
-        },
-        {
-          id: 't2',
-          text: '팀 피드 디자인',
-          completed: true,
-        },
-        {
-          id: 't3',
-          text: '텍스트 생성 UX 개선 (tiptap 적용)',
-          completed: true,
-        },
-      ]);
-    }
-  }, [isOpen, yesterdayTodos.length, setYesterdayTodos, setTodayTodos]);
+  // hooks 추가
+  const { isLoadingYesterday, isLoadingToday, saveTodos, isSaving } = useCheckInTodos(
+    spaceSlug,
+    'new'
+  );
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -168,15 +124,19 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, onClose]);
 
-  const handleSubmit = async (data: { score: number; message: string; images: ImageMetadata[] }) => {
+  const handleSubmit = async (data: {
+    score: number;
+    message: string;
+    images: ImageMetadata[];
+  }) => {
     setIsProcessing(true);
-    
+
     try {
       // 값을 스토어에 저장하면서 동시에 save 함수에 전달
       setValue('score', data.score);
       setValue('message', data.message);
       setValue('images', data.images);
-      
+
       await save(
         {
           score: data.score,
@@ -185,7 +145,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         },
         formatDateToAPIString(selectedDate)
       );
-      
+
       // create 모드에서는 onSuccess 콜백에서 step을 'todo'로 변경
       // edit 모드에서는 처리 완료
       setIsProcessing(false);
@@ -209,11 +169,10 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   const handleTodoComplete = async () => {
     setIsProcessing(true);
-    
+
     try {
-      // TODO: Todo 저장 로직 구현 (현재는 임시 데이터로 관리)
-      // 실제 API 연동 시 여기서 Todo 저장 API 호출
-      
+      await saveTodos(todosWithOrigin);
+
       // 체크인이 제대로 생성되었는지 확인 후 피드로 이동
       let success = false;
       for (let i = 0; i < 5; i++) {
@@ -224,7 +183,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         }
         await new Promise(res => setTimeout(res, 200));
       }
-      
+
       if (success) {
         router.replace(`/${spaceSlug}/feed`);
       } else {
@@ -247,8 +206,9 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const handleUpdateYesterdayTodos = (updatedTodos: Todo[]) => {
     const todoDrafts = updatedTodos.map(todo => ({
       id: todo.id,
-      text: todo.text,
+      text: todo.name,
       completed: !!todo.completedAt,
+      originTodoId: todo.originTodoId, // originTodoId 추가
     }));
     setYesterdayTodos(todoDrafts);
   };
@@ -256,10 +216,18 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const handleUpdateTodayTodos = (updatedTodos: Todo[]) => {
     const todoDrafts = updatedTodos.map(todo => ({
       id: todo.id,
-      text: todo.text,
+      text: todo.name,
       completed: !!todo.completedAt,
+      originTodoId: todo.originTodoId, // originTodoId 추가
     }));
     setTodayTodos(todoDrafts);
+
+    // todosWithOrigin Map 업데이트
+    const newTodosWithOrigin = new Map<string, Todo>();
+    updatedTodos.forEach(todo => {
+      newTodosWithOrigin.set(todo.id, todo);
+    });
+    setTodosWithOrigin(newTodosWithOrigin);
   };
 
   const handleToggleComplete = (todoId: string, isYesterday: boolean) => {
@@ -276,23 +244,64 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     }
   };
 
-  // TodoDraft를 Todo로 변환
-  const convertToTodos = (drafts: typeof yesterdayTodos, date: Date): Todo[] => {
-    return drafts.map((draft, index) => ({
-      id: draft.id,
-      text: draft.text,
-      completedAt: draft.completed ? new Date() : null,
-      date,
-      order: (index + 1) * 10,
-    }));
+  // 새로운 함수 추가
+  const convertDraftsToTodos = (drafts: TodoDraft[]): Todo[] => {
+    return drafts.map((draft, index) =>
+      convertTodoDraftToTodo(
+        draft, 
+        formatDateToAPIString(selectedDate), 
+        (index + 1) * 10,
+        undefined, // parentId
+        draft.originTodoId // originTodoId 전달
+      )
+    );
   };
 
-  const yesterdayDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const todayDate = new Date();
+  // 초기 가져온 Todo ID와 매핑 계산
+  const calculateInitialBroughtData = useCallback((): { broughtIds: Set<string>; idMapping: Map<string, string> } => {
+    const broughtIds = new Set<string>();
+    const idMapping = new Map<string, string>();
+    const convertedTodayTodos = convertDraftsToTodos(todayTodos);
+    const convertedYesterdayTodos = convertDraftsToTodos(yesterdayTodos);
+
+    convertedTodayTodos.forEach(todayTodo => {
+      if (todayTodo.originTodoId) {
+        convertedYesterdayTodos.forEach(yesterdayTodo => {
+          // 오늘 투두의 originTodoId가 어제 투두의 id 또는 originTodoId와 일치하는지 확인
+          const matchById = todayTodo.originTodoId === yesterdayTodo.id;
+          const matchByOriginId = yesterdayTodo.originTodoId && todayTodo.originTodoId === yesterdayTodo.originTodoId;
+          
+          if (matchById || matchByOriginId) {
+            broughtIds.add(yesterdayTodo.id);
+            // 오늘 투두 ID -> 어제 투두 ID 매핑 추가
+            idMapping.set(todayTodo.id, yesterdayTodo.id);
+          }
+        });
+      } else {
+        // originTodoId가 없는 경우 이름으로 매칭 시도
+        const matchingYesterdayTodo = convertedYesterdayTodos.find(
+          yesterdayTodo => yesterdayTodo.name === todayTodo.name
+        );
+        
+        if (matchingYesterdayTodo) {
+          broughtIds.add(matchingYesterdayTodo.id);
+          // 오늘 투두 ID -> 어제 투두 ID 매핑 추가
+          idMapping.set(todayTodo.id, matchingYesterdayTodo.id);
+        }
+      }
+    });
+
+    return { broughtIds, idMapping };
+  }, [todayTodos, yesterdayTodos]);
+
+  // 초기 brought 데이터를 메모이제이션
+  const initialBroughtData = useMemo(() => {
+    return calculateInitialBroughtData();
+  }, [todayTodos, yesterdayTodos]);
 
   return (
-    <CheckInModalLayout 
-      isOpen={isOpen} 
+    <CheckInModalLayout
+      isOpen={isOpen}
       onClose={onClose}
       showBackButton={step === 'todo'}
       onBack={handleBack}
@@ -320,8 +329,8 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
             isLoading={isLoading || isProcessing}
             onScoreRequiredToast={handleScoreRequiredToast}
             initialData={
-              mode === 'edit' 
-                ? { score: values.score, message: values.message, images: values.images } 
+              mode === 'edit'
+                ? { score: values.score, message: values.message, images: values.images }
                 : undefined
             }
           />
@@ -343,18 +352,22 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
               어제의 흐름을 돌아보고, 오늘의 방향을 잡아보세요.
             </p>
           </div>
-          <div className="border-t border-black/8 px-5 py-6 md:px-7 md:py-8">
+          <div className="border-t border-black/8 px-5 py-3 md:px-7 md:py-4">
             <TodoContainer
               ref={todoContainerRef}
-              yesterdayTodos={convertToTodos(yesterdayTodos, yesterdayDate)}
-              todayTodos={convertToTodos(todayTodos, todayDate)}
+              mode="checkIn"
+              yesterdayTodos={convertDraftsToTodos(yesterdayTodos)}
+              todayTodos={convertDraftsToTodos(todayTodos)}
               isEditable={true}
               onUpdateYesterdayTodos={handleUpdateYesterdayTodos}
               onUpdateTodayTodos={handleUpdateTodayTodos}
               onToggleComplete={handleToggleComplete}
               forceEditMode={true}
               onSaveTodos={handleTodoComplete}
-              isProcessing={isProcessing}
+              isProcessing={isProcessing || isSaving || isLoadingYesterday || isLoadingToday}
+              hideNoTodosButton={todayTodos.length > 0}
+              initialBroughtTodoIds={initialBroughtData.broughtIds}
+              initialTodoIdMapping={initialBroughtData.idMapping}
             />
           </div>
         </>

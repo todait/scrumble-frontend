@@ -6,6 +6,7 @@ export interface TodoDraft {
   id: string;
   text: string;
   completed: boolean;
+  originTodoId?: string;
 }
 
 interface CheckInTodoState {

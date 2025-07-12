@@ -130,6 +130,13 @@ export enum ErrorCode {
   REFLECTION_TEXT_REQUIRED = 'REFLECTION_TEXT_REQUIRED',
   SPACE_ID_REQUIRED = 'SPACE_ID_REQUIRED',
   INVALID_DATE_RANGE = 'INVALID_DATE_RANGE',
+
+  // Todo errors
+  TODO_NAME_REQUIRED = 'TODO_NAME_REQUIRED',
+  TODO_NAME_TOO_LONG = 'TODO_NAME_TOO_LONG',
+  TODO_DESCRIPTION_TOO_LONG = 'TODO_DESCRIPTION_TOO_LONG',
+  TODO_DEPTH_EXCEEDED = 'TODO_DEPTH_EXCEEDED',
+  INVALID_TODO_URL = 'INVALID_TODO_URL',
 }
 
 /**
@@ -418,4 +425,47 @@ export interface ApiUpdateTodoRequest {
   thirdparty_url?: string;
   parent_id?: string;
   origin_todo_id_is_nil?: boolean;
+}
+
+/**
+ * Todo 일괄 업데이트 요청 타입 (백엔드로 전송하는 snake_case 형태)
+ * 여러 Todo를 한 번에 생성/수정/삭제할 때 사용
+ */
+export interface ApiBulkUpdateTodosRequest {
+  scheduled_date: string; // YYYY-MM-DD 형식 (필수)
+  todos: ApiBulkUpdateTodoItem[];
+}
+
+/**
+ * Todo 일괄 업데이트 아이템 타입 (재귀적 구조)
+ * 일괄 업데이트 시 각 Todo 아이템에 사용
+ */
+export interface ApiBulkUpdateTodoItem {
+  id?: string; // UUID, 없으면 새로 생성
+  name?: string;
+  description?: string;
+  scheduled_date?: string; // YYYY-MM-DD 형식
+  order?: number;
+  thirdparty_url?: string;
+  parent_id?: string; // UUID
+  origin_todo_id_is_nil?: boolean; // true 시 origin_todo_id를 null로 설정
+}
+
+/**
+ * Todo 일괄 업데이트 결과 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 일괄 업데이트 성공 시 반환되는 결과
+ */
+export interface ApiBulkUpdateResult {
+  created: number; // 생성된 할 일 개수
+  updated: number; // 수정된 할 일 개수
+  deleted: number; // 삭제된 할 일 개수
+}
+
+/**
+ * Todo 일괄 업데이트 API 응답 (백엔드)
+ * 일괄 업데이트 성공 시 반환
+ */
+export interface BulkUpdateTodosApiResponse {
+  message: string;
+  result: ApiBulkUpdateResult;
 }

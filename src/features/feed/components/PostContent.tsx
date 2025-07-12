@@ -2,6 +2,8 @@
 
 import { CheckInEditModal } from '@/features/checkin/components';
 import { CheckOutEditModal } from '@/features/checkout/components';
+import { CollapseSection, TodoContainer } from '@/features/todo';
+import { EmojiReactions } from '@/shared/components/emoji';
 import { SimpleToast } from '@/shared/components/feedback';
 import {
   DeleteConfirmDialog,
@@ -15,12 +17,12 @@ import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
-import { EmojiReactions } from '@/shared/components/emoji';
 import router from 'next/router';
 import { useState } from 'react';
+import { usePostTodos } from '../hooks/usePostTodos';
 import type { Post } from '../types/feed.types';
-import { CommentPreview } from './CommentPreview';
 import { getPostContent } from '../types/feed.types';
+import { CommentPreview } from './CommentPreview';
 
 interface PostContentProps {
   spaceSlug: string;
@@ -45,6 +47,7 @@ export function PostContent({
   const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isTodoCollapsed, setIsTodoCollapsed] = useState(true);
   const { user } = useAuth();
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
@@ -59,6 +62,13 @@ export function PostContent({
   });
   const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
   const imageUrls = post.images?.map(image => image.url);
+
+  // Todo 리스트용 hook (lazy loading)
+  const { todos, handleToggleComplete, handleUpdateTodos } = usePostTodos({
+    spaceSlug,
+    postDate: new Date(post.createdAt),
+    enabled: !isTodoCollapsed, // Collapse가 열릴 때만 로딩
+  });
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -317,6 +327,30 @@ export function PostContent({
           )}
 
           {/* Todo 리스트 섹션 */}
+          {todos && todos.length > 0 && (
+            <CollapseSection
+              title=""
+              isCollapsed={isTodoCollapsed}
+              onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
+              className="mt-3"
+              headerContent={
+                <div className="text-xs font-bold">
+                  <span className="text-[#222222] text-opacity-60">오늘의 투두</span>
+                  <span className="text-[#222222]"> • {todos.length}개 목표</span>
+                </div>
+              }
+            >
+              <TodoContainer
+                mode="postContent"
+                yesterdayTodos={[]}
+                todayTodos={todos}
+                isEditable={isMyPost}
+                onUpdateTodayTodos={handleUpdateTodos}
+                onToggleComplete={todoId => handleToggleComplete(todoId)}
+                forceEditMode={false}
+              />
+            </CollapseSection>
+          )}
 
           {/* 리액션 및 댓글 섹션 */}
           <div className="flex flex-col gap-[10px] py-2">
