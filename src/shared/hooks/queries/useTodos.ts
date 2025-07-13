@@ -1,5 +1,5 @@
-import { todosApi } from '@/shared/lib/api/todos';
 import { isTemporaryId } from '@/features/todo/utils/todoConverters';
+import { todosApi } from '@/shared/lib/api/todos';
 import { ErrorCode } from '@/shared/types/api';
 import type {
   BulkUpdateTodosRequest,
@@ -16,7 +16,7 @@ import type {
   UpdateTodoRequest,
   UpdateTodoResponse,
 } from '@/shared/types/todo';
-import { getErrorMessage, isErrorCode, formatDateToAPIString } from '@/shared/utils';
+import { formatDateToAPIString, getErrorMessage, isErrorCode } from '@/shared/utils';
 import { authRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -347,13 +347,9 @@ export const useBulkUpdateTodos = (spaceSlug: string) => {
  */
 export const useSaveTodos = (spaceSlug: string) => {
   const { mutate: bulkUpdateTodos, isPending: isSaving } = useBulkUpdateTodos(spaceSlug);
-  
+
   const saveTodos = useCallback(async (scheduledDate: string, todos: Todo[]): Promise<void> => {
-    // 빈 투두 배열이면 처리하지 않음
-    if (todos.length === 0) {
-      return Promise.resolve();
-    }
-    
+    // 빈 투두 배열도 API에 전송하여 삭제 처리가 가능하도록 함
     return new Promise<void>((resolve, reject) => {
       bulkUpdateTodos(
         {
@@ -377,7 +373,7 @@ export const useSaveTodos = (spaceSlug: string) => {
       );
     });
   }, [bulkUpdateTodos]);
-  
+
   return {
     saveTodos,
     isSaving,
