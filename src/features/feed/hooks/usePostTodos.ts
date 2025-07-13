@@ -47,7 +47,7 @@ export function usePostTodos({ spaceSlug, postDate, postId, userId, enabled }: U
       const todo = storeTodos.find(t => t.id === todoId);
       if (todo) {
         updateTodo(todoId, {
-          completedAt: todo.completedAt ? undefined : new Date().toISOString()
+          completedAt: todo.completedAt ? '' : new Date().toISOString()
         });
       }
     } else {

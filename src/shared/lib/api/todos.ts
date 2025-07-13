@@ -74,6 +74,7 @@ const convertCreateTodoRequestToApi = (request: CreateTodosRequest): ApiCreateTo
 /**
  * 프론트엔드 Todo 수정 요청을 백엔드 API 요청으로 변환하는 함수
  * camelCase에서 snake_case로 변환
+ * completed_at 필드: undefined일 때는 제외, null이나 빈 문자열은 그대로 전달
  */
 const convertUpdateTodoRequestToApi = (
   request: Omit<UpdateTodoRequest, 'spaceSlug' | 'todoId'>
@@ -86,12 +87,14 @@ const convertUpdateTodoRequestToApi = (
     thirdparty_url: request.thirdpartyUrl,
     parent_id: request.parentId,
     origin_todo_id_is_nil: request.originTodoIdIsNil,
+    ...(request.completedAt !== undefined && { completed_at: request.completedAt }),
   };
 };
 
 /**
  * 프론트엔드 Todo 일괄 업데이트 요청을 백엔드 API 요청으로 변환하는 함수
  * camelCase에서 snake_case로 변환
+ * completed_at 필드: undefined일 때는 제외, null이나 빈 문자열은 그대로 전달
  */
 const convertBulkUpdateTodoRequestToApi = (
   request: Omit<BulkUpdateTodosRequest, 'spaceSlug'>
@@ -107,6 +110,7 @@ const convertBulkUpdateTodoRequestToApi = (
       thirdparty_url: item.thirdpartyUrl,
       parent_id: item.parentId,
       origin_todo_id_is_nil: item.originTodoIdIsNil,
+      ...(item.completedAt !== undefined && { completed_at: item.completedAt }),
     })),
   };
 };

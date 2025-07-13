@@ -16,7 +16,7 @@ import type {
   UpdateTodoRequest,
   UpdateTodoResponse,
 } from '@/shared/types/todo';
-import { getErrorMessage, isErrorCode } from '@/shared/utils';
+import { getErrorMessage, isErrorCode, formatDateToAPIString } from '@/shared/utils';
 import { authRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -362,11 +362,12 @@ export const useSaveTodos = (spaceSlug: string) => {
             id: !isTemporaryId(todo.id) ? todo.id : undefined, // 임시 ID는 undefined로 처리
             name: todo.name,
             description: todo.description,
-            scheduledDate: todo.scheduledDate,
+            scheduledDate: todo.scheduledDate ? formatDateToAPIString(new Date(todo.scheduledDate)) : undefined,
             order: todo.order,
             thirdpartyUrl: todo.thirdpartyUrl,
             parentId: todo.parentId,
             originTodoIdIsNil: !todo.originTodoId,
+            completedAt: todo.completedAt,
           })),
         },
         {

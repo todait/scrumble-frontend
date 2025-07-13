@@ -8,6 +8,7 @@ import { TodoList, TodoListRef } from './TodoList';
 
 export interface TodoContainerRef {
   getTodayTodoListRef: () => TodoListRef | null;
+  clearFocus: () => void;
 }
 
 export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
@@ -63,6 +64,9 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
       ref,
       () => ({
         getTodayTodoListRef: () => todayTodoListRef.current,
+        clearFocus: () => {
+          todayTodoListRef.current?.clearFocus();
+        },
       }),
       []
     );
@@ -112,8 +116,10 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
     }, [onSaveTodos]);
 
     const handleNoTodosToday = useCallback(() => {
-      // TODO: 오늘의 투두 없음 처리 로직 구현
-    }, []);
+      if (onSaveTodos) {
+        onSaveTodos();
+      }
+    }, [onSaveTodos]);
 
     const handleUpdateTodayTodos = useCallback(
       (newTodos: Todo[]) => {

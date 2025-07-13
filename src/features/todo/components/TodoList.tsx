@@ -11,6 +11,7 @@ import { TodoItem } from './TodoItem';
 export interface TodoListRef {
   focusInput: () => void;
   hasFocus: () => boolean;
+  clearFocus: () => void;
 }
 
 export const TodoList = forwardRef<TodoListRef, TodoListProps>(
@@ -79,6 +80,11 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
         },
         hasFocus: () => {
           return focusedTodoId !== null || isInputFocused;
+        },
+        clearFocus: () => {
+          setFocusedTodoId(null);
+          setIsInputFocused(false);
+          setInsertAfterId(null);
         },
       }),
       [focusedTodoId, isInputFocused, setIsInputFocused, setFocusedTodoId, setInsertAfterId]
@@ -160,7 +166,7 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
         ))}
 
         {/* 투두 수정 버튼 (PostContent에서 사용될 때만 표시, view 모드에서만) */}
-        {showEditButton && isEditable && sortedTodos.length > 0 && mode === 'view' && (
+        {showEditButton && isEditable && mode === 'view' && (
           <>
             {/* Divider */}
             <div className="-mx-3 mt-3 border-t border-gray-200" />

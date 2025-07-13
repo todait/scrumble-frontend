@@ -2,7 +2,7 @@
 
 import { CheckInEditModal } from '@/features/checkin/components';
 import { CheckOutEditModal } from '@/features/checkout/components';
-import { CollapseSection, TodoContainer } from '@/features/todo';
+import { CollapseSection, TodoContainer, TodoContainerRef } from '@/features/todo';
 import { EmojiReactions } from '@/shared/components/emoji';
 import { SimpleToast } from '@/shared/components/feedback';
 import {
@@ -19,7 +19,7 @@ import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
 import { useSaveTodos } from '@/shared/hooks/queries';
 import router from 'next/router';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { usePostTodos } from '../hooks/usePostTodos';
 import { usePostTodoStore } from '../stores/usePostTodoStore';
 import type { Post } from '../types/feed.types';
@@ -50,6 +50,7 @@ export function PostContent({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isTodoCollapsed, setIsTodoCollapsed] = useState(!isDetailView);
+  const todoContainerRef = useRef<TodoContainerRef>(null);
   
   // Zustand store에서 편집 모드 상태 가져오기
   const { 
@@ -223,6 +224,7 @@ export function PostContent({
     } else {
       // 편집 모드 종료 (취소)
       cancelEdit();
+      todoContainerRef.current?.clearFocus(); // 포커스 초기화
     }
   };
 
@@ -236,6 +238,7 @@ export function PostContent({
       await saveTodosApi(dateString, todos);
       
       applyChanges(todos); // store에서 편집 모드 종료 및 상태 적용
+      todoContainerRef.current?.clearFocus(); // 포커스 초기화
       setShowToast({ message: '투두가 성공적으로 저장되었습니다' });
     } catch (error) {
       console.error('투두 저장 실패:', error);
@@ -246,6 +249,7 @@ export function PostContent({
   const handleCancelEdit = () => {
     // store에서 편집 취소 처리 (원본 데이터로 복원)
     cancelEdit();
+    todoContainerRef.current?.clearFocus(); // 포커스 초기화
   };
 
   const profileImageSize = isDetailView ? 48 : 40;
@@ -415,14 +419,15 @@ export function PostContent({
                 headerContent={headerContent}
               >
                 {isTodosLoading ? (
-                  <div className="flex justify-center py-4">
-                    <div className="text-sm text-gray-500">투두를 불러오는 중...</div>
+                  <div className="flex justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600" />
                   </div>
-                ) : hasTodos ? (
+                ) : (
                   <TodoContainer
+                    ref={todoContainerRef}
                     mode="postContent"
                     yesterdayTodos={[]}
-                    todayTodos={todos}
+                    todayTodos={todos || []}
                     isEditable={isMyPost}
                     onUpdateTodayTodos={handleUpdateTodos}
                     onToggleComplete={todoId => handleToggleComplete(todoId)}
@@ -430,10 +435,6 @@ export function PostContent({
                     showEditButton={isMyPost}
                     onToggleEditMode={handleToggleTodoEditMode}
                   />
-                ) : (
-                  <div className="py-4 text-center text-sm text-gray-500">
-                    투두가 없습니다
-                  </div>
                 )}
               </CollapseSection>
             );
