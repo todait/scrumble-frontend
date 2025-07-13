@@ -48,6 +48,10 @@ export interface TodoListProps {
   onBringToToday?: (selectedTodos: Todo[]) => void;
   /** 표시 모드 (체크박스 또는 bullet) */
   displayMode?: 'checkbox' | 'bullet';
+  /** 투두 수정 버튼 표시 여부 */
+  showEditButton?: boolean;
+  /** 편집 모드 토글 콜백 */
+  onToggleEditMode?: () => void;
 }
 
 export interface TodoItemProps {
@@ -135,6 +139,10 @@ export interface TodoContainerProps {
   initialBroughtTodoIds?: Set<string>;
   /** 초기 Todo ID 매핑 (새 ID -> 원본 ID) */
   initialTodoIdMapping?: Map<string, string>;
+  /** 투두 수정 버튼 표시 여부 */
+  showEditButton?: boolean;
+  /** 편집 모드 토글 콜백 */
+  onToggleEditMode?: () => void;
 }
 
 export type TodoMode = 'view' | 'edit';

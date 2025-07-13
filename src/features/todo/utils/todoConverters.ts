@@ -52,7 +52,7 @@ export const convertTodoDraftToTodo = (
     parentId: parentId || undefined,
     originTodoId: originTodoId || undefined,
     depth: 0, // 현재는 평면 구조만 지원
-    completedAt: draft.completed ? new Date().toISOString() : undefined,
+    completedAt: draft.completed ? new Date().toISOString() : '',
     children: [],
   };
 };

@@ -65,6 +65,7 @@ export interface UpdateTodoRequest {
   thirdpartyUrl?: string;
   parentId?: string;
   originTodoIdIsNil?: boolean;
+  completedAt?: string; // ISO 8601 형식, null/"" 시 미완료로 설정
 }
 
 /**
@@ -108,6 +109,7 @@ export interface BulkUpdateTodoItem {
   thirdpartyUrl?: string;
   parentId?: string; // UUID
   originTodoIdIsNil?: boolean; // true 시 originTodoId를 null로 설정
+  completedAt?: string; // ISO 8601 형식, null/"" 시 미완료로 설정
 }
 
 /**

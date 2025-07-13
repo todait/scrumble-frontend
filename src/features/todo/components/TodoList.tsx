@@ -1,16 +1,17 @@
 'use client';
 
 import { forwardRef, useCallback, useImperativeHandle } from 'react';
-import { TodoListProps } from '../types';
 import { useKeyboardHandler } from '../hooks/useKeyboardHandler';
 import { useTodoListLogic } from '../hooks/useTodoListLogic';
 import { useTodoSelection } from '../hooks/useTodoSelection';
+import { TodoListProps } from '../types';
 import { TodoInput } from './TodoInput';
 import { TodoItem } from './TodoItem';
 
 export interface TodoListRef {
   focusInput: () => void;
   hasFocus: () => boolean;
+  clearFocus: () => void;
 }
 
 export const TodoList = forwardRef<TodoListRef, TodoListProps>(
@@ -28,6 +29,8 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
       showBringButton = false,
       onBringToToday,
       displayMode = 'checkbox',
+      showEditButton = false,
+      onToggleEditMode,
     },
     ref
   ) => {
@@ -78,6 +81,11 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
         hasFocus: () => {
           return focusedTodoId !== null || isInputFocused;
         },
+        clearFocus: () => {
+          setFocusedTodoId(null);
+          setIsInputFocused(false);
+          setInsertAfterId(null);
+        },
       }),
       [focusedTodoId, isInputFocused, setIsInputFocused, setFocusedTodoId, setInsertAfterId]
     );
@@ -107,8 +115,6 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
       [handleInsertTodo]
     );
 
-
-
     // TodoInput에서 사용할 addTodo 핸들러
     const handleInputAddTodo = useCallback(
       (text: string) => {
@@ -122,8 +128,7 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
 
     return (
       <div className="space-y-1">
-
-        {sortedTodos.map((todo) => (
+        {sortedTodos.map(todo => (
           <div key={`${todo.id}`}>
             <TodoItem
               todo={todo}
@@ -160,6 +165,27 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
           </div>
         ))}
 
+        {/* 투두 수정 버튼 (PostContent에서 사용될 때만 표시, view 모드에서만) */}
+        {showEditButton && isEditable && mode === 'view' && (
+          <>
+            {/* Divider */}
+            <div className="-mx-3 mt-3 border-t border-gray-200" />
+
+            {/* 투두 수정 버튼 */}
+            <div className="flex h-[22px] items-center justify-end pt-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleEditMode?.();
+                }}
+                className="text-xs text-[#222222] text-opacity-50 transition-opacity hover:text-opacity-70"
+              >
+                투두 수정
+              </button>
+            </div>
+          </>
+        )}
+
         {/* 하단 고정 TodoInput (마지막 TodoItem 바로 다음에 삽입하는 경우가 아닐 때만 표시) */}
         {mode === 'edit' && (insertAfterId === null || insertAfterId !== lastTodoId) && (
           <TodoInput
@@ -188,10 +214,13 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
                   : 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
               }`}
             >
-              {selectionStats.totalCount === 0 ? '투두 0개 선택' : 
-               selectionStats.allIncomplete ? `미완료 ${selectionStats.incompleteCount}개 • 가져오기` :
-               selectionStats.allCompleted ? `완료 ${selectionStats.completedCount}개 • 가져오기` :
-               `투두 ${selectionStats.totalCount}개 • 가져오기`}
+              {selectionStats.totalCount === 0
+                ? '투두 0개 선택'
+                : selectionStats.allIncomplete
+                  ? `미완료 ${selectionStats.incompleteCount}개 • 가져오기`
+                  : selectionStats.allCompleted
+                    ? `완료 ${selectionStats.completedCount}개 • 가져오기`
+                    : `투두 ${selectionStats.totalCount}개 • 가져오기`}
             </button>
           </div>
         )}

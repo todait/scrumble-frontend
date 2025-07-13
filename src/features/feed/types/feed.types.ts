@@ -29,6 +29,7 @@ export interface Comment {
 export interface BasePost {
   id: string;
   author: User;
+  postedAt: Date;
   createdAt: Date;
   updatedAt?: Date;
   reactions: Reaction[];

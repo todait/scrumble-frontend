@@ -2,7 +2,7 @@
 
 import { CheckInEditModal } from '@/features/checkin/components';
 import { CheckOutEditModal } from '@/features/checkout/components';
-import { CollapseSection, TodoContainer } from '@/features/todo';
+import { CollapseSection, TodoContainer, TodoContainerRef } from '@/features/todo';
 import { EmojiReactions } from '@/shared/components/emoji';
 import { SimpleToast } from '@/shared/components/feedback';
 import {
@@ -17,9 +17,11 @@ import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
+import { useSaveTodos } from '@/shared/hooks/queries';
 import router from 'next/router';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { usePostTodos } from '../hooks/usePostTodos';
+import { usePostTodoStore } from '../stores/usePostTodoStore';
 import type { Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
 import { CommentPreview } from './CommentPreview';
@@ -48,7 +50,22 @@ export function PostContent({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isTodoCollapsed, setIsTodoCollapsed] = useState(!isDetailView);
+  const todoContainerRef = useRef<TodoContainerRef>(null);
+  
+  // Zustand store에서 편집 모드 상태 가져오기
+  const { 
+    editingPostId,
+    startEdit, 
+    cancelEdit, 
+    applyChanges
+  } = usePostTodoStore();
+  
+  // 현재 post가 편집 중인지 확인
+  const isTodoEditMode = editingPostId === post.id;
   const { user } = useAuth();
+  
+  // Todo 저장을 위한 공통 훅
+  const { saveTodos: saveTodosApi, isSaving } = useSaveTodos(spaceSlug);
   const isMyPost = user?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
   const isCheckOut = post.type === 'checkout';
@@ -66,10 +83,12 @@ export function PostContent({
   // Todo 리스트용 hook (lazy loading)
   const { todos, isLoading: isTodosLoading, handleToggleComplete, handleUpdateTodos } = usePostTodos({
     spaceSlug,
-    postDate: new Date(post.createdAt),
+    postDate: new Date(post.postedAt),
+    postId: post.id, // 현재 post의 ID 전달
     userId: post.author.id, // 포스트 작성자의 Todo 조회
     enabled: !isTodoCollapsed || isDetailView, // Collapse가 열릴 때 또는 상세보기에서 로딩
   });
+
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -194,6 +213,43 @@ export function PostContent({
 
   const handleReactionError = (message: string) => {
     setShowToast({ message });
+  };
+
+  const handleToggleTodoEditMode = () => {
+    if (!isTodoEditMode) {
+      // 편집 모드 진입: React Query 데이터를 zustand store에 복사
+      const { setTodos } = usePostTodoStore.getState();
+      setTodos(todos); // 현재 React Query 데이터를 store에 설정
+      startEdit(post.id);
+    } else {
+      // 편집 모드 종료 (취소)
+      cancelEdit();
+      todoContainerRef.current?.clearFocus(); // 포커스 초기화
+    }
+  };
+
+  const handleSaveTodos = async () => {
+    if (!todos) return;
+    
+    try {
+      const dateString = formatDateToAPIString(new Date(post.postedAt));
+      
+      // 공통 저장 함수 사용
+      await saveTodosApi(dateString, todos);
+      
+      applyChanges(todos); // store에서 편집 모드 종료 및 상태 적용
+      todoContainerRef.current?.clearFocus(); // 포커스 초기화
+      setShowToast({ message: '투두가 성공적으로 저장되었습니다' });
+    } catch (error) {
+      console.error('투두 저장 실패:', error);
+      setShowToast({ message: '투두 저장에 실패했습니다. 다시 시도해주세요.' });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // store에서 편집 취소 처리 (원본 데이터로 복원)
+    cancelEdit();
+    todoContainerRef.current?.clearFocus(); // 포커스 초기화
   };
 
   const profileImageSize = isDetailView ? 48 : 40;
@@ -336,8 +392,8 @@ export function PostContent({
             
             // 헤더 컨텐츠 결정
             let headerContent;
-            if (!todos || isTodosLoading) {
-              // Todo 로드 전 또는 로딩 중
+            if (!todos || isTodosLoading || todos.length === 0) {
+              // Todo 로드 전, 로딩 중, 또는 빈 배열
               headerContent = (
                 <div className="text-xs font-bold">
                   <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
@@ -345,7 +401,7 @@ export function PostContent({
                 </div>
               );
             } else {
-              // Todo 로드 완료
+              // Todo 로드 완료 및 실제 항목 존재
               headerContent = (
                 <div className="text-xs font-bold">
                   <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
@@ -363,27 +419,67 @@ export function PostContent({
                 headerContent={headerContent}
               >
                 {isTodosLoading ? (
-                  <div className="flex justify-center py-4">
-                    <div className="text-sm text-gray-500">투두를 불러오는 중...</div>
+                  <div className="flex justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600" />
                   </div>
-                ) : hasTodos ? (
+                ) : (
                   <TodoContainer
+                    ref={todoContainerRef}
                     mode="postContent"
                     yesterdayTodos={[]}
-                    todayTodos={todos}
+                    todayTodos={todos || []}
                     isEditable={isMyPost}
                     onUpdateTodayTodos={handleUpdateTodos}
                     onToggleComplete={todoId => handleToggleComplete(todoId)}
-                    forceEditMode={false}
+                    forceEditMode={isTodoEditMode} // zustand store의 편집 모드 상태 사용
+                    showEditButton={isMyPost}
+                    onToggleEditMode={handleToggleTodoEditMode}
                   />
-                ) : (
-                  <div className="py-4 text-center text-sm text-gray-500">
-                    투두가 없습니다
-                  </div>
                 )}
               </CollapseSection>
             );
           })()}
+
+          {/* 투두 편집 모드 저장/취소 버튼 */}
+          {isTodoEditMode && isMyPost && (
+            <div className="mt-3 space-y-2">
+              {/* 저장 버튼 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSaveTodos();
+                }}
+                disabled={isSaving}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    저장 중...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                    투두 저장
+                  </>
+                )}
+              </button>
+              
+              {/* 취소 버튼 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCancelEdit();
+                }}
+                disabled={isSaving}
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                취소
+              </button>
+            </div>
+          )}
 
           {/* 리액션 및 댓글 섹션 */}
           <div className="flex flex-col gap-[10px] py-2">

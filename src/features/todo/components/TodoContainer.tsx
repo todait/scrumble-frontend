@@ -8,6 +8,7 @@ import { TodoList, TodoListRef } from './TodoList';
 
 export interface TodoContainerRef {
   getTodayTodoListRef: () => TodoListRef | null;
+  clearFocus: () => void;
 }
 
 export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
@@ -28,10 +29,12 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
       hideNoTodosButton = false,
       initialBroughtTodoIds,
       initialTodoIdMapping,
+      showEditButton = false,
+      onToggleEditMode,
     },
     ref
   ) => {
-    const [viewMode] = useState<TodoMode>(forceEditMode ? 'edit' : 'view');
+    const viewMode: TodoMode = forceEditMode ? 'edit' : 'view';
     const [isYesterdayCollapsed, setIsYesterdayCollapsed] = useState(false); // 처음에는 열려있음
     const [todoIdMapping, setTodoIdMapping] = useState<Map<string, string>>(initialTodoIdMapping || new Map()); // 새 ID -> 원본 ID 매핑
     const todayTodoListRef = useRef<TodoListRef>(null);
@@ -61,6 +64,9 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
       ref,
       () => ({
         getTodayTodoListRef: () => todayTodoListRef.current,
+        clearFocus: () => {
+          todayTodoListRef.current?.clearFocus();
+        },
       }),
       []
     );
@@ -110,8 +116,10 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
     }, [onSaveTodos]);
 
     const handleNoTodosToday = useCallback(() => {
-      // TODO: 오늘의 투두 없음 처리 로직 구현
-    }, []);
+      if (onSaveTodos) {
+        onSaveTodos();
+      }
+    }, [onSaveTodos]);
 
     const handleUpdateTodayTodos = useCallback(
       (newTodos: Todo[]) => {
@@ -249,9 +257,11 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
             onToggleComplete={handleTodayToggleComplete}
             broughtFromYesterdayIds={new Set([...todoIdMapping.keys(), ...(initialTodoIdMapping ? initialTodoIdMapping.keys() : [])])}
             displayMode={!isEditable ? 'bullet' : 'checkbox'}
+            showEditButton={showEditButton || false}
+            onToggleEditMode={onToggleEditMode}
           />
         ) : (
-          // checkIn, checkOut 모드: 일반 TodoList
+          // checkIn, checkOut 모드: 일반 TodoList (동일한 props 전달)
           <div className="">
             <TodoList
               ref={todayTodoListRef}
@@ -261,7 +271,9 @@ export const TodoContainer = forwardRef<TodoContainerRef, TodoContainerProps>(
               onUpdate={handleUpdateTodayTodos}
               onToggleComplete={handleTodayToggleComplete}
               broughtFromYesterdayIds={new Set([...todoIdMapping.keys(), ...(initialTodoIdMapping ? initialTodoIdMapping.keys() : [])])}
-              displayMode="checkbox"
+              displayMode={!isEditable ? 'bullet' : 'checkbox'}
+              showEditButton={showEditButton || false}
+              onToggleEditMode={onToggleEditMode}
             />
           </div>
         )}

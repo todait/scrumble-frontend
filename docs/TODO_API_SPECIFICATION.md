@@ -191,9 +191,17 @@ X-Timezone: Asia/Seoul
   "order": 1,
   "thirdparty_url": "https://updated-url.com",
   "parent_id": "789e0123-e89b-12d3-a456-426614174002",
-  "origin_todo_id_is_nil": true
+  "origin_todo_id_is_nil": true,
+  "completed_at": "2024-01-20T09:30:00Z"
 }
 ```
+
+**completed_at 필드 설명**:
+
+- **형식**: ISO 8601 (RFC3339) 형식의 문자열 (예: `"2024-01-20T09:30:00Z"`)
+- **완료 처리**: 유효한 타임스탬프를 제공하면 해당 시간에 완료된 것으로 설정
+- **미완료 처리**: `""` (빈 문자열) 또는 `null`을 제공하면 미완료 상태로 설정
+- **생략**: 필드를 생략하면 현재 완료 상태를 유지
 
 **응답**:
 
@@ -305,13 +313,15 @@ X-Timezone: Asia/Seoul
       "order": 1,
       "thirdparty_url": null,
       "parent_id": null,
-      "origin_todo_id_is_nil": true
+      "origin_todo_id_is_nil": true,
+      "completed_at": "2024-01-20T09:30:00Z"
     },
     {
       "name": "새로운 할 일",
       "description": "새로 추가할 할 일",
       "scheduled_date": "2024-01-21",
-      "order": 0
+      "order": 0,
+      "completed_at": null
     }
   ]
 }
@@ -323,9 +333,9 @@ X-Timezone: Asia/Seoul
 {
   "message": "Todos bulk updated successfully",
   "result": {
-    "created": 1,
-    "updated": 1,
-    "deleted": 3
+    "created": 2,
+    "updated": 2,
+    "deleted": 0
   }
 }
 ```
@@ -390,6 +400,7 @@ interface UpdateTodoRequest {
   thirdparty_url?: string;
   parent_id?: string; // UUID
   origin_todo_id_is_nil?: boolean; // true 시 origin_todo_id를 null로 설정
+  completed_at?: string; // ISO 8601 형식 (RFC3339), null/"" 시 미완료로 설정
 }
 ```
 
@@ -410,6 +421,7 @@ interface UpdateTodoItem {
   thirdparty_url?: string;
   parent_id?: string; // UUID
   origin_todo_id_is_nil?: boolean; // true 시 origin_todo_id를 null로 설정
+  completed_at?: string; // ISO 8601 형식 (RFC3339), null/"" 시 미완료로 설정
 }
 ```
 
@@ -548,6 +560,26 @@ Headers:
   "description": "더 자세한 설명 추가",
   "scheduled_date": "2024-03-15"
 }
+
+# 할 일 완료 상태로 변경
+PATCH /api/v1/spaces/my-team/todos/123e4567-e89b-12d3-a456-426614174000
+Headers:
+  Authorization: Bearer {token}
+  Content-Type: application/json
+
+{
+  "completed_at": "2024-03-10T14:30:00Z"
+}
+
+# 할 일을 미완료 상태로 변경
+PATCH /api/v1/spaces/my-team/todos/123e4567-e89b-12d3-a456-426614174000
+Headers:
+  Authorization: Bearer {token}
+  Content-Type: application/json
+
+{
+  "completed_at": ""
+}
 ```
 
 ### 시나리오 4: 일괄 업데이트로 효율적인 할 일 관리
@@ -567,18 +599,29 @@ Headers:
       "id": "123e4567-e89b-12d3-a456-426614174000",
       "name": "수정된 프로젝트 계획",
       "description": "업데이트된 프로젝트 설명",
-      "scheduled_date": "2024-03-10"
+      "scheduled_date": "2024-03-10",
+      "completed_at": "2024-03-10T10:30:00Z"
     },
     {
-      "name": "새로운 할 일",
-      "description": "새로 추가할 작업",
+      "name": "새로운 할 일 (완료 상태로 생성)",
+      "description": "처음부터 완료 상태로 생성할 할 일",
       "scheduled_date": "2024-03-11",
-      "order": 1
+      "order": 1,
+      "completed_at": "2024-03-11T15:00:00Z"
+    },
+    {
+      "name": "새로운 할 일 (미완료 상태로 생성)",
+      "description": "미완료 상태로 생성할 할 일",
+      "scheduled_date": "2024-03-12",
+      "order": 2,
+      "completed_at": null
     },
     {
       "id": "456e7890-e89b-12d3-a456-426614174001",
-      "name": "완료된 작업",
-      "order": 2
+      "name": "미완료로 변경할 작업",
+      "description": "완료 상태였던 작업을 미완료로 변경",
+      "order": 3,
+      "completed_at": ""
     }
   ]
 }
@@ -587,7 +630,7 @@ Headers:
 {
   "message": "Todos bulk updated successfully",
   "result": {
-    "created": 1,
+    "created": 2,
     "updated": 2,
     "deleted": 0
   }
@@ -666,9 +709,62 @@ Headers:
 
 **A**: 유효하지 않은 타임존을 제공하면 자동으로 `UTC`로 폴백되어 처리됩니다.
 
+## 완료 상태 관리 FAQ
+
+### Q1: completed_at 필드는 어떤 형식으로 사용해야 하나요?
+
+**A**: ISO 8601 (RFC3339) 형식의 문자열을 사용합니다. 예: `"2024-01-20T09:30:00Z"`, `"2024-01-20T18:30:00+09:00"`
+
+### Q2: 할 일을 미완료 상태로 설정하려면 어떻게 해야 하나요?
+
+**A**: `completed_at` 필드에 빈 문자열(`""`) 또는 `null`을 제공하면 됩니다.
+
+### Q3: completed_at 필드를 생략하면 어떻게 되나요?
+
+**A**: 현재 완료 상태가 유지됩니다. 즉, 이미 완료된 할 일은 완료 상태로, 미완료 할 일은 미완료 상태로 유지됩니다.
+
+### Q4: ToggleCompletion API와 completed_at 직접 수정의 차이점은 무엇인가요?
+
+**A**:
+
+- **ToggleCompletion**: 현재 상태를 토글 (완료↔미완료), 완료 시 서버 현재 시간으로 자동 설정
+- **completed_at 직접 수정**: 정확한 완료 시간을 지정하거나 미완료로 설정 가능
+
+### Q5: 잘못된 completed_at 형식을 제공하면 어떻게 되나요?
+
+**A**: 파싱에 실패하면 `400 Bad Request` 오류가 반환되며, 명확한 오류 메시지가 제공됩니다. 올바른 ISO 8601 형식을 사용해주세요.
+
+### Q6: 일괄 업데이트에서 일부 항목의 completed_at 형식이 잘못되면 어떻게 되나요?
+
+**A**: 잘못된 형식의 항목이 있으면 전체 요청이 실패하며, 해당 항목의 인덱스와 함께 오류 메시지가 반환됩니다.
+
+### Q7: completed_at 필드의 타임존 처리는 어떻게 되나요?
+
+**A**: completed_at은 ISO 8601 형식으로 타임존 정보를 포함해야 합니다. 서버는 이를 UTC로 변환하여 저장하고, 조회 시에는 UTC로 반환합니다.
+
+### Q8: 새로운 할 일 생성 시 처음부터 완료 상태로 설정할 수 있나요?
+
+**A**: 네, 일괄 업데이트 API에서 `id` 필드 없이 `completed_at` 필드를 포함하여 새로운 할 일을 완료 상태로 생성할 수 있습니다.
+
 ---
 
 ## 변경 이력
+
+### v2.2.1 (2025-01-12)
+
+- 🔧 **완료 상태 처리 개선**: CompletedAt 필드 타입을 \*time.Time으로 변경하여 타입 안정성 향상
+- 🐛 **BulkUpdate 버그 수정**: 새로운 할 일 생성 시 completedAt 필드 누락 문제 해결
+- 🔧 **Validation 강화**: 도메인 검증 로직에서 completedAt 필드 검증 추가
+- 🎯 **NULL 업데이트 지원**: completedAt을 명시적으로 NULL로 설정할 수 있는 기능 추가
+- 📝 **타임존 처리 정교화**: HTTP 핸들러에서 ISO 8601 형식 파싱 및 타임존 처리 개선
+- 📝 **문서 개선**: 완료 상태 관리 FAQ 확장 및 오류 처리 가이드 추가
+
+### v2.2.0 (2025-01-12)
+
+- ✨ **할 일 완료 상태 직접 수정 기능 추가**: `updateTodo`와 `bulkUpdateTodos` API에서 `completed_at` 필드를 통한 완료 상태 직접 수정 지원
+- 🔧 **완료 상태 세밀 제어**: ISO 8601 형식의 타임스탬프로 정확한 완료 시간 설정 가능
+- 📝 **API 개선**: 빈 문자열(`""`) 또는 `null`로 미완료 상태 설정, 필드 생략 시 현재 상태 유지
+- 📝 **문서 업데이트**: 새로운 `completed_at` 필드 사용법 및 예제 추가
 
 ### v2.1.2 (2025-01-12)
 
