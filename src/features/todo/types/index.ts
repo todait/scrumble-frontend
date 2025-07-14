@@ -14,7 +14,7 @@ export interface Todo {
   /** 부모 Todo ID */
   parentId?: string;
   /** 원본 Todo ID (복사된 경우) */
-  originTodoId?: string;
+  originTodoId?: string | null;
   /** 계층 깊이 */
   depth: number;
   /** 완료 시간 (ISO 8601 형식) */
@@ -120,7 +120,7 @@ export interface TodoContainerProps {
   /** 어제/오늘 투두 업데이트 콜백 */
   onUpdateYesterdayTodos?: (todos: Todo[]) => void;
   /** 오늘 투두 업데이트 콜백 */
-  onUpdateTodayTodos: (todos: Todo[]) => void;
+  onUpdateTodayTodos: (todos: Todo[], mappingRemovedTodoIds?: string[]) => void;
   /** 완료 토글 콜백 */
   onToggleComplete: (todoId: string, isYesterday: boolean) => void;
   /** 편집 모드 강제 (토글 버튼 숨김) */

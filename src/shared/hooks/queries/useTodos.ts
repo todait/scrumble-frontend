@@ -155,7 +155,7 @@ export const useUpdateTodo = (spaceSlug: string) => {
  */
 export const useToggleTodo = (spaceSlug: string) => {
   const queryClient = useQueryClient();
-  const { success, error: toastError } = useToast();
+  const { error: toastError } = useToast();
 
   return useMutation<
     ToggleTodoResponse,
@@ -348,32 +348,36 @@ export const useBulkUpdateTodos = (spaceSlug: string) => {
 export const useSaveTodos = (spaceSlug: string) => {
   const { mutate: bulkUpdateTodos, isPending: isSaving } = useBulkUpdateTodos(spaceSlug);
 
-  const saveTodos = useCallback(async (scheduledDate: string, todos: Todo[]): Promise<void> => {
-    // 빈 투두 배열도 API에 전송하여 삭제 처리가 가능하도록 함
-    return new Promise<void>((resolve, reject) => {
-      bulkUpdateTodos(
-        {
-          scheduledDate,
-          todos: todos.map(todo => ({
-            id: !isTemporaryId(todo.id) ? todo.id : undefined, // 임시 ID는 undefined로 처리
-            name: todo.name,
-            description: todo.description,
-            scheduledDate: todo.scheduledDate ? formatDateToAPIString(new Date(todo.scheduledDate)) : undefined,
-            order: todo.order,
-            thirdpartyUrl: todo.thirdpartyUrl,
-            parentId: todo.parentId,
-            originTodoId: todo.originTodoId,
-            originTodoIdIsNil: !todo.originTodoId,
-            completedAt: todo.completedAt,
-          })),
-        },
-        {
-          onSuccess: () => resolve(),
-          onError: (error) => reject(error),
-        }
-      );
-    });
-  }, [bulkUpdateTodos]);
+  const saveTodos = useCallback(
+    async (scheduledDate: string, todos: Todo[]): Promise<void> => {
+      // 빈 투두 배열도 API에 전송하여 삭제 처리가 가능하도록 함
+      return new Promise<void>((resolve, reject) => {
+        bulkUpdateTodos(
+          {
+            scheduledDate,
+            todos: todos.map(todo => ({
+              id: !isTemporaryId(todo.id) ? todo.id : undefined, // 임시 ID는 undefined로 처리
+              name: todo.name,
+              description: todo.description,
+              scheduledDate: todo.scheduledDate
+                ? formatDateToAPIString(new Date(todo.scheduledDate))
+                : undefined,
+              order: todo.order,
+              thirdpartyUrl: todo.thirdpartyUrl,
+              parentId: todo.parentId,
+              originTodoId: todo.originTodoId,
+              completedAt: todo.completedAt,
+            })),
+          },
+          {
+            onSuccess: () => resolve(),
+            onError: error => reject(error),
+          }
+        );
+      });
+    },
+    [bulkUpdateTodos]
+  );
 
   return {
     saveTodos,

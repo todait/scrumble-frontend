@@ -17,7 +17,7 @@ export interface Todo {
   order: number;
   thirdpartyUrl?: string;
   parentId?: string;
-  originTodoId?: string;
+  originTodoId?: string | null;
   depth: number;
   completedAt?: DateString;
   children: Todo[];
@@ -31,7 +31,7 @@ export interface CreateTodoItemRequest {
   name: string;
   description?: string;
   scheduledDate: DateString;
-  originTodoId?: string;
+  originTodoId?: string | null;
   thirdpartyUrl?: string;
   children: CreateTodoItemRequest[];
 }
@@ -64,8 +64,7 @@ export interface UpdateTodoRequest {
   order?: number;
   thirdpartyUrl?: string;
   parentId?: string;
-  originTodoId?: string;
-  originTodoIdIsNil?: boolean;
+  originTodoId?: string | null;
   completedAt?: string; // ISO 8601 형식, null/"" 시 미완료로 설정
 }
 
@@ -109,8 +108,7 @@ export interface BulkUpdateTodoItem {
   order?: number;
   thirdpartyUrl?: string;
   parentId?: string; // UUID
-  originTodoId?: string; // UUID
-  originTodoIdIsNil?: boolean; // true 시 originTodoId를 null로 설정
+  originTodoId?: string | null; // UUID 또는 null
   completedAt?: string; // ISO 8601 형식, null/"" 시 미완료로 설정
 }
 

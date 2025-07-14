@@ -191,7 +191,7 @@ X-Timezone: Asia/Seoul
   "order": 1,
   "thirdparty_url": "https://updated-url.com",
   "parent_id": "789e0123-e89b-12d3-a456-426614174002",
-  "origin_todo_id_is_nil": true,
+  "origin_todo_id": "123e4567-e89b-12d3-a456-426614174001",
   "completed_at": "2024-01-20T09:30:00Z"
 }
 ```
@@ -313,7 +313,7 @@ X-Timezone: Asia/Seoul
       "order": 1,
       "thirdparty_url": null,
       "parent_id": null,
-      "origin_todo_id_is_nil": true,
+      "origin_todo_id": null,
       "completed_at": "2024-01-20T09:30:00Z"
     },
     {
@@ -399,7 +399,7 @@ interface UpdateTodoRequest {
   order?: number;
   thirdparty_url?: string;
   parent_id?: string; // UUID
-  origin_todo_id_is_nil?: boolean; // true 시 origin_todo_id를 null로 설정
+  origin_todo_id?: string; // UUID 또는 "" (빈 문자열로 NULL 설정), null 가능
   completed_at?: string; // ISO 8601 형식 (RFC3339), null/"" 시 미완료로 설정
 }
 ```
@@ -420,7 +420,7 @@ interface UpdateTodoItem {
   order?: number;
   thirdparty_url?: string;
   parent_id?: string; // UUID
-  origin_todo_id_is_nil?: boolean; // true 시 origin_todo_id를 null로 설정
+  origin_todo_id?: string; // UUID 또는 "" (빈 문자열로 NULL 설정), null 가능
   completed_at?: string; // ISO 8601 형식 (RFC3339), null/"" 시 미완료로 설정
 }
 ```
@@ -476,6 +476,49 @@ interface BulkUpdateResult {
 - **예시**:
   - 서울 사용자가 "2024-01-15" 입력 → UTC "2024-01-14"에 저장 (UTC+9)
   - 뉴욕 사용자가 "2024-01-15" 입력 → UTC "2024-01-15"에 저장 (UTC-5)
+
+---
+
+## 특수 필드 동작
+
+### origin_todo_id 필드
+
+`origin_todo_id` 필드는 다른 할 일을 참조하는 UUID 필드로, 다음과 같은 특별한 동작을 지원합니다:
+
+- **`null`**: 필드를 업데이트하지 않음 (기존 값 유지)
+- **`""`** (빈 문자열): 필드를 명시적으로 NULL로 설정 (참조 제거)
+- **`"valid-uuid"`**: 해당 UUID로 필드를 설정
+- **잘못된 UUID 형식**: 검증 에러 반환
+
+**예시:**
+
+```json
+// 기존 값 유지
+{
+  "name": "할 일 이름 수정",
+  "origin_todo_id": null
+}
+
+// 참조 제거 (NULL로 설정)
+{
+  "name": "할 일 이름 수정",
+  "origin_todo_id": ""
+}
+
+// 다른 할 일 참조
+{
+  "name": "할 일 이름 수정",
+  "origin_todo_id": "123e4567-e89b-12d3-a456-426614174000"
+}
+```
+
+### completed_at 필드
+
+`completed_at` 필드는 완료 시각을 나타내는 ISO 8601 형식의 문자열 필드로, 다음과 같은 동작을 지원합니다:
+
+- **`null`**: 필드를 업데이트하지 않음 (기존 값 유지)
+- **`""`** (빈 문자열): 필드를 명시적으로 NULL로 설정 (미완료 상태로 변경)
+- **`"2024-01-15T10:30:00Z"`**: 해당 시각으로 필드를 설정 (완료 상태로 변경)
 
 ---
 
@@ -749,6 +792,14 @@ Headers:
 ---
 
 ## 변경 이력
+
+### v2.3.0 (2025-01-14)
+
+- ✨ **origin_todo_id 필드 개선**: `origin_todo_id` 필드에 빈 문자열(`""`)로 NULL 설정 기능 추가
+- 🔄 **API 타입 변경**: UpdateTodoRequest와 UpdateTodoItemRequest의 origin_todo_id 타입을 UUID에서 string으로 변경
+- 🔧 **특수 필드 동작 추가**: origin_todo_id 필드의 특별한 동작 문서화 (null, "", valid-uuid, invalid format)
+- 🎯 **일관성 개선**: completed_at과 동일한 패턴으로 origin_todo_id NULL 설정 지원
+- 📝 **문서 개선**: 특수 필드 동작 섹션 추가 및 origin_todo_id 사용법 상세 설명
 
 ### v2.2.1 (2025-01-12)
 
