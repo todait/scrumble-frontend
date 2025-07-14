@@ -61,7 +61,7 @@ const convertCreateTodoRequestToApi = (request: CreateTodosRequest): ApiCreateTo
     name: item.name,
     description: item.description,
     scheduled_date: item.scheduledDate,
-    origin_todo_id: item.originTodoId,
+    origin_todo_id: item.originTodoId === null ? '' : item.originTodoId,
     thirdparty_url: item.thirdpartyUrl,
     children: item.children.map(convertItem),
   });
@@ -86,7 +86,7 @@ const convertUpdateTodoRequestToApi = (
     order: request.order,
     thirdparty_url: request.thirdpartyUrl,
     parent_id: request.parentId,
-    origin_todo_id_is_nil: request.originTodoIdIsNil,
+    origin_todo_id: request.originTodoId === null ? '' : request.originTodoId,
     ...(request.completedAt !== undefined && { completed_at: request.completedAt }),
   };
 };
@@ -109,7 +109,7 @@ const convertBulkUpdateTodoRequestToApi = (
       order: item.order,
       thirdparty_url: item.thirdpartyUrl,
       parent_id: item.parentId,
-      origin_todo_id_is_nil: item.originTodoIdIsNil,
+      origin_todo_id: item.originTodoId === null ? '' : item.originTodoId,
       ...(item.completedAt !== undefined && { completed_at: item.completedAt }),
     })),
   };

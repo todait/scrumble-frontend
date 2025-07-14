@@ -3,7 +3,6 @@
 
 import type { Todo } from '@/features/todo';
 import { TodoContainer, TodoContainerRef } from '@/features/todo';
-import { convertTodoDraftToTodo } from '@/features/todo/utils/todoConverters';
 import { useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
 import { useDateStore } from '@/shared/stores/useDateStore';
@@ -16,7 +15,6 @@ import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { useCheckInForm } from '../hooks/useCheckInForm';
 import { useCheckInTodos } from '../hooks/useCheckInTodos';
 import { useCheckInModalStore } from '../stores/useCheckInModalStore';
-import type { TodoDraft } from '../stores/useCheckInTodoStore';
 import { useCheckInTodoStore } from '../stores/useCheckInTodoStore';
 import { CheckInForm } from './forms';
 import { CheckInModalLayout } from './layout';
@@ -204,27 +202,22 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   // Todo 핸들러 함수들
   const handleUpdateYesterdayTodos = (updatedTodos: Todo[]) => {
-    const todoDrafts = updatedTodos.map(todo => ({
-      id: todo.id,
-      text: todo.name,
-      completed: !!todo.completedAt,
-      originTodoId: todo.originTodoId, // originTodoId 추가
-    }));
-    setYesterdayTodos(todoDrafts);
+    setYesterdayTodos(updatedTodos);
   };
 
-  const handleUpdateTodayTodos = (updatedTodos: Todo[]) => {
-    const todoDrafts = updatedTodos.map(todo => ({
-      id: todo.id,
-      text: todo.name,
-      completed: !!todo.completedAt,
-      originTodoId: todo.originTodoId, // originTodoId 추가
-    }));
-    setTodayTodos(todoDrafts);
+  const handleUpdateTodayTodos = (updatedTodos: Todo[], mappingRemovedTodoIds?: string[]) => {
+    // mappingRemovedTodoIds에 포함된 todo의 originTodoId를 null로 설정
+    const todosWithUpdatedMapping = updatedTodos.map(todo => 
+      mappingRemovedTodoIds?.includes(todo.id) 
+        ? { ...todo, originTodoId: null }
+        : todo
+    );
+    
+    setTodayTodos(todosWithUpdatedMapping);
 
     // todosWithOrigin Map 업데이트
     const newTodosWithOrigin = new Map<string, Todo>();
-    updatedTodos.forEach(todo => {
+    todosWithUpdatedMapping.forEach(todo => {
       newTodosWithOrigin.set(todo.id, todo);
     });
     setTodosWithOrigin(newTodosWithOrigin);
@@ -233,40 +226,38 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const handleToggleComplete = (todoId: string, isYesterday: boolean) => {
     if (isYesterday) {
       const todos = yesterdayTodos.map(todo =>
-        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+        todo.id === todoId 
+          ? { ...todo, completedAt: todo.completedAt ? undefined : new Date().toISOString() } 
+          : todo
       );
       setYesterdayTodos(todos);
     } else {
       const todos = todayTodos.map(todo =>
-        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+        todo.id === todoId 
+          ? { ...todo, completedAt: todo.completedAt ? undefined : new Date().toISOString() } 
+          : todo
       );
       setTodayTodos(todos);
     }
   };
 
-  // 새로운 함수 추가
-  const convertDraftsToTodos = (drafts: TodoDraft[]): Todo[] => {
-    return drafts.map((draft, index) =>
-      convertTodoDraftToTodo(
-        draft, 
-        formatDateToAPIString(selectedDate), 
-        (index + 1) * 10,
-        undefined, // parentId
-        draft.originTodoId // originTodoId 전달
-      )
-    );
-  };
+  // todayTodos가 변경될 때 todosWithOrigin도 초기화
+  useEffect(() => {
+    const newTodosWithOrigin = new Map<string, Todo>();
+    todayTodos.forEach(todo => {
+      newTodosWithOrigin.set(todo.id, todo);
+    });
+    setTodosWithOrigin(newTodosWithOrigin);
+  }, [todayTodos]);
 
   // 초기 가져온 Todo ID와 매핑 계산
   const calculateInitialBroughtData = useCallback((): { broughtIds: Set<string>; idMapping: Map<string, string> } => {
     const broughtIds = new Set<string>();
     const idMapping = new Map<string, string>();
-    const convertedTodayTodos = convertDraftsToTodos(todayTodos);
-    const convertedYesterdayTodos = convertDraftsToTodos(yesterdayTodos);
 
-    convertedTodayTodos.forEach(todayTodo => {
+    todayTodos.forEach(todayTodo => {
       if (todayTodo.originTodoId) {
-        convertedYesterdayTodos.forEach(yesterdayTodo => {
+        yesterdayTodos.forEach(yesterdayTodo => {
           // 오늘 투두의 originTodoId가 어제 투두의 id 또는 originTodoId와 일치하는지 확인
           const matchById = todayTodo.originTodoId === yesterdayTodo.id;
           const matchByOriginId = yesterdayTodo.originTodoId && todayTodo.originTodoId === yesterdayTodo.originTodoId;
@@ -277,17 +268,6 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
             idMapping.set(todayTodo.id, yesterdayTodo.id);
           }
         });
-      } else {
-        // originTodoId가 없는 경우 이름으로 매칭 시도
-        const matchingYesterdayTodo = convertedYesterdayTodos.find(
-          yesterdayTodo => yesterdayTodo.name === todayTodo.name
-        );
-        
-        if (matchingYesterdayTodo) {
-          broughtIds.add(matchingYesterdayTodo.id);
-          // 오늘 투두 ID -> 어제 투두 ID 매핑 추가
-          idMapping.set(todayTodo.id, matchingYesterdayTodo.id);
-        }
       }
     });
 
@@ -356,8 +336,8 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
             <TodoContainer
               ref={todoContainerRef}
               mode="checkIn"
-              yesterdayTodos={convertDraftsToTodos(yesterdayTodos)}
-              todayTodos={convertDraftsToTodos(todayTodos)}
+              yesterdayTodos={yesterdayTodos}
+              todayTodos={todayTodos}
               isEditable={true}
               onUpdateYesterdayTodos={handleUpdateYesterdayTodos}
               onUpdateTodayTodos={handleUpdateTodayTodos}

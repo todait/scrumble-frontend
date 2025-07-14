@@ -42,7 +42,7 @@ export function useTodoListLogic({ todos, isEditable, onUpdate }: UseTodoListLog
         order: newOrder,
         thirdpartyUrl: undefined,
         parentId: undefined,
-        originTodoId: undefined,
+        originTodoId: null,
         depth: 0,
         completedAt: undefined,
         children: [],

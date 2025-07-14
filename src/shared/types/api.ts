@@ -425,6 +425,7 @@ export interface ApiUpdateTodoRequest {
   order?: number;
   thirdparty_url?: string;
   parent_id?: string;
+  origin_todo_id?: string;
   origin_todo_id_is_nil?: boolean;
   completed_at?: string; // ISO 8601 형식 (RFC3339), null/"" 시 미완료로 설정
 }
@@ -450,6 +451,7 @@ export interface ApiBulkUpdateTodoItem {
   order?: number;
   thirdparty_url?: string;
   parent_id?: string; // UUID
+  origin_todo_id?: string; // UUID
   origin_todo_id_is_nil?: boolean; // true 시 origin_todo_id를 null로 설정
   completed_at?: string; // ISO 8601 형식 (RFC3339), null/"" 시 미완료로 설정
 }

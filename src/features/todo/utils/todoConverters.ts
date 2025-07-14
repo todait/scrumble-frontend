@@ -1,6 +1,5 @@
 import type { Todo } from '@/features/todo/types';
 import type { CreateTodoItemRequest } from '@/shared/types/todo';
-import type { TodoDraft } from '@/features/checkin/stores/useCheckInTodoStore';
 
 /**
  * Todo ID 관련 헬퍼 함수들
@@ -32,30 +31,6 @@ export const isServerId = (id: string): boolean => {
   return !isTemporaryId(id) && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 };
 
-/**
- * TodoDraft → Todo 변환 (store → TodoContainer)
- */
-export const convertTodoDraftToTodo = (
-  draft: TodoDraft,
-  scheduledDate: string,
-  order: number,
-  parentId?: string,
-  originTodoId?: string
-): Todo => {
-  return {
-    id: draft.id,
-    name: draft.text,
-    description: undefined,
-    scheduledDate,
-    order,
-    thirdpartyUrl: undefined,
-    parentId: parentId || undefined,
-    originTodoId: originTodoId || undefined,
-    depth: 0, // 현재는 평면 구조만 지원
-    completedAt: draft.completed ? new Date().toISOString() : '',
-    children: [],
-  };
-};
 
 /**
  * 새로운 Todo 생성 (임시 ID 사용)
@@ -69,7 +44,7 @@ export const createNewTodo = (
   text: string,
   scheduledDate: string,
   order: number,
-  originTodoId?: string
+  originTodoId?: string | null
 ): Todo => {
   return {
     id: generateTemporaryId(),
@@ -79,7 +54,7 @@ export const createNewTodo = (
     order,
     thirdpartyUrl: undefined,
     parentId: undefined,
-    originTodoId: originTodoId || undefined,
+    originTodoId: originTodoId || null,
     depth: 0,
     completedAt: undefined,
     children: [],

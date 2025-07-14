@@ -29,29 +29,17 @@ export const useCheckInTodos = (spaceSlug: string, mode: 'new' | 'edit' = 'new')
     enabled: !!spaceSlug,
   });
   
-  // 어제 Todo 데이터를 store에 동기화 (draft 형태로 간소화)
+  // 어제 Todo 데이터를 store에 동기화
   useEffect(() => {
     if (yesterdayData?.todos) {
-      const drafts = yesterdayData.todos.map(todo => ({
-        id: todo.id,
-        text: todo.name,
-        completed: !!todo.completedAt,
-        originTodoId: todo.originTodoId,
-      }));
-      setYesterdayTodos(drafts);
+      setYesterdayTodos(yesterdayData.todos);
     }
   }, [yesterdayData, setYesterdayTodos]);
   
-  // 오늘 Todo 데이터를 store에 동기화 (draft 형태로 간소화)
+  // 오늘 Todo 데이터를 store에 동기화
   useEffect(() => {
     if (todayData?.todos) {
-      const drafts = todayData.todos.map(todo => ({
-        id: todo.id, // 실제 서버 ID 유지
-        text: todo.name,
-        completed: !!todo.completedAt,
-        originTodoId: todo.originTodoId,
-      }));
-      setTodayTodos(drafts);
+      setTodayTodos(todayData.todos);
     }
   }, [todayData, setTodayTodos]);
   
