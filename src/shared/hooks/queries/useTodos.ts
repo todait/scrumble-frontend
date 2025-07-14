@@ -362,6 +362,7 @@ export const useSaveTodos = (spaceSlug: string) => {
             order: todo.order,
             thirdpartyUrl: todo.thirdpartyUrl,
             parentId: todo.parentId,
+            originTodoId: todo.originTodoId,
             originTodoIdIsNil: !todo.originTodoId,
             completedAt: todo.completedAt,
           })),

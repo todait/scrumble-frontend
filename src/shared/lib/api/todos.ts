@@ -86,6 +86,7 @@ const convertUpdateTodoRequestToApi = (
     order: request.order,
     thirdparty_url: request.thirdpartyUrl,
     parent_id: request.parentId,
+    origin_todo_id: request.originTodoId,
     origin_todo_id_is_nil: request.originTodoIdIsNil,
     ...(request.completedAt !== undefined && { completed_at: request.completedAt }),
   };
@@ -109,6 +110,7 @@ const convertBulkUpdateTodoRequestToApi = (
       order: item.order,
       thirdparty_url: item.thirdpartyUrl,
       parent_id: item.parentId,
+      origin_todo_id: item.originTodoId,
       origin_todo_id_is_nil: item.originTodoIdIsNil,
       ...(item.completedAt !== undefined && { completed_at: item.completedAt }),
     })),
