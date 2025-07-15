@@ -215,6 +215,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // URL 파라미터 처리
   const selectedPostId = searchParams.get('post');
+  const selectedCommentId = searchParams.get('comment');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
 
   // 포스트 날짜 조회
@@ -421,6 +422,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                     post={selectedPost as FeedPost}
                     onClose={handleClosePostDetail}
                     onDeleteDialogChange={setIsDeleteDialogOpen}
+                    highlightedCommentId={selectedCommentId}
                   />
                 </div>
               </div>
@@ -439,6 +441,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                       post={selectedPost as FeedPost}
                       onClose={handleClosePostDetail}
                       onDeleteDialogChange={setIsDeleteDialogOpen}
+                      highlightedCommentId={selectedCommentId}
                     />
                   </div>
                 </div>
