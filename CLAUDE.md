@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 - 항상 한글로 답변해줘
+- commit 은 항상 물어보고 해줘. commit 메시지 생성시 claude code signature 는 제거.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 

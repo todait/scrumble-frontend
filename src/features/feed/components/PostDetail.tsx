@@ -11,6 +11,7 @@ import type { ImageMetadata } from '@/shared/types/upload.types';
 import { RiCloseLine } from '@remixicon/react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useScrollToHighlightedComment } from '../hooks';
 import type { Post } from '../types/feed.types';
 import { CommentInput } from './CommentInput';
 import { PostContent } from './PostContent';
@@ -97,106 +98,10 @@ export function PostDetail({
   }, [onClose]);
 
   // highlightedCommentId가 있을 때 해당 댓글로 스크롤
-  useEffect(() => {
-    if (!highlightedCommentId) return;
-    
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    const tryScroll = () => {
-      const element = document.getElementById(`comment-${highlightedCommentId}`);
-      const container = scrollableAreaRef.current;
-      
-      
-      if (element && container) {
-        // 자식 요소가 있는지 확인
-        const hasContent = element.children.length > 0 || (element.textContent?.trim()?.length ?? 0) > 0;
-        if (!hasContent) {
-          attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(tryScroll, 100); // 재시도 간격도 단축
-          }
-          return false;
-        }
-        
-        // 모든 댓글 요소 찾기
-        const allComments = container.querySelectorAll('[id^="comment-"]');
-        let targetIndex = -1;
-        allComments.forEach((el, index) => {
-          if (el.id === `comment-${highlightedCommentId}`) {
-            targetIndex = index;
-          }
-        });
-        
-        
-        // PostContent의 높이 먼저 계산
-        const postContent = container.querySelector('[class*="PostContent"]') || 
-                          container.querySelector('.px-4.py-4') ||
-                          container.firstElementChild;
-        
-        
-        // 실제 요소의 offsetTop을 찾기 위해 다시 시도
-        // container 내부의 모든 요소를 순회하며 offsetTop 누적
-        let actualOffsetTop = 0;
-        
-        // PostContent까지의 높이
-        if (postContent) {
-          actualOffsetTop = (postContent as HTMLElement).offsetTop + (postContent as HTMLElement).offsetHeight;
-        }
-        
-        // CommentSection 내에서 실제 댓글의 위치 찾기
-        if (targetIndex >= 0 && allComments[targetIndex]) {
-          const targetComment = allComments[targetIndex] as HTMLElement;
-          // 부모 요소들을 거슬러 올라가며 offsetTop 계산
-          let currentEl = targetComment;
-          let tempOffset = 0;
-          
-          while (currentEl && currentEl !== container) {
-            tempOffset += currentEl.offsetTop;
-            currentEl = currentEl.offsetParent as HTMLElement;
-          }
-          
-          actualOffsetTop = tempOffset;
-        }
-        
-        // 중앙에 위치하도록 계산
-        const targetScrollTop = actualOffsetTop - (container.clientHeight / 2) + 50;
-        
-        
-        if (targetIndex >= 0) {
-          container.scrollTo({
-            top: Math.max(0, targetScrollTop),
-            behavior: 'instant' // 즉시 이동
-          });
-        }
-        
-        return true;
-      }
-      
-      attempts++;
-      if (attempts < maxAttempts) {
-        setTimeout(tryScroll, 500); // 500ms 간격으로 재시도
-      }
-      
-      return false;
-    };
-    
-    // requestAnimationFrame을 사용하여 다음 렌더링 사이클에서 실행
-    let rafId: number;
-    const startScroll = () => {
-      rafId = requestAnimationFrame(() => {
-        tryScroll();
-      });
-    };
-    
-    // 약간의 지연 후 시작 (컴포넌트 마운트 완료 대기)
-    const initialTimeout = setTimeout(startScroll, 50);
-    
-    return () => {
-      clearTimeout(initialTimeout);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, [highlightedCommentId]); // post.comments는 의도적으로 제외 (무한 루프 방지)
+  useScrollToHighlightedComment({
+    highlightedCommentId,
+    scrollableAreaRef,
+  });
 
   const handleCommentEdit = (commentId: string) => {
     // 편집 모드 전환 (이미 편집 중이면 종료)
