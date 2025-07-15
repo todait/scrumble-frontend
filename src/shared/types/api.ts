@@ -255,6 +255,7 @@ export interface GetFeedSummaryApiResponse {
     check_out_count: number;
     total_workday_member_count: number;
     average_condition_score: number;
+    next_checkin_order: number; // 다음 체크인 순서 번호
   };
 }
 
@@ -337,6 +338,10 @@ export interface DeleteCheckInApiResponse {
 
 export interface DeleteCheckOutApiResponse {
   message: string;
+}
+
+export interface GetPostDateApiResponse {
+  date: string; // YYYY-MM-DD
 }
 
 // =========================
@@ -473,4 +478,88 @@ export interface ApiBulkUpdateResult {
 export interface BulkUpdateTodosApiResponse {
   message: string;
   result: ApiBulkUpdateResult;
+}
+
+// =========================
+// Space API 응답 타입들
+// =========================
+
+/**
+ * API 스페이스 멤버 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 재사용성을 위해 별도로 정의
+ */
+export interface ApiSpaceMember {
+  id: string; // 멤버십 ID (UUID)
+  user_id: string; // 사용자 ID (UUID)
+  name: string; // 사용자 이름
+  avatar_url?: string; // 아바타 URL (선택)
+  role: string; // 역할: owner, admin, member
+  joined_at: string; // ISO 8601 형식
+}
+
+/**
+ * API 스페이스 타입 (백엔드에서 반환하는 snake_case 형태)
+ * 재사용성을 위해 별도로 정의
+ */
+export interface ApiSpace {
+  id: string; // UUID
+  slug: string; // 유니크한 스페이스 식별자
+  name: string; // 스페이스 이름
+  icon_url?: string; // 아이콘 URL (선택)
+  members: ApiSpaceMember[]; // 멤버 목록
+  created_at: string; // ISO 8601 형식
+  updated_at: string; // ISO 8601 형식
+}
+
+/**
+ * 스페이스 생성 API 요청 (백엔드로 전송하는 snake_case 형태)
+ */
+export interface CreateSpaceApiRequest {
+  name: string; // 1-100자
+}
+
+/**
+ * 스페이스 생성 API 응답 (백엔드)
+ */
+export interface CreateSpaceApiResponse {
+  message: string;
+  space: ApiSpace;
+}
+
+/**
+ * 스페이스 수정 API 요청 (백엔드로 전송하는 snake_case 형태)
+ * 모든 필드는 선택사항
+ */
+export interface UpdateSpaceApiRequest {
+  name?: string; // 1-100자
+  icon_url?: string; // 유효한 URL 형식
+}
+
+/**
+ * 스페이스 수정 API 응답 (백엔드)
+ */
+export interface UpdateSpaceApiResponse {
+  message: string;
+  space: ApiSpace;
+}
+
+/**
+ * 내 스페이스 목록 조회 API 응답 (백엔드)
+ */
+export interface GetMySpacesApiResponse {
+  spaces: ApiSpace[];
+}
+
+/**
+ * 스페이스 상세 조회 API 응답 (백엔드)
+ */
+export interface GetSpaceApiResponse {
+  space: ApiSpace;
+}
+
+/**
+ * 스페이스 삭제 API 응답 (백엔드)
+ */
+export interface DeleteSpaceApiResponse {
+  message: string;
 }

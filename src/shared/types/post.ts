@@ -121,7 +121,8 @@ export interface ExistsCheckinParams {
 
 export interface GetFeedSummaryParams {
   spaceSlug: string;
-  date: string;
+  date?: string; // 선택적, 기본값은 오늘 날짜
+  timezone?: string; // 선택적, X-Timezone 헤더로 전송됨
 }
 
 export interface GetFeedSummaryResponse {
@@ -133,6 +134,7 @@ export interface GetFeedSummaryResponse {
     checkOutCount: number;
     totalWorkdayMemberCount: number;
     averageConditionScore: number;
+    nextCheckinOrder: number; // 다음 체크인 순서 번호
   };
 }
 
@@ -210,4 +212,13 @@ export interface DeleteCheckOutRequest {
 
 export interface DeleteCheckOutResponse {
   message: string;
+}
+
+export interface GetPostDateParams {
+  spaceSlug: string;
+  postId: string;
+}
+
+export interface GetPostDateResponse {
+  date: string; // YYYY-MM-DD
 }

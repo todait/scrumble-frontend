@@ -32,7 +32,8 @@ interface UsePostsOptions {
 
 interface UseFeedSummaryOptions {
   spaceSlug: string;
-  date: string;
+  date?: string; // 선택적, 기본값은 오늘 날짜
+  timezone?: string; // 선택적, 사용자 타임존
 }
 
 /**
@@ -71,12 +72,12 @@ export const usePosts = (options: UsePostsOptions) => {
 };
 
 export const useFeedSummary = (options: UseFeedSummaryOptions) => {
-  const { spaceSlug, date } = options;
+  const { spaceSlug, date, timezone } = options;
 
   return useQuery({
-    queryKey: postsKeys.feedSummary(spaceSlug, date),
-    queryFn: () => postsApi.getFeedSummary({ spaceSlug, date }),
-    enabled: !!spaceSlug && !!date,
+    queryKey: postsKeys.feedSummary(spaceSlug, date || formatDateToAPIString(new Date())),
+    queryFn: () => postsApi.getFeedSummary({ spaceSlug, date, timezone }),
+    enabled: !!spaceSlug,
     staleTime: 1000 * 30, // 30초
     gcTime: 1000 * 60 * 10, // 10분
     refetchOnWindowFocus: true,
@@ -514,5 +515,24 @@ export const useDeleteCheckOut = () => {
         message: getErrorMessage(err),
       });
     },
+  });
+};
+
+interface UsePostDateOptions {
+  spaceSlug: string;
+  postId: string;
+  enabled?: boolean;
+}
+
+export const usePostDate = (options: UsePostDateOptions) => {
+  const { spaceSlug, postId, enabled = true } = options;
+
+  return useQuery({
+    queryKey: postsKeys.postDate(spaceSlug, postId),
+    queryFn: () => postsApi.getPostDate({ spaceSlug, postId }),
+    enabled: !!spaceSlug && !!postId && enabled,
+    staleTime: 1000 * 60 * 5, // 5분
+    gcTime: 1000 * 60 * 10, // 10분
+    retry: authRetry,
   });
 };

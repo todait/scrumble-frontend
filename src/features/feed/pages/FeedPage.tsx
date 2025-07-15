@@ -1,6 +1,5 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import {
   FeedHeader,
   FeedListSkeleton,
@@ -9,16 +8,28 @@ import {
   GoToFocusedPostButton,
   PostCard,
 } from '@/features/feed/components';
+import {
+  useFeedActions,
+  useFeedData,
+  useFeedModal,
+  useFeedNavigation,
+  useFeedScroll,
+  useVisiblePosts,
+} from '@/features/feed/hooks';
+import type { Post as FeedPost } from '@/features/feed/types/feed.types';
 import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
+import { ROUTES } from '@/shared/constants';
+import { useAuth } from '@/shared/contexts/AuthContext';
+import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
+import { usePostDate } from '@/shared/hooks/queries/usePosts';
+import dynamic from 'next/dynamic';
 
 // Dynamic imports for heavy components
-const PostDetail = dynamic(
-  () => import('@/features/feed/components').then(mod => mod.PostDetail),
-  { 
-    ssr: false,
-    loading: () => <div className="animate-pulse bg-gray-100 h-full w-full rounded-xl" />
-  }
-);
+const PostDetail = dynamic(() => import('@/features/feed/components').then(mod => mod.PostDetail), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse rounded-xl bg-gray-100" />,
+});
 
 const TeamSummaryCard = dynamic(
   () => import('@/features/feed/components').then(mod => mod.TeamSummaryCard),
@@ -29,23 +40,10 @@ const CheckOutWriteModal = dynamic(
   () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
   { ssr: false }
 );
-import {
-  useFeedActions,
-  useFeedData,
-  useFeedModal,
-  useFeedNavigation,
-  useFeedScroll,
-  useVisiblePosts,
-} from '@/features/feed/hooks';
-import type { Post as FeedPost } from '@/features/feed/types/feed.types';
-import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
-import { ROUTES } from '@/shared/constants';
-import { useAuth } from '@/shared/contexts/AuthContext';
-import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
 // import { useWebSocket } from '@/shared/hooks/useWebSocket'; // 사용하지 않음 - useFeedData에서 처리
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
-import { debug as logDebug } from '@/shared/utils/debug';
+import { debug, debug as logDebug } from '@/shared/utils/debug';
 import { RiSettings6Line } from '@remixicon/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -67,6 +65,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const [isPostDetailVisible, setIsPostDetailVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasAutoNavigatedRef = useRef<string | null>(null); // 자동 날짜 이동이 실행된 postId 추적
 
   // URL 파라미터에서 날짜 초기화 (URL → localStorage → 오늘 순서)
   useEffect(() => {
@@ -97,9 +96,13 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
+    setIsPostDetailVisible(false);
     // 스크롤을 맨 위로 초기화
     scrollContainerRef.current?.scrollTo(0, 0);
-    
+
+    // 자동 이동 기록 초기화 (사용자가 의도적으로 날짜를 변경했으므로)
+    hasAutoNavigatedRef.current = null;
+
     // 미래 날짜인지 확인
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -108,22 +111,29 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
     // 미래 날짜인 경우 오늘 날짜로 리다이렉트
     if (targetDate > today) {
+      setSelectedDate(new Date());
       const todayString = formatDateToAPIString(new Date());
       const newUrl = `/${spaceSlug}/feed?date=${todayString}`;
-      router.replace(newUrl);
-      setSelectedDate(new Date());
+
+      setTimeout(() => {
+        router.replace(newUrl);
+      }, 50);
       return;
     }
 
     setSelectedDate(date);
     const dateString = formatDateToAPIString(date);
     const newUrl = `/${spaceSlug}/feed?date=${dateString}`;
-    router.replace(newUrl);
+    debug('FeedPage', 'handleDateChange', newUrl);
+
+    setTimeout(() => {
+      router.replace(newUrl);
+    }, 50);
   };
 
   // 가시성 추적
   const { visiblePostIds, observePost, unobservePost, unobserveAll } = useVisiblePosts();
-  
+
   // 디버깅을 위한 로그
   useEffect(() => {
     logDebug('FeedPage', 'Visible post IDs changed', visiblePostIds);
@@ -206,6 +216,45 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // URL 파라미터 처리
   const selectedPostId = searchParams.get('post');
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
+
+  // 포스트 날짜 조회
+  const { data: postDateData } = usePostDate({
+    spaceSlug,
+    postId: selectedPostId || '',
+    enabled: !!selectedPostId,
+  });
+
+  // 포스트 날짜가 조회되면 해당 날짜로 이동 (초기 로드시에만)
+  useEffect(() => {
+    if (postDateData?.date && selectedPostId) {
+      // 이미 이 포스트에 대해 자동 이동을 실행했으면 스킵
+      if (hasAutoNavigatedRef.current === selectedPostId) {
+        return;
+      }
+
+      const postDate = postDateData.date;
+      const currentDate = formatDateToAPIString(selectedDate);
+
+      // 포스트의 날짜가 현재 선택된 날짜와 다르면 해당 날짜로 이동
+      if (postDate !== currentDate) {
+        const newDate = new Date(postDate);
+        setSelectedDate(newDate);
+        // post 파라미터를 유지하면서 날짜 변경
+        const newUrl = `/${spaceSlug}/feed?date=${postDate}&post=${selectedPostId}`;
+        router.replace(newUrl);
+
+        // 이 포스트에 대해 자동 이동을 실행했음을 기록
+        hasAutoNavigatedRef.current = selectedPostId;
+      }
+    }
+  }, [postDateData, selectedPostId, selectedDate, spaceSlug, router, setSelectedDate]);
+
+  // selectedPostId가 변경되거나 없어지면 자동 이동 기록 초기화
+  useEffect(() => {
+    if (!selectedPostId) {
+      hasAutoNavigatedRef.current = null;
+    }
+  }, [selectedPostId]);
 
   // selectedPostId가 변경될 때 isPostDetailVisible 업데이트
   useEffect(() => {

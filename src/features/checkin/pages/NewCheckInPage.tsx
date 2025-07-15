@@ -2,7 +2,7 @@
 
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
 import { useDateStore } from '@/shared/stores/useDateStore';
-import { formatDateForPage } from '@/shared/utils';
+import { formatDateForPage, convertToKoreanOrder } from '@/shared/utils';
 import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -37,7 +37,7 @@ export function NewCheckInPage() {
   }, [selectedDate, spaceSlug, router]);
 
   // 체크인 가능 횟수 (임시로 15로 설정)
-  const remainingCheckins = 15;
+  const nextCheckinOrder = teamSummary?.nextCheckinOrder ?? 0;
 
   const handleStartCheckin = () => {
     setIsModalOpen(true);
@@ -59,7 +59,9 @@ export function NewCheckInPage() {
           <div className="overflow-hidden rounded-xl bg-white shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-2xl">
             {/* 상단 섹션 - 날짜와 제목 */}
             <div className="border-b border-[rgba(34,34,34,0.08)] px-5 py-5 md:px-[30px] md:py-[30px]">
-              <div className="mb-2 text-sm font-bold text-[#9747FF] md:text-[15px]">{formatDateForPage(selectedDate)}</div>
+              <div className="mb-2 text-sm font-bold text-[#9747FF] md:text-[15px]">
+                {formatDateForPage(selectedDate)}
+              </div>
 
               <div className="space-y-2">
                 <h1 className="text-xl font-bold leading-[1.5] text-[#222222] md:text-[24px]">
@@ -74,9 +76,11 @@ export function NewCheckInPage() {
 
             {/* 중간 섹션 - 체크인 가능 횟수와 박스들 */}
             <div className="border-b border-[rgba(34,34,34,0.08)] px-5 py-5 md:px-[30px] md:py-[30px]">
-              <p className="mb-4 text-sm font-bold text-[#222222] opacity-80 md:text-[15px]">
-                {remainingCheckins}번째 체크인을 남길 수 있습니다
-              </p>
+              {nextCheckinOrder > 0 && (
+                <p className="mb-4 text-sm font-bold text-[#222222] opacity-80 md:text-[15px]">
+                  {`오늘 ${convertToKoreanOrder(nextCheckinOrder)}번째로 체크인을 남겨보세요`}
+                </p>
+              )}
 
               {isLoading ? (
                 <div className="flex gap-4 py-[10px]">
