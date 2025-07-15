@@ -100,10 +100,24 @@ export function useScrollToHighlightedComment({
         const targetScrollTop = actualOffsetTop - container.clientHeight / 2 + 50;
 
         if (targetIndex >= 0) {
-          container.scrollTo({
-            top: Math.max(0, targetScrollTop),
-            behavior: 'instant', // 즉시 이동
-          });
+          // Safari 브라우저 감지
+          const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+          
+          try {
+            // Safari 또는 scrollTo options 미지원 브라우저용 폴백
+            if (isSafari || typeof container.scrollTo !== 'function') {
+              container.scrollTop = Math.max(0, targetScrollTop);
+            } else {
+              // 모던 브라우저 - behavior를 'auto'로 변경 (Safari 호환성)
+              container.scrollTo({
+                top: Math.max(0, targetScrollTop),
+                behavior: 'auto', // 'instant' 대신 'auto' 사용
+              });
+            }
+          } catch {
+            // 에러 발생 시 기본 스크롤 방식 사용
+            container.scrollTop = Math.max(0, targetScrollTop);
+          }
         }
 
         return true;
@@ -117,16 +131,27 @@ export function useScrollToHighlightedComment({
       return false;
     };
 
+    // Safari 브라우저 감지
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
     // requestAnimationFrame을 사용하여 다음 렌더링 사이클에서 실행
     let rafId: number;
     const startScroll = () => {
       rafId = requestAnimationFrame(() => {
-        tryScroll(); // async 함수이지만 결과를 기다릴 필요 없음
+        // Safari에서는 추가 프레임 대기
+        if (isSafari) {
+          requestAnimationFrame(() => {
+            tryScroll();
+          });
+        } else {
+          tryScroll(); // async 함수이지만 결과를 기다릴 필요 없음
+        }
       });
     };
 
     // 약간의 지연 후 시작 (컴포넌트 마운트 완료 대기)
-    const initialTimeout = setTimeout(startScroll, 50);
+    // Safari에서는 더 긴 지연 필요
+    const initialTimeout = setTimeout(startScroll, isSafari ? 150 : 50);
 
     return () => {
       clearTimeout(initialTimeout);
