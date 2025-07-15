@@ -264,15 +264,7 @@ export function PostContent({
 
   return (
     <>
-      <div
-        className={`group relative flex gap-[10px] ${padding} ${
-          isSelected && !isDetailView
-            ? 'bg-[rgba(151,71,255,0.04)]'
-            : !isDetailView
-              ? 'bg-white hover:bg-[rgba(151,71,255,0.04)]'
-              : 'bg-white'
-        }`}
-      >
+      <div className={`group relative flex gap-[10px] ${padding} bg-white`}>
         {/* 선택 시 왼쪽 보라색 라인 (카드 뷰에서만) */}
         {!isDetailView && isSelected && (
           <div className="absolute left-0 top-0 h-full w-1 bg-[#9747FF]" />

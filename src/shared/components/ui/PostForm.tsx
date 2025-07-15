@@ -108,9 +108,16 @@ export const PostForm = ({
             value={message}
             onChange={e => setMessage(e.target.value)}
             onKeyDown={e => {
-              if (e.key === 'Enter' && e.metaKey && !isSubmitDisabled) {
-                e.preventDefault();
-                handleSubmit();
+              if (e.key === 'Enter') {
+                // 모든 Enter 키 이벤트에 대해 전파 차단
+                e.stopPropagation();
+                
+                // CMD/Meta + Enter인 경우에만 폼 제출
+                if (e.metaKey && !isSubmitDisabled) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+                // 일반 Enter는 줄바꿈을 위해 기본 동작 유지
               }
             }}
             placeholder={placeholder}
