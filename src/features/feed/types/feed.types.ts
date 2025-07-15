@@ -86,6 +86,7 @@ export interface TeamSummary {
   checkedInCount: number;
   totalMembers: number;
   checkedOutCount: number;
+  nextCheckinOrder: number;
 }
 
 // WebSocket에서 받는 댓글 데이터

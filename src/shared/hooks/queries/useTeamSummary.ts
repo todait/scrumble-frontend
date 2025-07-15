@@ -49,6 +49,7 @@ export const useTeamSummary = (options: UseTeamSummaryOptions) => {
         checkedInCount: response.summary?.checkinCount ?? 0,
         totalMembers: response.summary?.totalWorkdayMemberCount ?? 1,
         checkedOutCount: response.summary?.checkOutCount ?? 0,
+        nextCheckinOrder: response.summary?.nextCheckinOrder ?? 0,
       };
     },
     enabled: !!spaceSlug && enabled,

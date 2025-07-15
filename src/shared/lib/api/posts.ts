@@ -10,6 +10,7 @@ import type {
   DeleteCheckOutApiResponse,
   ExistsCheckinApiResponse,
   GetFeedSummaryApiResponse,
+  GetPostDateApiResponse,
   GetPostsApiResponse,
   UpdateCheckInApiResponse,
   UpdateCheckOutApiResponse,
@@ -27,6 +28,8 @@ import type {
   ExistsCheckinResponse,
   GetFeedSummaryParams,
   GetFeedSummaryResponse,
+  GetPostDateParams,
+  GetPostDateResponse,
   GetPostsParams,
   GetPostsResponse,
   Post,
@@ -111,10 +114,18 @@ export const postsApi = {
 
   getFeedSummary: async (params: GetFeedSummaryParams): Promise<GetFeedSummaryResponse> => {
     const queryParams = new URLSearchParams();
-    queryParams.append('date', params.date);
+    
+    // date가 있을 때만 쿼리 파라미터에 추가
+    if (params.date) {
+      queryParams.append('date', params.date);
+    }
+
+    // timezone이 있을 때 X-Timezone 헤더로 전달
+    const headers = params.timezone ? { 'X-Timezone': params.timezone } : undefined;
 
     const { data } = await apiClient.get<GetFeedSummaryApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/summary?${queryParams.toString()}`
+      `/api/v1/spaces/${params.spaceSlug}/posts/summary?${queryParams.toString()}`,
+      { headers }
     );
 
     return {
@@ -126,6 +137,7 @@ export const postsApi = {
         checkOutCount: data.summary.check_out_count,
         totalWorkdayMemberCount: data.summary.total_workday_member_count,
         averageConditionScore: data.summary.average_condition_score,
+        nextCheckinOrder: data.summary.next_checkin_order,
       },
     };
   },
@@ -251,6 +263,16 @@ export const postsApi = {
 
     return {
       message: data.message,
+    };
+  },
+
+  getPostDate: async (params: GetPostDateParams): Promise<GetPostDateResponse> => {
+    const { data } = await apiClient.get<GetPostDateApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/posts/${params.postId}/date`
+    );
+
+    return {
+      date: data.date,
     };
   },
 };

@@ -36,6 +36,8 @@ export const postsKeys = {
     [...postsKeys.bySpace(spaceSlug), 'existsCheckin', date] as const,
   feedSummary: (spaceSlug: string, date: string) =>
     [...postsKeys.bySpace(spaceSlug), 'feedSummary', date] as const,
+  postDate: (spaceSlug: string, postId: string) =>
+    [...postsKeys.bySpace(spaceSlug), 'postDate', postId] as const,
 };
 
 // 선택적 무효화 헬퍼 함수들
