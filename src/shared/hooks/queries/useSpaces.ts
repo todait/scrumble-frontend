@@ -16,7 +16,8 @@ import type {
   UpdateSpaceRequest,
   UpdateSpaceResponse,
 } from '@/shared/types/space';
-import { getErrorMessage, isErrorCode } from '@/shared/utils';
+import { SpaceErrorCode } from '@/shared/types/space';
+import { getErrorCode, getErrorMessage, isErrorCode } from '@/shared/utils';
 import { authRetry } from '@/shared/utils/query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../useToast';
@@ -92,10 +93,23 @@ export const useCreateSpace = () => {
         queryClient.setQueryData(spacesKeys.myList(), ctx.previousSpacesData);
       }
 
-      error({
-        title: '스페이스 생성 실패',
-        message: getErrorMessage(err),
-      });
+      const errorCode = getErrorCode(err);
+      if (errorCode === SpaceErrorCode.SPACE_NAME_REQUIRED as string) {
+        error({
+          title: '스페이스 생성 실패',
+          message: '스페이스 이름을 입력해주세요.',
+        });
+      } else if (errorCode === SpaceErrorCode.SPACE_NAME_TOO_LONG as string) {
+        error({
+          title: '스페이스 생성 실패',
+          message: '스페이스 이름은 100자 이하로 입력해주세요.',
+        });
+      } else {
+        error({
+          title: '스페이스 생성 실패',
+          message: getErrorMessage(err),
+        });
+      }
     },
   });
 };
@@ -158,15 +172,20 @@ export const useUpdateSpace = () => {
         queryClient.setQueryData(spacesKeys.myList(), ctx.previousSpacesData);
       }
 
-      if (isErrorCode(err, ErrorCode.FORBIDDEN)) {
+      if (isErrorCode(err, ErrorCode.FORBIDDEN) || getErrorCode(err) === SpaceErrorCode.NOT_SPACE_OWNER as string) {
         error({
           title: '권한 없음',
           message: '스페이스를 수정할 권한이 없습니다.',
         });
-      } else if (isErrorCode(err, ErrorCode.SPACE_NOT_FOUND)) {
+      } else if (getErrorCode(err) === SpaceErrorCode.SPACE_NOT_FOUND as string) {
         error({
           title: '스페이스를 찾을 수 없음',
           message: '존재하지 않는 스페이스입니다.',
+        });
+      } else if (getErrorCode(err) === SpaceErrorCode.INVALID_ICON_URL as string) {
+        error({
+          title: '잘못된 아이콘 URL',
+          message: '올바른 URL 형식을 입력해주세요.',
         });
       } else {
         error({
@@ -218,12 +237,12 @@ export const useDeleteSpace = () => {
         queryClient.setQueryData(spacesKeys.detail(variables.spaceSlug), ctx.previousSpaceData);
       }
 
-      if (isErrorCode(err, ErrorCode.FORBIDDEN)) {
+      if (isErrorCode(err, ErrorCode.FORBIDDEN) || getErrorCode(err) === SpaceErrorCode.NOT_SPACE_OWNER as string) {
         error({
           title: '권한 없음',
           message: '스페이스를 삭제할 권한이 없습니다. 소유자만 삭제할 수 있습니다.',
         });
-      } else if (isErrorCode(err, ErrorCode.SPACE_NOT_FOUND)) {
+      } else if (getErrorCode(err) === SpaceErrorCode.SPACE_NOT_FOUND as string) {
         error({
           title: '스페이스를 찾을 수 없음',
           message: '이미 삭제되었거나 존재하지 않는 스페이스입니다.',

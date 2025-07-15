@@ -1,21 +1,16 @@
 export * from './api';
-export * from './user';
 export * from './post';
 export * from './auth';
 export * from './member';
 export * from './todo';
-export type {
-  Space,
-  SpaceMemberRole,
-  CreateSpaceRequest,
-  CreateSpaceResponse,
-  UpdateSpaceRequest,
-  UpdateSpaceResponse,
-  GetMySpacesOptions,
-  GetMySpacesResponse,
-  GetSpaceParams,
-  GetSpaceResponse,
-  DeleteSpaceParams,
-  DeleteSpaceResponse,
-} from './space';
-export { SpaceErrorCode } from './space';
+
+// Export from user and space with explicit handling for SpaceMember
+export { 
+  type User,
+  type UserWithLatestSpace,
+  type UserWithCentrifugoToken,
+  type UserProfile,
+  type SpaceMember as UserSpaceMember
+} from './user';
+
+export * from './space';

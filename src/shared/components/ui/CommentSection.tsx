@@ -43,6 +43,7 @@ interface CommentSectionProps {
   onCommentUpdate?: (commentId: string, content: string, images: ImageMetadata[]) => void;
   editingCommentId?: string | null;
   isUpdating?: boolean;
+  highlightedCommentId?: string | null;
 }
 
 export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
@@ -58,6 +59,7 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
       onCommentUpdate,
       editingCommentId,
       isUpdating,
+      highlightedCommentId,
     },
     ref
   ) => {
@@ -94,6 +96,7 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
                 onUpdate={onCommentUpdate}
                 editingCommentId={editingCommentId}
                 isUpdating={isUpdating}
+                isHighlighted={highlightedCommentId === comment.id}
               />
             )
           )}
@@ -133,6 +136,7 @@ interface CommentItemProps {
   onUpdate?: (commentId: string, content: string, images: ImageMetadata[]) => void;
   editingCommentId?: string | null;
   isUpdating?: boolean;
+  isHighlighted?: boolean;
 }
 
 function CommentItem({
@@ -144,6 +148,7 @@ function CommentItem({
   onUpdate,
   editingCommentId,
   isUpdating: _isUpdating, // _ prefix로 사용하지 않음을 명시
+  isHighlighted,
 }: CommentItemProps) {
   const { user } = useAuth();
   const params = useParams();
@@ -153,6 +158,7 @@ function CommentItem({
   const [editContent, setEditContent] = useState(comment.content);
   const [showToast, setShowToast] = useState<{ message: string } | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showHighlight, setShowHighlight] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wasEditingRef = useRef(false);
@@ -241,6 +247,17 @@ function CommentItem({
       }, 100);
     }
   }, [isEditing]);
+
+  // 하이라이팅 효과 처리
+  useEffect(() => {
+    if (isHighlighted) {
+      setShowHighlight(true);
+      const timer = setTimeout(() => {
+        setShowHighlight(false);
+      }, 1000); // 1초 후 하이라이팅 제거
+      return () => clearTimeout(timer);
+    }
+  }, [isHighlighted]);
 
   const handleEditClick = () => {
     if (onEdit) onEdit();
@@ -332,8 +349,11 @@ function CommentItem({
   if (isEditing) {
     return (
       <div
+        id={`comment-${comment.id}`}
         ref={editingContainerRef}
-        className={`group relative flex gap-3 overflow-visible ${className}`}
+        className={`group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
+          showHighlight ? 'bg-purple-50 rounded-lg p-3 -mx-3' : ''
+        }`}
       >
         <ProfileImage
           src={comment.author.profileImage}
@@ -452,7 +472,11 @@ function CommentItem({
 
   return (
     <>
-      <div className={`group relative flex gap-3 overflow-visible ${className}`}>
+      <div 
+        id={`comment-${comment.id}`}
+        className={`group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
+          showHighlight ? 'bg-purple-50 rounded-lg p-3 -mx-3' : ''
+        }`}>
         <ProfileImage
           src={comment.author.profileImage}
           alt={comment.author.name}
@@ -525,11 +549,13 @@ const MemoizedCommentItem = memo(CommentItem, (prevProps, nextProps) => {
   // 1. comment 객체가 변경됨 (내용, 리액션 등)
   // 2. 편집 상태가 변경됨
   // 3. 업데이트 중 상태가 변경됨
+  // 4. 하이라이팅 상태가 변경됨
   return (
     prevProps.comment === nextProps.comment &&
     prevProps.editingCommentId === nextProps.editingCommentId &&
     prevProps.isUpdating === nextProps.isUpdating &&
-    prevProps.postId === nextProps.postId
+    prevProps.postId === nextProps.postId &&
+    prevProps.isHighlighted === nextProps.isHighlighted
   );
 });
 
