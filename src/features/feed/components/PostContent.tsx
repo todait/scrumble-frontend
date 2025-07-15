@@ -51,19 +51,14 @@ export function PostContent({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isTodoCollapsed, setIsTodoCollapsed] = useState(!isDetailView);
   const todoContainerRef = useRef<TodoContainerRef>(null);
-  
+
   // Zustand store에서 편집 모드 상태 가져오기
-  const { 
-    editingPostId,
-    startEdit, 
-    cancelEdit, 
-    applyChanges
-  } = usePostTodoStore();
-  
+  const { editingPostId, startEdit, cancelEdit, applyChanges } = usePostTodoStore();
+
   // 현재 post가 편집 중인지 확인
   const isTodoEditMode = editingPostId === post.id;
   const { user } = useAuth();
-  
+
   // Todo 저장을 위한 공통 훅
   const { saveTodos: saveTodosApi, isSaving } = useSaveTodos(spaceSlug);
   const isMyPost = user?.id === post.author.id;
@@ -81,14 +76,18 @@ export function PostContent({
   const imageUrls = post.images?.map(image => image.url);
 
   // Todo 리스트용 hook (lazy loading)
-  const { todos, isLoading: isTodosLoading, handleToggleComplete, handleUpdateTodos } = usePostTodos({
+  const {
+    todos,
+    isLoading: isTodosLoading,
+    handleToggleComplete,
+    handleUpdateTodos,
+  } = usePostTodos({
     spaceSlug,
     postDate: new Date(post.postedAt),
     postId: post.id, // 현재 post의 ID 전달
     userId: post.author.id, // 포스트 작성자의 Todo 조회
     enabled: !isTodoCollapsed || isDetailView, // Collapse가 열릴 때 또는 상세보기에서 로딩
   });
-
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -230,13 +229,13 @@ export function PostContent({
 
   const handleSaveTodos = async () => {
     if (!todos) return;
-    
+
     try {
       const dateString = formatDateToAPIString(new Date(post.postedAt));
-      
+
       // 공통 저장 함수 사용
       await saveTodosApi(dateString, todos);
-      
+
       applyChanges(todos); // store에서 편집 모드 종료 및 상태 적용
       todoContainerRef.current?.clearFocus(); // 포커스 초기화
       setShowToast({ message: '투두가 성공적으로 저장되었습니다' });
@@ -384,68 +383,72 @@ export function PostContent({
           )}
 
           {/* Todo 리스트 섹션 */}
-          {(post.todoCount !== undefined || todos) && (() => {
-            const hasTodos = todos && todos.length > 0;
-            const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : 0;
-            const totalCount = hasTodos ? todos.length : (post.todoCount || 0);
-            const completionRate = hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-            
-            // 헤더 컨텐츠 결정
-            let headerContent;
-            if (!todos || isTodosLoading || todos.length === 0) {
-              // Todo 로드 전, 로딩 중, 또는 빈 배열
-              headerContent = (
-                <div className="text-xs font-bold">
-                  <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
-                  <span className="text-[#222222]">{post.todoCount || 0}개</span>
-                </div>
-              );
-            } else {
-              // Todo 로드 완료 및 실제 항목 존재
-              headerContent = (
-                <div className="text-xs font-bold">
-                  <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
-                  <span className="text-[#222222]">{completionRate}% 달성 ({completedCount}/{totalCount})</span>
-                </div>
-              );
-            }
-            
-            return (
-              <CollapseSection
-                title=""
-                isCollapsed={isTodoCollapsed}
-                onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
-                className="mt-3"
-                headerContent={headerContent}
-              >
-                {isTodosLoading ? (
-                  <div className="flex justify-center py-8">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600" />
+          {(post.todoCount !== undefined || todos) &&
+            (() => {
+              const hasTodos = todos && todos.length > 0;
+              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : 0;
+              const totalCount = hasTodos ? todos.length : post.todoCount || 0;
+              const completionRate =
+                hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+              // 헤더 컨텐츠 결정
+              let headerContent;
+              if (!todos || isTodosLoading || todos.length === 0) {
+                // Todo 로드 전, 로딩 중, 또는 빈 배열
+                headerContent = (
+                  <div className="text-xs font-bold">
+                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
+                    <span className="text-[#222222]">{post.todoCount || 0}개</span>
                   </div>
-                ) : (
-                  <TodoContainer
-                    ref={todoContainerRef}
-                    mode="postContent"
-                    yesterdayTodos={[]}
-                    todayTodos={todos || []}
-                    isEditable={isMyPost}
-                    onUpdateTodayTodos={handleUpdateTodos}
-                    onToggleComplete={todoId => handleToggleComplete(todoId)}
-                    forceEditMode={isTodoEditMode} // zustand store의 편집 모드 상태 사용
-                    showEditButton={isMyPost}
-                    onToggleEditMode={handleToggleTodoEditMode}
-                  />
-                )}
-              </CollapseSection>
-            );
-          })()}
+                );
+              } else {
+                // Todo 로드 완료 및 실제 항목 존재
+                headerContent = (
+                  <div className="text-xs font-bold">
+                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
+                    <span className="text-[#222222]">
+                      {completionRate}% 달성 ({completedCount}/{totalCount})
+                    </span>
+                  </div>
+                );
+              }
+
+              return (
+                <CollapseSection
+                  title=""
+                  isCollapsed={isTodoCollapsed}
+                  onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
+                  className="mt-3"
+                  headerContent={headerContent}
+                >
+                  {isTodosLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600" />
+                    </div>
+                  ) : (
+                    <TodoContainer
+                      ref={todoContainerRef}
+                      mode="postContent"
+                      yesterdayTodos={[]}
+                      todayTodos={todos || []}
+                      isEditable={isMyPost}
+                      onUpdateTodayTodos={handleUpdateTodos}
+                      onToggleComplete={todoId => handleToggleComplete(todoId)}
+                      forceEditMode={isTodoEditMode} // zustand store의 편집 모드 상태 사용
+                      showEditButton={isMyPost}
+                      onToggleEditMode={handleToggleTodoEditMode}
+                    />
+                  )}
+                </CollapseSection>
+              );
+            })()}
 
           {/* 투두 편집 모드 저장/취소 버튼 */}
           {isTodoEditMode && isMyPost && (
             <div className="mt-3 space-y-2">
               {/* 저장 버튼 */}
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   handleSaveTodos();
                 }}
@@ -466,10 +469,10 @@ export function PostContent({
                   </>
                 )}
               </button>
-              
+
               {/* 취소 버튼 */}
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   handleCancelEdit();
                 }}
