@@ -654,5 +654,5 @@ export const mockTeamSummary: TeamSummary = {
   checkedInCount: 14,
   totalMembers: 14,
   checkedOutCount: 26,
-  nextCheckinOrder: 1,
+  nextCheckinOrder: 15,
 };

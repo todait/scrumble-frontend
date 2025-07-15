@@ -14,12 +14,16 @@ import {
   StatusBadge,
 } from '@/shared/components/ui';
 import { useAuth } from '@/shared/hooks/auth/useAuth';
-import { useDeleteCheckIn, useDeleteCheckOut, useExistsCheckin } from '@/shared/hooks/queries';
+import {
+  useDeleteCheckIn,
+  useDeleteCheckOut,
+  useExistsCheckin,
+  useSaveTodos,
+} from '@/shared/hooks/queries';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
-import { useSaveTodos } from '@/shared/hooks/queries';
 import router from 'next/router';
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { usePostTodos } from '../hooks/usePostTodos';
 import { usePostTodoStore } from '../stores/usePostTodoStore';
 import type { Post } from '../types/feed.types';
@@ -260,15 +264,7 @@ export function PostContent({
 
   return (
     <>
-      <div
-        className={`group relative flex gap-[10px] ${padding} ${
-          isSelected && !isDetailView
-            ? 'bg-[rgba(151,71,255,0.04)]'
-            : !isDetailView
-              ? 'bg-white hover:bg-[rgba(151,71,255,0.04)]'
-              : 'bg-white'
-        }`}
-      >
+      <div className={`group relative flex gap-[10px] ${padding} bg-white`}>
         {/* 선택 시 왼쪽 보라색 라인 (카드 뷰에서만) */}
         {!isDetailView && isSelected && (
           <div className="absolute left-0 top-0 h-full w-1 bg-[#9747FF]" />
@@ -423,21 +419,26 @@ export function PostContent({
                 >
                   {isTodosLoading ? (
                     <div className="flex justify-center py-8">
-                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600" />
+                      <div
+                        data-testid="todo-loading-spinner"
+                        className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600"
+                      />
                     </div>
                   ) : (
-                    <TodoContainer
-                      ref={todoContainerRef}
-                      mode="postContent"
-                      yesterdayTodos={[]}
-                      todayTodos={todos || []}
-                      isEditable={isMyPost}
-                      onUpdateTodayTodos={handleUpdateTodos}
-                      onToggleComplete={todoId => handleToggleComplete(todoId)}
-                      forceEditMode={isTodoEditMode} // zustand store의 편집 모드 상태 사용
-                      showEditButton={isMyPost}
-                      onToggleEditMode={handleToggleTodoEditMode}
-                    />
+                    <div data-testid="todo-section">
+                      <TodoContainer
+                        ref={todoContainerRef}
+                        mode="postContent"
+                        yesterdayTodos={[]}
+                        todayTodos={todos || []}
+                        isEditable={isMyPost}
+                        onUpdateTodayTodos={handleUpdateTodos}
+                        onToggleComplete={todoId => handleToggleComplete(todoId)}
+                        forceEditMode={isTodoEditMode} // zustand store의 편집 모드 상태 사용
+                        showEditButton={isMyPost}
+                        onToggleEditMode={handleToggleTodoEditMode}
+                      />
+                    </div>
                   )}
                 </CollapseSection>
               );

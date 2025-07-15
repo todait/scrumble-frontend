@@ -159,6 +159,7 @@ function CommentItem({
   const [showToast, setShowToast] = useState<{ message: string } | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wasEditingRef = useRef(false);
@@ -218,7 +219,7 @@ function CommentItem({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]); // 의존성 배열에서 clearImages와 initializeWithImages 제거
 
-  // textarea 높이 자동 조정 및 커서 위치를 텍스트 끝으로 이동
+  // textarea 높이 자동 조정
   useEffect(() => {
     if (textareaRef.current && isEditing) {
       const textarea = textareaRef.current;
@@ -227,13 +228,18 @@ function CommentItem({
       textarea.style.height = '22px';
       const scrollHeight = textarea.scrollHeight;
       textarea.style.height = `${Math.min(scrollHeight, 300)}px`;
+    }
+  }, [editContent, isEditing]);
 
-      // 커서를 텍스트 끝으로 이동
+  // 편집 모드 최초 진입 시에만 커서를 텍스트 끝으로 이동
+  useEffect(() => {
+    if (textareaRef.current && isEditing && !wasEditingRef.current) {
+      const textarea = textareaRef.current;
       const length = textarea.value.length;
       textarea.focus();
       textarea.setSelectionRange(length, length);
     }
-  }, [editContent, isEditing]);
+  }, [isEditing]);
 
   // 편집 모드 활성화 시 스크롤 처리
   useEffect(() => {
@@ -381,13 +387,15 @@ function CommentItem({
                 value={editContent}
                 onChange={e => setEditContent(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
+                  if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
                     e.preventDefault();
                     if (isSaveEnabled) {
                       handleSave();
                     }
                   }
                 }}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 className="w-full resize-none overflow-y-auto rounded-lg border border-[rgba(34,34,34,0.08)] bg-white p-3 text-sm text-[#222222] focus:border-[#9747FF] focus:outline-none md:text-[14px]"
                 style={{ minHeight: '60px', maxHeight: '300px' }}
                 autoFocus
