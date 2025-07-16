@@ -231,13 +231,15 @@ function CommentItem({
     }
   }, [editContent, isEditing]);
 
-  // 편집 모드 최초 진입 시에만 커서를 텍스트 끝으로 이동
+  // 편집 모드 진입 시 포커스 및 커서 위치 설정
   useEffect(() => {
-    if (textareaRef.current && isEditing && !wasEditingRef.current) {
+    if (isEditing && textareaRef.current) {
       const textarea = textareaRef.current;
-      const length = textarea.value.length;
       textarea.focus();
-      textarea.setSelectionRange(length, length);
+      // 커서를 텍스트 끝으로 이동
+      textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+      // 스크롤도 맨 아래로
+      textarea.scrollTop = textarea.scrollHeight;
     }
   }, [isEditing]);
 
@@ -358,7 +360,7 @@ function CommentItem({
         id={`comment-${comment.id}`}
         ref={editingContainerRef}
         className={`group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
-          showHighlight ? 'bg-purple-50 rounded-lg p-3 -mx-3' : ''
+          showHighlight ? '-mx-3 rounded-lg bg-purple-50 p-3' : ''
         }`}
       >
         <ProfileImage
@@ -398,7 +400,6 @@ function CommentItem({
                 onCompositionEnd={() => setIsComposing(false)}
                 className="w-full resize-none overflow-y-auto rounded-lg border border-[rgba(34,34,34,0.08)] bg-white p-3 text-sm text-[#222222] focus:border-[#9747FF] focus:outline-none md:text-[14px]"
                 style={{ minHeight: '60px', maxHeight: '300px' }}
-                autoFocus
                 disabled={false}
               />
 
@@ -480,11 +481,12 @@ function CommentItem({
 
   return (
     <>
-      <div 
+      <div
         id={`comment-${comment.id}`}
         className={`group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
-          showHighlight ? 'bg-purple-50 rounded-lg p-3 -mx-3' : ''
-        }`}>
+          showHighlight ? '-mx-3 rounded-lg bg-purple-50 p-3' : ''
+        }`}
+      >
         <ProfileImage
           src={comment.author.profileImage}
           alt={comment.author.name}
