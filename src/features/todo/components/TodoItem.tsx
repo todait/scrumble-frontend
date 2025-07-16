@@ -136,7 +136,7 @@ export function TodoItem({
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={() => setIsComposing(false)}
             onPaste={handlePaste}
-            className="h-6 w-full resize-none border-none bg-white px-2 py-1.5 text-sm leading-tight text-[#222222] outline-none"
+            className="h-6 w-full resize-none overflow-hidden border-none bg-transparent px-2 py-1.5 text-sm leading-tight text-[#222222] outline-none"
             placeholder="투두를 입력하세요..."
             rows={1}
           />
