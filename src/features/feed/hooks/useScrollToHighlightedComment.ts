@@ -111,7 +111,7 @@ export function useScrollToHighlightedComment({
 
       attempts++;
       if (attempts < maxAttempts) {
-        setTimeout(tryScroll, 500); // 500ms 간격으로 재시도
+        setTimeout(tryScroll, 500); // 500ms 간격으로 재시도! safri 대응은 추후
       }
 
       return false;
