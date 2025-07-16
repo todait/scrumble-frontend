@@ -2,10 +2,10 @@
 
 import { IconButton, ImageViewer, LoadingSpinner } from '@/shared/components/ui';
 import { ImagePreview } from '@/shared/components/ui/ImagePreview';
+import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import { useImageViewer } from '@/shared/hooks/useImageViewer';
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine, RiSendPlaneFill } from '@remixicon/react';
@@ -47,7 +47,7 @@ export function CommentInput({
   // 클립보드 이미지 붙여넣기 기능
   const { textareaProps } = useTextareaClipboardImagePaste({
     onImagePaste: uploadImages,
-    onError: (error) => {
+    onError: error => {
       alert(error);
     },
     enabled: true,
@@ -67,7 +67,6 @@ export function CommentInput({
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
       const contentToSubmit = content.trim();
-
 
       // 상태 초기화를 먼저 수행
       clearImages();
@@ -91,8 +90,7 @@ export function CommentInput({
     img => (img.progress > 0 && img.progress < 100) || !img.metadata
   );
 
-  const isSubmitEnabled =
-    content.trim().length > 0 && !isUploading && !hasUploadingImages;
+  const isSubmitEnabled = content.trim().length > 0 && !isUploading && !hasUploadingImages;
 
   const displayPlaceholder = placeholder || `${authorName}님의 체크인에 가볍게 코멘트를 남겨보세요`;
 
