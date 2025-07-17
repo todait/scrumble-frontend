@@ -78,6 +78,7 @@ export const authApi = {
     // 백엔드 응답을 프론트엔드 타입으로 수동 변환
     return {
       id: data.id,
+      memberId: data.member_id,
       email: data.email,
       name: data.name,
       avatarURL: data.avatar_url,

@@ -265,6 +265,7 @@ export interface GetFeedSummaryApiResponse {
  */
 export interface GetUserWithLatestSpaceApiResponse {
   id: string;
+  member_id: string;
   email: string;
   name: string;
   avatar_url: string;

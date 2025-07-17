@@ -191,6 +191,41 @@ export interface ConnectionFailedMessage extends BaseWebSocketMessage {
   attempts: number;
 }
 
+// 알림 생성 메시지
+export interface NotificationCreatedMessage extends BaseWebSocketMessage {
+  type: 'notification.created';
+  postId: string;
+  userId: string;
+  data: {
+    notificationId: string;
+    memberId: string;
+    category: string;
+    type: string;
+    spaceId: string;
+    spaceSlug: string;
+    action: 'notification.created';
+    authorName?: string;
+    postTitle?: string;
+    [key: string]: any;
+  };
+}
+
+// 알림 읽음 메시지
+export interface NotificationReadMessage extends BaseWebSocketMessage {
+  type: 'notification.read';
+  postId: string;
+  userId: string;
+  data: {
+    notificationId: string;
+    memberId: string;
+    category: string;
+    type: string;
+    spaceId: string;
+    spaceSlug: string;
+    action: 'notification.read';
+  };
+}
+
 // 에러 메시지
 export interface MessageErrorMessage extends BaseWebSocketMessage {
   type: 'message.error';
@@ -300,6 +335,8 @@ export type IncomingWebSocketMessage =
   | PostDeletedMessage
   | ReactionAddedMessage
   | ReactionRemovedMessage
+  | NotificationCreatedMessage
+  | NotificationReadMessage
   | ConnectionEstablishedMessage
   | ConnectionLostMessage
   | ConnectionReconnectingMessage
@@ -375,6 +412,14 @@ export const isMessageErrorMessage = (msg: WebSocketMessage): msg is MessageErro
 
 export const isPongMessage = (msg: WebSocketMessage): msg is PongMessage => msg.type === 'pong';
 
+export const isNotificationCreatedMessage = (
+  msg: WebSocketMessage
+): msg is NotificationCreatedMessage => msg.type === 'notification.created';
+
+export const isNotificationReadMessage = (
+  msg: WebSocketMessage
+): msg is NotificationReadMessage => msg.type === 'notification.read';
+
 // 이벤트 핸들러 타입
 export type WebSocketEventHandler<T extends IncomingWebSocketMessage = IncomingWebSocketMessage> = (
   message: T
@@ -390,6 +435,8 @@ export interface WebSocketHandlers {
   'post.deleted'?: WebSocketEventHandler<PostDeletedMessage>;
   'reaction.added'?: WebSocketEventHandler<ReactionAddedMessage>;
   'reaction.removed'?: WebSocketEventHandler<ReactionRemovedMessage>;
+  'notification.created'?: WebSocketEventHandler<NotificationCreatedMessage>;
+  'notification.read'?: WebSocketEventHandler<NotificationReadMessage>;
   'connection.established'?: WebSocketEventHandler<ConnectionEstablishedMessage>;
   'connection.lost'?: WebSocketEventHandler<ConnectionLostMessage>;
   'connection.reconnecting'?: WebSocketEventHandler<ConnectionReconnectingMessage>;

@@ -113,10 +113,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return {
       ...baseUser,
-
+      memberId: latestSpace?.memberId,
       centrifugoToken: latestSpace?.centrifugoToken,
     };
-  }, [baseUser, latestSpace?.centrifugoToken]);
+  }, [baseUser, latestSpace?.memberId, latestSpace?.centrifugoToken]);
 
   // 로그아웃 mutation
   const logoutMutation = useMutation({
@@ -167,14 +167,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryFn: authApi.getCurrentUserWithLatestSpace,
     });
 
-    // centrifugo_token이 포함된 사용자 정보를 localStorage에 저장
-    if (latestSpaceData.centrifugoToken) {
-      const userWithToken = {
-        ...userData,
+    const userWithToken = {
+      ...userData,
+      memberId: latestSpaceData.memberId,
+      ...(latestSpaceData.centrifugoToken && {
         centrifugoToken: latestSpaceData.centrifugoToken,
-      };
-      localStorage.setItem('user', JSON.stringify(userWithToken));
-    }
+      }),
+    };
+
+    localStorage.setItem('user', JSON.stringify(userWithToken));
   };
 
   const value: AuthContextValue = {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuth } from '@/shared/hooks/auth/useAuth';
 import {
   RiBarChartFill,
   RiBarChartLine,
@@ -16,8 +17,7 @@ import {
 } from '@remixicon/react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useState, useRef, useEffect } from 'react';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useEffect, useRef, useState } from 'react';
 import { SettingsDropdown } from './SettingsDropdown';
 
 interface NavItem {
@@ -81,7 +81,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
     {
       icon: RiHeart3Line,
       activeIcon: RiHeart3Fill,
-      href: `/${spaceSlug}/activity`,
+      href: `/${spaceSlug}/notifications`,
       label: '활동',
     },
     {
@@ -165,9 +165,11 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
       </div>
 
       {/* 모바일 바텀 네비게이션 - PostDetail 열렸을 때는 숨김, 1024px 이상에서도 숨김 */}
-      <div className={`fixed bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white ${
-        isPostDetailOpen ? 'hidden' : 'lg:hidden'
-      }`}>
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white ${
+          isPostDetailOpen ? 'hidden' : 'lg:hidden'
+        }`}
+      >
         <nav className="flex items-center justify-around px-4 py-2">
           {navItems.map(item => {
             const Icon = isActive(item.href) ? item.activeIcon : item.icon;
@@ -190,7 +192,6 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
           })}
         </nav>
       </div>
-
     </>
   );
 }

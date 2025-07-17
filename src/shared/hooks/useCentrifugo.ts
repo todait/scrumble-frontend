@@ -19,6 +19,7 @@ interface UseCentrifugoOptions {
   autoConnect?: boolean; // 자동 연결 여부 (기본값: true)
   subscribeToAllComments?: boolean; // 모든 댓글 구독 여부 (기본값: false)
   visiblePostIds?: string[]; // 현재 보이는 포스트 ID들
+  memberId?: string;
   // 재연결 시 데이터 동기화 관련
   onReconnectionDataSync?: () => void; // 재연결 시 호출될 데이터 동기화 함수
   dataSyncThresholdMs?: number; // 동기화 임계값 (기본값: 30초)
@@ -36,6 +37,9 @@ interface UseCentrifugoReturn {
   unsubscribeFromReactions: (postId: string) => void;
   batchSubscribeToReactions: (postIds: string[]) => void;
   batchUnsubscribeFromReactions: (postIds: string[]) => void;
+  // 알림 구독 함수들
+  subscribeToNotifications: (memberId: string) => void;
+  unsubscribeFromNotifications: (memberId: string) => void;
   // 타입 안전한 이벤트 리스너 함수들
   addEventListener: <T extends WebSocketEventType>(
     eventType: T,
@@ -57,6 +61,7 @@ export function useCentrifugo({
   visiblePostIds = [],
   onReconnectionDataSync,
   dataSyncThresholdMs = 30000, // 30초
+  memberId,
 }: UseCentrifugoOptions): UseCentrifugoReturn {
   debug('useCentrifugo', 'Hook called with', {
     spaceSlug,
@@ -194,6 +199,16 @@ export function useCentrifugo({
   // 배치 리액션 구독 해제 함수
   const batchUnsubscribeFromReactions = useCallback((postIds: string[]) => {
     centrifugoService.batchUnsubscribeFromReactions(postIds);
+  }, []);
+
+  // 알림 구독 함수
+  const subscribeToNotifications = useCallback((memberId: string) => {
+    centrifugoService.subscribeToNotifications(memberId);
+  }, []);
+
+  // 알림 구독 해제 함수
+  const unsubscribeFromNotifications = useCallback((memberId: string) => {
+    centrifugoService.unsubscribeFromNotifications(memberId);
   }, []);
 
   // Viewport 기반 자동 구독 관리 (디바운스 적용) - 통합된 효과
@@ -338,6 +353,20 @@ export function useCentrifugo({
     subscribeToComments,
     subscribeToReactions,
   ]);
+
+  useEffect(() => {
+    if (!wsConnected || !centrifugoService.connected || !memberId) {
+      return;
+    }
+
+    debug('useCentrifugo', 'Auto-subscribing to notifications for member:', memberId);
+    subscribeToNotifications(memberId);
+
+    return () => {
+      debug('useCentrifugo', 'Auto-unsubscribing from notifications for member:', memberId);
+      unsubscribeFromNotifications(memberId);
+    };
+  }, [wsConnected, memberId, subscribeToNotifications, unsubscribeFromNotifications]);
 
   // 타입 안전한 이벤트 리스너 추가 함수
   const addEventListener = useCallback(
@@ -509,6 +538,9 @@ export function useCentrifugo({
     unsubscribeFromReactions,
     batchSubscribeToReactions,
     batchUnsubscribeFromReactions,
+    // 알림 구독 함수들
+    subscribeToNotifications,
+    unsubscribeFromNotifications,
     // 타입 안전한 이벤트 리스너 함수들
     addEventListener,
     removeEventListener,

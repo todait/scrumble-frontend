@@ -21,6 +21,7 @@ export interface User {
  * 로그인 후 대시보드 리다이렉트에 사용
  */
 export interface UserWithLatestSpace extends User {
+  memberId: string;
   latestSpaceSlug: string;
   latestSpaceName: string;
 }
