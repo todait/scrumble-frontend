@@ -42,7 +42,7 @@ const NotificationItemList = memo(function NotificationItemList({
   // 키보드 네비게이션을 위한 ref
   const notificationListRef = useRef<HTMLDivElement>(null);
   const notificationItemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  
+
   // 무한 스크롤을 위한 observer ref
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -92,7 +92,7 @@ const NotificationItemList = memo(function NotificationItemList({
     if (!onLoadMore || !hasMore || isFetchingNextPage) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         const [entry] = entries;
         if (entry.isIntersecting) {
           onLoadMore();
@@ -126,6 +126,8 @@ const NotificationItemList = memo(function NotificationItemList({
           console.error('알림 읽음 처리 실패:', error);
         }
       }
+
+      console.log('notification', notification);
 
       // deepLink가 있으면 해당 경로로 이동, 없으면 기본 경로로 이동
       if (notification.deepLink) {
@@ -326,7 +328,7 @@ const NotificationItemList = memo(function NotificationItemList({
       aria-live="polite"
     >
       {notifications.map(renderNotificationItem)}
-      
+
       {/* 무한 스크롤 트리거 */}
       {hasMore && (
         <div ref={loadMoreRef} className="flex items-center justify-center py-4">
@@ -338,7 +340,7 @@ const NotificationItemList = memo(function NotificationItemList({
           ) : (
             <button
               onClick={onLoadMore}
-              className="text-sm text-[#9747FF] hover:text-[#7C3AED] transition-colors"
+              className="text-sm text-[#9747FF] transition-colors hover:text-[#7C3AED]"
             >
               더 많은 알림 보기
             </button>
