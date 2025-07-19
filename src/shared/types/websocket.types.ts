@@ -204,9 +204,33 @@ export interface NotificationCreatedMessage extends BaseWebSocketMessage {
     spaceId: string;
     spaceSlug: string;
     action: 'notification.created';
-    authorName?: string;
-    postTitle?: string;
-    [key: string]: any;
+    // 각 알림 타입별 데이터
+    post?: {
+      postId: string;
+      postType: string;
+      author: {
+        id: string;
+        name: string;
+        avatarURL: string | null;
+      };
+    };
+    comment?: {
+      commentId: string;
+      content: string;
+      author: {
+        id: string;
+        name: string;
+        avatarURL: string | null;
+      };
+    };
+    reaction?: {
+      content: string;
+      author: {
+        id: string;
+        name: string;
+        avatarURL: string | null;
+      };
+    };
   };
 }
 
@@ -225,6 +249,8 @@ export interface NotificationReadMessage extends BaseWebSocketMessage {
     action: 'notification.read';
   };
 }
+
+export type NotificationEventData = NotificationCreatedMessage['data'];
 
 // 에러 메시지
 export interface MessageErrorMessage extends BaseWebSocketMessage {
@@ -396,9 +422,8 @@ export const isConnectionEstablishedMessage = (
   msg: WebSocketMessage
 ): msg is ConnectionEstablishedMessage => msg.type === 'connection.established';
 
-export const isConnectionLostMessage = (
-  msg: WebSocketMessage
-): msg is ConnectionLostMessage => msg.type === 'connection.lost';
+export const isConnectionLostMessage = (msg: WebSocketMessage): msg is ConnectionLostMessage =>
+  msg.type === 'connection.lost';
 
 export const isConnectionReconnectingMessage = (
   msg: WebSocketMessage
@@ -416,9 +441,8 @@ export const isNotificationCreatedMessage = (
   msg: WebSocketMessage
 ): msg is NotificationCreatedMessage => msg.type === 'notification.created';
 
-export const isNotificationReadMessage = (
-  msg: WebSocketMessage
-): msg is NotificationReadMessage => msg.type === 'notification.read';
+export const isNotificationReadMessage = (msg: WebSocketMessage): msg is NotificationReadMessage =>
+  msg.type === 'notification.read';
 
 // 이벤트 핸들러 타입
 export type WebSocketEventHandler<T extends IncomingWebSocketMessage = IncomingWebSocketMessage> = (

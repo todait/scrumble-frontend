@@ -19,7 +19,11 @@ const SpaceNoticeItem = memo(function SpaceNoticeItem({
   notification,
   onClick,
 }: SpaceNoticeItemProps) {
-  const { title, content, relatedUser, createdAt, isRead } = notification;
+  const { createdAt, isRead, payload } = notification;
+  // 임시 처리: payload에서 데이터 추출
+  const title = payload?.title;
+  const content = payload?.content;
+  const relatedUser = payload?.relatedUser || payload?.author;
 
   return (
     <div

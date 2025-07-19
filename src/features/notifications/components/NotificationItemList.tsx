@@ -137,8 +137,8 @@ const NotificationItemList = memo(function NotificationItemList({
         switch (notification.type) {
           case 'comment':
           case 'emoji_reaction':
-            if (notification.relatedPost?.id) {
-              router.push(`/${spaceSlug}/feed?post=${notification.relatedPost.id}`);
+            if (notification.payload?.post?.postId) {
+              router.push(`/${spaceSlug}/feed?post=${notification.payload.post.postId}`);
             } else {
               router.push(`/${spaceSlug}/feed`);
             }
@@ -189,7 +189,9 @@ const NotificationItemList = memo(function NotificationItemList({
         onClick,
         tabIndex: 0,
         role: 'button',
-        'aria-label': `알림: ${notification.title}`,
+        'aria-label': `알림: ${notification.type} - ${notification.payload?.title || ''}`
+          .replace(/_/g, ' ')
+          .trim(),
         onKeyDown: (e: React.KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -241,8 +243,12 @@ const NotificationItemList = memo(function NotificationItemList({
               className="flex items-center gap-3 p-4 transition-colors hover:bg-gray-50"
             >
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
-                <p className="mt-1 text-sm text-gray-600">{notification.content}</p>
+                <h4 className="text-sm font-medium text-gray-900">
+                  {notification.payload?.title || notification.type}
+                </h4>
+                <p className="mt-1 text-sm text-gray-600">
+                  {notification.payload?.content || ''}
+                </p>
                 <time className="mt-2 block text-xs text-gray-400">
                   {new Date(notification.createdAt).toLocaleString('ko-KR')}
                 </time>

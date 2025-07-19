@@ -1,12 +1,12 @@
 'use client';
 
 import { ProfileImage } from '@/shared/components/ui';
-import type { NotificationDTO } from '@/shared/types/notification';
+import type { MemberJoinLeaveNotificationPayload, NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
 
 interface MemberJoinLeaveItemProps {
-  notification: NotificationDTO;
+  notification: NotificationDTO<MemberJoinLeaveNotificationPayload>;
   onClick?: () => void;
 }
 
@@ -14,7 +14,8 @@ const MemberJoinLeaveItem = memo(function MemberJoinLeaveItem({
   notification,
   onClick,
 }: MemberJoinLeaveItemProps) {
-  const { relatedUser, content, createdAt, isRead, type } = notification;
+  const { createdAt, isRead, type, payload } = notification;
+  const { member } = payload;
 
   // 알림 타입에 따라 액션 결정
   const action = type === 'member_joined' ? 'join' : 'leave';
@@ -97,15 +98,15 @@ const MemberJoinLeaveItem = memo(function MemberJoinLeaveItem({
           <div className="mb-3 rounded-lg bg-[#F8F9FA] p-2 md:p-3">
             <div className="flex items-center gap-2">
               <ProfileImage
-                src={relatedUser?.avatarUrl || ''}
-                alt={relatedUser?.name || '사용자'}
+                src={member?.avatarUrl || ''}
+                alt={member?.name || '사용자'}
                 size={24}
                 className="h-6 w-6 md:h-8 md:w-8"
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-[#222222]">
-                    {relatedUser?.name || '사용자'}
+                    {member?.name || '사용자'}
                   </span>
                   <span className="text-sm text-[#666666]">님이</span>
                 </div>

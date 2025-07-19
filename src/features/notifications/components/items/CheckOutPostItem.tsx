@@ -1,12 +1,12 @@
 'use client';
 
 import { ProfileImage, StatusBadge } from '@/shared/components/ui';
-import type { NotificationDTO } from '@/shared/types/notification';
+import type { CheckOutPostNotificationPayload, NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
 
 interface CheckOutPostItemProps {
-  notification: NotificationDTO;
+  notification: NotificationDTO<CheckOutPostNotificationPayload>;
   onClick?: () => void;
   tabIndex?: number;
   role?: string;
@@ -28,7 +28,8 @@ const CheckOutPostItem = memo(function CheckOutPostItem({
   onKeyDown,
   ...props
 }: CheckOutPostItemProps) {
-  const { relatedUser, content, createdAt, isRead, payload } = notification;
+  const { createdAt, isRead, payload } = notification;
+  const { author, content } = payload;
 
   return (
     <div
@@ -38,7 +39,7 @@ const CheckOutPostItem = memo(function CheckOutPostItem({
       onClick={onClick}
       tabIndex={tabIndex}
       role={role}
-      aria-label={ariaLabel || `${relatedUser?.name || '사용자'}님의 체크아웃 알림`}
+      aria-label={ariaLabel || `${author?.name || '사용자'}님의 체크아웃 알림`}
       onKeyDown={onKeyDown}
       {...props}
     >
@@ -55,8 +56,8 @@ const CheckOutPostItem = memo(function CheckOutPostItem({
         {/* 프로필 이미지 */}
         <div className="flex-shrink-0">
           <ProfileImage
-            src={relatedUser?.avatarUrl || ''}
-            alt={relatedUser?.name || '사용자'}
+            src={author?.avatarUrl || ''}
+            alt={author?.name || '사용자'}
             size={32}
             className="h-8 w-8 md:h-10 md:w-10"
           />
@@ -69,7 +70,7 @@ const CheckOutPostItem = memo(function CheckOutPostItem({
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-[#222222] md:text-base">
-                  {relatedUser?.name || '사용자'}
+                  {author?.name || '사용자'}
                 </span>
                 <span className="text-xs text-[#666666] md:text-sm">님이 체크아웃했습니다</span>
               </div>

@@ -23,26 +23,11 @@ const convertApiNotificationToNotification = (apiNotification: any): Notificatio
     id: apiNotification.id,
     category: apiNotification.category,
     type: apiNotification.type,
-    title: apiNotification.title,
-    content: apiNotification.content,
     isRead: apiNotification.is_read,
     readAt: apiNotification.read_at,
     createdAt: apiNotification.created_at,
-    payload: apiNotification.payload,
-    relatedUser: apiNotification.related_user
-      ? {
-          id: apiNotification.related_user.id,
-          name: apiNotification.related_user.name,
-          avatarUrl: apiNotification.related_user.avatar_url,
-        }
-      : undefined,
-    relatedPost: apiNotification.related_post
-      ? {
-          id: apiNotification.related_post.id,
-          type: apiNotification.related_post.type,
-        }
-      : undefined,
     deepLink: apiNotification.deep_link,
+    payload: apiNotification.payload || {},
   };
 };
 

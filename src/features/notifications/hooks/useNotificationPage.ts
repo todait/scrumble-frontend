@@ -19,6 +19,7 @@ import type {
 } from '@/shared/types/notification';
 import type {
   NotificationCreatedMessage,
+  NotificationEventData,
   NotificationReadMessage,
   WebSocketEventHandler,
 } from '@/shared/types/websocket.types';
@@ -207,22 +208,10 @@ export const useNotificationPage = ({
         return;
       }
 
-      // 새 알림 데이터를 DTO 형태로 변환
-      const newNotification: NotificationDTO = {
-        id: data.notificationId,
-        category: data.category as NotificationCategory,
-        type: data.type as NotificationType,
-        title: data.authorName ? `${data.authorName}님이 새로운 활동을 했습니다` : '새로운 알림',
-        content: data.postTitle || '새로운 알림이 도착했습니다',
-        isRead: false,
-        createdAt: message.timestamp,
-        deepLink: `/${data.spaceSlug}/notifications`,
-        payload: {
-          ...data,
-          authorName: data.authorName,
-          postTitle: data.postTitle,
-        },
-      };
+      console.log('data', data);
+
+      // convertEventToDTO 함수 사용
+      const newNotification = convertEventToDTO(data, message.timestamp);
 
       console.log('[useNotificationPage] Creating new notification', newNotification);
 
@@ -375,3 +364,19 @@ export const useNotificationPage = ({
     unreadCount,
   };
 };
+
+function convertEventToDTO(eventData: NotificationEventData, timestamp: string): NotificationDTO {
+  return {
+    id: eventData.notificationId,
+    category: eventData.category as NotificationCategory,
+    type: eventData.type as NotificationType,
+    isRead: false,
+    createdAt: timestamp,
+    deepLink: `/${eventData.spaceSlug}/notifications`,
+    payload: {
+      post: eventData.post,
+      comment: eventData.comment,
+      reaction: eventData.reaction,
+    },
+  };
+}

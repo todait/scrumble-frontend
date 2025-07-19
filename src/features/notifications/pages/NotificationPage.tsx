@@ -75,7 +75,7 @@ export function NotificationPage({ spaceSlug }: NotificationPageProps) {
   return (
     <div className="flex h-screen justify-center overflow-hidden">
       {/* 중앙 정렬 컨테이너 */}
-      <div className="flex w-full pt-4 transition-all duration-300 md:w-[672px] md:pt-6">
+      <div className="flex w-full pt-4 transition-all duration-300 md:w-[900px] md:pt-6">
         {/* 알림 페이지 영역 */}
         <main
           className="relative flex min-h-0 w-full flex-col px-2 transition-all duration-300 md:px-4"
@@ -121,37 +121,24 @@ export function NotificationPage({ spaceSlug }: NotificationPageProps) {
 
           {/* 알림 컨테이너 */}
           <div className="flex flex-1 flex-col overflow-hidden">
-            {/* 헤더 - 알림이 없을 때 */}
-            {(isLoading || notifications.length === 0) && (
-              <div className="relative flex-shrink-0">
-                <NotificationHeader
-                  spaceSlug={spaceSlug}
-                  currentFilter={currentFilter}
-                  onCategoryChange={setCategoryFilter}
-                  onMarkAllAsRead={markAllAsRead}
-                  isMarkingAllAsRead={isMarkingAllAsRead}
-                  unreadCount={unreadCount}
-                  totalCount={totalCount}
-                />
-              </div>
-            )}
-
-            {/* 헤더 - 알림이 있을 때 */}
-            {!isLoading && notifications.length > 0 && (
-              <div className="rounded-t-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-t-2xl">
-                <div className="relative flex-shrink-0">
-                  <NotificationHeader
-                    spaceSlug={spaceSlug}
-                    currentFilter={currentFilter}
-                    onCategoryChange={setCategoryFilter}
-                    onMarkAllAsRead={markAllAsRead}
-                    isMarkingAllAsRead={isMarkingAllAsRead}
-                    unreadCount={unreadCount}
-                    totalCount={totalCount}
-                  />
-                </div>
-              </div>
-            )}
+            {/* 헤더 - 공통 */}
+            <div
+              className={`relative flex-shrink-0 ${
+                !isLoading && notifications.length > 0
+                  ? 'rounded-t-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-t-2xl'
+                  : ''
+              }`}
+            >
+              <NotificationHeader
+                spaceSlug={spaceSlug}
+                currentFilter={currentFilter}
+                onCategoryChange={setCategoryFilter}
+                onMarkAllAsRead={markAllAsRead}
+                isMarkingAllAsRead={isMarkingAllAsRead}
+                unreadCount={unreadCount}
+                totalCount={totalCount}
+              />
+            </div>
 
             {/* 알림 목록 - 스크롤 영역 (스크롤바 숨김) */}
             <div

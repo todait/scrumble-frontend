@@ -14,7 +14,9 @@ const RoleUpdateItem = memo(function RoleUpdateItem({
   notification,
   onClick,
 }: RoleUpdateItemProps) {
-  const { relatedUser, content, createdAt, isRead, payload } = notification;
+  const { createdAt, isRead, payload } = notification;
+  // 임시 처리: payload에서 데이터 추출
+  const relatedUser = payload?.relatedUser || payload?.member;
 
   const getRoleDisplayName = (role: string) => {
     switch (role) {

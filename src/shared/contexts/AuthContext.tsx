@@ -38,8 +38,6 @@ interface AuthContextValue {
     refreshToken: string;
     userId: string;
     userEmail: string;
-    userName: string;
-    avatarURL: string;
   }) => Promise<void>;
 }
 
@@ -148,25 +146,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshToken: string;
     userId: string;
     userEmail: string;
-    userName: string;
-    avatarURL: string;
   }) => {
     // 토큰 저장 (만료 시간 자동 추출)
     TokenManager.setTokens({
       accessToken: params.accessToken,
       refreshToken: params.refreshToken,
     });
-
-    // 사용자 정보 생성
-    const userData: User = {
-      id: params.userId,
-      email: decodeURIComponent(params.userEmail),
-      name: decodeURIComponent(params.userName),
-      avatarURL: decodeURIComponent(params.avatarURL),
-    };
-
-    // React Query 캐시 업데이트
-    queryClient.setQueryData(authKeys.user(), userData);
 
     // 관련 쿼리 무효화
     await queryClient.invalidateQueries({ queryKey: authKeys.all });
@@ -176,6 +161,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryKey: authKeys.userWithLatestSpace(),
       queryFn: authApi.getCurrentUserWithLatestSpace,
     });
+
+    const userData: User = {
+      id: params.userId,
+      email: decodeURIComponent(params.userEmail),
+      name: latestSpaceData.name,
+      avatarURL: latestSpaceData.avatarURL,
+    };
+
+    // React Query 캐시 업데이트
+    queryClient.setQueryData(authKeys.user(), userData);
 
     const userWithToken = {
       ...userData,

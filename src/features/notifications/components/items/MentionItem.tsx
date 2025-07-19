@@ -16,7 +16,10 @@ const truncateText = (text: string, maxLength: number): string => {
 };
 
 const MentionItem = memo(function MentionItem({ notification, onClick }: MentionItemProps) {
-  const { relatedUser, content, createdAt, isRead, payload } = notification;
+  const { createdAt, isRead, payload } = notification;
+  // 임시 처리: payload에서 데이터 추출
+  const relatedUser = payload?.relatedUser || payload?.author;
+  const content = payload?.content;
 
   const getContextLabel = () => {
     const contextType = payload?.context?.type;

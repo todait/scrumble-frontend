@@ -1,12 +1,12 @@
 'use client';
 
 import { ProfileImage, StatusBadge } from '@/shared/components/ui';
-import type { NotificationDTO } from '@/shared/types/notification';
+import type { CheckInPostNotificationPayload, NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
 
 interface CheckInPostItemProps {
-  notification: NotificationDTO;
+  notification: NotificationDTO<CheckInPostNotificationPayload>;
   onClick?: () => void;
   tabIndex?: number;
   role?: string;
@@ -42,8 +42,8 @@ const CheckInPostItem = memo(function CheckInPostItem({
   onKeyDown,
   ...props
 }: CheckInPostItemProps) {
-  const { relatedUser, content, createdAt, isRead, payload } = notification;
-  const conditionScore = payload?.conditionScore || 5;
+  const { createdAt, isRead, payload } = notification;
+  const { author, content, conditionScore = 5 } = payload;
   const conditionColor = getConditionScoreColor(conditionScore);
   const conditionLabel = getConditionLabel(conditionScore);
 
@@ -57,7 +57,7 @@ const CheckInPostItem = memo(function CheckInPostItem({
       role={role}
       aria-label={
         ariaLabel ||
-        `${relatedUser?.name || '사용자'}님의 체크인 알림, 컨디션 점수 ${conditionScore}점`
+        `${author?.name || '사용자'}님의 체크인 알림, 컨디션 점수 ${conditionScore}점`
       }
       onKeyDown={onKeyDown}
       {...props}
@@ -75,8 +75,8 @@ const CheckInPostItem = memo(function CheckInPostItem({
         {/* 프로필 이미지 */}
         <div className="flex-shrink-0">
           <ProfileImage
-            src={relatedUser?.avatarUrl || ''}
-            alt={relatedUser?.name || '사용자'}
+            src={author?.avatarUrl || ''}
+            alt={author?.name || '사용자'}
             size={32}
             className="h-8 w-8 md:h-10 md:w-10"
           />
@@ -89,7 +89,7 @@ const CheckInPostItem = memo(function CheckInPostItem({
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-[#222222] md:text-base">
-                  {relatedUser?.name || '사용자'}
+                  {author?.name || '사용자'}
                 </span>
                 <span className="text-xs text-[#666666] md:text-sm">님이 체크인했습니다</span>
               </div>

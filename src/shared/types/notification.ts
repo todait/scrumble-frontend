@@ -32,22 +32,6 @@ export interface RelatedPost {
   type: string;
 }
 
-// 알림 DTO (API 응답)
-export interface NotificationDTO {
-  id: string;
-  category: NotificationCategory;
-  type: NotificationType;
-  title: string;
-  content: string;
-  isRead: boolean;
-  readAt?: string;
-  createdAt: string;
-  payload?: Record<string, any>;
-  relatedUser?: RelatedUser;
-  relatedPost?: RelatedPost;
-  deepLink: string;
-}
-
 // 알림 목록 조회 요청
 export interface GetNotificationsRequest {
   spaceSlug: string;
@@ -92,4 +76,184 @@ export interface MarkAllAsReadResponse {
 export interface NotificationFilter {
   category?: NotificationCategory | 'all';
   isRead?: boolean;
+}
+
+// 기본 알림 타입 (title, content, relatedUser, relatedPost 제거)
+export interface NotificationDTO<T = any> {
+  id: string;
+  category: NotificationCategory;
+  type: NotificationType;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+  deepLink: string;
+  payload: T;
+}
+
+// 각 타입별 Payload 정의
+export interface CheckInPostNotificationPayload {
+  author: {
+    id: string;
+    name: string;
+    avatarUrl: string | null;
+  };
+  content?: string;
+  conditionScore?: number;
+}
+
+export interface CheckOutPostNotificationPayload {
+  author: {
+    id: string;
+    name: string;
+    avatarUrl: string | null;
+  };
+  content?: string;
+  completedTodos?: number;
+}
+
+export interface MemberJoinLeaveNotificationPayload {
+  member: {
+    id: string;
+    name: string;
+    avatarUrl: string | null;
+  };
+}
+
+export interface CommentNotificationPayload {
+  post: {
+    postId: string;
+    postType: string;
+    author: {
+      id: string;
+      name: string;
+      avatarURL: string | null;
+    };
+  };
+  comment: {
+    commentId: string;
+    content: string;
+    author: {
+      id: string;
+      name: string;
+      avatarURL: string | null;
+    };
+  };
+}
+
+export interface PostReactionNotificationPayload {
+  post: {
+    postId: string;
+    postType: string;
+    author: {
+      id: string;
+      name: string;
+      avatarURL: string | null;
+    };
+  };
+  reaction: {
+    content: string;
+    author: {
+      id: string;
+      name: string;
+      avatarURL: string | null;
+    };
+  };
+}
+
+export interface CommentReactionNotificationPayload {
+  post: {
+    postId: string;
+    postType: string;
+    author: {
+      id: string;
+      name: string;
+      avatarURL: string | null;
+    };
+  };
+  comment: {
+    commentId: string;
+    content: string;
+    author: {
+      id: string;
+      name: string;
+      avatarURL: string | null;
+    };
+  };
+  reaction: {
+    content: string;
+    author: {
+      id: string;
+      name: string;
+      avatarURL?: string | null;
+    };
+  };
+}
+
+// 타입별 NotificationDTO
+export type CheckInPostNotification = NotificationDTO<CheckInPostNotificationPayload>;
+export type CheckOutPostNotification = NotificationDTO<CheckOutPostNotificationPayload>;
+export type MemberJoinLeaveNotification = NotificationDTO<MemberJoinLeaveNotificationPayload>;
+export type CommentNotification = NotificationDTO<CommentNotificationPayload>;
+export type PostReactionNotification = NotificationDTO<PostReactionNotificationPayload>;
+export type CommentReactionNotification = NotificationDTO<CommentReactionNotificationPayload>;
+
+// Union type
+export type TypedNotificationDTO =
+  | CheckInPostNotification
+  | CheckOutPostNotification
+  | MemberJoinLeaveNotification
+  | CommentNotification
+  | PostReactionNotification
+  | CommentReactionNotification
+  | NotificationDTO; // 기타 타입들을 위한 fallback
+
+// 타입 가드 함수들
+export function isCheckInPostNotification(
+  notification: NotificationDTO
+): notification is CheckInPostNotification {
+  return notification.type === 'check_in_post';
+}
+
+export function isCheckOutPostNotification(
+  notification: NotificationDTO
+): notification is CheckOutPostNotification {
+  return notification.type === 'check_out_post';
+}
+
+export function isMemberJoinLeaveNotification(
+  notification: NotificationDTO
+): notification is MemberJoinLeaveNotification {
+  return notification.type === 'member_joined' || notification.type === 'member_left';
+}
+
+export function isCommentNotification(
+  notification: NotificationDTO
+): notification is CommentNotification {
+  return (
+    notification.type === 'comment' &&
+    'comment' in notification.payload &&
+    'post' in notification.payload
+  );
+}
+
+export function isPostReactionNotification(
+  notification: NotificationDTO
+): notification is PostReactionNotification {
+  return (
+    notification.type === 'emoji_reaction' &&
+    'reaction' in notification.payload &&
+    'post' in notification.payload &&
+    !('comment' in notification.payload)
+  );
+}
+
+export function isCommentReactionNotification(
+  notification: NotificationDTO
+): notification is CommentReactionNotification {
+  return (
+    notification.type === 'emoji_reaction' &&
+    'reaction' in notification.payload &&
+    'comment' in notification.payload &&
+    'post' in notification.payload
+  );
 }

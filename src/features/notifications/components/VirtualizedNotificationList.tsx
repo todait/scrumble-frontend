@@ -119,14 +119,14 @@ const VirtualizedNotificationList = memo(function VirtualizedNotificationList({
 
         case 'comment':
         case 'emoji_reaction':
-          if (notification.relatedPost?.id) {
-            router.push(`/${spaceSlug}/feed?post=${notification.relatedPost.id}`);
+          if (notification.payload?.post?.postId) {
+            router.push(`/${spaceSlug}/feed?post=${notification.payload.post.postId}`);
           }
           break;
 
         case 'mention':
-          if (notification.relatedPost?.id) {
-            router.push(`/${spaceSlug}/feed?post=${notification.relatedPost.id}`);
+          if (notification.payload?.context?.type === 'post' && notification.payload?.context?.id) {
+            router.push(`/${spaceSlug}/feed?post=${notification.payload.context.id}`);
           }
           break;
 

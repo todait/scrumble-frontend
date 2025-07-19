@@ -19,7 +19,10 @@ const SpaceInfoUpdateItem = memo(function SpaceInfoUpdateItem({
   notification,
   onClick,
 }: SpaceInfoUpdateItemProps) {
-  const { relatedUser, content, createdAt, isRead, payload } = notification;
+  const { createdAt, isRead, payload } = notification;
+  // 임시 처리: payload에서 데이터 추출
+  const relatedUser = payload?.relatedUser || payload?.author;
+  const content = payload?.content;
 
   const getUpdateTypeDisplayName = (type: string) => {
     switch (type) {
