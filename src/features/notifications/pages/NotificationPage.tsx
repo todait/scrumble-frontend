@@ -2,6 +2,7 @@
 
 import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
+import { useNotificationUnreadCount } from '@/shared/hooks/queries/useNotifications';
 import { RiSettings6Line } from '@remixicon/react';
 import { useEffect, useRef, useState } from 'react';
 import { NotificationHeader, NotificationItemList } from '../components';
@@ -12,7 +13,7 @@ interface NotificationPageProps {
 }
 
 export function NotificationPage({ spaceSlug }: NotificationPageProps) {
-  const { logout } = useAuthHook();
+  const { logout, latestSpace } = useAuthHook();
 
   // 알림 페이지 통합 훅 사용
   const {
@@ -31,6 +32,13 @@ export function NotificationPage({ spaceSlug }: NotificationPageProps) {
     hasMore,
     isFetchingNextPage,
   } = useNotificationPage({ spaceSlug });
+  
+  // 카테고리별 읽지 않은 알림 개수 가져오기
+  const { data: unreadCountData } = useNotificationUnreadCount({
+    spaceSlug,
+    memberId: latestSpace?.memberId || '',
+    enabled: !!spaceSlug && !!latestSpace?.memberId,
+  });
 
   // 설정 드롭다운 상태
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -137,6 +145,7 @@ export function NotificationPage({ spaceSlug }: NotificationPageProps) {
                 isMarkingAllAsRead={isMarkingAllAsRead}
                 unreadCount={unreadCount}
                 totalCount={totalCount}
+                categoryUnreadCounts={unreadCountData?.categories}
               />
             </div>
 

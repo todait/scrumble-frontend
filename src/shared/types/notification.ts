@@ -72,6 +72,19 @@ export interface MarkAllAsReadResponse {
   processedCount: number;
 }
 
+// 카테고리별 읽지 않은 알림 개수
+export interface UnreadCountByCategory {
+  feed: number;
+  activity: number;
+  notice: number;
+}
+
+// 읽지 않은 알림 개수 조회 응답
+export interface GetUnreadCountResponse {
+  totalUnreadCount: number;
+  categories: UnreadCountByCategory;
+}
+
 // 알림 필터
 export interface NotificationFilter {
   category?: NotificationCategory | 'all';

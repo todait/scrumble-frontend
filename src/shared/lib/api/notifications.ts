@@ -8,6 +8,7 @@ import type {
   BulkMarkAsReadResponse,
   GetNotificationsRequest,
   GetNotificationsResponse,
+  GetUnreadCountResponse,
   MarkAllAsReadResponse,
   NotificationDTO,
 } from '@/shared/types/notification';
@@ -120,6 +121,29 @@ export const notificationsApi = {
     return {
       message: data.message,
       processedCount: data.processed_count,
+    };
+  },
+
+  /**
+   * 읽지 않은 알림 개수 조회
+   * @param spaceSlug 스페이스 식별자
+   * @param memberId 멤버 ID
+   * @returns 카테고리별 읽지 않은 알림 개수
+   */
+  getUnreadCount: async (spaceSlug: string, memberId: string): Promise<GetUnreadCountResponse> => {
+    debug('getUnreadCount', `spaceSlug: ${spaceSlug}, memberId: ${memberId}`);
+
+    const { data } = await apiClient.get(
+      `/api/v1/spaces/${spaceSlug}/notifications/${memberId}/unreadCount`
+    );
+
+    return {
+      totalUnreadCount: data.total_unread_count,
+      categories: {
+        feed: data.categories.feed,
+        activity: data.categories.activity,
+        notice: data.categories.notice,
+      },
     };
   },
 };

@@ -19,6 +19,9 @@ export const notificationKeys = {
     [...notificationKeys.lists(), spaceSlug, memberId, filter, cursor] as const,
   infinite: (spaceSlug: string, memberId: string, filter?: NotificationFilter) =>
     [...notificationKeys.lists(), 'infinite', spaceSlug, memberId, filter] as const,
+  unreadCounts: () => [...notificationKeys.all, 'unreadCount'] as const,
+  unreadCount: (spaceSlug: string, memberId: string) =>
+    [...notificationKeys.unreadCounts(), spaceSlug, memberId] as const,
 };
 
 interface UseNotificationsOptions {
@@ -131,6 +134,11 @@ export const useBulkMarkAsRead = () => {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.lists(),
       });
+      
+      // 읽지 않은 알림 개수 쿼리 무효화
+      queryClient.invalidateQueries({
+        queryKey: notificationKeys.unreadCounts(),
+      });
 
       const { processedCount, skippedIds } = data;
 
@@ -166,6 +174,11 @@ export const useMarkAllAsRead = () => {
       // 해당 스페이스의 모든 알림 목록 쿼리 무효화
       queryClient.invalidateQueries({
         queryKey: notificationKeys.lists(),
+      });
+      
+      // 읽지 않은 알림 개수 쿼리 무효화
+      queryClient.invalidateQueries({
+        queryKey: notificationKeys.unreadCounts(),
       });
 
       const { processedCount } = data;
@@ -267,5 +280,75 @@ export const useInfiniteNotifications = (options: UseInfiniteNotificationsOption
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
     staleTime: 1000 * 60 * 5, // 5분간 신선한 데이터로 간주
     gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
+  });
+};
+
+interface UseNotificationUnreadCountOptions {
+  spaceSlug: string;
+  memberId: string;
+  enabled?: boolean;
+  refetchInterval?: number | false;
+}
+
+/**
+ * 읽지 않은 알림 개수를 가져오는 React Query 훅
+ */
+export const useNotificationUnreadCount = (options: UseNotificationUnreadCountOptions) => {
+  const { spaceSlug, memberId, enabled = true, refetchInterval = 30000 } = options; // 기본 30초마다 자동 갱신
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: notificationKeys.unreadCount(spaceSlug, memberId),
+    queryFn: async () => {
+      try {
+        const result = await notificationsApi.getUnreadCount(spaceSlug, memberId);
+
+        // 데이터 유효성 검사
+        if (!result || typeof result.totalUnreadCount !== 'number') {
+          throw new Error('Invalid unread count data format');
+        }
+
+        return result;
+      } catch (error: any) {
+        console.error('읽지 않은 알림 개수 조회 실패:', error);
+
+        // 네트워크 에러 처리
+        if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network')) {
+          throw new Error('네트워크 연결을 확인해주세요.');
+        }
+
+        // 권한 에러 처리
+        if (error.status === 401 || error.status === 403) {
+          throw new Error('알림 개수에 접근할 권한이 없습니다.');
+        }
+
+        // 서버 에러 처리
+        if (error.status >= 500) {
+          throw new Error('서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        }
+
+        throw error;
+      }
+    },
+    enabled: enabled && !!spaceSlug && !!memberId,
+    refetchInterval, // 주기적 자동 갱신
+    refetchOnWindowFocus: true, // 윈도우 포커스 시 재조회
+    retry: (failureCount, error: any) => {
+      // 권한 에러는 재시도하지 않음
+      if (error.status === 401 || error.status === 403) {
+        return false;
+      }
+
+      // 4xx 에러는 재시도하지 않음
+      if (error.status >= 400 && error.status < 500) {
+        return false;
+      }
+
+      // 최대 3번까지 재시도
+      return failureCount < 3;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 1000 * 15, // 15초간 신선한 데이터로 간주 (더 자주 업데이트)
+    gcTime: 1000 * 60 * 5, // 5분간 캐시 유지
   });
 };
