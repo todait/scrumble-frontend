@@ -1,6 +1,10 @@
 'use client';
 
-import type { NotificationCategory, NotificationFilter, UnreadCountByCategory } from '@/shared/types/notification';
+import type {
+  NotificationCategory,
+  NotificationFilter,
+  UnreadCountByCategory,
+} from '@/shared/types/notification';
 import {
   RiCloseLine,
   RiHeart3Line,
@@ -30,13 +34,8 @@ const categoryOptions: {
 ];
 
 export function NotificationHeader({
-  spaceSlug,
   currentFilter,
   onCategoryChange,
-  onMarkAllAsRead,
-  isMarkingAllAsRead,
-  unreadCount,
-  totalCount = 0,
   categoryUnreadCounts,
 }: NotificationHeaderProps) {
   const handleCategoryChange = (category: NotificationCategory | 'all') => {
@@ -67,7 +66,8 @@ export function NotificationHeader({
         <div className="flex items-center gap-3">
           {categoryOptions.map(({ key, label, icon: Icon }) => {
             const isActive = currentCategory === key;
-            const categoryUnreadCount = key !== 'all' && categoryUnreadCounts ? categoryUnreadCounts[key] : 0;
+            const categoryUnreadCount =
+              key !== 'all' && categoryUnreadCounts ? categoryUnreadCounts[key] : 0;
 
             return (
               <button
@@ -87,7 +87,7 @@ export function NotificationHeader({
                 <span>{label}</span>
                 {/* 읽지 않은 알림 표시 점 - 카테고리별 표시 */}
                 {categoryUnreadCount > 0 && (
-                  <div className="absolute -right-1 -top-1 h-[6px] w-[6px] rounded-full bg-[#9747FF]" />
+                  <div className="absolute right-1 top-1 h-[6px] w-[6px] rounded-full bg-[#9747FF]" />
                 )}
               </button>
             );

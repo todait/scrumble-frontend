@@ -41,14 +41,14 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { logout, latestSpace } = useAuth();
-  
+
   // 읽지 않은 알림 개수 가져오기
   const { data: unreadCountData } = useNotificationUnreadCount({
     spaceSlug,
     memberId: latestSpace?.memberId || '',
     enabled: !!spaceSlug && !!latestSpace?.memberId,
   });
-  
+
   const totalUnreadCount = unreadCountData?.totalUnreadCount || 0;
 
   // 로그아웃 처리 함수
@@ -92,7 +92,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
       icon: RiHeart3Line,
       activeIcon: RiHeart3Fill,
       href: `/${spaceSlug}/notifications`,
-      label: '활동',
+      label: '알림',
     },
     {
       icon: RiPencilLine,
