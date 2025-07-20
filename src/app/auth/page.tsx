@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react';
 import { AuthPage } from '@/features/auth/pages';
-import { LoadingScreen } from '@/shared/components/feedback';
+import { PageLoadingSpinner } from '@/shared/components/ui';
 
 /**
  * Auth 라우트 페이지
@@ -10,7 +10,7 @@ import { LoadingScreen } from '@/shared/components/feedback';
  */
 export default function AuthPageRoute() {
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={<PageLoadingSpinner />}>
       <AuthPage />
     </Suspense>
   );

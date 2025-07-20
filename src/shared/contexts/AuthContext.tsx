@@ -64,16 +64,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
-  // 사용자 정보 쿼리
+  // 사용자 및 최신 스페이스 정보를 하나의 쿼리로 통합
   const {
-    data: baseUser,
+    data: userWithSpace,
     isLoading: isUserLoading,
     error,
     isError,
     refetch: refetchUser,
   } = useQuery({
-    queryKey: authKeys.user(),
-    queryFn: authApi.getCurrentUser,
+    queryKey: authKeys.userWithLatestSpace(),
+    queryFn: async () => {
+      const data = await authApi.getCurrentUserWithLatestSpace();
+
+      const user: User & { memberId?: string; centrifugoToken?: string } = {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        avatarURL: data.avatarURL,
+        memberId: data.memberId,
+        ...(data.centrifugoToken && { centrifugoToken: data.centrifugoToken }),
+      };
+
+      // localStorage에 저장 (클라이언트에서만)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
+      return { user, latestSpace: data };
+    },
     enabled: isInitialized && TokenManager.isRefreshTokenValid(),
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
@@ -81,30 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     retry: authRetry,
   });
 
-  // 최신 스페이스 정보 쿼리
-  const { data: latestSpace, isLoading: isLatestSpaceLoading } = useQuery({
-    queryKey: authKeys.userWithLatestSpace(),
-    queryFn: async () => {
-      const data = await authApi.getCurrentUserWithLatestSpace();
-
-      // 그룹에서의 최신 사용자 정보로 덮어쓰기 (name, avatarURL)
-      const userWithToken = {
-        ...baseUser,
-        name: data.name, // 그룹에서의 최신 이름으로 덮어쓰기
-        avatarURL: data.avatarURL, // 그룹에서의 최신 프로필 이미지로 덮어쓰기
-        memberId: data.memberId,
-        ...(data.centrifugoToken && { centrifugoToken: data.centrifugoToken }),
-      };
-      localStorage.setItem('user', JSON.stringify(userWithToken));
-
-      return data;
-    },
-    enabled: !!baseUser,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    retry: authRetry,
-  });
+  // 추출된 데이터
+  const baseUser = userWithSpace?.user;
+  const latestSpace = userWithSpace?.latestSpace;
 
   // 그룹에서의 최신 사용자 정보가 포함된 user 객체 생성
   const user = useMemo(() => {
@@ -134,7 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSettled: async () => {
       TokenManager.clearTokens();
-      localStorage.removeItem('user'); // 사용자 정보도 삭제
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user'); // 사용자 정보도 삭제
+      }
       queryClient.clear();
       router.replace(ROUTES.AUTH);
     },
@@ -156,34 +155,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 관련 쿼리 무효화
     await queryClient.invalidateQueries({ queryKey: authKeys.all });
 
-    // latestSpace 즉시 가져오기 (centrifugo_token 포함)
-    const latestSpaceData = await queryClient.fetchQuery({
+    // 사용자 및 스페이스 정보 즉시 가져오기
+    await queryClient.fetchQuery({
       queryKey: authKeys.userWithLatestSpace(),
-      queryFn: authApi.getCurrentUserWithLatestSpace,
+      queryFn: async () => {
+        const data = await authApi.getCurrentUserWithLatestSpace();
+
+        const user: User & { memberId?: string; centrifugoToken?: string } = {
+          id: data.id,
+          email: data.email,
+          name: data.name,
+          avatarURL: data.avatarURL,
+          memberId: data.memberId,
+          ...(data.centrifugoToken && { centrifugoToken: data.centrifugoToken }),
+        };
+
+        // localStorage에 저장 (클라이언트에서만)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+
+        return { user, latestSpace: data };
+      },
     });
-
-    const userData: User = {
-      id: params.userId,
-      email: decodeURIComponent(params.userEmail),
-      name: latestSpaceData.name,
-      avatarURL: latestSpaceData.avatarURL,
-    };
-
-    // React Query 캐시 업데이트
-    queryClient.setQueryData(authKeys.user(), userData);
-
-    const userWithToken = {
-      ...userData,
-      // 그룹에서의 최신 사용자 정보로 덮어쓰기
-      name: latestSpaceData.name,
-      avatarURL: latestSpaceData.avatarURL,
-      memberId: latestSpaceData.memberId,
-      ...(latestSpaceData.centrifugoToken && {
-        centrifugoToken: latestSpaceData.centrifugoToken,
-      }),
-    };
-
-    localStorage.setItem('user', JSON.stringify(userWithToken));
   };
 
   const value: AuthContextValue = {
@@ -194,7 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 인증 상태
     isAuthenticated: !!user && TokenManager.isRefreshTokenValid(),
     isInitialized,
-    isLoading: !isInitialized || isUserLoading || isLatestSpaceLoading,
+    isLoading: !isInitialized || isUserLoading,
 
     // 에러 상태
     error: error as Error | null,

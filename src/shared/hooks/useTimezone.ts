@@ -22,16 +22,23 @@ export const useTimezone = (): UseTimezoneReturn => {
   useEffect(() => {
     const initTimezone = () => {
       try {
-        // 로컬 스토리지에서 저장된 타임존 확인
-        const savedTimezone = localStorage.getItem('user-timezone');
-        
-        if (savedTimezone && isValidTimezone(savedTimezone)) {
-          setTimezoneState(savedTimezone);
+        // 클라이언트에서만 localStorage에 접근
+        if (typeof window !== 'undefined') {
+          // 로컬 스토리지에서 저장된 타임존 확인
+          const savedTimezone = localStorage.getItem('user-timezone');
+          
+          if (savedTimezone && isValidTimezone(savedTimezone)) {
+            setTimezoneState(savedTimezone);
+          } else {
+            // 시스템 타임존 사용
+            const systemTimezone = getUserTimezone();
+            setTimezoneState(systemTimezone);
+            localStorage.setItem('user-timezone', systemTimezone);
+          }
         } else {
-          // 시스템 타임존 사용
+          // 서버에서는 기본값 사용
           const systemTimezone = getUserTimezone();
           setTimezoneState(systemTimezone);
-          localStorage.setItem('user-timezone', systemTimezone);
         }
         
         setError(null);
@@ -56,7 +63,9 @@ export const useTimezone = (): UseTimezoneReturn => {
 
     try {
       setTimezoneState(newTimezone);
-      localStorage.setItem('user-timezone', newTimezone);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user-timezone', newTimezone);
+      }
       setError(null);
     } catch (err) {
       console.error('Failed to set timezone:', err);

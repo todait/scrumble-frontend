@@ -1,6 +1,6 @@
 'use client';
 
-import { LoadingScreen } from '@/shared/components/feedback';
+import { PageLoadingSpinner } from '@/shared/components/ui';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -19,7 +19,7 @@ export function withAuth<P extends object>(Component: React.ComponentType<P>) {
 
     // 초기화 중이거나 로딩 중일 때
     if (!isInitialized || (isLoading && !isError)) {
-      return <LoadingScreen message="로딩 중..." />;
+      return <PageLoadingSpinner />;
     }
 
     // 인증되지 않은 경우 (리다이렉트 전)

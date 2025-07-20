@@ -3,12 +3,12 @@
 import { Suspense } from 'react';
 
 import WelcomeSpacePage from '@/features/space/pages/WelcomeSpacePage';
-import { LoadingScreen } from '@/shared/components/feedback';
+import { PageLoadingSpinner } from '@/shared/components/ui';
 import { withAuth } from '@/shared/components/auth';
 
 function WelcomeSpacePageRoute() {
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={<PageLoadingSpinner />}>
       <WelcomeSpacePage />
     </Suspense>
   );
