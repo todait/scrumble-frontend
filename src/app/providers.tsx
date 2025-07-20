@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthProvider, TimezoneProvider } from '@/shared/contexts';
+import { AuthProvider, TimezoneProvider, GlobalLoadingProvider } from '@/shared/contexts';
 import { setQueryClient } from '@/shared/lib/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -50,12 +50,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, [queryClient]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TimezoneProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </TimezoneProvider>
-      {/* 개발 환경에서만 DevTools 표시 */}
-      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
-    </QueryClientProvider>
+    <GlobalLoadingProvider>
+      <QueryClientProvider client={queryClient}>
+        <TimezoneProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </TimezoneProvider>
+        {/* 개발 환경에서만 DevTools 표시 */}
+        {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+      </QueryClientProvider>
+    </GlobalLoadingProvider>
   );
 }

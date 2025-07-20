@@ -45,7 +45,7 @@ import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 import { debug, debug as logDebug } from '@/shared/utils/debug';
 import { RiSettings6Line } from '@remixicon/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 interface FeedPageProps {
@@ -54,6 +54,7 @@ interface FeedPageProps {
 
 export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { logout } = useAuthHook();
@@ -63,6 +64,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPostDetailVisible, setIsPostDetailVisible] = useState(false);
+  const [isNavigatingAway, setIsNavigatingAway] = useState(false); // 페이지 전환 감지 상태
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoNavigatedRef = useRef<string | null>(null); // 자동 날짜 이동이 실행된 postId 추적
@@ -93,6 +95,13 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
       }
     }
   }, [searchParams, initializeFromUrl, spaceSlug, router]);
+
+  // 경로 변경 감지 - feed 페이지를 벗어날 때 즉시 숨김 처리
+  useEffect(() => {
+    if (!pathname.includes(`/${spaceSlug}/feed`)) {
+      setIsNavigatingAway(true);
+    }
+  }, [pathname, spaceSlug]);
 
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
@@ -269,6 +278,11 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 설정 아이콘 상태
   const SettingsIcon = RiSettings6Line;
+
+  // 페이지 전환 중이면 빈 화면 표시
+  if (isNavigatingAway) {
+    return null;
+  }
 
   return (
     <WebSocketErrorBoundary>

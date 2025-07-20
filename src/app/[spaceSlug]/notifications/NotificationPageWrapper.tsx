@@ -1,16 +1,20 @@
 'use client';
 
 import { withAuth } from '@/shared/components/auth/withAuth';
-import { PageLoadingSpinner } from '@/shared/components/ui';
-import dynamic from 'next/dynamic';
+import { dynamicWithGlobalLoading } from '@/shared/utils/dynamicWithGlobalLoading';
 
-const NotificationPage = dynamic(
+// Dynamic import 사용 - 초기 번들 크기 최적화
+// 전역 로딩 상태와 연동하여 일관된 로딩 경험 제공
+const NotificationPage = dynamicWithGlobalLoading(
   () => import('@/features/notifications/pages').then(mod => mod.NotificationPage),
   { 
     ssr: false,
-    loading: () => <PageLoadingSpinner />
+    loadingMessage: '알림 로딩 중...',
   }
 );
+
+// 대안: 번들 크기가 문제가 되지 않는다면 일반 import 사용 가능
+// import { NotificationPage } from '@/features/notifications/pages';
 
 interface NotificationPageWrapperProps {
   spaceSlug: string;
