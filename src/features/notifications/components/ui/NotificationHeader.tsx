@@ -1,6 +1,10 @@
 'use client';
 
-import type { NotificationCategory, NotificationFilter } from '@/shared/types/notification';
+import type {
+  NotificationCategory,
+  NotificationFilter,
+  UnreadCountByCategory,
+} from '@/shared/types/notification';
 import {
   RiCloseLine,
   RiHeart3Line,
@@ -16,6 +20,7 @@ interface NotificationHeaderProps {
   isMarkingAllAsRead: boolean;
   unreadCount: number;
   totalCount?: number;
+  categoryUnreadCounts?: UnreadCountByCategory;
 }
 
 const categoryOptions: {
@@ -29,13 +34,9 @@ const categoryOptions: {
 ];
 
 export function NotificationHeader({
-  spaceSlug,
   currentFilter,
   onCategoryChange,
-  onMarkAllAsRead,
-  isMarkingAllAsRead,
-  unreadCount,
-  totalCount = 0,
+  categoryUnreadCounts,
 }: NotificationHeaderProps) {
   const handleCategoryChange = (category: NotificationCategory | 'all') => {
     onCategoryChange(category);
@@ -65,12 +66,14 @@ export function NotificationHeader({
         <div className="flex items-center gap-3">
           {categoryOptions.map(({ key, label, icon: Icon }) => {
             const isActive = currentCategory === key;
+            const categoryUnreadCount =
+              key !== 'all' && categoryUnreadCounts ? categoryUnreadCounts[key] : 0;
 
             return (
               <button
                 key={key}
                 onClick={() => handleCategoryChange(key)}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#9747FF] focus:ring-offset-2 ${
+                className={`relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#9747FF] focus:ring-offset-2 ${
                   isActive
                     ? 'bg-[#9747FF] text-white'
                     : 'bg-[#FAFAFA] text-[#6E6E73] hover:bg-[rgba(34,34,34,0.04)]'
@@ -82,6 +85,10 @@ export function NotificationHeader({
               >
                 <Icon className="h-4 w-4" aria-hidden={true} />
                 <span>{label}</span>
+                {/* 읽지 않은 알림 표시 점 - 카테고리별 표시 */}
+                {categoryUnreadCount > 0 && (
+                  <div className="absolute right-1 top-1 h-[6px] w-[6px] rounded-full bg-[#9747FF]" />
+                )}
               </button>
             );
           })}

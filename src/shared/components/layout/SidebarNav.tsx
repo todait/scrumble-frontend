@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useNotificationUnreadCount } from '@/shared/hooks/queries/useNotifications';
 import {
   RiBarChartFill,
   RiBarChartLine,
@@ -39,7 +40,16 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { logout } = useAuth();
+  const { logout, latestSpace } = useAuth();
+
+  // 읽지 않은 알림 개수 가져오기
+  const { data: unreadCountData } = useNotificationUnreadCount({
+    spaceSlug,
+    memberId: latestSpace?.memberId || '',
+    enabled: !!spaceSlug && !!latestSpace?.memberId,
+  });
+
+  const totalUnreadCount = unreadCountData?.totalUnreadCount || 0;
 
   // 로그아웃 처리 함수
   function handleLogout() {
@@ -82,7 +92,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
       icon: RiHeart3Line,
       activeIcon: RiHeart3Fill,
       href: `/${spaceSlug}/notifications`,
-      label: '활동',
+      label: '알림',
     },
     {
       icon: RiPencilLine,
@@ -130,13 +140,17 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
+                  className={`relative flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
                     active ? '' : 'hover:bg-[rgba(34,34,34,0.08)]'
                   }`}
                 >
                   <Icon
                     className={`h-8 w-8 text-[#222222] ${active ? 'opacity-80' : 'opacity-30 hover:opacity-50'}`}
                   />
+                  {/* 읽지 않은 알림 표시 점 - 알림 메뉴에만 표시 */}
+                  {item.href === `/${spaceSlug}/notifications` && totalUnreadCount > 0 && (
+                    <div className="absolute right-3 top-3 h-[6px] w-[6px] rounded-full bg-[#9747FF]" />
+                  )}
                 </Link>
               );
             })}
@@ -179,7 +193,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex min-w-0 flex-col items-center justify-center px-1 py-2"
+                className="relative flex min-w-0 flex-col items-center justify-center px-1 py-2"
               >
                 <Icon
                   className={`mb-1 h-6 w-6 text-[#222222] ${active ? 'opacity-80' : 'opacity-30'}`}
@@ -187,6 +201,10 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
                 <span className={`text-xs text-[#222222] ${active ? 'opacity-80' : 'opacity-30'}`}>
                   {item.label}
                 </span>
+                {/* 읽지 않은 알림 표시 점 - 알림 메뉴에만 표시 */}
+                {item.href === `/${spaceSlug}/notifications` && totalUnreadCount > 0 && (
+                  <div className="absolute right-2 top-1 h-[6px] w-[6px] rounded-full bg-[#9747FF]" />
+                )}
               </Link>
             );
           })}

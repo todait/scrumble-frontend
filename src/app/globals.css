@@ -10,7 +10,7 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
@@ -300,16 +300,16 @@ div.rdp td.rdp-day_selected button.rdp-button:hover {
 /* TodoInput textarea 스크롤바 숨기기 */
 .todo-input-textarea {
   /* 기본 스크롤바 숨기기 */
-  -ms-overflow-style: none !important;  /* IE and Edge */
-  scrollbar-width: none !important;  /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
   overflow-y: hidden !important;
-  
+
   /* 높이 고정 */
   height: 24px !important;
   min-height: 24px !important;
   max-height: 24px !important;
   line-height: 24px !important;
-  
+
   /* 추가 보안 */
   field-sizing: content;
   overscroll-behavior: none;
