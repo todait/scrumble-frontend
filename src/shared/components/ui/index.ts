@@ -8,6 +8,7 @@ export * from './ImageGallery';
 export * from './ImageViewer';
 export * from './LoadingOverlay';
 export * from './LoadingSpinner';
+export * from './PageLoadingSpinner';
 export * from './PostForm';
 export * from './ProfileDropdownMenu';
 export * from './ProfileImage';

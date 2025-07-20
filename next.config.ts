@@ -7,15 +7,7 @@ const nextConfig: NextConfig = {
   
   // 이미지 설정 (Vercel 배포 최적화)
   images: {
-    // 외부 도메인 허용 (기존 방식)
-    domains: [
-      'randomuser.me',
-      'images.unsplash.com',
-      'api.dicebear.com',
-      'lh3.googleusercontent.com',
-      'pub-0a6acdb7198b49dfb5327a9e83fc2bfb.r2.dev',
-    ],
-    // 새로운 방식: remotePatterns 사용 (더 안전함)
+    // remotePatterns 사용 (더 안전하고 세밀한 제어 가능)
     remotePatterns: [
       {
         protocol: 'https',

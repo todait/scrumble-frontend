@@ -1,9 +1,18 @@
 'use client';
 
-import { CheckOutWriteModal } from '@/features/checkout/components';
 import { withAuth } from '@/shared/components/auth';
+import { PageLoadingSpinner } from '@/shared/components/ui';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
+
+const CheckOutWriteModal = dynamic(
+  () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
+  { 
+    ssr: false,
+    loading: () => <PageLoadingSpinner />
+  }
+);
 
 interface CheckOutNewPageProps {
   params: Promise<{ spaceSlug: string }>;

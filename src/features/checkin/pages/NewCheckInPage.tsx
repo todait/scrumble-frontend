@@ -5,9 +5,18 @@ import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateForPage, convertToKoreanOrder } from '@/shared/utils';
 import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import { CheckInWriteModal } from '../components/CheckInWriteModal';
 import { TeamStatusCard } from '../components/ui';
+import { PageLoadingSpinner } from '@/shared/components/ui';
+
+const CheckInWriteModal = dynamic(
+  () => import('../components/CheckInWriteModal').then(mod => mod.CheckInWriteModal),
+  { 
+    ssr: false,
+    loading: () => <PageLoadingSpinner />
+  }
+);
 
 export function NewCheckInPage() {
   const router = useRouter();

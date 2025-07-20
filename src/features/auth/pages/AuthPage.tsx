@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { LoadingScreen } from '@/shared/components/feedback';
+import { PageLoadingSpinner } from '@/shared/components/ui';
 import { IntroLayout } from '@/shared/components/layout';
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 
@@ -20,7 +20,7 @@ const AuthPage = () => {
 
   // 로딩 중일 때 표시
   if (isLoading || isRedirecting) {
-    return <LoadingScreen message="로딩 중..." />;
+    return <PageLoadingSpinner />;
   }
 
   return (
