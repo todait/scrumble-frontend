@@ -49,6 +49,7 @@ Authorization: Bearer {access_token}
 ```
 
 **요청 본문 검증**:
+
 - `notification_ids`: 필수, 최소 1개, 최대 100개의 UUID 배열
 
 **응답**:
@@ -58,19 +59,15 @@ Authorization: Bearer {access_token}
 ```json
 {
   "message": "Notifications marked as read successfully",
-  "processed_ids": [
-    "550e8400-e29b-41d4-a716-446655440001",
-    "550e8400-e29b-41d4-a716-446655440002"
-  ],
-  "skipped_ids": [
-    "550e8400-e29b-41d4-a716-446655440003"
-  ],
+  "processed_ids": ["550e8400-e29b-41d4-a716-446655440001", "550e8400-e29b-41d4-a716-446655440002"],
+  "skipped_ids": ["550e8400-e29b-41d4-a716-446655440003"],
   "processed_count": 2,
   "total_requested": 3
 }
 ```
 
 **응답 필드 설명**:
+
 - `message`: 작업 결과 메시지
 - `processed_ids`: 성공적으로 읽음 처리된 알림 ID 목록
 - `skipped_ids`: 건너뛴 알림 ID 목록 (이미 읽음, 존재하지 않음, 권한 없음 등)
@@ -113,6 +110,7 @@ Authorization: Bearer {access_token}
 ```
 
 **응답 필드 설명**:
+
 - `message`: 작업 결과 메시지
 - `processed_count`: 읽음 처리된 알림 개수
 
@@ -213,20 +211,68 @@ Authorization: Bearer {access_token}
 
 ---
 
+### 4. 읽지 않은 알림 개수 조회 (GET)
+
+**엔드포인트**: `GET /api/v1/spaces/{spaceSlug}/notifications/{memberId}/unreadCount`
+
+**설명**: 특정 스페이스 멤버의 읽지 않은 알림 개수를 카테고리별로 조회합니다. 사용자는 자신의 알림 개수만 조회할 수 있습니다.
+
+**경로 파라미터**:
+
+- `spaceSlug` (string, required): 스페이스 식별자
+- `memberId` (string, required): 멤버 ID (UUID)
+
+**헤더**:
+
+- `Authorization` (string, required): Bearer 토큰
+
+**응답**:
+
+- `200 OK`: 성공
+
+```json
+{
+  "total_unread_count": 15,
+  "categories": {
+    "feed": 5,
+    "activity": 8,
+    "notice": 2
+  }
+}
+```
+
+**응답 필드 설명**:
+
+- `total_unread_count`: 전체 읽지 않은 알림 개수
+- `categories`: 카테고리별 읽지 않은 알림 개수
+  - `feed`: 피드 관련 알림 (체크인/체크아웃 포스트)
+  - `activity`: 활동 관련 알림 (댓글/반응/멘션)
+  - `notice`: 공지사항 알림 (공지/역할변경/멤버변경)
+
+**에러 응답**:
+
+- `400 Bad Request`: 잘못된 요청 파라미터 (잘못된 UUID 형식)
+- `401 Unauthorized`: 인증 실패
+- `403 Forbidden`: 다른 사용자의 알림 개수 접근 시도
+- `404 Not Found`: 스페이스 멤버를 찾을 수 없음
+- `500 Internal Server Error`: 서버 오류
+
+---
+
 ## 데이터 모델
 
 ### NotificationDTO (조회 시 반환)
 
 ```typescript
 interface NotificationDTO {
-  id: string;           // UUID
-  category: string;     // "feed" | "activity" | "notice"
-  type: string;         // "comment" | "emoji_reaction" | ...
+  id: string; // UUID
+  category: string; // "feed" | "activity" | "notice"
+  type: string; // "comment" | "emoji_reaction" | ...
   title: string;
   content: string;
   is_read: boolean;
-  read_at?: string;     // ISO 8601 형식 (UTC)
-  created_at: string;   // ISO 8601 형식 (UTC)
+  read_at?: string; // ISO 8601 형식 (UTC)
+  created_at: string; // ISO 8601 형식 (UTC)
   payload?: Record<string, any>;
   related_user?: {
     id: string;
@@ -254,10 +300,10 @@ interface BulkMarkAsReadRequest {
 ```typescript
 interface BulkMarkAsReadResponse {
   message: string;
-  processed_ids: string[];    // 성공적으로 처리된 ID들
-  skipped_ids: string[];      // 건너뛴 ID들
-  processed_count: number;    // 처리된 개수
-  total_requested: number;    // 요청된 전체 개수
+  processed_ids: string[]; // 성공적으로 처리된 ID들
+  skipped_ids: string[]; // 건너뛴 ID들
+  processed_count: number; // 처리된 개수
+  total_requested: number; // 요청된 전체 개수
 }
 ```
 
@@ -266,7 +312,7 @@ interface BulkMarkAsReadResponse {
 ```typescript
 interface MarkAllAsReadResponse {
   message: string;
-  processed_count: number;    // 처리된 알림 개수
+  processed_count: number; // 처리된 알림 개수
 }
 ```
 
@@ -275,9 +321,24 @@ interface MarkAllAsReadResponse {
 ```typescript
 interface GetNotificationsResponse {
   notifications: NotificationDTO[];
-  next_cursor?: string;       // base64 인코딩된 커서
+  next_cursor?: string; // base64 인코딩된 커서
   has_more: boolean;
   total: number;
+}
+```
+
+### GetUnreadCountResponse (읽지 않은 알림 개수 응답)
+
+```typescript
+interface GetUnreadCountResponse {
+  total_unread_count: number;
+  categories: UnreadCountByCategory;
+}
+
+interface UnreadCountByCategory {
+  feed: number; // 피드 관련 알림 (체크인/체크아웃 포스트)
+  activity: number; // 활동 관련 알림 (댓글/반응/멘션)
+  notice: number; // 공지사항 알림 (공지/역할변경/멤버변경)
 }
 ```
 
@@ -313,30 +374,35 @@ interface GetNotificationsResponse {
 **카테고리별 타입**:
 
 - `feed`: 피드 관련 알림
+
+  - `check_in_post`: 체크인 포스트 알림
+  - `check_out_post`: 체크아웃 포스트 알림
+
+- `activity`: 활동 관련 알림
+
   - `comment`: 댓글 알림
   - `emoji_reaction`: 이모지 반응 알림
-  
-- `activity`: 활동 관련 알림
-  - `member_joined`: 멤버 가입 알림
-  - `member_left`: 멤버 탈퇴 알림
-  
+  - `mention`: 멘션 알림
+
 - `notice`: 공지사항 알림
-  - `system_notice`: 시스템 공지
   - `space_notice`: 스페이스 공지
+  - `role_update`: 역할 변경 알림
+  - `space_info_update`: 스페이스 정보 업데이트
+  - `member_join_leave`: 멤버 가입/탈퇴 알림
 
 ---
 
 ## 에러 코드
 
-| 코드                    | 설명                              |
-| ----------------------- | --------------------------------- |
-| `VALIDATION_ERROR`      | 입력 데이터 유효성 검사 실패      |
-| `NOT_FOUND`             | 리소스를 찾을 수 없음             |
-| `UNAUTHORIZED`          | 인증되지 않은 요청                |
-| `FORBIDDEN`             | 권한이 없는 리소스 접근           |
-| `INVALID_CURSOR`        | 잘못된 페이지네이션 커서          |
-| `INVALID_UUID`          | 잘못된 UUID 형식                  |
-| `LIMIT_EXCEEDED`        | 요청 제한 초과 (100개 초과)       |
+| 코드               | 설명                         |
+| ------------------ | ---------------------------- |
+| `VALIDATION_ERROR` | 입력 데이터 유효성 검사 실패 |
+| `NOT_FOUND`        | 리소스를 찾을 수 없음        |
+| `UNAUTHORIZED`     | 인증되지 않은 요청           |
+| `FORBIDDEN`        | 권한이 없는 리소스 접근      |
+| `INVALID_CURSOR`   | 잘못된 페이지네이션 커서     |
+| `INVALID_UUID`     | 잘못된 UUID 형식             |
+| `LIMIT_EXCEEDED`   | 요청 제한 초과 (100개 초과)  |
 
 ---
 
@@ -410,6 +476,31 @@ Headers:
   Authorization: Bearer {token}
 ```
 
+### 시나리오 5: 읽지 않은 알림 개수 조회
+
+```bash
+# 카테고리별 읽지 않은 알림 개수 조회
+GET /api/v1/spaces/my-team/notifications/123e4567-e89b-12d3-a456-426614174000/unreadCount
+Headers:
+  Authorization: Bearer {token}
+
+# 응답
+{
+  "total_unread_count": 15,
+  "categories": {
+    "feed": 5,
+    "activity": 8,
+    "notice": 2
+  }
+}
+```
+
+**활용 예시**:
+
+- 알림 아이콘에 총 개수 표시: `total_unread_count` 사용
+- 카테고리별 탭에 개수 표시: `categories` 각 값 사용
+- 우선순위 높은 카테고리 식별: `notice` > `activity` > `feed` 순으로 처리
+
 ---
 
 ## FAQ
@@ -434,9 +525,28 @@ Headers:
 
 **A**: WebSocket을 통해 실시간 알림을 수신할 수 있습니다. 자세한 내용은 WebSocket API 문서를 참조하세요.
 
+### Q6: 읽지 않은 알림 개수는 실시간으로 업데이트되나요?
+
+**A**: 읽지 않은 알림 개수는 API 호출 시점의 정확한 개수를 반환합니다. 실시간 업데이트가 필요한 경우 WebSocket 이벤트와 함께 주기적으로 API를 호출하세요.
+
+### Q7: 카테고리별 개수가 0인 경우에도 응답에 포함되나요?
+
+**A**: 네, 모든 카테고리는 개수가 0이어도 응답에 포함됩니다. 이를 통해 클라이언트에서 일관된 데이터 구조를 유지할 수 있습니다.
+
+### Q8: 다른 사용자의 읽지 않은 알림 개수를 조회할 수 있나요?
+
+**A**: 아니요, 보안상의 이유로 사용자는 자신의 알림 개수만 조회할 수 있습니다. 다른 사용자의 개수에 접근하면 403 Forbidden 오류가 발생합니다.
+
 ---
 
 ## 변경 이력
+
+### v1.1.0 (2025-07-20)
+
+- 📊 **[NEW]** 읽지 않은 알림 개수 조회 API (카테고리별 세분화)
+  - 전체 개수와 카테고리별 개수를 한 번에 제공
+  - feed, activity, notice 카테고리별 분석 지원
+  - 클라이언트 UI에서 카테고리별 배지 표시 가능
 
 ### v1.0.0 (2025-01-16)
 
