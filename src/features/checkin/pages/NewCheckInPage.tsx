@@ -14,11 +14,14 @@ const CheckInWriteModal = dynamic(
   () => import('../components/CheckInWriteModal').then(mod => mod.CheckInWriteModal),
   { 
     ssr: false,
-    loading: () => <PageLoadingSpinner />,
-    // 우선 로드 적용 - 체크인은 중요한 기능이므로 미리 로드
-    priority: true
+    loading: () => <PageLoadingSpinner />
   }
 );
+
+// CheckInWriteModal 미리 로드하는 함수
+const preloadCheckInModal = () => {
+  import('../components/CheckInWriteModal');
+};
 
 export function NewCheckInPage() {
   const router = useRouter();
@@ -34,6 +37,11 @@ export function NewCheckInPage() {
     date: selectedDate,
     enabled: !!spaceSlug,
   });
+
+  // 컴포넌트 마운트 시 CheckInWriteModal 미리 로드
+  useEffect(() => {
+    preloadCheckInModal();
+  }, []);
 
   // 미래 날짜 접근 시 메인 피드로 리다이렉트
   useEffect(() => {
