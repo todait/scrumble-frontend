@@ -14,7 +14,9 @@ const CheckInWriteModal = dynamic(
   () => import('../components/CheckInWriteModal').then(mod => mod.CheckInWriteModal),
   { 
     ssr: false,
-    loading: () => <PageLoadingSpinner />
+    loading: () => <PageLoadingSpinner />,
+    // 우선 로드 적용 - 체크인은 중요한 기능이므로 미리 로드
+    priority: true
   }
 );
 
