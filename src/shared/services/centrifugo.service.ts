@@ -445,6 +445,42 @@ export class CentrifugoService {
   }
 
   /**
+   * 멤버의 알림 이벤트를 구독합니다
+   */
+  subscribeToNotifications(memberId: string): void {
+    if (!this.spaceSlug || !memberId) {
+      debug('Centrifugo', '스페이스 또는 멤버 정보가 없음', {
+        spaceSlug: this.spaceSlug,
+        memberId,
+      });
+      return;
+    }
+
+    const channel = `space:${this.spaceSlug}:member:${memberId}:notifications`;
+    
+    // 이미 구독 중인지 확인
+    if (this.subscriptions.has(channel)) {
+      debug('Centrifugo', '이미 알림 채널을 구독 중입니다', channel);
+      return;
+    }
+    
+    debug('Centrifugo', 'Subscribing to notifications channel', channel);
+    this.subscribe(channel);
+  }
+
+  /**
+   * 멤버의 알림 이벤트 구독을 해제합니다
+   */
+  unsubscribeFromNotifications(memberId: string): void {
+    if (!this.spaceSlug || !memberId) {
+      return;
+    }
+
+    const channel = `space:${this.spaceSlug}:member:${memberId}:notifications`;
+    this.unsubscribe(channel);
+  }
+
+  /**
    * 특정 이벤트 타입에 대한 핸들러를 등록합니다
    */
   addEventListener(eventType: WebSocketEventType, handler: WebSocketEventHandler): void {

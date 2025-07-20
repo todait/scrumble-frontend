@@ -19,7 +19,7 @@ export const ROUTES = {
   SPACE_FEED: (spaceSlug: string) => `/${spaceSlug}/feed`,
   SPACE_CHECKIN: (spaceSlug: string) => `/${spaceSlug}/posts/checkins/new`,
   SPACE_MY_PAGE: (spaceSlug: string) => `/${spaceSlug}/my-page`,
-  SPACE_ACTIVITY: (spaceSlug: string) => `/${spaceSlug}/activity`,
+  SPACE_NOTIFICATION: (spaceSlug: string) => `/${spaceSlug}/notification`,
   SPACE_REPORTS: (spaceSlug: string) => `/${spaceSlug}/reports`,
 
   // 포스트 작성

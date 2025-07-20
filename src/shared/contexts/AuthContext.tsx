@@ -38,8 +38,6 @@ interface AuthContextValue {
     refreshToken: string;
     userId: string;
     userEmail: string;
-    userName: string;
-    avatarURL: string;
   }) => Promise<void>;
 }
 
@@ -89,14 +87,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: async () => {
       const data = await authApi.getCurrentUserWithLatestSpace();
 
-      // centrifugo_token이 포함된 사용자 정보를 localStorage에 저장
-      if (data.centrifugoToken) {
-        const userWithToken = {
-          ...baseUser,
-          centrifugoToken: data.centrifugoToken,
-        };
-        localStorage.setItem('user', JSON.stringify(userWithToken));
-      }
+      // 그룹에서의 최신 사용자 정보로 덮어쓰기 (name, avatarURL)
+      const userWithToken = {
+        ...baseUser,
+        name: data.name, // 그룹에서의 최신 이름으로 덮어쓰기
+        avatarURL: data.avatarURL, // 그룹에서의 최신 프로필 이미지로 덮어쓰기
+        memberId: data.memberId,
+        ...(data.centrifugoToken && { centrifugoToken: data.centrifugoToken }),
+      };
+      localStorage.setItem('user', JSON.stringify(userWithToken));
 
       return data;
     },
@@ -107,16 +106,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     retry: authRetry,
   });
 
-  // centrifugoToken이 포함된 user 객체 생성
+  // 그룹에서의 최신 사용자 정보가 포함된 user 객체 생성
   const user = useMemo(() => {
     if (!baseUser) return undefined;
 
     return {
       ...baseUser,
-
+      // 그룹에서의 최신 사용자 정보로 덮어쓰기
+      ...(latestSpace?.name && { name: latestSpace.name }),
+      ...(latestSpace?.avatarURL && { avatarURL: latestSpace.avatarURL }),
+      memberId: latestSpace?.memberId,
       centrifugoToken: latestSpace?.centrifugoToken,
     };
-  }, [baseUser, latestSpace?.centrifugoToken]);
+  }, [
+    baseUser,
+    latestSpace?.name,
+    latestSpace?.avatarURL,
+    latestSpace?.memberId,
+    latestSpace?.centrifugoToken,
+  ]);
 
   // 로그아웃 mutation
   const logoutMutation = useMutation({
@@ -138,25 +146,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshToken: string;
     userId: string;
     userEmail: string;
-    userName: string;
-    avatarURL: string;
   }) => {
     // 토큰 저장 (만료 시간 자동 추출)
     TokenManager.setTokens({
       accessToken: params.accessToken,
       refreshToken: params.refreshToken,
     });
-
-    // 사용자 정보 생성
-    const userData: User = {
-      id: params.userId,
-      email: decodeURIComponent(params.userEmail),
-      name: decodeURIComponent(params.userName),
-      avatarURL: decodeURIComponent(params.avatarURL),
-    };
-
-    // React Query 캐시 업데이트
-    queryClient.setQueryData(authKeys.user(), userData);
 
     // 관련 쿼리 무효화
     await queryClient.invalidateQueries({ queryKey: authKeys.all });
@@ -167,14 +162,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryFn: authApi.getCurrentUserWithLatestSpace,
     });
 
-    // centrifugo_token이 포함된 사용자 정보를 localStorage에 저장
-    if (latestSpaceData.centrifugoToken) {
-      const userWithToken = {
-        ...userData,
+    const userData: User = {
+      id: params.userId,
+      email: decodeURIComponent(params.userEmail),
+      name: latestSpaceData.name,
+      avatarURL: latestSpaceData.avatarURL,
+    };
+
+    // React Query 캐시 업데이트
+    queryClient.setQueryData(authKeys.user(), userData);
+
+    const userWithToken = {
+      ...userData,
+      // 그룹에서의 최신 사용자 정보로 덮어쓰기
+      name: latestSpaceData.name,
+      avatarURL: latestSpaceData.avatarURL,
+      memberId: latestSpaceData.memberId,
+      ...(latestSpaceData.centrifugoToken && {
         centrifugoToken: latestSpaceData.centrifugoToken,
-      };
-      localStorage.setItem('user', JSON.stringify(userWithToken));
-    }
+      }),
+    };
+
+    localStorage.setItem('user', JSON.stringify(userWithToken));
   };
 
   const value: AuthContextValue = {

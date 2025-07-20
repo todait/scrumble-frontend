@@ -3,13 +3,10 @@
  * Centrifugo를 사용하도록 마이그레이션되었습니다.
  */
 
-import { useCentrifugo, useCommentCentrifugo } from './useCentrifugo';
+import type { WebSocketEventHandler, WebSocketEventType } from '../services/centrifugo.service';
 import type { ExtractMessageType } from '../types/websocket.types';
-import type {
-  WebSocketEventHandler,
-  WebSocketEventType,
-} from '../services/centrifugo.service';
 import { debug } from '../utils/debug';
+import { useCentrifugo, useCommentCentrifugo } from './useCentrifugo';
 
 interface UseWebSocketOptions {
   spaceSlug: string;
@@ -19,6 +16,7 @@ interface UseWebSocketOptions {
   // 재연결 시 데이터 동기화 관련
   onReconnectionDataSync?: () => void; // 재연결 시 호출될 데이터 동기화 함수
   dataSyncThresholdMs?: number; // 동기화 임계값 (기본값: 30초)
+  memberId?: string; // 👈 추가
 }
 
 interface UseWebSocketReturn {
@@ -33,6 +31,9 @@ interface UseWebSocketReturn {
   unsubscribeFromReactions: (postId: string) => void;
   batchSubscribeToReactions: (postIds: string[]) => void;
   batchUnsubscribeFromReactions: (postIds: string[]) => void;
+  // 알림 구독 함수들
+  subscribeToNotifications: (memberId: string) => void;
+  unsubscribeFromNotifications: (memberId: string) => void;
   // 타입 안전한 이벤트 리스너 함수들
   addEventListener: <T extends WebSocketEventType>(
     eventType: T,
@@ -55,10 +56,11 @@ export function useWebSocket({
   visiblePostIds = [],
   onReconnectionDataSync,
   dataSyncThresholdMs = 30000,
+  memberId,
 }: UseWebSocketOptions): UseWebSocketReturn {
   // Debug: Log visiblePostIds
   debug('useWebSocket', 'visiblePostIds', visiblePostIds);
-  
+
   // Centrifugo 훅을 사용하여 동일한 인터페이스 제공
   return useCentrifugo({
     spaceSlug,
@@ -67,6 +69,7 @@ export function useWebSocket({
     visiblePostIds,
     onReconnectionDataSync,
     dataSyncThresholdMs,
+    memberId,
   });
 }
 

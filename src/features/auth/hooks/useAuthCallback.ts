@@ -60,7 +60,7 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
 
   // 모든 필수 파라미터가 있는지 확인
   const hasAllRequiredParams = useCallback((params: AuthParams): boolean => {
-    const required = ['accessToken', 'refreshToken', 'userId', 'userEmail', 'userName'];
+    const required = ['accessToken', 'refreshToken', 'userId', 'userEmail'];
     return required.every(key => {
       const value = params[key as keyof AuthParams];
       return value !== null && value !== '';
@@ -112,8 +112,6 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
             refreshToken: authParams.refreshToken!,
             userId: authParams.userId!,
             userEmail: authParams.userEmail!,
-            userName: authParams.userName!,
-            avatarURL: authParams.avatarURL || '',
           });
 
           debug('useAuthCallback', 'Token saved in localStorage:', localStorage.getItem('access_token'));

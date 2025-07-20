@@ -110,8 +110,8 @@ export const PostForm = ({
             onKeyDown={e => {
               if (e.key === 'Enter') {
                 // 모든 Enter 키 이벤트에 대해 전파 차단
-                e.stopPropagation();
-                
+                e.nativeEvent.stopImmediatePropagation();
+
                 // CMD/Meta + Enter인 경우에만 폼 제출
                 if (e.metaKey && !isSubmitDisabled) {
                   e.preventDefault();
