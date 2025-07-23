@@ -1,20 +1,20 @@
 'use client';
 
+import { PageLoadingSpinner } from '@/shared/components/ui';
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
 import { useDateStore } from '@/shared/stores/useDateStore';
-import { formatDateForPage, convertToKoreanOrder } from '@/shared/utils';
+import { convertToKoreanOrder, formatDateForPage } from '@/shared/utils';
 import { RiCalendarFill } from '@remixicon/react';
-import { useParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TeamStatusCard } from '../components/ui';
-import { PageLoadingSpinner } from '@/shared/components/ui';
 
 const CheckInWriteModal = dynamic(
   () => import('../components/CheckInWriteModal').then(mod => mod.CheckInWriteModal),
-  { 
+  {
     ssr: false,
-    loading: () => <PageLoadingSpinner />
+    loading: () => <PageLoadingSpinner />,
   }
 );
 
@@ -55,7 +55,6 @@ export function NewCheckInPage() {
     }
   }, [selectedDate, spaceSlug, router]);
 
-  // 체크인 가능 횟수 (임시로 15로 설정)
   const nextCheckinOrder = teamSummary?.nextCheckinOrder ?? 0;
 
   const handleStartCheckin = () => {
