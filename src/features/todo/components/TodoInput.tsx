@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { TodoEditor } from '@/shared/components/tiptap/components/TodoEditor';
+import type { MentionUser } from '@/shared/components/tiptap/tiptap.types';
 
 export interface TodoInputProps {
   /** 새 투두 추가 콜백 */
@@ -24,16 +26,13 @@ export function TodoInput({
 }: TodoInputProps) {
   const [inputText, setInputText] = useState('');
   const [isEscPressed, setIsEscPressed] = useState(false);
-  const [isComposing, setIsComposing] = useState(false); // IME 조합 상태
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // 멘션을 위한 사용자 목록 (실제 구현 시 props로 받거나 상태 관리에서 가져옴)
+  const mentionUsers: MentionUser[] = [];
 
-  // 포커스 상태 변경 시 textarea 포커스 처리
+  // 포커스 상태 변경 시 처리
   useEffect(() => {
-    if (isFocused && textAreaRef.current) {
-      const textarea = textAreaRef.current;
-      textarea.focus();
-      textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-    } else if (!isFocused) {
+    if (!isFocused) {
       // 포커스가 해제되면 입력 텍스트 초기화
       setInputText('');
       setIsEscPressed(false);
@@ -48,47 +47,21 @@ export function TodoInput({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // IME 조합 중일 때는 Enter 키 처리하지 않음
-    if (isComposing && e.key === 'Enter') {
-      return;
-    }
-
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (isBottomInput) {
-        // 맨 아래 TodoInput: Enter와 Shift+Enter 모두 계속 입력 가능
-        handleSubmit(true);
-      } else if (e.shiftKey) {
-        // 중간 TodoInput + Shift+Enter: 추가 후 계속 입력 가능 (중간 삽입 유지)
-        handleSubmit(true);
-      } else {
-        // 중간 TodoInput + Enter: 추가 후 포커스 해제
-        handleSubmit(false);
-        onBlur();
-      }
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      e.stopPropagation();
-      // ESC: 입력 취소
-      setIsEscPressed(true);
+  const handleTodoSubmit = () => {
+    if (isBottomInput) {
+      // 맨 아래 TodoInput: 계속 입력 가능
+      handleSubmit(true);
+    } else {
+      // 중간 TodoInput: 추가 후 포커스 해제
+      handleSubmit(false);
       onBlur();
     }
   };
 
-  // IME 조합 이벤트 핸들러
-  const handleCompositionStart = () => {
-    setIsComposing(true);
-  };
-
-  const handleCompositionEnd = () => {
-    setIsComposing(false);
-  };
-
-  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // 줄바꿈 문자를 공백으로 치환하여 단일 라인 유지
-    const newValue = e.target.value.replace(/[\r\n]+/g, ' ');
-    setInputText(newValue);
+  const handleEscape = () => {
+    // ESC: 입력 취소
+    setIsEscPressed(true);
+    onBlur();
   };
 
   const handleContainerClick = () => {
@@ -120,13 +93,11 @@ export function TodoInput({
       {/* 텍스트 입력 영역 */}
       <div className="min-w-0 flex-1">
         {isFocused ? (
-          <textarea
-            ref={textAreaRef}
+          <TodoEditor
             value={inputText}
-            onChange={handleTextAreaChange}
-            onKeyDown={handleKeyDown}
-            onCompositionStart={handleCompositionStart}
-            onCompositionEnd={handleCompositionEnd}
+            onChange={setInputText}
+            placeholder="투두를 입력하세요..."
+            onSubmit={handleTodoSubmit}
             onBlur={() => {
               // ESC 키가 눌린 경우 자동 추가하지 않음
               if (!isEscPressed) {
@@ -138,29 +109,18 @@ export function TodoInput({
               }
               onBlur();
             }}
-            onPaste={e => {
-              // 붙여넣기 시에도 줄바꿈 방지
-              e.preventDefault();
-              const text = e.clipboardData.getData('text').replace(/[\r\n]+/g, ' ');
-              const target = e.target as HTMLTextAreaElement;
-              const start = target.selectionStart;
-              const end = target.selectionEnd;
-              const newValue = inputText.slice(0, start) + text + inputText.slice(end);
-              setInputText(newValue);
-            }}
-            className="todo-input-textarea w-full resize-none overflow-hidden border-none bg-transparent px-2 py-1 text-sm leading-none text-[#222222] outline-none"
-            placeholder="투두를 입력하세요..."
-            rows={1}
-            style={{
-              height: '24px',
-              minHeight: '24px',
-              maxHeight: '24px',
-              lineHeight: '24px',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              overflowY: 'hidden',
-              overscrollBehavior: 'none',
-            }}
+            autoFocus={true}
+            enableMentions={mentionUsers.length > 0}
+            mentionConfig={
+              mentionUsers.length > 0
+                ? {
+                    suggestions: mentionUsers,
+                    onMentionSelect: (user) => {
+                      console.log('Mentioned user:', user);
+                    },
+                  }
+                : undefined
+            }
           />
         ) : (
           <div className="flex h-6 items-center px-2 py-1 text-sm leading-none text-gray-400">

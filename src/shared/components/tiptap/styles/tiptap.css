@@ -1,0 +1,192 @@
+/* Tiptap 에디터 기본 스타일 */
+.tiptap-editor {
+  /* 기본 폰트 및 색상 */
+  font-family: 'Pretendard', system-ui, sans-serif;
+  color: #222222;
+  line-height: 1.5;
+}
+
+/* PostForm 스타일 - 240px 고정 높이 */
+.tiptap-editor--post-form {
+  height: 240px;
+  width: 100%;
+  resize: none;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  color: black;
+  outline: none;
+  overflow-y: auto;
+}
+
+.tiptap-editor--post-form::placeholder {
+  color: rgb(156 163 175); /* placeholder-gray-400 */
+}
+
+.tiptap-editor--post-form:disabled {
+  cursor: not-allowed;
+}
+
+@media (min-width: 768px) {
+  .tiptap-editor--post-form {
+    font-size: 15px;
+  }
+}
+
+/* CommentEditor 스타일 - 동적 높이 */
+.tiptap-editor--comment {
+  width: 100%;
+  resize: none;
+  overflow-y: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(34, 34, 34, 0.08);
+  background-color: white;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #222222;
+  outline: none;
+  min-height: 60px;
+  max-height: 300px;
+}
+
+.tiptap-editor--comment:focus {
+  border-color: #9747FF;
+}
+
+@media (min-width: 768px) {
+  .tiptap-editor--comment {
+    font-size: 14px;
+  }
+}
+
+/* TodoEditor 스타일 - 단일 라인 */
+.tiptap-editor--todo {
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  border: none;
+  background-color: transparent;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: #222222;
+  outline: none;
+  height: 24px;
+  min-height: 24px;
+  max-height: 24px;
+  line-height: 24px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-y: hidden;
+  overscroll-behavior: none;
+}
+
+.tiptap-editor--todo::-webkit-scrollbar {
+  display: none;
+}
+
+/* Placeholder 스타일 */
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Bold 스타일 */
+.tiptap-editor strong {
+  font-weight: 600;
+}
+
+/* BulletList 스타일 */
+.tiptap-editor ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+}
+
+.tiptap-editor ul li {
+  margin-bottom: 0.25rem;
+}
+
+/* Link 스타일 */
+.tiptap-editor a {
+  color: #9747FF;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tiptap-editor a:hover {
+  opacity: 0.8;
+}
+
+/* Mention 스타일 */
+.tiptap-editor .mention {
+  background-color: rgba(151, 71, 255, 0.1);
+  color: #9747FF;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  font-weight: 500;
+}
+
+/* 기본 paragraph 간격 */
+.tiptap-editor p {
+  margin: 0;
+}
+
+.tiptap-editor p + p {
+  margin-top: 0.5rem;
+}
+
+/* TodoEditor에서는 paragraph 간격 제거 */
+.tiptap-editor--todo p {
+  margin: 0;
+  display: inline;
+}
+
+.tiptap-editor--todo p + p {
+  margin-top: 0;
+}
+
+/* iOS Safari 확대 방지 */
+@media (max-width: 768px) {
+  .tiptap-editor {
+    font-size: 16px !important;
+  }
+}
+
+/* 로딩 상태 */
+.tiptap-editor--loading {
+  min-height: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(249, 250, 251, 0.5);
+  cursor: wait;
+}
+
+.tiptap-editor--post-form.tiptap-editor--loading {
+  height: 240px;
+}
+
+.tiptap-editor--comment.tiptap-editor--loading {
+  min-height: 40px;
+}
+
+.tiptap-editor--todo.tiptap-editor--loading {
+  height: 24px;
+  padding: 0 8px;
+}
+
+/* 접근성 - 스크린 리더 전용 텍스트 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

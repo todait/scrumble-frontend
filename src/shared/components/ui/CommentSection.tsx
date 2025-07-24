@@ -6,7 +6,6 @@ import type { EmojiData } from '@/shared/components/emoji/EmojiPicker';
 import { SimpleToast } from '@/shared/components/feedback';
 import { useAuth } from '@/shared/hooks/auth/useAuth';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import type { ImageMetadata } from '@/shared/types/upload.types';
@@ -22,6 +21,8 @@ import { EditDeleteMenu } from './EditDeleteMenu';
 import { IconButton } from './IconButton';
 import { ImageGallery } from './ImageGallery';
 import { ImagePreview } from './ImagePreview';
+import { CommentEditor } from '@/shared/components/tiptap/components/CommentEditor';
+import type { MentionUser } from '@/shared/components/tiptap/tiptap.types';
 
 // Dynamic import for EmojiPicker
 const EmojiPicker = dynamic(
@@ -159,13 +160,14 @@ function CommentItem({
   const [showToast, setShowToast] = useState<{ message: string } | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
-  const [isComposing, setIsComposing] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wasEditingRef = useRef(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const editingContainerRef = useRef<HTMLDivElement>(null);
   const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
+  
+  // 멘션을 위한 사용자 목록 (실제 구현 시 props로 받거나 상태 관리에서 가져옴)
+  const mentionUsers: MentionUser[] = [];
 
   const hasReactions = comment.reactions && comment.reactions.length > 0;
 
@@ -187,15 +189,6 @@ function CommentItem({
   const { isDragging, dragHandlers } = useDragAndDrop({
     onDrop: uploadImages,
     acceptedFileTypes: ['image/'],
-  });
-
-  // 클립보드 이미지 붙여넣기 설정
-  const { textareaProps } = useTextareaClipboardImagePaste({
-    onImagePaste: uploadImages,
-    onError: error => {
-      setShowToast({ message: error });
-    },
-    enabled: isEditing,
   });
 
   // 편집 상태 변경 시 콘텐츠 초기화 및 편집 종료 시 최신 데이터 반영
@@ -383,24 +376,39 @@ function CommentItem({
           {/* 편집 영역 */}
           <div className="space-y-3" {...dragHandlers}>
             <div className="relative">
-              <textarea
-                {...textareaProps}
-                ref={textareaRef}
+              <CommentEditor
                 value={editContent}
-                onChange={e => setEditContent(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
-                    e.preventDefault();
-                    if (isSaveEnabled) {
-                      handleSave();
-                    }
+                onChange={setEditContent}
+                placeholder="댓글을 입력하세요..."
+                disabled={false}
+                mode="edit"
+                onSubmit={() => {
+                  if (isSaveEnabled) {
+                    handleSave();
                   }
                 }}
-                onCompositionStart={() => setIsComposing(true)}
-                onCompositionEnd={() => setIsComposing(false)}
-                className="w-full resize-none overflow-y-auto rounded-lg border border-[rgba(34,34,34,0.08)] bg-white p-3 text-sm text-[#222222] focus:border-[#9747FF] focus:outline-none md:text-[14px]"
-                style={{ minHeight: '60px', maxHeight: '300px' }}
-                disabled={false}
+                onCancel={handleCancel}
+                imageUploadHook={{
+                  uploadImages,
+                  uploadingImages,
+                  completedImages,
+                  removeImage,
+                  clearImages,
+                  isUploading,
+                  initializeWithImages,
+                }}
+                enableImageUpload={true}
+                mentionConfig={
+                  mentionUsers.length > 0
+                    ? {
+                        suggestions: mentionUsers,
+                        onMentionSelect: (user) => {
+                          console.log('Mentioned user:', user);
+                        },
+                      }
+                    : undefined
+                }
+                autoFocus={true}
               />
 
               {/* 드래그 오버레이 */}

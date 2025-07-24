@@ -1,6 +1,5 @@
 'use client';
 
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import { useImageViewer } from '@/shared/hooks/useImageViewer';
@@ -11,6 +10,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ImagePreview } from './ImagePreview';
 import { ImageViewer } from './ImageViewer';
 import { LoadingSpinner } from './LoadingSpinner';
+import { PostFormEditor } from '@/shared/components/tiptap/components/PostFormEditor';
+import type { MentionUser } from '@/shared/components/tiptap/tiptap.types';
 
 interface PostFormProps {
   onSubmit: (data: { message: string; images: ImageMetadata[] }) => void;
@@ -54,14 +55,8 @@ export const PostForm = ({
 
   const imageViewer = useImageViewer();
 
-  // 클립보드 이미지 붙여넣기 기능
-  const { textareaProps } = useTextareaClipboardImagePaste({
-    onImagePaste: uploadImages,
-    onError: error => {
-      alert(error);
-    },
-    enabled: !disabled,
-  });
+  // 멘션을 위한 사용자 목록 (실제 구현 시 props로 받거나 상태 관리에서 가져옴)
+  const mentionUsers: MentionUser[] = [];
 
   useEffect(() => {
     setMessage(initialMessage);
@@ -103,26 +98,32 @@ export const PostForm = ({
 
       <div className={`px-2 transition-colors md:px-7 ${isDragging ? 'bg-blue-50' : ''}`}>
         <div className="relative cursor-text rounded-xl py-3" onClick={onTextAreaClick}>
-          <textarea
-            {...textareaProps}
+          <PostFormEditor
             value={message}
-            onChange={e => setMessage(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                // 모든 Enter 키 이벤트에 대해 전파 차단
-                e.nativeEvent.stopImmediatePropagation();
-
-                // CMD/Meta + Enter인 경우에만 폼 제출
-                if (e.metaKey && !isSubmitDisabled) {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-                // 일반 Enter는 줄바꿈을 위해 기본 동작 유지
-              }
-            }}
+            onChange={setMessage}
             placeholder={placeholder}
-            className="h-[240px] w-full resize-none border-none p-[10px] text-base text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed md:text-[15px]"
             disabled={disabled}
+            onSubmit={handleSubmit}
+            imageUploadHook={{
+              uploadImages,
+              uploadingImages,
+              completedImages,
+              removeImage,
+              clearImages,
+              isUploading,
+            }}
+            onImagePaste={uploadImages}
+            onImageDrop={uploadImages}
+            mentionConfig={
+              mentionUsers.length > 0
+                ? {
+                    suggestions: mentionUsers,
+                    onMentionSelect: (user) => {
+                      console.log('Mentioned user:', user);
+                    },
+                  }
+                : undefined
+            }
           />
         </div>
 
