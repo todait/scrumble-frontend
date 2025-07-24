@@ -20,8 +20,6 @@ export const PostFormEditor: React.FC<PostFormEditorProps> = ({
   autoFocus = false,
   onSubmit,
   imageUploadHook,
-  onImagePaste,
-  onImageDrop,
   mentionConfig,
 }) => {
   const [extensions, setExtensions] = useState<Extension[]>([]);
@@ -49,7 +47,7 @@ export const PostFormEditor: React.FC<PostFormEditorProps> = ({
       attributes: {
         class: `tiptap-editor tiptap-editor--post-form ${className}`,
       },
-      handleKeyDown: (view, event) => {
+      handleKeyDown: (view: any, event: KeyboardEvent) => {
         // Cmd/Meta + Enter로 제출
         if (event.key === 'Enter' && event.metaKey && onSubmit) {
           event.preventDefault();
@@ -58,36 +56,36 @@ export const PostFormEditor: React.FC<PostFormEditorProps> = ({
         }
         return false;
       },
-      handlePaste: (view, event) => {
+      handlePaste: (view: any, event: ClipboardEvent) => {
         // 이미지 붙여넣기 처리
-        if (onImagePaste) {
-          const items = Array.from(event.clipboardData?.items || []);
-          const imageItems = items.filter(item => item.type.startsWith('image/'));
+        if (imageUploadHook && event.clipboardData) {
+          const items = Array.from(event.clipboardData.items || []);
+          const imageItems = items.filter((item: DataTransferItem) => item.type.startsWith('image/'));
           
           if (imageItems.length > 0) {
             event.preventDefault();
             const files = imageItems
-              .map(item => item.getAsFile())
+              .map((item: DataTransferItem) => item.getAsFile())
               .filter((file): file is File => file !== null);
             
             if (files.length > 0) {
-              onImagePaste(files);
+              imageUploadHook.uploadImages(files);
             }
             return true;
           }
         }
         return false;
       },
-      handleDrop: (view, event) => {
+      handleDrop: (view: any, event: DragEvent) => {
         // 이미지 드래그앤드롭 처리
-        if (onImageDrop && event.dataTransfer) {
-          const files = Array.from(event.dataTransfer.files).filter(file =>
+        if (imageUploadHook && event.dataTransfer) {
+          const files = Array.from(event.dataTransfer.files).filter((file: File) =>
             file.type.startsWith('image/')
           );
           
           if (files.length > 0) {
             event.preventDefault();
-            onImageDrop(files);
+            imageUploadHook.uploadImages(files);
             return true;
           }
         }

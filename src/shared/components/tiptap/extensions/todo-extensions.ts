@@ -27,28 +27,28 @@ export async function loadTodoExtensions(
   ]);
 
   const extensions: Extension[] = [
-    Document,
+    Document as any,
     Paragraph.configure({
       HTMLAttributes: {
         class: 'inline',
       },
-    }),
-    Text,
-    History,
+    }) as any,
+    Text as any,
+    History as any,
     Bold.configure({
       HTMLAttributes: {
         class: 'font-bold',
       },
-    }),
+    }) as any,
     Placeholder.configure({
       placeholder,
       emptyEditorClass: 'is-editor-empty',
-    }),
+    }) as any,
   ];
 
   // 멘션 확장 추가 (필요한 경우만)
   if (mentionModule && mentionUsers) {
-    extensions.push(mentionModule.createMentionConfig(mentionUsers, onMentionSelect));
+    extensions.push(mentionModule.createMentionConfig(mentionUsers, onMentionSelect) as any);
   }
 
   return extensions;

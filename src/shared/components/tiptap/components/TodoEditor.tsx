@@ -47,7 +47,7 @@ export const TodoEditor: React.FC<TodoEditorProps> = ({
       attributes: {
         class: `tiptap-editor tiptap-editor--todo ${className}`,
       },
-      handleKeyDown: (view, event) => {
+      handleKeyDown: (view: any, event: KeyboardEvent) => {
         // Enter로 제출
         if (event.key === 'Enter' && onSubmit) {
           event.preventDefault();
@@ -63,7 +63,7 @@ export const TodoEditor: React.FC<TodoEditorProps> = ({
         
         return false;
       },
-      handlePaste: (view, event) => {
+      handlePaste: (view: any, event: ClipboardEvent) => {
         // 붙여넣기 시 줄바꿈 문자 제거
         const text = event.clipboardData?.getData('text/plain');
         if (text && text.includes('\n')) {

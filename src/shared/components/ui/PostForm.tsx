@@ -111,9 +111,13 @@ export const PostForm = ({
               removeImage,
               clearImages,
               isUploading,
+              isConverting: uploadingImages.some(img => img.isConverting),
+              convertingCount: uploadingImages.filter(img => img.isConverting).length,
+              initializeWithImages: (images) => {
+                // PostForm에서는 initializeWithImages 불필요하지만 타입 호환성을 위해 빈 구현
+              },
+              isHeicSupported: typeof window !== 'undefined',
             }}
-            onImagePaste={uploadImages}
-            onImageDrop={uploadImages}
             mentionConfig={
               mentionUsers.length > 0
                 ? {

@@ -33,35 +33,35 @@ export async function loadCommentExtensions(
   ]);
 
   const extensions: Extension[] = [
-    Document,
-    Paragraph,
-    Text,
-    History,
+    Document as any,
+    Paragraph as any,
+    Text as any,
+    History as any,
     Bold.configure({
       HTMLAttributes: {
         class: 'font-bold',
       },
-    }),
+    }) as any,
     BulletList.configure({
       HTMLAttributes: {
         class: 'list-disc pl-5 space-y-1',
       },
-    }),
+    }) as any,
     ListItem.configure({
       HTMLAttributes: {
         class: 'leading-normal',
       },
-    }),
+    }) as any,
     Placeholder.configure({
       placeholder,
       emptyEditorClass: 'is-editor-empty',
-    }),
-    AutoLink,
+    }) as any,
+    AutoLink as any,
   ];
 
   // 멘션 확장 추가 (필요한 경우만)
   if (mentionModule && mentionUsers) {
-    extensions.push(mentionModule.createMentionConfig(mentionUsers, onMentionSelect));
+    extensions.push(mentionModule.createMentionConfig(mentionUsers, onMentionSelect) as any);
   }
 
   return extensions;

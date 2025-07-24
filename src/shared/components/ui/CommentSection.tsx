@@ -212,29 +212,7 @@ function CommentItem({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]); // 의존성 배열에서 clearImages와 initializeWithImages 제거
 
-  // textarea 높이 자동 조정
-  useEffect(() => {
-    if (textareaRef.current && isEditing) {
-      const textarea = textareaRef.current;
-
-      // 높이 자동 조정
-      textarea.style.height = '22px';
-      const scrollHeight = textarea.scrollHeight;
-      textarea.style.height = `${Math.min(scrollHeight, 300)}px`;
-    }
-  }, [editContent, isEditing]);
-
-  // 편집 모드 진입 시 포커스 및 커서 위치 설정
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      const textarea = textareaRef.current;
-      textarea.focus();
-      // 커서를 텍스트 끝으로 이동
-      textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-      // 스크롤도 맨 아래로
-      textarea.scrollTop = textarea.scrollHeight;
-    }
-  }, [isEditing]);
+  // Tiptap 에디터에서는 자동 높이 조절과 포커스가 내부적으로 처리됨
 
   // 편집 모드 활성화 시 스크롤 처리
   useEffect(() => {
@@ -395,7 +373,10 @@ function CommentItem({
                   removeImage,
                   clearImages,
                   isUploading,
+                  isConverting: uploadingImages.some(img => img.isConverting),
+                  convertingCount: uploadingImages.filter(img => img.isConverting).length,
                   initializeWithImages,
+                  isHeicSupported: typeof window !== 'undefined',
                 }}
                 enableImageUpload={true}
                 mentionConfig={

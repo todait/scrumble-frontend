@@ -1,5 +1,6 @@
 import type { Editor, EditorOptions, Extension } from '@tiptap/core';
 import type { EditorProps } from '@tiptap/pm/view';
+import type { ImageMetadata, UploadingImage } from '@/shared/types/upload.types';
 
 export interface MentionUser {
   id: string;
@@ -12,6 +13,20 @@ export interface MentionSuggestion {
   users: MentionUser[];
   loading: boolean;
   query: string;
+}
+
+// useImageUpload 훅의 정확한 반환 타입
+export interface ImageUploadHook {
+  uploadImages: (files: File[]) => Promise<void>;
+  uploadingImages: UploadingImage[];
+  completedImages: ImageMetadata[];
+  removeImage: (id: string) => void;
+  clearImages: () => void;
+  isUploading: boolean;
+  isConverting: boolean;
+  convertingCount: number;
+  initializeWithImages: (images: ImageMetadata[]) => void;
+  isHeicSupported: boolean;
 }
 
 export interface BaseTiptapEditorProps {
@@ -46,9 +61,7 @@ export interface PostFormEditorProps extends BaseTiptapEditorProps {
   onSubmit?: () => void;
 
   // 이미지 업로드 필수
-  imageUploadHook: any; // useImageUpload hook return type
-  onImagePaste?: (files: File[]) => void;
-  onImageDrop?: (files: File[]) => void;
+  imageUploadHook: ImageUploadHook;
 }
 
 export interface CommentEditorProps extends BaseTiptapEditorProps {
@@ -59,7 +72,7 @@ export interface CommentEditorProps extends BaseTiptapEditorProps {
   onCancel?: () => void;
 
   // 이미지 업로드 선택적
-  imageUploadHook?: any; // useImageUpload hook return type
+  imageUploadHook?: ImageUploadHook;
   enableImageUpload?: boolean; // 기본값: true
 }
 
@@ -112,7 +125,7 @@ export interface LinkDetectionRule {
 }
 
 export interface ImageUploadIntegration {
-  uploadHook: any; // useImageUpload hook return type
+  uploadHook: ImageUploadHook;
   componentSupport: {
     PostForm: true;
     CommentInput: true;
@@ -121,8 +134,8 @@ export interface ImageUploadIntegration {
   };
   handlePaste: (event: ClipboardEvent) => boolean;
   handleDrop: (event: DragEvent) => boolean;
-  images: any[];
-  uploadingImages: any[];
+  images: ImageMetadata[];
+  uploadingImages: UploadingImage[];
   syncWithEditor: (editor: Editor) => void;
 }
 

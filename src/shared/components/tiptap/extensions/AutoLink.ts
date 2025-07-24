@@ -14,7 +14,7 @@ export const AutoLink = Link.extend({
 
   addOptions() {
     return {
-      ...this.parent?.(),
+      ...Link.options,
       openOnClick: true,
       linkOnPaste: true,
       autolink: true,
@@ -27,7 +27,7 @@ export const AutoLink = Link.extend({
   },
 
   addProseMirrorPlugins() {
-    const plugins = this.parent?.() || [];
+    const plugins = super.addProseMirrorPlugins?.() || [];
 
     if (!this.options.autolink) {
       return plugins;

@@ -53,7 +53,7 @@ export const CommentEditor: React.FC<CommentEditorProps> = ({
       attributes: {
         class: `tiptap-editor tiptap-editor--comment ${className}`,
       },
-      handleKeyDown: (view, event) => {
+      handleKeyDown: (view: any, event: KeyboardEvent) => {
         // Enter로 제출 (Shift+Enter는 줄바꿈)
         if (event.key === 'Enter' && !event.shiftKey && onSubmit) {
           event.preventDefault();
@@ -70,16 +70,16 @@ export const CommentEditor: React.FC<CommentEditorProps> = ({
         
         return false;
       },
-      handlePaste: (view, event) => {
+      handlePaste: (view: any, event: ClipboardEvent) => {
         // 이미지 붙여넣기 처리
         if (enableImageUpload && imageUploadHook && event.clipboardData) {
           const items = Array.from(event.clipboardData.items || []);
-          const imageItems = items.filter(item => item.type.startsWith('image/'));
+          const imageItems = items.filter((item: DataTransferItem) => item.type.startsWith('image/'));
           
           if (imageItems.length > 0) {
             event.preventDefault();
             const files = imageItems
-              .map(item => item.getAsFile())
+              .map((item: DataTransferItem) => item.getAsFile())
               .filter((file): file is File => file !== null);
             
             if (files.length > 0) {
@@ -90,10 +90,10 @@ export const CommentEditor: React.FC<CommentEditorProps> = ({
         }
         return false;
       },
-      handleDrop: (view, event) => {
+      handleDrop: (view: any, event: DragEvent) => {
         // 이미지 드래그앤드롭 처리
         if (enableImageUpload && imageUploadHook && event.dataTransfer) {
-          const files = Array.from(event.dataTransfer.files).filter(file =>
+          const files = Array.from(event.dataTransfer.files).filter((file: File) =>
             file.type.startsWith('image/')
           );
           

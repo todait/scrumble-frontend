@@ -12,11 +12,11 @@ export const CustomMention = Mention.extend({
 
   addOptions() {
     return {
-      ...this.parent?.(),
+      ...Mention.options,
       HTMLAttributes: {
         class: 'mention',
       },
-      renderLabel({ options, node }) {
+      renderLabel({ options, node }: any) {
         return `@${node.attrs.label ?? node.attrs.id}`;
       },
       suggestion: {
@@ -29,7 +29,7 @@ export const CustomMention = Mention.extend({
           let popup: Instance[] | null = null;
 
           return {
-            onStart: (props: SuggestionProps) => {
+            onStart: (props: any) => {
               component = new ReactRenderer(MentionList, {
                 props,
                 editor: props.editor,
@@ -50,7 +50,7 @@ export const CustomMention = Mention.extend({
               });
             },
 
-            onUpdate(props: SuggestionProps) {
+            onUpdate(props: any) {
               component?.updateProps(props);
 
               if (!props.clientRect) {
@@ -62,13 +62,13 @@ export const CustomMention = Mention.extend({
               });
             },
 
-            onKeyDown(props: SuggestionProps) {
-              if (props.event.key === 'Escape') {
+            onKeyDown(props: any) {
+              if (props.event?.key === 'Escape') {
                 popup?.[0]?.hide();
                 return true;
               }
 
-              return component?.ref?.onKeyDown(props) ?? false;
+              return (component?.ref as any)?.onKeyDown?.(props) ?? false;
             },
 
             onExit() {
@@ -79,7 +79,7 @@ export const CustomMention = Mention.extend({
             },
           };
         },
-      } as Partial<SuggestionOptions>,
+      } as any,
     };
   },
 });
