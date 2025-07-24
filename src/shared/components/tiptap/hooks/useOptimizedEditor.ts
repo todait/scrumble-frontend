@@ -37,9 +37,9 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
   const isComposingRef = useRef(false);
   const [editorKey, setEditorKey] = useState(0);
 
-  // 에디터 인스턴스 생성
+  // 에디터 인스턴스 생성 (extensions가 로드된 후에만)
   const editor = useEditor({
-    extensions,
+    extensions: extensionsLoaded && extensions.length > 0 ? extensions : undefined,
     content,
     editable,
     autofocus,
@@ -74,7 +74,11 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
     },
     onFocus,
     onBlur,
-  }, [extensionsLoaded, editorKey]); // extensions가 로드된 후에만 에디터 초기화
+    onCreate: ({ editor }) => {
+      // 에디터가 생성되었을 때 로그
+      console.log('Editor created with extensions:', extensions.length);
+    },
+  }, extensionsLoaded && extensions.length > 0 ? [extensions, editorKey] : undefined); // extensions가 없으면 에디터 생성하지 않음
 
   // 에디터 인스턴스 정리
   useEffect(() => {
