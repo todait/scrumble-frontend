@@ -38,47 +38,52 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
   const [editorKey, setEditorKey] = useState(0);
 
   // 에디터 인스턴스 생성 (extensions가 로드된 후에만)
-  const editor = useEditor({
-    extensions: extensionsLoaded && extensions.length > 0 ? extensions : undefined,
-    content,
-    editable,
-    autofocus,
-    immediatelyRender: false, // SSR 환경에서 hydration mismatch 방지
-    editorProps: {
-      ...editorProps,
-      handleDOMEvents: {
-        ...editorProps?.handleDOMEvents,
-        // 한글 입력 최적화를 위한 compositionstart/end 처리
-        compositionstart: () => {
-          isComposingRef.current = true;
-          return false;
-        },
-        compositionend: () => {
-          isComposingRef.current = false;
-          return false;
-        },
-      },
-    },
-    onUpdate: (props) => {
-      // 한글 입력 중에는 업데이트 디바운스
-      if (isComposingRef.current) {
-        if (updateTimeoutRef.current) {
-          clearTimeout(updateTimeoutRef.current);
+  const editor = useEditor(
+    extensionsLoaded && extensions.length > 0
+      ? {
+          extensions,
+          content,
+          editable,
+          autofocus,
+          immediatelyRender: false, // SSR 환경에서 hydration mismatch 방지
+          editorProps: {
+            ...editorProps,
+            handleDOMEvents: {
+              ...editorProps?.handleDOMEvents,
+              // 한글 입력 최적화를 위한 compositionstart/end 처리
+              compositionstart: () => {
+                isComposingRef.current = true;
+                return false;
+              },
+              compositionend: () => {
+                isComposingRef.current = false;
+                return false;
+              },
+            },
+          },
+          onUpdate: (props) => {
+            // 한글 입력 중에는 업데이트 디바운스
+            if (isComposingRef.current) {
+              if (updateTimeoutRef.current) {
+                clearTimeout(updateTimeoutRef.current);
+              }
+              updateTimeoutRef.current = setTimeout(() => {
+                onUpdate?.(props);
+              }, 100);
+            } else {
+              onUpdate?.(props);
+            }
+          },
+          onFocus,
+          onBlur,
+          onCreate: ({ editor }) => {
+            // 에디터가 생성되었을 때 로그
+            console.log('Editor created with extensions:', extensions.length);
+          },
         }
-        updateTimeoutRef.current = setTimeout(() => {
-          onUpdate?.(props);
-        }, 100);
-      } else {
-        onUpdate?.(props);
-      }
-    },
-    onFocus,
-    onBlur,
-    onCreate: ({ editor }) => {
-      // 에디터가 생성되었을 때 로그
-      console.log('Editor created with extensions:', extensions.length);
-    },
-  }, extensionsLoaded && extensions.length > 0 ? [extensions, editorKey] : undefined); // extensions가 없으면 에디터 생성하지 않음
+      : undefined,
+    [extensions, editorKey, extensionsLoaded]
+  );
 
   // 에디터 인스턴스 정리
   useEffect(() => {
