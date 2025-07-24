@@ -30,7 +30,6 @@ export function NewCheckInPage() {
   const { selectedDate } = useDateStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   // 팀 요약 정보 가져오기
   const { data: teamSummary, isLoading } = useTeamSummary({
     spaceSlug,

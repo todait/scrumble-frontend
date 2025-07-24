@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthProvider, TimezoneProvider, GlobalLoadingProvider } from '@/shared/contexts';
+import { ToastMount } from '@/shared/components/feedback/ToastMount';
 import { setQueryClient } from '@/shared/lib/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -58,6 +59,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
         {/* 개발 환경에서만 DevTools 표시 */}
         {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
       </QueryClientProvider>
+      {/* 토스트를 포털로 body에 직접 마운트 */}
+      <ToastMount />
     </GlobalLoadingProvider>
   );
 }

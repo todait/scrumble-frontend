@@ -53,6 +53,7 @@ export const ScoreSelector = ({ value, onChange }: ScoreSelectorProps) => {
               <div key={score} className="relative flex items-center justify-center">
                 {/* 점수 버튼 */}
                 <button
+                  type="button"
                   onClick={() => handleScoreSelect(score)}
                   onMouseEnter={() => setHoveredScore(score)}
                   onMouseLeave={() => setHoveredScore(null)}

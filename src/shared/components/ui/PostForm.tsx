@@ -21,7 +21,7 @@ interface PostFormProps {
   initialMessage?: string;
   initialImages?: ImageMetadata[];
   children?: React.ReactNode;
-  onTextAreaClick?: () => void;
+  onTextAreaClick?: (e?: React.MouseEvent) => void;
   submitDisabled?: boolean;
 }
 
@@ -97,7 +97,12 @@ export const PostForm = ({
       {children}
 
       <div className={`px-2 transition-colors md:px-7 ${isDragging ? 'bg-blue-50' : ''}`}>
-        <div className="relative cursor-text rounded-xl py-3" onClick={onTextAreaClick}>
+        <div
+          className="relative cursor-text rounded-xl py-3"
+          onClick={e => {
+            onTextAreaClick?.(e);
+          }}
+        >
           <PostFormEditor
             value={message}
             onChange={setMessage}
@@ -189,6 +194,7 @@ export const PostForm = ({
 
       <div className="p-7">
         <button
+          type="button"
           onClick={handleSubmit}
           disabled={isSubmitDisabled}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/20 bg-white py-4 text-center text-base font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"

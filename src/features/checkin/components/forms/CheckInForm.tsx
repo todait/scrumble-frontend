@@ -40,9 +40,11 @@ export const CheckInForm = ({
     }
   };
 
-  const handleTextAreaClick = () => {
-    if (!selectedScore && onScoreRequiredToast) {
-      onScoreRequiredToast();
+  const handleTextAreaClick = (e?: React.MouseEvent) => {
+    if (!selectedScore) {
+      e?.preventDefault();
+      e?.stopPropagation();
+      onScoreRequiredToast?.();
     }
   };
 

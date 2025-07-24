@@ -48,6 +48,7 @@ export const CheckInModalLayout = ({
 
             {/* Close 버튼 - 오른쪽 상단 */}
             <button
+              type="button"
               onClick={onClose}
               className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F1F1F1] bg-opacity-50 transition-all hover:bg-gray-100"
             >

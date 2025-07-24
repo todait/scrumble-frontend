@@ -17,6 +17,7 @@ export async function loadCommentExtensions(
     { default: BulletList },
     { default: ListItem },
     { default: Placeholder },
+    { default: Link },
     { AutoLink },
     mentionModule
   ] = await Promise.all([
@@ -28,6 +29,7 @@ export async function loadCommentExtensions(
     import('@tiptap/extension-bullet-list'),
     import('@tiptap/extension-list-item'),
     import('@tiptap/extension-placeholder'),
+    import('@tiptap/extension-link'),
     import('./AutoLink'),
     mentionUsers ? import('./CustomMention') : Promise.resolve(null)
   ]);
@@ -55,6 +57,12 @@ export async function loadCommentExtensions(
     Placeholder.configure({
       placeholder,
       emptyEditorClass: 'is-editor-empty',
+    }) as any,
+    Link.configure({
+      openOnClick: false,
+      HTMLAttributes: {
+        class: 'text-[#9747FF] underline cursor-pointer hover:opacity-80',
+      },
     }) as any,
     AutoLink as any,
   ];
