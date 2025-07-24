@@ -43,6 +43,7 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
     content,
     editable,
     autofocus,
+    immediatelyRender: false, // SSR 환경에서 hydration mismatch 방지
     editorProps: {
       ...editorProps,
       handleDOMEvents: {
