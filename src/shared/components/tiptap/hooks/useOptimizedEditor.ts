@@ -1,9 +1,6 @@
 import type { Extension } from '@tiptap/core';
-import { Document } from '@tiptap/extension-document';
-import { Paragraph } from '@tiptap/extension-paragraph';
-import { Text } from '@tiptap/extension-text';
 import { Editor, useEditor } from '@tiptap/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface UseOptimizedEditorOptions {
   extensions: Extension[];
@@ -33,23 +30,15 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
     onUpdate,
     onFocus,
     onBlur,
-    extensionsLoaded,
   } = options;
 
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isComposingRef = useRef(false);
-  const [editorKey, setEditorKey] = useState(0);
-
-  // 기본 확장 (Schema 에러 방지) - 메모이제이션으로 무한 루프 방지
-  const defaultExtensions = useMemo(() => [Document, Paragraph, Text], []);
-  const finalExtensions = useMemo(() => {
-    return extensionsLoaded && extensions.length > 0 ? extensions : defaultExtensions;
-  }, [extensionsLoaded, extensions, defaultExtensions]);
 
   // 에디터 인스턴스 생성
   const editor = useEditor(
     {
-      extensions: finalExtensions,
+      extensions,
       content,
       editable,
       autofocus,
@@ -86,10 +75,10 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
       onBlur,
       onCreate: ({ editor }) => {
         // 에디터가 생성되었을 때 로그
-        console.log('Editor created with extensions:', finalExtensions.length);
+        console.log('Editor created with extensions:', extensions.length);
       },
     },
-    [finalExtensions, editorKey, extensionsLoaded]
+    [extensions] // 안정적인 참조를 외부에서 관리
   );
 
   // 에디터 인스턴스 정리
@@ -105,13 +94,6 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
       }, 0);
     };
   }, [editor]);
-
-  // extensions 변경 시 에디터 재생성 - 조건을 더 엄격하게
-  useEffect(() => {
-    if (extensionsLoaded && extensions.length > 0) {
-      setEditorKey(prev => prev + 1);
-    }
-  }, [extensionsLoaded, extensions]);
 
   // 메모리 누수 방지를 위한 추가 정리
   useEffect(() => {

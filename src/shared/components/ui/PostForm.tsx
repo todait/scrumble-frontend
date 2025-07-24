@@ -1,5 +1,7 @@
 'use client';
 
+import { PostFormEditor } from '@/shared/components/tiptap/components/PostFormEditor';
+import type { MentionUser } from '@/shared/components/tiptap/tiptap.types';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import { useImageViewer } from '@/shared/hooks/useImageViewer';
@@ -10,8 +12,6 @@ import { useEffect, useRef, useState } from 'react';
 import { ImagePreview } from './ImagePreview';
 import { ImageViewer } from './ImageViewer';
 import { LoadingSpinner } from './LoadingSpinner';
-import { PostFormEditor } from '@/shared/components/tiptap/components/PostFormEditor';
-import type { MentionUser } from '@/shared/components/tiptap/tiptap.types';
 
 interface PostFormProps {
   onSubmit: (data: { message: string; images: ImageMetadata[] }) => void;
@@ -113,7 +113,7 @@ export const PostForm = ({
               isUploading,
               isConverting: uploadingImages.some(img => img.isConverting),
               convertingCount: uploadingImages.filter(img => img.isConverting).length,
-              initializeWithImages: (images) => {
+              initializeWithImages: images => {
                 // PostForm에서는 initializeWithImages 불필요하지만 타입 호환성을 위해 빈 구현
               },
               isHeicSupported: typeof window !== 'undefined',
@@ -122,7 +122,7 @@ export const PostForm = ({
               mentionUsers.length > 0
                 ? {
                     suggestions: mentionUsers,
-                    onMentionSelect: (user) => {
+                    onMentionSelect: user => {
                       console.log('Mentioned user:', user);
                     },
                   }
