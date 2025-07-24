@@ -10,7 +10,15 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "review": "node scripts/review-automation.js",
+    "review:full": "npm run review && npm run test:e2e"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
@@ -74,6 +82,7 @@
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.52.0",
     "@tanstack/react-query-devtools": "^5.80.6",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -81,6 +90,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "axe-playwright": "^2.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.8",
     "eslint-config-prettier": "^10.1.5",
