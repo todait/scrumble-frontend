@@ -1,6 +1,6 @@
-import type { Editor, EditorOptions, Extension } from '@tiptap/core';
-import type { EditorProps } from '@tiptap/pm/view';
 import type { ImageMetadata, UploadingImage } from '@/shared/types/upload.types';
+import type { Editor, Extension } from '@tiptap/core';
+import type { EditorProps } from '@tiptap/pm/view';
 
 export interface MentionUser {
   id: string;
@@ -161,7 +161,7 @@ export enum EventPriority {
 
 export interface EventCoordinator {
   componentType: 'PostForm' | 'CommentInput' | 'TodoInput';
-  registerHandler(event: string, handler: Function, priority: EventPriority): void;
+  registerHandler(event: string, handler: (event: Event) => void, priority: EventPriority): void;
   handleEvent(event: Event): void;
   shouldHandleImageEvent(): boolean;
 }

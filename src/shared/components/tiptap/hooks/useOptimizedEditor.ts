@@ -1,6 +1,9 @@
-import { useEditor, Editor } from '@tiptap/react';
-import { useEffect, useRef, useState } from 'react';
 import type { Extension } from '@tiptap/core';
+import { Document } from '@tiptap/extension-document';
+import { Paragraph } from '@tiptap/extension-paragraph';
+import { Text } from '@tiptap/extension-text';
+import { Editor, useEditor } from '@tiptap/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface UseOptimizedEditorOptions {
   extensions: Extension[];
@@ -37,52 +40,56 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
   const isComposingRef = useRef(false);
   const [editorKey, setEditorKey] = useState(0);
 
-  // 에디터 인스턴스 생성 (extensions가 로드된 후에만)
+  // 기본 확장 (Schema 에러 방지) - 메모이제이션으로 무한 루프 방지
+  const defaultExtensions = useMemo(() => [Document, Paragraph, Text], []);
+  const finalExtensions = useMemo(() => {
+    return extensionsLoaded && extensions.length > 0 ? extensions : defaultExtensions;
+  }, [extensionsLoaded, extensions, defaultExtensions]);
+
+  // 에디터 인스턴스 생성
   const editor = useEditor(
-    extensionsLoaded && extensions.length > 0
-      ? {
-          extensions,
-          content,
-          editable,
-          autofocus,
-          immediatelyRender: false, // SSR 환경에서 hydration mismatch 방지
-          editorProps: {
-            ...editorProps,
-            handleDOMEvents: {
-              ...editorProps?.handleDOMEvents,
-              // 한글 입력 최적화를 위한 compositionstart/end 처리
-              compositionstart: () => {
-                isComposingRef.current = true;
-                return false;
-              },
-              compositionend: () => {
-                isComposingRef.current = false;
-                return false;
-              },
-            },
+    {
+      extensions: finalExtensions,
+      content,
+      editable,
+      autofocus,
+      immediatelyRender: false, // SSR 환경에서 hydration mismatch 방지
+      editorProps: {
+        ...editorProps,
+        handleDOMEvents: {
+          ...editorProps?.handleDOMEvents,
+          // 한글 입력 최적화를 위한 compositionstart/end 처리
+          compositionstart: () => {
+            isComposingRef.current = true;
+            return false;
           },
-          onUpdate: (props) => {
-            // 한글 입력 중에는 업데이트 디바운스
-            if (isComposingRef.current) {
-              if (updateTimeoutRef.current) {
-                clearTimeout(updateTimeoutRef.current);
-              }
-              updateTimeoutRef.current = setTimeout(() => {
-                onUpdate?.(props);
-              }, 100);
-            } else {
-              onUpdate?.(props);
-            }
+          compositionend: () => {
+            isComposingRef.current = false;
+            return false;
           },
-          onFocus,
-          onBlur,
-          onCreate: ({ editor }) => {
-            // 에디터가 생성되었을 때 로그
-            console.log('Editor created with extensions:', extensions.length);
-          },
+        },
+      },
+      onUpdate: props => {
+        // 한글 입력 중에는 업데이트 디바운스
+        if (isComposingRef.current) {
+          if (updateTimeoutRef.current) {
+            clearTimeout(updateTimeoutRef.current);
+          }
+          updateTimeoutRef.current = setTimeout(() => {
+            onUpdate?.(props);
+          }, 100);
+        } else {
+          onUpdate?.(props);
         }
-      : undefined,
-    [extensions, editorKey, extensionsLoaded]
+      },
+      onFocus,
+      onBlur,
+      onCreate: ({ editor }) => {
+        // 에디터가 생성되었을 때 로그
+        console.log('Editor created with extensions:', finalExtensions.length);
+      },
+    },
+    [finalExtensions, editorKey, extensionsLoaded]
   );
 
   // 에디터 인스턴스 정리
@@ -91,7 +98,7 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-      
+
       // 에디터 정리
       setTimeout(() => {
         editor?.destroy();
@@ -99,12 +106,12 @@ export function useOptimizedEditor(options: UseOptimizedEditorOptions) {
     };
   }, [editor]);
 
-  // extensions 변경 시 에디터 재생성
+  // extensions 변경 시 에디터 재생성 - 조건을 더 엄격하게
   useEffect(() => {
     if (extensionsLoaded && extensions.length > 0) {
       setEditorKey(prev => prev + 1);
     }
-  }, [extensionsLoaded, extensions.length]);
+  }, [extensionsLoaded, extensions]);
 
   // 메모리 누수 방지를 위한 추가 정리
   useEffect(() => {

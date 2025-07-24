@@ -1,13 +1,13 @@
 'use client';
 
+import type { Extension } from '@tiptap/core';
 import { EditorContent } from '@tiptap/react';
 import { useEffect, useState } from 'react';
 import { loadPostFormExtensions } from '../extensions';
-import { useOptimizedEditor } from '../hooks/useOptimizedEditor';
 import { useAccessibleEditor } from '../hooks/useAccessibleEditor';
-import type { PostFormEditorProps } from '../tiptap.types';
-import type { Extension } from '@tiptap/core';
+import { useOptimizedEditor } from '../hooks/useOptimizedEditor';
 import '../styles/tiptap.css';
+import type { PostFormEditorProps } from '../tiptap.types';
 
 export const PostFormEditor: React.FC<PostFormEditorProps> = ({
   value,
@@ -38,7 +38,7 @@ export const PostFormEditor: React.FC<PostFormEditorProps> = ({
   }, [placeholder, mentionConfig?.suggestions, mentionConfig?.onMentionSelect]);
 
   const editor = useOptimizedEditor({
-    extensions,
+    extensions: extensionsLoaded ? extensions : [],
     content: value,
     editable: !disabled,
     autofocus: autoFocus,
@@ -60,14 +60,16 @@ export const PostFormEditor: React.FC<PostFormEditorProps> = ({
         // 이미지 붙여넣기 처리
         if (imageUploadHook && event.clipboardData) {
           const items = Array.from(event.clipboardData.items || []);
-          const imageItems = items.filter((item: DataTransferItem) => item.type.startsWith('image/'));
-          
+          const imageItems = items.filter((item: DataTransferItem) =>
+            item.type.startsWith('image/')
+          );
+
           if (imageItems.length > 0) {
             event.preventDefault();
             const files = imageItems
               .map((item: DataTransferItem) => item.getAsFile())
               .filter((file): file is File => file !== null);
-            
+
             if (files.length > 0) {
               imageUploadHook.uploadImages(files);
             }
@@ -82,7 +84,7 @@ export const PostFormEditor: React.FC<PostFormEditorProps> = ({
           const files = Array.from(event.dataTransfer.files).filter((file: File) =>
             file.type.startsWith('image/')
           );
-          
+
           if (files.length > 0) {
             event.preventDefault();
             imageUploadHook.uploadImages(files);
@@ -125,7 +127,7 @@ export const PostFormEditor: React.FC<PostFormEditorProps> = ({
   if (!extensionsLoaded || !editor) {
     return (
       <div className={`tiptap-editor tiptap-editor--post-form tiptap-editor--loading ${className}`}>
-        <div className="text-gray-400 p-4">에디터 로딩 중...</div>
+        <div className="p-4 text-gray-400">에디터 로딩 중...</div>
       </div>
     );
   }
