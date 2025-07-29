@@ -17,7 +17,7 @@ const truncateText = (text: string, maxLength: number): string => {
 };
 
 const CommentItem = memo(function CommentItem({ notification, onClick }: CommentItemProps) {
-  const { latestSpace } = useAuth();
+  const { currentSpaceMember: member } = useAuth();
   const { createdAt, isRead, payload } = notification;
   const { post, comment } = payload;
 
@@ -43,7 +43,7 @@ const CommentItem = memo(function CommentItem({ notification, onClick }: Comment
         {/* 콘텐츠 영역 */}
         <div className="min-w-0 flex-1">
           <div className="pb-1 text-[12px] font-semibold text-[#6E6E73] text-opacity-50">
-            #{post.author.id === latestSpace?.memberId ? '나' : post.author.name}님의{' '}
+            #{post.author.id === member?.id ? '나' : post.author.name}님의{' '}
             {post.postType === 'check_in' ? '체크인' : '체크아웃'}
           </div>
           <div className="text-[13px] text-[#1D1D1F]">

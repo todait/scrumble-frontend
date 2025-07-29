@@ -20,7 +20,7 @@ interface GetReactionsApiResponse {
     target_id: string;
     target_type: string;
     reactions: Array<{
-      user_id: string;
+      space_member_id: string;
       emoji: string;
       created_at: string;
       author: {
@@ -36,7 +36,7 @@ interface GetReactionsApiResponse {
 
 // 프론트엔드 타입들
 export interface Reaction {
-  userId: string;
+  spaceMemberId: string;
   emoji: string;
   createdAt: string;
   author: {
@@ -87,9 +87,11 @@ export interface GetReactionsResponse {
 /**
  * 백엔드 API 응답을 프론트엔드 타입으로 변환
  */
-const convertApiReactionToReaction = (apiReaction: GetReactionsApiResponse['summary']['reactions'][0]): Reaction => {
+const convertApiReactionToReaction = (
+  apiReaction: GetReactionsApiResponse['summary']['reactions'][0]
+): Reaction => {
   return {
-    userId: apiReaction.user_id,
+    spaceMemberId: apiReaction.space_member_id,
     emoji: apiReaction.emoji,
     createdAt: apiReaction.created_at,
     author: {
@@ -101,7 +103,9 @@ const convertApiReactionToReaction = (apiReaction: GetReactionsApiResponse['summ
   };
 };
 
-const convertApiReactionSummaryToReactionSummary = (apiSummary: GetReactionsApiResponse['summary']): ReactionSummary => {
+const convertApiReactionSummaryToReactionSummary = (
+  apiSummary: GetReactionsApiResponse['summary']
+): ReactionSummary => {
   return {
     targetId: apiSummary.target_id,
     targetType: apiSummary.target_type as 'posts' | 'comments',
@@ -138,13 +142,9 @@ export const reactionsApi = {
    * @returns 제거 결과 메시지
    */
   removeReaction: async (params: RemoveReactionRequest): Promise<RemoveReactionResponse> => {
+    const encodedEmoji = encodeURIComponent(params.emoji);
     const { data } = await apiClient.delete<RemoveReactionApiResponse>(
-      `/api/v1/${params.targetType}/${params.targetId}/reactions`,
-      {
-        data: {
-          emoji: params.emoji,
-        },
-      }
+      `/api/v1/${params.targetType}/${params.targetId}/reactions?emoji=${encodedEmoji}`
     );
 
     return {

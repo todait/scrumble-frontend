@@ -1,4 +1,4 @@
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useToast } from '@/shared/hooks/useToast';
 import { debug } from '@/shared/utils/debug';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -35,7 +35,7 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { success, error: toastError } = useToast();
-  const { setAuthData, refetchUser, latestSpace, user, isLoading } = useAuth();
+  const { setAuthData, refetchUser, user, isLoading } = useAuth();
 
   // 통합된 상태 관리 (useState만 사용)
   const [state, setState] = useState<ProcessingState>({
@@ -114,7 +114,11 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
             userEmail: authParams.userEmail!,
           });
 
-          debug('useAuthCallback', 'Token saved in localStorage:', localStorage.getItem('access_token'));
+          debug(
+            'useAuthCallback',
+            'Token saved in localStorage:',
+            localStorage.getItem('access_token')
+          );
           debug('useAuthCallback', 'Token saved in cookie:', document.cookie);
 
           success({
@@ -177,13 +181,12 @@ export const useAuthCallback = (): UseAuthCallbackReturn => {
     if (user) {
       setState(prev => ({ ...prev, hasRedirected: true }));
 
-      const targetUrl = latestSpace?.latestSpaceSlug
-        ? `/${latestSpace.latestSpaceSlug}/feed?auth=success`
-        : '/spaces/welcome?auth=success';
+      // 사용자가 로그인하면 스페이스 목록 페이지로 이동
+      const targetUrl = '/spaces/list?auth=success';
 
       router.replace(targetUrl);
     }
-  }, [user, latestSpace, isLoading, router, state]);
+  }, [user, isLoading, router, state]);
 
   return {
     isProcessing:

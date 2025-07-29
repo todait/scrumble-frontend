@@ -12,7 +12,7 @@ export interface User {
 export interface Reaction {
   emoji: string;
   count: number;
-  userIds: string[];
+  spaceMemberIds: string[];
 }
 
 export interface Comment {

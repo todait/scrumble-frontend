@@ -1,4 +1,5 @@
 import type { FilterType } from '@/features/feed/types/feed.types';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { postsApi } from '@/shared/lib/api/posts';
 import { ErrorCode } from '@/shared/types/api';
 import type {
@@ -23,7 +24,6 @@ import { useToast } from '../useToast';
 import { postsKeys } from './postsKeys';
 
 interface UsePostsOptions {
-  spaceSlug: string;
   filterType?: FilterType;
   selectedDate?: Date;
   limit?: number;
@@ -31,7 +31,6 @@ interface UsePostsOptions {
 }
 
 interface UseFeedSummaryOptions {
-  spaceSlug: string;
   date?: string; // 선택적, 기본값은 오늘 날짜
   timezone?: string; // 선택적, 사용자 타임존
 }
@@ -42,11 +41,11 @@ interface UseFeedSummaryOptions {
  * @returns React Query 결과
  */
 export const usePosts = (options: UsePostsOptions) => {
-  const { spaceSlug, filterType = 'all', selectedDate, limit = 20, enabled = true } = options;
+  const { filterType = 'all', selectedDate, limit = 20, enabled = true } = options;
+  const { currentSpaceSlug } = useAuth();
 
   // API 파라미터 구성
   const apiParams: GetPostsParams = {
-    spaceSlug,
     limit,
   };
 
@@ -61,9 +60,9 @@ export const usePosts = (options: UsePostsOptions) => {
   }
 
   return useQuery({
-    queryKey: postsKeys.list(spaceSlug, { filterType, date: apiParams.date }),
+    queryKey: postsKeys.list(currentSpaceSlug || '', { filterType, date: apiParams.date }),
     queryFn: () => postsApi.getPosts(apiParams),
-    enabled: !!spaceSlug && enabled,
+    enabled: enabled && !!currentSpaceSlug,
     staleTime: 1000 * 60 * 2, // 2분
     gcTime: 1000 * 60 * 10, // 10분
     refetchOnWindowFocus: false,
@@ -72,12 +71,16 @@ export const usePosts = (options: UsePostsOptions) => {
 };
 
 export const useFeedSummary = (options: UseFeedSummaryOptions) => {
-  const { spaceSlug, date, timezone } = options;
+  const { date, timezone } = options;
+  const { currentSpaceSlug } = useAuth();
 
   return useQuery({
-    queryKey: postsKeys.feedSummary(spaceSlug, date || formatDateToAPIString(new Date())),
-    queryFn: () => postsApi.getFeedSummary({ spaceSlug, date, timezone }),
-    enabled: !!spaceSlug,
+    queryKey: postsKeys.feedSummary(
+      currentSpaceSlug || '',
+      date || formatDateToAPIString(new Date())
+    ),
+    queryFn: () => postsApi.getFeedSummary({ date, timezone }),
+    enabled: !!currentSpaceSlug,
     staleTime: 1000 * 30, // 30초
     gcTime: 1000 * 60 * 10, // 10분
     refetchOnWindowFocus: true,
@@ -86,17 +89,17 @@ export const useFeedSummary = (options: UseFeedSummaryOptions) => {
 };
 
 interface UseExistsCheckinOptions {
-  spaceSlug: string;
   date: string;
 }
 
 export const useExistsCheckin = (options: UseExistsCheckinOptions) => {
-  const { spaceSlug, date } = options;
+  const { date } = options;
+  const { currentSpaceSlug } = useAuth();
 
   return useQuery({
-    queryKey: postsKeys.existsCheckin(spaceSlug, date),
-    queryFn: () => postsApi.existsCheckin({ spaceSlug, date }),
-    enabled: !!spaceSlug && !!date,
+    queryKey: postsKeys.existsCheckin(currentSpaceSlug || '', date),
+    queryFn: () => postsApi.existsCheckin({ date }),
+    enabled: !!date && !!currentSpaceSlug,
     staleTime: 0,
     gcTime: 1000 * 60,
     retry: authRetry,
@@ -106,6 +109,7 @@ export const useExistsCheckin = (options: UseExistsCheckinOptions) => {
 export const useCreateCheckIn = () => {
   const queryClient = useQueryClient();
   const { error } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   return useMutation<CreateCheckInResponse, Error, CreateCheckInRequest>({
     mutationFn: params => {
@@ -115,50 +119,56 @@ export const useCreateCheckIn = () => {
       return postsApi.createCheckIn(params);
     },
     onMutate: async variables => {
+      if (!currentSpaceSlug) return;
+
       // ✅ Optimistic Update: 진행 중인 쿼리들 취소
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug) });
 
       const targetDate = variables.postedDate || formatDateToAPIString(new Date());
 
       // 이전 데이터 백업 (롤백용)
       const previousPostsData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
       const previousExistsData = queryClient.getQueryData(
-        postsKeys.existsCheckin(variables.spaceSlug, targetDate)
+        postsKeys.existsCheckin(currentSpaceSlug, targetDate)
       );
       const previousSummaryData = queryClient.getQueryData(
-        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+        postsKeys.feedSummary(currentSpaceSlug, targetDate)
       );
 
       // existsCheckin 즉시 업데이트
-      queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, targetDate), {
+      queryClient.setQueryData(postsKeys.existsCheckin(currentSpaceSlug, targetDate), {
         exists: true,
       });
 
       return { previousPostsData, previousExistsData, previousSummaryData, targetDate };
     },
     onSuccess: (data, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
       // 대신 existsCheckin과 feedSummary만 업데이트 (즉시 필요한 상태)
       const ctx = context as { targetDate: string } | undefined;
       if (ctx) {
-        queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate), {
+        queryClient.setQueryData(postsKeys.existsCheckin(currentSpaceSlug, ctx.targetDate), {
           exists: true,
         });
         queryClient.invalidateQueries({
-          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+          queryKey: postsKeys.feedSummary(currentSpaceSlug, ctx.targetDate),
         });
 
         // ❗️ WebSocket 미도착 상황을 위해 게시글 목록(cache) 무효화 추가
         queryClient.invalidateQueries({
-          queryKey: postsKeys.lists(variables.spaceSlug),
+          queryKey: postsKeys.lists(currentSpaceSlug),
           exact: false,
         });
       }
     },
     onError: (err: unknown, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ 에러 시 이전 상태로 롤백
       const ctx = context as
         | {
@@ -174,13 +184,13 @@ export const useCreateCheckIn = () => {
         });
         if (ctx.previousExistsData !== undefined) {
           queryClient.setQueryData(
-            postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate),
+            postsKeys.existsCheckin(currentSpaceSlug, ctx.targetDate),
             ctx.previousExistsData
           );
         }
         if (ctx.previousSummaryData !== undefined) {
           queryClient.setQueryData(
-            postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+            postsKeys.feedSummary(currentSpaceSlug, ctx.targetDate),
             ctx.previousSummaryData
           );
         }
@@ -204,6 +214,7 @@ export const useCreateCheckIn = () => {
 export const useCreateCheckOut = () => {
   const queryClient = useQueryClient();
   const { error } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   return useMutation<CreateCheckOutResponse, Error, CreateCheckOutRequest>({
     mutationFn: params => {
@@ -213,39 +224,45 @@ export const useCreateCheckOut = () => {
       return postsApi.createCheckOut(params);
     },
     onMutate: async variables => {
+      if (!currentSpaceSlug) return;
+
       // ✅ Optimistic Update: 진행 중인 쿼리들 취소
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug) });
 
       const targetDate = variables.postedDate || formatDateToAPIString(new Date());
 
       // 이전 데이터 백업 (롤백용)
       const previousPostsData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
       const previousSummaryData = queryClient.getQueryData(
-        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+        postsKeys.feedSummary(currentSpaceSlug, targetDate)
       );
 
       return { previousPostsData, previousSummaryData, targetDate };
     },
     onSuccess: (data, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
       // feedSummary만 무효화 (팀 요약 통계 업데이트 필요)
       const ctx = context as { targetDate: string } | undefined;
       if (ctx) {
         queryClient.invalidateQueries({
-          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+          queryKey: postsKeys.feedSummary(currentSpaceSlug, ctx.targetDate),
         });
 
         // ❗️ WebSocket 미도착 상황을 위해 게시글 목록(cache) 무효화 추가
         queryClient.invalidateQueries({
-          queryKey: postsKeys.lists(variables.spaceSlug),
+          queryKey: postsKeys.lists(currentSpaceSlug),
           exact: false,
         });
       }
     },
     onError: (err: unknown, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ 에러 시 이전 상태로 롤백
       const ctx = context as
         | { previousPostsData?: any; previousSummaryData?: any; targetDate: string }
@@ -257,7 +274,7 @@ export const useCreateCheckOut = () => {
         if (ctx.previousSummaryData !== undefined) {
           const targetDate = variables.postedDate || formatDateToAPIString(new Date());
           queryClient.setQueryData(
-            postsKeys.feedSummary(variables.spaceSlug, targetDate),
+            postsKeys.feedSummary(currentSpaceSlug, targetDate),
             ctx.previousSummaryData
           );
         }
@@ -274,36 +291,43 @@ export const useCreateCheckOut = () => {
 export const useUpdateCheckIn = () => {
   const queryClient = useQueryClient();
   const { error } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   return useMutation<UpdateCheckInResponse, Error, UpdateCheckInRequest>({
     mutationFn: params => postsApi.updateCheckIn(params),
-    onMutate: async variables => {
+    onMutate: async _variables => {
+      if (!currentSpaceSlug) return;
+
       // ✅ Optimistic Update: 진행 중인 쿼리들 취소
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug) });
 
       // 이전 데이터 백업 (롤백용)
       const previousPostsData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
 
       return { previousPostsData };
     },
     onSuccess: (data, variables, _context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
       // feedSummary만 무효화 (통계 업데이트 필요)
       const targetDate = data.post.postedAt.split('T')[0];
       queryClient.invalidateQueries({
-        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+        queryKey: postsKeys.feedSummary(currentSpaceSlug, targetDate),
       });
 
       // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
       queryClient.invalidateQueries({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
     },
     onError: (err: unknown, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ 에러 시 이전 상태로 롤백
       const ctx = context as { previousPostsData?: any } | undefined;
       if (ctx?.previousPostsData) {
@@ -323,53 +347,60 @@ export const useUpdateCheckIn = () => {
 export const useDeleteCheckIn = () => {
   const queryClient = useQueryClient();
   const { error } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   return useMutation<DeleteCheckInResponse, Error, DeleteCheckInRequest>({
     mutationFn: params => postsApi.deleteCheckIn(params),
     onMutate: async variables => {
+      if (!currentSpaceSlug) return;
+
       // ✅ Optimistic Update: 진행 중인 쿼리들 취소
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug) });
 
       const targetDate = formatDateToAPIString(new Date());
 
       // 이전 데이터 백업 (롤백용)
       const previousPostsData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
       const previousExistsData = queryClient.getQueryData(
-        postsKeys.existsCheckin(variables.spaceSlug, targetDate)
+        postsKeys.existsCheckin(currentSpaceSlug, targetDate)
       );
       const previousSummaryData = queryClient.getQueryData(
-        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+        postsKeys.feedSummary(currentSpaceSlug, targetDate)
       );
 
       // existsCheckin 즉시 업데이트
-      queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, targetDate), {
+      queryClient.setQueryData(postsKeys.existsCheckin(currentSpaceSlug, targetDate), {
         exists: false,
       });
 
       return { previousPostsData, previousExistsData, previousSummaryData, targetDate };
     },
     onSuccess: (data, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
       const ctx = context as { targetDate: string } | undefined;
       if (ctx) {
-        queryClient.setQueryData(postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate), {
+        queryClient.setQueryData(postsKeys.existsCheckin(currentSpaceSlug, ctx.targetDate), {
           exists: false,
         });
         queryClient.invalidateQueries({
-          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+          queryKey: postsKeys.feedSummary(currentSpaceSlug, ctx.targetDate),
         });
 
         // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
         queryClient.invalidateQueries({
-          queryKey: postsKeys.lists(variables.spaceSlug),
+          queryKey: postsKeys.lists(currentSpaceSlug),
           exact: false,
         });
       }
     },
     onError: (err: unknown, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ 에러 시 이전 상태로 롤백
       const ctx = context as
         | {
@@ -385,13 +416,13 @@ export const useDeleteCheckIn = () => {
         });
         if (ctx.previousExistsData !== undefined) {
           queryClient.setQueryData(
-            postsKeys.existsCheckin(variables.spaceSlug, ctx.targetDate),
+            postsKeys.existsCheckin(currentSpaceSlug, ctx.targetDate),
             ctx.previousExistsData
           );
         }
         if (ctx.previousSummaryData !== undefined) {
           queryClient.setQueryData(
-            postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+            postsKeys.feedSummary(currentSpaceSlug, ctx.targetDate),
             ctx.previousSummaryData
           );
         }
@@ -408,36 +439,43 @@ export const useDeleteCheckIn = () => {
 export const useUpdateCheckOut = () => {
   const queryClient = useQueryClient();
   const { error } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   return useMutation<UpdateCheckOutResponse, Error, UpdateCheckOutRequest>({
     mutationFn: params => postsApi.updateCheckOut(params),
     onMutate: async variables => {
+      if (!currentSpaceSlug) return;
+
       // ✅ Optimistic Update: 진행 중인 쿼리들 취소
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug) });
 
       // 이전 데이터 백업 (롤백용)
       const previousPostsData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
 
       return { previousPostsData };
     },
     onSuccess: (data, variables, _context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
       // feedSummary만 무효화 (통계 업데이트 필요)
       const targetDate = data.post.postedAt.split('T')[0];
       queryClient.invalidateQueries({
-        queryKey: postsKeys.feedSummary(variables.spaceSlug, targetDate),
+        queryKey: postsKeys.feedSummary(currentSpaceSlug, targetDate),
       });
 
       // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
       queryClient.invalidateQueries({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
     },
     onError: (err: unknown, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ 에러 시 이전 상태로 롤백
       const ctx = context as { previousPostsData?: any } | undefined;
       if (ctx?.previousPostsData) {
@@ -457,42 +495,49 @@ export const useUpdateCheckOut = () => {
 export const useDeleteCheckOut = () => {
   const queryClient = useQueryClient();
   const { error } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   return useMutation<DeleteCheckOutResponse, Error, DeleteCheckOutRequest>({
     mutationFn: params => postsApi.deleteCheckOut(params),
     onMutate: async variables => {
+      if (!currentSpaceSlug) return;
+
       // ✅ Optimistic Update: 진행 중인 쿼리들 취소
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(variables.spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug) });
 
       const targetDate = formatDateToAPIString(new Date());
 
       // 이전 데이터 백업 (롤백용)
       const previousPostsData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(variables.spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
       const previousSummaryData = queryClient.getQueryData(
-        postsKeys.feedSummary(variables.spaceSlug, targetDate)
+        postsKeys.feedSummary(currentSpaceSlug, targetDate)
       );
 
       return { previousPostsData, previousSummaryData, targetDate };
     },
     onSuccess: (data, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ invalidateQueries 제거 - WebSocket 이벤트가 실제 동기화 담당
       const ctx = context as { targetDate: string } | undefined;
       if (ctx) {
         queryClient.invalidateQueries({
-          queryKey: postsKeys.feedSummary(variables.spaceSlug, ctx.targetDate),
+          queryKey: postsKeys.feedSummary(currentSpaceSlug, ctx.targetDate),
         });
 
-        // ❗️ WebSocket 미도착 시 대비 - 게시글 목록 무효화
+        // ❗️ WebSocket 미도착 시 대빔 - 게시글 목록 무효화
         queryClient.invalidateQueries({
-          queryKey: postsKeys.lists(variables.spaceSlug),
+          queryKey: postsKeys.lists(currentSpaceSlug),
           exact: false,
         });
       }
     },
     onError: (err: unknown, variables, context) => {
+      if (!currentSpaceSlug) return;
+
       // ✅ 에러 시 이전 상태로 롤백
       const ctx = context as
         | { previousPostsData?: any; previousSummaryData?: any; targetDate: string }
@@ -504,7 +549,7 @@ export const useDeleteCheckOut = () => {
         if (ctx.previousSummaryData !== undefined) {
           const targetDate = formatDateToAPIString(new Date());
           queryClient.setQueryData(
-            postsKeys.feedSummary(variables.spaceSlug, targetDate),
+            postsKeys.feedSummary(currentSpaceSlug, targetDate),
             ctx.previousSummaryData
           );
         }
@@ -519,18 +564,18 @@ export const useDeleteCheckOut = () => {
 };
 
 interface UsePostDateOptions {
-  spaceSlug: string;
   postId: string;
   enabled?: boolean;
 }
 
 export const usePostDate = (options: UsePostDateOptions) => {
-  const { spaceSlug, postId, enabled = true } = options;
+  const { postId, enabled = true } = options;
+  const { currentSpaceSlug } = useAuth();
 
   return useQuery({
-    queryKey: postsKeys.postDate(spaceSlug, postId),
-    queryFn: () => postsApi.getPostDate({ spaceSlug, postId }),
-    enabled: !!spaceSlug && !!postId && enabled,
+    queryKey: postsKeys.postDate(currentSpaceSlug || '', postId),
+    queryFn: () => postsApi.getPostDate({ postId }),
+    enabled: !!postId && enabled && !!currentSpaceSlug,
     staleTime: 1000 * 60 * 5, // 5분
     gcTime: 1000 * 60 * 10, // 10분
     retry: authRetry,

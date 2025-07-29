@@ -37,7 +37,7 @@ import { apiClient } from '../api';
 const convertApiMemberToMember = (apiMember: ApiSpaceMember): SpaceMember => {
   return {
     id: apiMember.id,
-    userId: apiMember.user_id,
+    spaceId: apiMember.space_id,
     name: apiMember.name,
     avatarURL: apiMember.avatar_url,
     role: apiMember.role as SpaceMember['role'],

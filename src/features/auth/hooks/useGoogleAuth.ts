@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { authApi } from '@/shared/lib/api/auth';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useToast } from '@/shared/hooks/useToast';
 
 interface UseGoogleAuthReturn {

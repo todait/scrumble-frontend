@@ -4,19 +4,18 @@ import { useToggleTodo, useTodos } from '@/shared/hooks/queries';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 
-export const useCheckOutTodos = (spaceSlug: string) => {
+export const useCheckOutTodos = () => {
   const { selectedDate } = useDateStore();
   const todayDateString = formatDateToAPIString(selectedDate);
   
   // 오늘 Todo 조회
   const { data: todayData, isLoading } = useTodos({
-    spaceSlug,
     date: todayDateString,
-    enabled: !!spaceSlug,
+    enabled: true,
   });
   
   // Todo 토글 함수
-  const { mutate: toggleTodo } = useToggleTodo(spaceSlug);
+  const { mutate: toggleTodo } = useToggleTodo();
   
   const handleToggleTodo = useCallback((todoId: string) => {
     // API 호출 (optimistic update는 useToggleTodo에서 처리)

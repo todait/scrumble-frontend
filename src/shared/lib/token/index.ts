@@ -1,4 +1,4 @@
-import { TokenPair } from '../types/api';
+import { TokenPair } from '../../types/api';
 
 export class TokenManager {
   private static ACCESS_TOKEN_KEY = 'accessToken';
@@ -112,3 +112,6 @@ export const tokenStorage = {
     TokenManager.setTokensLegacy(accessToken, refreshToken),
   clearTokens: () => TokenManager.clearTokens(),
 };
+
+// SpaceMemberTokenManager도 함께 export
+export { SpaceMemberTokenManager } from './SpaceMemberTokenManager';

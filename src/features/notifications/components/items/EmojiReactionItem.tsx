@@ -23,7 +23,7 @@ const EmojiReactionItem = memo(function EmojiReactionItem({
   notification,
   onClick,
 }: EmojiReactionItemProps) {
-  const { latestSpace } = useAuth();
+  const { currentSpaceMember: member } = useAuth();
   const { createdAt, isRead, payload } = notification;
   const { reaction, post } = payload;
 
@@ -54,15 +54,12 @@ const EmojiReactionItem = memo(function EmojiReactionItem({
           <div className="pb-1 text-[12px] font-semibold text-[#6E6E73] text-opacity-50">
             {isCommentReaction && payload.comment ? (
               <>
-                #
-                {payload.comment.author.id === latestSpace?.memberId
-                  ? '나'
-                  : payload.comment.author.name}
+                #{payload.comment.author.id === member?.id ? '나' : payload.comment.author.name}
                 님의 댓글: {truncateText(payload.comment.content || '', 50)}
               </>
             ) : (
               <>
-                #{post.author.id === latestSpace?.memberId ? '나' : post.author.name}
+                #{post.author.id === member?.id ? '나' : post.author.name}
                 님의 {post.postType === 'check_in' ? '체크인' : '체크아웃'}
               </>
             )}

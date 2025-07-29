@@ -8,9 +8,9 @@ import { use, useState } from 'react';
 
 const CheckOutWriteModal = dynamic(
   () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
-  { 
+  {
     ssr: false,
-    loading: () => <PageLoadingSpinner />
+    loading: () => <PageLoadingSpinner />,
   }
 );
 
@@ -28,7 +28,7 @@ function CheckOutNewPage({ params }: CheckOutNewPageProps) {
     router.push(`/${spaceSlug}/feed`);
   };
 
-  return <CheckOutWriteModal spaceSlug={spaceSlug} isOpen={isModalOpen} onClose={handleClose} />;
+  return <CheckOutWriteModal isOpen={isModalOpen} onClose={handleClose} />;
 }
 
 export default withAuth(CheckOutNewPage);

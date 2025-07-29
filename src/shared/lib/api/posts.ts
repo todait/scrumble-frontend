@@ -53,7 +53,7 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     postedAt: apiPost.posted_at,
     createdAt: apiPost.created_at,
     updatedAt: apiPost.updated_at,
-    userId: apiPost.user_id,
+    spaceMemberId: apiPost.space_member_id,
     spaceSlug: apiPost.space_slug,
     author: {
       id: apiPost.author.id,
@@ -76,14 +76,13 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
  */
 export const postsApi = {
   /**
-   * 포스트 목록 조회
+   * 포스트 목록 조회 (Legacy)
    * @param params 조회 파라미터 (스페이스, 날짜, 타입 등)
    * @returns 변환된 포스트 목록과 페이지네이션 정보
+   * @deprecated 새로운 구현에서는 getPostsQuery 사용을 권장합니다
    */
   getPosts: async (params: GetPostsParams): Promise<GetPostsResponse> => {
     const queryParams = new URLSearchParams();
-
-    queryParams.append('spaceSlug', params.spaceSlug);
 
     if (params.date) {
       queryParams.append('date', params.date);
@@ -112,9 +111,44 @@ export const postsApi = {
     };
   },
 
+  /**
+   * 포스트 목록 조회 - CQRS Query Service
+   * @param params 조회 파라미터 (스페이스, 날짜, 타입 등)
+   * @returns 변환된 포스트 목록과 페이지네이션 정보
+   */
+  getPostsQuery: async (params: GetPostsParams): Promise<GetPostsResponse> => {
+    const queryParams = new URLSearchParams();
+
+    if (params.date) {
+      queryParams.append('date', params.date);
+    }
+
+    if (params.types) {
+      queryParams.append('types', params.types);
+    }
+
+    if (params.cursor) {
+      queryParams.append('cursor', params.cursor);
+    }
+
+    if (params.limit) {
+      queryParams.append('limit', params.limit.toString());
+    }
+
+    const { data } = await apiClient.get<GetPostsApiResponse>(
+      `/api/v1/posts/query?${queryParams.toString()}`
+    );
+
+    return {
+      posts: data.posts?.map(convertApiPostToPost) || [],
+      nextCursor: data.nextCursor,
+      hasMore: data.hasMore || false,
+    };
+  },
+
   getFeedSummary: async (params: GetFeedSummaryParams): Promise<GetFeedSummaryResponse> => {
     const queryParams = new URLSearchParams();
-    
+
     // date가 있을 때만 쿼리 파라미터에 추가
     if (params.date) {
       queryParams.append('date', params.date);
@@ -124,7 +158,7 @@ export const postsApi = {
     const headers = params.timezone ? { 'X-Timezone': params.timezone } : undefined;
 
     const { data } = await apiClient.get<GetFeedSummaryApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/summary?${queryParams.toString()}`,
+      `/api/v1/posts/summary?${queryParams.toString()}`,
       { headers }
     );
 
@@ -148,7 +182,7 @@ export const postsApi = {
     queryParams.append('date', params.date);
 
     const { data } = await apiClient.get<ExistsCheckinApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/checkin/exists?${queryParams.toString()}`
+      `/api/v1/posts/checkin/exists?${queryParams.toString()}`
     );
 
     return {
@@ -157,15 +191,12 @@ export const postsApi = {
   },
 
   createCheckIn: async (params: CreateCheckInRequest): Promise<CreateCheckInResponse> => {
-    const { data } = await apiClient.post<CreateCheckInApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/checkin`,
-      {
-        condition_score: params.conditionScore,
-        condition_text: params.conditionText,
-        ...(params.postedDate ? { posted_date: params.postedDate } : {}),
-        images: params.images,
-      }
-    );
+    const { data } = await apiClient.post<CreateCheckInApiResponse>(`/api/v1/posts/checkin`, {
+      condition_score: params.conditionScore,
+      condition_text: params.conditionText,
+      ...(params.postedDate ? { posted_date: params.postedDate } : {}),
+      images: params.images,
+    });
 
     return {
       message: data.message,
@@ -181,14 +212,11 @@ export const postsApi = {
   },
 
   createCheckOut: async (params: CreateCheckOutRequest): Promise<CreateCheckOutResponse> => {
-    const { data } = await apiClient.post<CreateCheckOutApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/checkout`,
-      {
-        reflection_text: params.reflectionText,
-        ...(params.postedDate ? { posted_date: params.postedDate } : {}),
-        images: params.images,
-      }
-    );
+    const { data } = await apiClient.post<CreateCheckOutApiResponse>(`/api/v1/posts/checkout`, {
+      reflection_text: params.reflectionText,
+      ...(params.postedDate ? { posted_date: params.postedDate } : {}),
+      images: params.images,
+    });
 
     return {
       message: data.message,
@@ -204,7 +232,7 @@ export const postsApi = {
 
   updateCheckIn: async (params: UpdateCheckInRequest): Promise<UpdateCheckInResponse> => {
     const { data } = await apiClient.patch<UpdateCheckInApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/checkin/${params.postId}`,
+      `/api/v1/posts/checkin/${params.postId}`,
       {
         condition_score: params.conditionScore,
         condition_text: params.conditionText,
@@ -227,7 +255,7 @@ export const postsApi = {
 
   updateCheckOut: async (params: UpdateCheckOutRequest): Promise<UpdateCheckOutResponse> => {
     const { data } = await apiClient.patch<UpdateCheckOutApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/checkout/${params.postId}`,
+      `/api/v1/posts/checkout/${params.postId}`,
       {
         reflection_text: params.reflectionText,
         images: params.images,
@@ -248,7 +276,7 @@ export const postsApi = {
 
   deleteCheckIn: async (params: DeleteCheckInRequest): Promise<DeleteCheckInResponse> => {
     const { data } = await apiClient.delete<DeleteCheckInApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/checkin/${params.postId}`
+      `/api/v1/posts/checkin/${params.postId}`
     );
 
     return {
@@ -258,7 +286,7 @@ export const postsApi = {
 
   deleteCheckOut: async (params: DeleteCheckOutRequest): Promise<DeleteCheckOutResponse> => {
     const { data } = await apiClient.delete<DeleteCheckOutApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/checkout/${params.postId}`
+      `/api/v1/posts/checkout/${params.postId}`
     );
 
     return {
@@ -268,7 +296,7 @@ export const postsApi = {
 
   getPostDate: async (params: GetPostDateParams): Promise<GetPostDateResponse> => {
     const { data } = await apiClient.get<GetPostDateApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}/posts/${params.postId}/date`
+      `/api/v1/posts/${params.postId}/date`
     );
 
     return {

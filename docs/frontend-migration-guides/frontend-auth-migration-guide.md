@@ -601,41 +601,41 @@ export function useAuth() {
 
 ### 4.1 준비 단계
 
-- [ ] 토큰 저장소를 localStorage로 통일
+- [x] 토큰 저장소를 localStorage로 통일
 
 ### 4.2 토큰 관리 구현
 
-- [ ] TokenService 구현 (User/SpaceMember 토큰 분리 관리)
-- [ ] 토큰 타입별 TTL 관리 로직 추가
-- [ ] 현재 활성 스페이스 관리 로직 구현
+- [x] TokenService 구현 (User/SpaceMember 토큰 분리 관리) - SpaceMemberTokenManager로 구현
+- [x] 토큰 타입별 TTL 관리 로직 추가
+- [x] 현재 활성 스페이스 관리 로직 구현
 
 ### 4.3 API 클라이언트 수정
 
-- [ ] Request 인터셉터에서 API 경로별 토큰 선택 로직 구현
-- [ ] Response 인터셉터에서 토큰 타입별 갱신 로직 구현
-- [ ] 모든 API 호출에서 `Authorization` 헤더만 사용하도록 수정
+- [x] Request 인터셉터에서 API 경로별 토큰 선택 로직 구현
+- [x] Response 인터셉터에서 토큰 타입별 갱신 로직 구현
+- [x] 모든 API 호출에서 `Authorization` 헤더만 사용하도록 수정
 
 ### 4.4 인증 플로우 구현
 
-- [ ] Google OAuth 콜백 처리 (User 토큰 저장)
-- [ ] 스페이스 로그인 구현 (SpaceMember 토큰 저장)
-- [ ] 스페이스 전환 시 자동 로그인 로직 추가
-- [ ] 토큰 만료 시 자동 갱신 및 재시도 로직 구현
+- [x] Google OAuth 콜백 처리 (User 토큰 저장)
+- [x] 스페이스 로그인 구현 (SpaceMember 토큰 저장)
+- [x] 스페이스 전환 시 자동 로그인 로직 추가
+- [x] 토큰 만료 시 자동 갱신 및 재시도 로직 구현
 
 ### 4.5 에러 처리
 
-- [ ] `SPACE_MEMBER_EXPIRED` 에러 처리
-- [ ] `SPACE_MEMBER_NOT_FOUND` 에러 처리
-- [ ] `TOKEN_EXPIRED` 에러 처리
-- [ ] 토큰 갱신 실패 시 적절한 리다이렉트 처리
+- [x] `SPACE_MEMBER_EXPIRED` 에러 처리
+- [x] `SPACE_MEMBER_NOT_FOUND` 에러 처리
+- [x] `TOKEN_EXPIRED` 에러 처리
+- [x] 토큰 갱신 실패 시 적절한 리다이렉트 처리
 
 ### 4.6 테스트
 
-- [ ] User API 호출 테스트
-- [ ] SpaceMember API 호출 테스트
-- [ ] 토큰 자동 갱신 테스트
-- [ ] 스페이스 전환 테스트
-- [ ] 로그아웃 테스트
+- [ ] User API 호출 테스트 - ❌ 미구현
+- [ ] SpaceMember API 호출 테스트 - ❌ 미구현
+- [ ] 토큰 자동 갱신 테스트 - ❌ 미구현
+- [ ] 스페이스 전환 테스트 - ❌ 미구현
+- [ ] 로그아웃 테스트 - ❌ 미구현
 
 ## 5. 주의사항
 

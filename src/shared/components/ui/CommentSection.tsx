@@ -4,7 +4,7 @@ import type { Comment } from '@/features/feed/types/feed.types';
 import { EmojiReactions } from '@/shared/components/emoji';
 import type { EmojiData } from '@/shared/components/emoji/EmojiPicker';
 import { SimpleToast } from '@/shared/components/feedback';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
@@ -15,7 +15,7 @@ import { RiImageLine } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import dynamic from 'next/dynamic';
-import { useParams } from 'next/navigation';
+// import { useParams } from 'next/navigation';
 import type { ForwardedRef, ReactNode } from 'react';
 import { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
 import { EditDeleteMenu } from './EditDeleteMenu';
@@ -150,10 +150,10 @@ function CommentItem({
   isUpdating: _isUpdating, // _ prefix로 사용하지 않음을 명시
   isHighlighted,
 }: CommentItemProps) {
-  const { user } = useAuth();
-  const params = useParams();
-  const spaceSlug = params.spaceSlug as string;
-  const isMyComment = user?.id === comment.author.id;
+  const { currentSpaceMember: member } = useAuth();
+  // const params = useParams();
+  // const spaceSlug = params.spaceSlug as string;
+  const isMyComment = member?.id === comment.author.id;
   const isEditing = editingCommentId === comment.id;
   const [editContent, setEditContent] = useState(comment.content);
   const [showToast, setShowToast] = useState<{ message: string } | null>(null);
@@ -165,7 +165,7 @@ function CommentItem({
   const wasEditingRef = useRef(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const editingContainerRef = useRef<HTMLDivElement>(null);
-  const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
+  const { mutate: toggleReaction } = useToggleReaction();
 
   const hasReactions = comment.reactions && comment.reactions.length > 0;
 
@@ -515,7 +515,7 @@ function CommentItem({
             <div className="mt-2">
               <EmojiReactions
                 reactions={comment.reactions || []}
-                currentUserId={user?.id}
+                currentSpaceMemberId={member?.id}
                 targetType="comments"
                 targetId={comment.id}
                 onReactionToggle={handleReactionToggle}

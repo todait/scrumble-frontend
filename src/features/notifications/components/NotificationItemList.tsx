@@ -127,8 +127,6 @@ const NotificationItemList = memo(function NotificationItemList({
         }
       }
 
-      console.log('notification', notification);
-
       // deepLink가 있으면 해당 경로로 이동, 없으면 기본 경로로 이동
       if (notification.deepLink) {
         router.push(notification.deepLink);
@@ -246,9 +244,7 @@ const NotificationItemList = memo(function NotificationItemList({
                 <h4 className="text-sm font-medium text-gray-900">
                   {notification.payload?.title || notification.type}
                 </h4>
-                <p className="mt-1 text-sm text-gray-600">
-                  {notification.payload?.content || ''}
-                </p>
+                <p className="mt-1 text-sm text-gray-600">{notification.payload?.content || ''}</p>
                 <time className="mt-2 block text-xs text-gray-400">
                   {new Date(notification.createdAt).toLocaleString('ko-KR')}
                 </time>

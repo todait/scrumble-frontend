@@ -106,52 +106,52 @@ config.headers['X-Space-Slug'] = spaceSlug;
 
 ### Task 1: 준비 작업
 
-- [ ] 현재 코드 백업
-- [ ] 기존 인증 및 API 코드 분석
+- [x] 현재 코드 백업
+- [x] 기존 인증 및 API 코드 분석
 
 ### Task 2: 토큰 관리 구현
 
-- [ ] `SpaceMemberTokenManager` 클래스 구현 ([AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md](./AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md#spacemembertokenmanager-클래스) 참조)
-- [ ] localStorage 기반 토큰 저장 구현
+- [x] `SpaceMemberTokenManager` 클래스 구현 ([AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md](./AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md#spacemembertokenmanager-클래스) 참조)
+- [x] localStorage 기반 토큰 저장 구현
 
 ### Task 3: API 클라이언트 수정
 
-- [ ] Request 인터셉터 수정 ([refresh-intercept-migration-guide.md](./refresh-intercept-migration-guide.md#2단계-인터셉터-수정) 참조)
-- [ ] Response 인터셉터 토큰 갱신 로직 구현
-- [ ] 토큰 타입별 갱신 상태 관리 추가
+- [x] Request 인터셉터 수정 ([refresh-intercept-migration-guide.md](./refresh-intercept-migration-guide.md#2단계-인터셉터-수정) 참조)
+- [x] Response 인터셉터 토큰 갱신 로직 구현
+- [x] 토큰 타입별 갱신 상태 관리 추가
 
 ### Task 4: AuthContext 마이그레이션
 
-- [ ] AuthContext 인터페이스 확장 ([AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md](./AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md#1단계-authcontext-인터페이스-확장) 참조)
-- [ ] SpaceMember 상태 관리 훅 구현
-- [ ] Space 전환 로직 구현
+- [x] AuthContext 인터페이스 확장 ([AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md](./AUTH_CONTEXT_HOC_MIGRATION_GUIDE.md#1단계-authcontext-인터페이스-확장) 참조)
+- [x] SpaceMember 상태 관리 훅 구현
+- [x] Space 전환 로직 구현
 
 ### Task 5. API Spec 변경
 
-- [ ] ./API_SPEC/ 문서 참고.
-- [ ] AUTH_API 변경 및 추가
-- [ ] SPACE_API 변경 및 추가
-- [ ] POST_API 변경
-- [ ] REACTION_API 변경
-- [ ] TODO_API 변경
-- [ ] NOTIFICATION_API 변경
+- [x] ./API_SPEC/ 문서 참고.
+- [x] AUTH_API 변경 및 추가
+- [x] SPACE_API 변경 및 추가
+- [x] POST_API 변경
+- [x] REACTION_API 변경
+- [x] TODO_API 변경
+- [x] NOTIFICATION_API 변경
 
 ### Task 6: 마지막 접속 Space 자동 연결 기능
 
-- [ ] Zustand Store 구현
+- [x] Zustand Store 구현
 
   - lastAccessedSpaceStore 생성
   - 마지막 접속한 Space 목록을 시간순으로 저장 (최대 10개)
   - localStorage에 persist하여 브라우저를 닫아도 유지
 
-- [ ] 자동 연결 로직
+- [x] 자동 연결 로직
 
   - 로그인 후 SpaceMember 상태가 없을 때 자동 실행
   - 마지막 접속 Space에 로그인 시도
   - 실패 시 다음 최근 접속 Space로 순차 시도
   - 모두 실패하면 사용자가 속한 첫 번째 Space로 연결
 
-- [ ] 접속 기록 관리
+- [x] 접속 기록 관리
   - Space 전환 시 자동으로 접속 시간 업데이트
   - Space 탈퇴 시 해당 기록 제거
   - 로그아웃 시 선택적으로 기록 초기화 옵션 제공
@@ -233,10 +233,10 @@ feat/spacemember-migrate
 
 ## 🎉 완료 기준
 
-- [ ] 모든 API 호출이 정상 작동
-- [ ] 토큰 자동 갱신 정상 작동
-- [ ] Space 전환 기능 정상 작동
-- [ ] 기존 기능 영향 없음
+- [x] 모든 API 호출이 정상 작동
+- [x] 토큰 자동 갱신 정상 작동
+- [x] Space 전환 기능 정상 작동
+- [x] 기존 기능 영향 없음
 
 ---
 

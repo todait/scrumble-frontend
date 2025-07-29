@@ -1037,30 +1037,30 @@ describe('Space Switching', () => {
 
 ### 준비 단계
 
-- [ ] 기존 AuthContext 백업
-- [ ] 테스트 환경 구성
-- [ ] Feature Flag 설정
-- [ ] 모니터링 대시보드 준비
+- [x] 기존 AuthContext 백업
+- [ ] 테스트 환경 구성 - ❌ 미구현
+- [ ] Feature Flag 설정 - ❌ 미구현  
+- [ ] 모니터링 대시보드 준비 - ❌ 미구현
 
 ### 구현 단계
 
-- [ ] SpaceMemberTokenManager 클래스 구현 (localStorage/sessionStorage 기반)
-- [ ] AuthContext 인터페이스 확장 (SpaceMember 상태 추가)
-- [ ] useSpaceMemberState 훅 구현 (Space별 상태 관리)
-- [ ] API 클라이언트 업데이트
-  - [ ] Space 로그인 API 추가 (/auth/spaces/:spaceSlug/login)
-  - [ ] SpaceMember 정보 조회 API 추가 (/api/v1/space-members/me)
-  - [ ] SpaceMember 토큰 갱신 API 추가 (/auth/space-member/refresh)
-  - [ ] SpaceMember 로그아웃 API 추가 (/auth/space-member/logout)
-- [ ] Authorization 헤더 자동 추가 로직 구현
-- [ ] 토큰 갱신 로직 통합 (User + SpaceMember)
-- [ ] Space 전환 기능 구현
-- [ ] WebSocket 재연결 로직 구현 (Space 전환 시)
+- [x] SpaceMemberTokenManager 클래스 구현 (localStorage/sessionStorage 기반)
+- [x] AuthContext 인터페이스 확장 (SpaceMember 상태 추가)
+- [x] useSpaceMemberState 훅 구현 (Space별 상태 관리) - AuthContext 내부에 구현
+- [x] API 클라이언트 업데이트
+  - [x] Space 로그인 API 추가 (/auth/spaces/:spaceSlug/login)
+  - [x] SpaceMember 정보 조회 API 추가 (/api/v1/space-members/me)
+  - [x] SpaceMember 토큰 갱신 API 추가 (/auth/space-member/refresh)
+  - [x] SpaceMember 로그아웃 API 추가 (/auth/space-member/logout)
+- [x] Authorization 헤더 자동 추가 로직 구현
+- [x] 토큰 갱신 로직 통합 (User + SpaceMember)
+- [x] Space 전환 기능 구현
+- [ ] WebSocket 재연결 로직 구현 (Space 전환 시) - ❌ 미구현
 
 ### 테스트 단계
 
-- [ ] 단위 테스트 작성 및 실행
-- [ ] 통합 테스트 수행
+- [ ] 단위 테스트 작성 및 실행 - ❌ 미구현
+- [ ] 통합 테스트 수행 - ❌ 미구현
 
 ## 마무리
 

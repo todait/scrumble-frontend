@@ -38,11 +38,11 @@ interface BaseWebSocketMessage {
 export interface CommentCreatedMessage extends BaseWebSocketMessage {
   type: 'comment.created';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     postId: string;
     commentId: string;
-    userId: string;
+    spaceMemberId: string;
     userName: string;
     userAvatarURL: string;
     spaceSlug: string;
@@ -56,11 +56,11 @@ export interface CommentCreatedMessage extends BaseWebSocketMessage {
 export interface CommentUpdatedMessage extends BaseWebSocketMessage {
   type: 'comment.updated';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     postId: string;
     commentId: string;
-    userId: string;
+    spaceMemberId: string;
     userName: string;
     userAvatarURL: string;
     spaceSlug: string;
@@ -74,11 +74,11 @@ export interface CommentUpdatedMessage extends BaseWebSocketMessage {
 export interface CommentDeletedMessage extends BaseWebSocketMessage {
   type: 'comment.deleted';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     postId: string;
     commentId: string;
-    userId: string;
+    spaceMemberId: string;
     userName: string;
     userAvatarURL: string;
     spaceSlug: string;
@@ -90,11 +90,11 @@ export interface CommentDeletedMessage extends BaseWebSocketMessage {
 export interface ReactionAddedMessage extends BaseWebSocketMessage {
   type: 'reaction.added';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     targetType: 'post' | 'comment';
     targetId: string;
-    userId: string;
+    spaceMemberId: string;
     userName: string;
     emoji: string;
     spaceSlug: string;
@@ -107,11 +107,11 @@ export interface ReactionAddedMessage extends BaseWebSocketMessage {
 export interface ReactionRemovedMessage extends BaseWebSocketMessage {
   type: 'reaction.removed';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     targetType: 'post' | 'comment';
     targetId: string;
-    userId: string;
+    spaceMemberId: string;
     userName: string;
     emoji: string;
     spaceSlug: string;
@@ -124,10 +124,10 @@ export interface ReactionRemovedMessage extends BaseWebSocketMessage {
 export interface PostCreatedMessage extends BaseWebSocketMessage {
   type: 'post.created';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     postId: string;
-    userId: string;
+    spaceMemberId: string;
     spaceSlug: string;
     postType: 'checkin' | 'checkout';
     postedAt: string; // ISO 8601 format
@@ -139,10 +139,10 @@ export interface PostCreatedMessage extends BaseWebSocketMessage {
 export interface PostUpdatedMessage extends BaseWebSocketMessage {
   type: 'post.updated';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     postId: string;
-    userId: string;
+    spaceMemberId: string;
     spaceSlug: string;
     postType: 'checkin' | 'checkout';
     action: string;
@@ -153,10 +153,10 @@ export interface PostUpdatedMessage extends BaseWebSocketMessage {
 export interface PostDeletedMessage extends BaseWebSocketMessage {
   type: 'post.deleted';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     postId: string;
-    userId: string;
+    spaceMemberId: string;
     spaceSlug: string;
     postType: 'checkin' | 'checkout';
     action: string;
@@ -167,14 +167,14 @@ export interface PostDeletedMessage extends BaseWebSocketMessage {
 export interface ConnectionEstablishedMessage extends BaseWebSocketMessage {
   type: 'connection.established';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data?: any;
 }
 
 export interface ConnectionLostMessage extends BaseWebSocketMessage {
   type: 'connection.lost';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data?: any;
 }
 
@@ -195,7 +195,7 @@ export interface ConnectionFailedMessage extends BaseWebSocketMessage {
 export interface NotificationCreatedMessage extends BaseWebSocketMessage {
   type: 'notification.created';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     notificationId: string;
     memberId: string;
@@ -238,7 +238,7 @@ export interface NotificationCreatedMessage extends BaseWebSocketMessage {
 export interface NotificationReadMessage extends BaseWebSocketMessage {
   type: 'notification.read';
   postId: string;
-  userId: string;
+  spaceMemberId: string;
   data: {
     notificationId: string;
     memberId: string;

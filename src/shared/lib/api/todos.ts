@@ -77,7 +77,7 @@ const convertCreateTodoRequestToApi = (request: CreateTodosRequest): ApiCreateTo
  * completed_at 필드: undefined일 때는 제외, null이나 빈 문자열은 그대로 전달
  */
 const convertUpdateTodoRequestToApi = (
-  request: Omit<UpdateTodoRequest, 'spaceSlug' | 'todoId'>
+  request: Omit<UpdateTodoRequest, 'todoId'>
 ): ApiUpdateTodoRequest => {
   return {
     name: request.name,
@@ -97,7 +97,7 @@ const convertUpdateTodoRequestToApi = (
  * completed_at 필드: undefined일 때는 제외, null이나 빈 문자열은 그대로 전달
  */
 const convertBulkUpdateTodoRequestToApi = (
-  request: Omit<BulkUpdateTodosRequest, 'spaceSlug'>
+  request: BulkUpdateTodosRequest
 ): ApiBulkUpdateTodosRequest => {
   return {
     scheduled_date: request.scheduledDate,
@@ -137,7 +137,7 @@ export const todosApi = {
     const apiRequest = convertCreateTodoRequestToApi(request);
 
     const { data } = await apiClient.post<CreateTodosApiResponse>(
-      `/api/v1/spaces/${request.spaceSlug}/todos`,
+      `/api/v1/todos`,
       apiRequest
     );
 
@@ -155,13 +155,13 @@ export const todosApi = {
     const queryParams = new URLSearchParams();
     queryParams.append('date', request.date);
     
-    // userId가 있으면 쿼리 파라미터에 추가
-    if (request.userId) {
-      queryParams.append('userId', request.userId);
+    // spaceMemberID가 있으면 쿼리 파라미터에 추가
+    if (request.spaceMemberID) {
+      queryParams.append('spaceMemberID', request.spaceMemberID);
     }
 
     const { data } = await apiClient.get<GetTodosApiResponse>(
-      `/api/v1/spaces/${request.spaceSlug}/todos?${queryParams.toString()}`
+      `/api/v1/todos?${queryParams.toString()}`
     );
 
     return {
@@ -178,7 +178,7 @@ export const todosApi = {
     const apiRequest = convertUpdateTodoRequestToApi(request);
 
     const { data } = await apiClient.patch<UpdateTodoApiResponse>(
-      `/api/v1/spaces/${request.spaceSlug}/todos/${request.todoId}`,
+      `/api/v1/todos/${request.todoId}`,
       apiRequest
     );
 
@@ -194,7 +194,7 @@ export const todosApi = {
    */
   toggleTodo: async (request: ToggleTodoRequest): Promise<ToggleTodoResponse> => {
     const { data } = await apiClient.patch<ToggleTodoApiResponse>(
-      `/api/v1/spaces/${request.spaceSlug}/todos/${request.todoId}/toggle`
+      `/api/v1/todos/${request.todoId}/toggle`
     );
 
     return {
@@ -208,7 +208,7 @@ export const todosApi = {
    * @returns 빈 응답 (204 No Content)
    */
   deleteTodo: async (request: DeleteTodoRequest): Promise<DeleteTodoResponse> => {
-    await apiClient.delete(`/api/v1/spaces/${request.spaceSlug}/todos/${request.todoId}`);
+    await apiClient.delete(`/api/v1/todos/${request.todoId}`);
   },
 
   /**
@@ -220,7 +220,7 @@ export const todosApi = {
     const apiRequest = convertBulkUpdateTodoRequestToApi(request);
 
     const { data } = await apiClient.post<BulkUpdateTodosApiResponse>(
-      `/api/v1/spaces/${request.spaceSlug}/todos`,
+      `/api/v1/todos`,
       apiRequest
     );
 

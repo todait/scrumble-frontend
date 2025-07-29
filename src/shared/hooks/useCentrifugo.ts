@@ -2,6 +2,7 @@
  * Centrifugo WebSocket을 사용하기 위한 React 훅
  */
 
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   centrifugoService,
@@ -11,7 +12,6 @@ import {
 import type { ExtractMessageType, IncomingWebSocketMessage } from '../types/websocket.types';
 import { debug } from '../utils/debug';
 import { createDataSyncCallback, reconnectionManager } from '../utils/reconnection';
-import { useAuth } from './auth/useAuth';
 import { useDebounce } from './useDebounce';
 
 interface UseCentrifugoOptions {
@@ -68,7 +68,7 @@ export function useCentrifugo({
     visiblePostIds,
     autoConnect,
   });
-  const { user } = useAuth();
+  const { currentSpaceMember: member } = useAuth();
   const eventHandlersRef = useRef<Map<WebSocketEventType, WebSocketEventHandler[]>>(new Map());
   const subscriptionTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const lastVisiblePostIdsRef = useRef<Set<string>>(new Set());
@@ -418,9 +418,9 @@ export function useCentrifugo({
     let visibilityCleanup: (() => void) | undefined;
     let reconnectionCleanup: (() => void) | undefined;
 
-    if (autoConnect && user?.id && user.centrifugoToken) {
+    if (autoConnect && member?.id && member.centrifugoToken) {
       // 연결 식별자 생성 (동일한 연결인지 확인하기 위해)
-      const connectionIdentity = `${user.id}-${spaceSlug}`;
+      const connectionIdentity = `${member.id}-${spaceSlug}`;
 
       // 이미 같은 연결이 활성화되어 있으면 스킵
       if (isConnectedRef.current && connectionIdentityRef.current === connectionIdentity) {
@@ -452,7 +452,7 @@ export function useCentrifugo({
           }
 
           // 새 연결 설정
-          await centrifugoService.connect(user.id, spaceSlug, user.centrifugoToken!);
+          await centrifugoService.connect(member.id, spaceSlug, member.centrifugoToken!);
 
           // 연결 성공 표시
           isConnectedRef.current = true;
@@ -505,7 +505,7 @@ export function useCentrifugo({
       // 개발 환경에서는 짧은 지연, 프로덕션에서는 더 긴 지연
       const delay = process.env.NODE_ENV === 'production' ? 500 : 200;
       connectionTimeout = setTimeout(setupConnection, delay);
-    } else if (!user?.centrifugoToken) {
+    } else if (!member?.centrifugoToken) {
       debug('useCentrifugo', 'Centrifugo 토큰이 없어 연결을 건너뜁니다');
     }
 
@@ -524,7 +524,8 @@ export function useCentrifugo({
         reconnectionCleanup();
       }
     };
-  }, [autoConnect, user?.id, user?.centrifugoToken, spaceSlug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoConnect, member?.id, member?.centrifugoToken, spaceSlug]);
 
   return {
     connected: centrifugoService.connected,

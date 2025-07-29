@@ -7,36 +7,23 @@ import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useEffect } from 'react';
-import { CheckInForm } from './forms';
 import { useCheckInForm } from '../hooks/useCheckInForm';
+import { CheckInForm } from './forms';
 import { CheckInModalLayout } from './layout';
 
 interface CheckInEditModalProps {
-  spaceSlug: string;
   isOpen: boolean;
   onClose: () => void;
   post: CheckinPost;
   onSubmit?: () => void;
 }
 
-export function CheckInEditModal({
-  spaceSlug,
-  isOpen,
-  onClose,
-  post,
-  onSubmit,
-}: CheckInEditModalProps) {
+export function CheckInEditModal({ isOpen, onClose, post, onSubmit }: CheckInEditModalProps) {
   const { error } = useToast();
-  
+
   // useCheckInForm 훅 사용으로 로직 단순화
-  const {
-    values,
-    setValue,
-    save,
-    isLoading,
-  } = useCheckInForm({
+  const { values, setValue, save, isLoading } = useCheckInForm({
     mode: 'edit',
-    spaceSlug,
     postId: post.id,
     initialData: {
       score: post.conditionScore,
@@ -55,7 +42,11 @@ export function CheckInEditModal({
     },
   });
 
-  const handleSubmit = async (data: { score: number; message: string; images: ImageMetadata[] }) => {
+  const handleSubmit = async (data: {
+    score: number;
+    message: string;
+    images: ImageMetadata[];
+  }) => {
     const trimmedMessage = data.message.trim();
     if (trimmedMessage === '') {
       error({
@@ -68,7 +59,7 @@ export function CheckInEditModal({
     setValue('score', data.score);
     setValue('message', trimmedMessage);
     setValue('images', data.images);
-    
+
     await save({
       score: data.score,
       message: trimmedMessage,
@@ -92,11 +83,7 @@ export function CheckInEditModal({
   }, [isOpen, onClose]);
 
   return (
-    <CheckInModalLayout 
-      isOpen={isOpen} 
-      onClose={onClose}
-      showBackButton={false}
-    >
+    <CheckInModalLayout isOpen={isOpen} onClose={onClose} showBackButton={false}>
       <div className="border-b border-black/8 px-8 py-8">
         <div className="mb-2 text-[15px] font-bold text-black">
           {formatDate(new Date(post.createdAt))}

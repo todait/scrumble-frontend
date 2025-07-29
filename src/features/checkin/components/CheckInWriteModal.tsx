@@ -11,7 +11,7 @@ import type { ImageMetadata } from '@/shared/types/upload.types';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCheckInForm } from '../hooks/useCheckInForm';
 import { useCheckInTodos } from '../hooks/useCheckInTodos';
 import { useCheckInModalStore } from '../stores/useCheckInModalStore';
@@ -54,7 +54,6 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   // 체크인 폼 훅 사용
   const { values, setValue, save, isLoading } = useCheckInForm({
     mode,
-    spaceSlug,
     postId,
     onSuccess: newPostId => {
       if (step === 'note') {
@@ -76,7 +75,6 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   });
 
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
-    spaceSlug,
     date: formatDateToAPIString(selectedDate),
   });
 
@@ -93,10 +91,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   }, [isOpen, resetModalStore, resetTodoStore]);
 
   // hooks 추가
-  const { isLoadingYesterday, isLoadingToday, saveTodos, isSaving } = useCheckInTodos(
-    spaceSlug,
-    'new'
-  );
+  const { isLoadingYesterday, isLoadingToday, saveTodos, isSaving } = useCheckInTodos('new');
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -207,12 +202,10 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   const handleUpdateTodayTodos = (updatedTodos: Todo[], mappingRemovedTodoIds?: string[]) => {
     // mappingRemovedTodoIds에 포함된 todo의 originTodoId를 null로 설정
-    const todosWithUpdatedMapping = updatedTodos.map(todo => 
-      mappingRemovedTodoIds?.includes(todo.id) 
-        ? { ...todo, originTodoId: null }
-        : todo
+    const todosWithUpdatedMapping = updatedTodos.map(todo =>
+      mappingRemovedTodoIds?.includes(todo.id) ? { ...todo, originTodoId: null } : todo
     );
-    
+
     setTodayTodos(todosWithUpdatedMapping);
 
     // todosWithOrigin Map 업데이트
@@ -226,15 +219,15 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const handleToggleComplete = (todoId: string, isYesterday: boolean) => {
     if (isYesterday) {
       const todos = yesterdayTodos.map(todo =>
-        todo.id === todoId 
-          ? { ...todo, completedAt: todo.completedAt ? undefined : new Date().toISOString() } 
+        todo.id === todoId
+          ? { ...todo, completedAt: todo.completedAt ? undefined : new Date().toISOString() }
           : todo
       );
       setYesterdayTodos(todos);
     } else {
       const todos = todayTodos.map(todo =>
-        todo.id === todoId 
-          ? { ...todo, completedAt: todo.completedAt ? undefined : new Date().toISOString() } 
+        todo.id === todoId
+          ? { ...todo, completedAt: todo.completedAt ? undefined : new Date().toISOString() }
           : todo
       );
       setTodayTodos(todos);
@@ -251,7 +244,10 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   }, [todayTodos]);
 
   // 초기 가져온 Todo ID와 매핑 계산
-  const calculateInitialBroughtData = useCallback((): { broughtIds: Set<string>; idMapping: Map<string, string> } => {
+  const calculateInitialBroughtData = useCallback((): {
+    broughtIds: Set<string>;
+    idMapping: Map<string, string>;
+  } => {
     const broughtIds = new Set<string>();
     const idMapping = new Map<string, string>();
 
@@ -260,8 +256,9 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         yesterdayTodos.forEach(yesterdayTodo => {
           // 오늘 투두의 originTodoId가 어제 투두의 id 또는 originTodoId와 일치하는지 확인
           const matchById = todayTodo.originTodoId === yesterdayTodo.id;
-          const matchByOriginId = yesterdayTodo.originTodoId && todayTodo.originTodoId === yesterdayTodo.originTodoId;
-          
+          const matchByOriginId =
+            yesterdayTodo.originTodoId && todayTodo.originTodoId === yesterdayTodo.originTodoId;
+
           if (matchById || matchByOriginId) {
             broughtIds.add(yesterdayTodo.id);
             // 오늘 투두 ID -> 어제 투두 ID 매핑 추가

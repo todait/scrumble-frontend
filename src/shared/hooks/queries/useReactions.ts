@@ -4,7 +4,7 @@
  */
 
 import type { Post, Reaction } from '@/features/feed/types/feed.types';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { reactionsApi } from '@/shared/lib/api/reactions';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { postsKeys } from './postsKeys';
@@ -25,9 +25,9 @@ export function useReactions(targetType: 'posts' | 'comments', targetId: string)
  * 리액션 추가를 위한 뮤테이션 훅
  * Optimistic Update를 통해 즉각적인 UI 반영을 제공합니다
  */
-export function useAddReaction(spaceSlug: string) {
+export function useAddReaction() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { currentSpaceMember: member, currentSpaceSlug } = useAuth();
 
   return useMutation({
     // 서버에 리액션 추가 요청 (API에는 targetPostId 불필요)
@@ -45,15 +45,17 @@ export function useAddReaction(spaceSlug: string) {
 
     // Optimistic Update: 서버 요청 전에 UI를 먼저 업데이트
     onMutate: async ({ targetType, targetId, targetPostId, emoji }) => {
+      if (!currentSpaceSlug) return;
+
       // 현재 캐시된 모든 목록 캐시 백업 (롤백용)
       const previousData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
 
       // 캐시 데이터 낙관적 업데이트 (모든 목록 대상)
       queryClient.setQueriesData(
-        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        { queryKey: postsKeys.lists(currentSpaceSlug), exact: false },
         (oldData: any) => {
           if (!oldData) return oldData;
 
@@ -65,8 +67,14 @@ export function useAddReaction(spaceSlug: string) {
                 ...page,
                 data: page.data.map((post: Post) =>
                   targetType === 'posts'
-                    ? applyAddReaction(post, targetId, emoji, user?.id)
-                    : applyAddReactionToComment(post, targetPostId || '', targetId, emoji, user?.id)
+                    ? applyAddReaction(post, targetId, emoji, member?.id)
+                    : applyAddReactionToComment(
+                        post,
+                        targetPostId || '',
+                        targetId,
+                        emoji,
+                        member?.id
+                      )
                 ),
               })),
             };
@@ -78,8 +86,8 @@ export function useAddReaction(spaceSlug: string) {
               ...oldData,
               posts: oldData.posts.map((post: Post) =>
                 targetType === 'posts'
-                  ? applyAddReaction(post, targetId, emoji, user?.id)
-                  : applyAddReactionToComment(post, targetPostId || '', targetId, emoji, user?.id)
+                  ? applyAddReaction(post, targetId, emoji, member?.id)
+                  : applyAddReactionToComment(post, targetPostId || '', targetId, emoji, member?.id)
               ),
             };
           }
@@ -108,7 +116,7 @@ function applyAddReaction(
   post: Post,
   targetId: string,
   emoji: string,
-  userId: string | undefined
+  spaceMemberId: string | undefined
 ): Post {
   if (post.id !== targetId) return post;
 
@@ -118,11 +126,11 @@ function applyAddReaction(
     const updated = [...post.reactions];
     const react = updated[existingIdx];
 
-    if (!react.userIds.includes(userId || '')) {
+    if (!react.spaceMemberIds.includes(spaceMemberId || '')) {
       updated[existingIdx] = {
         ...react,
         count: react.count + 1,
-        userIds: [...react.userIds, userId || ''],
+        spaceMemberIds: [...react.spaceMemberIds, spaceMemberId || ''],
       };
     }
 
@@ -131,7 +139,7 @@ function applyAddReaction(
 
   return {
     ...post,
-    reactions: [...post.reactions, { emoji, count: 1, userIds: [userId || ''] }],
+    reactions: [...post.reactions, { emoji, count: 1, spaceMemberIds: [spaceMemberId || ''] }],
   };
 }
 
@@ -141,7 +149,7 @@ function applyAddReactionToComment(
   targetPostId: string,
   targetId: string,
   emoji: string,
-  userId: string | undefined
+  spaceMemberId: string | undefined
 ): Post {
   // targetPostId가 일치하지 않으면 변경하지 않음 (성능 최적화)
   if (targetPostId && post.id !== targetPostId) return post;
@@ -164,11 +172,11 @@ function applyAddReactionToComment(
         const updated = [...(comment.reactions || [])];
         const react = updated[existingIdx];
 
-        if (!react.userIds.includes(userId || '')) {
+        if (!react.spaceMemberIds.includes(spaceMemberId || '')) {
           updated[existingIdx] = {
             ...react,
             count: react.count + 1,
-            userIds: [...react.userIds, userId || ''],
+            spaceMemberIds: [...react.spaceMemberIds, spaceMemberId || ''],
           };
         }
 
@@ -177,7 +185,10 @@ function applyAddReactionToComment(
 
       return {
         ...comment,
-        reactions: [...(comment.reactions || []), { emoji, count: 1, userIds: [userId || ''] }],
+        reactions: [
+          ...(comment.reactions || []),
+          { emoji, count: 1, spaceMemberIds: [spaceMemberId || ''] },
+        ],
       };
     }),
   };
@@ -187,9 +198,9 @@ function applyAddReactionToComment(
  * 리액션 제거를 위한 뮤테이션 훅
  * 추가와 동일한 패턴으로 Optimistic Update 제공
  */
-export function useRemoveReaction(spaceSlug: string) {
+export function useRemoveReaction() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { currentSpaceMember: member, currentSpaceSlug } = useAuth();
 
   return useMutation({
     // 서버에 리액션 제거 요청 (API에는 targetPostId 불필요)
@@ -207,14 +218,16 @@ export function useRemoveReaction(spaceSlug: string) {
 
     // Optimistic Update: UI 먼저 업데이트
     onMutate: async ({ targetType, targetId, targetPostId, emoji }) => {
+      if (!currentSpaceSlug) return;
+
       const previousData = queryClient.getQueriesData({
-        queryKey: postsKeys.lists(spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug),
         exact: false,
       });
 
       // 캐시 데이터 낙관적 업데이트
       queryClient.setQueriesData(
-        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        { queryKey: postsKeys.lists(currentSpaceSlug), exact: false },
         (oldData: any) => {
           if (!oldData) return oldData;
 
@@ -226,13 +239,13 @@ export function useRemoveReaction(spaceSlug: string) {
                 ...page,
                 data: page.data.map((post: Post) =>
                   targetType === 'posts'
-                    ? applyRemoveReaction(post, targetId, emoji, user?.id)
+                    ? applyRemoveReaction(post, targetId, emoji, member?.id)
                     : applyRemoveReactionFromComment(
                         post,
                         targetPostId || '',
                         targetId,
                         emoji,
-                        user?.id
+                        member?.id
                       )
                 ),
               })),
@@ -245,13 +258,13 @@ export function useRemoveReaction(spaceSlug: string) {
               ...oldData,
               posts: oldData.posts.map((post: Post) =>
                 targetType === 'posts'
-                  ? applyRemoveReaction(post, targetId, emoji, user?.id)
+                  ? applyRemoveReaction(post, targetId, emoji, member?.id)
                   : applyRemoveReactionFromComment(
                       post,
                       targetPostId || '',
                       targetId,
                       emoji,
-                      user?.id
+                      member?.id
                     )
               ),
             };
@@ -282,7 +295,7 @@ function applyRemoveReaction(
   post: Post,
   targetId: string,
   emoji: string,
-  userId: string | undefined
+  spaceMemberId: string | undefined
 ): Post {
   if (post.id !== targetId) return post;
 
@@ -291,12 +304,12 @@ function applyRemoveReaction(
       if (reaction.emoji !== emoji) return reaction;
 
       // 사용자 ID 제거
-      const newUserIds = reaction.userIds.filter(id => id !== userId);
+      const newspaceMemberIds = reaction.spaceMemberIds.filter(id => id !== spaceMemberId);
 
       return {
         ...reaction,
         count: Math.max(0, reaction.count - 1),
-        userIds: newUserIds,
+        spaceMemberIds: newspaceMemberIds,
       };
     })
     // count가 0인 리액션은 제거
@@ -311,7 +324,7 @@ function applyRemoveReactionFromComment(
   targetPostId: string,
   targetId: string,
   emoji: string,
-  userId: string | undefined
+  spaceMemberId: string | undefined
 ): Post {
   // targetPostId가 일치하지 않으면 변경하지 않음 (성능 최적화)
   if (targetPostId && post.id !== targetPostId) return post;
@@ -333,12 +346,12 @@ function applyRemoveReactionFromComment(
           if (reaction.emoji !== emoji) return reaction;
 
           // 사용자 ID 제거
-          const newUserIds = reaction.userIds.filter(id => id !== userId);
+          const newspaceMemberIds = reaction.spaceMemberIds.filter(id => id !== spaceMemberId);
 
           return {
             ...reaction,
             count: Math.max(0, reaction.count - 1),
-            userIds: newUserIds,
+            spaceMemberIds: newspaceMemberIds,
           };
         })
         // count가 0인 리액션은 제거
@@ -353,10 +366,10 @@ function applyRemoveReactionFromComment(
  * 리액션 토글을 위한 편의 훅
  * 이미 리액션한 경우 제거, 아닌 경우 추가
  */
-export function useToggleReaction(spaceSlug: string) {
-  const addReaction = useAddReaction(spaceSlug);
-  const removeReaction = useRemoveReaction(spaceSlug);
-  const { user } = useAuth();
+export function useToggleReaction() {
+  const addReaction = useAddReaction();
+  const removeReaction = useRemoveReaction();
+  const { currentSpaceMember: member } = useAuth();
 
   return useMutation({
     mutationFn: async ({
@@ -373,7 +386,7 @@ export function useToggleReaction(spaceSlug: string) {
       currentReactions: Reaction[];
     }) => {
       const existingReaction = currentReactions.find(r => r.emoji === emoji);
-      const userHasReacted = existingReaction?.userIds.includes(user?.id || '');
+      const userHasReacted = existingReaction?.spaceMemberIds.includes(member?.id || '');
 
       if (userHasReacted) {
         return removeReaction.mutateAsync({ targetType, targetId, targetPostId, emoji });

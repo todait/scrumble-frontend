@@ -1,3 +1,4 @@
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { postsKeys } from '@/shared/hooks/queries/postsKeys';
 import { useExistsCheckin, usePosts } from '@/shared/hooks/queries/usePosts';
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
@@ -19,7 +20,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Comment, FilterType, Post, Reaction } from '../types/feed.types';
 import { convertApiPostsToFeedPosts } from '../utils/postTransform.utils';
-import { useMockPosts } from './useMockPosts';
 
 interface UseFeedDataOptions {
   onReconnectionDataSync?: () => void;
@@ -29,10 +29,8 @@ interface UseFeedDataOptions {
 export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const { selectedDate } = useDateStore();
+  const { currentSpaceSlug } = useAuth();
   const queryClient = useQueryClient();
-
-  // temp-space-id일 때는 mock 데이터 사용
-  const useMockData = spaceSlug === 'temp-space-id';
 
   // 쿼리 키 빌더 - 메모이제이션으로 불필요한 재생성 방지
   const buildListKey = useCallback(
@@ -45,43 +43,23 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
   );
 
   const existsCheckinQuery = useExistsCheckin({
-    spaceSlug,
     date: formatDateToAPIString(selectedDate),
   });
 
   // 실제 API 또는 Mock 데이터 사용
-  const realPostsQuery = usePosts({
-    spaceSlug,
+  const postsQuery = usePosts({
     filterType,
     selectedDate,
-    enabled: !useMockData,
+    enabled: true,
   });
-
-  const mockPostsQuery = useMockPosts({
-    filterType,
-  });
-
-  const postsQuery = useMockData ? mockPostsQuery : realPostsQuery;
 
   // 팀 요약 정보
   const teamSummaryQuery = useTeamSummary({
-    spaceSlug,
     date: selectedDate,
-    enabled: true, // 팀 요약은 항상 활성화
   });
 
   // 데이터 변환 및 계산된 값들 (WebSocket에서 사용하기 위해 먼저 계산)
   const { posts, isLoading, hasMore, nextCursor } = useMemo(() => {
-    if (useMockData) {
-      // Mock 데이터는 이미 Feed Post 타입으로 정의됨
-      return {
-        posts: postsQuery.data?.posts || [],
-        isLoading: postsQuery.isLoading,
-        hasMore: postsQuery.data?.hasMore || false,
-        nextCursor: postsQuery.data?.nextCursor,
-      };
-    }
-
     // API 데이터는 변환 필요
     const apiPosts = (postsQuery.data?.posts || []) as ApiPost[];
     // invalidation 후 새로운 데이터를 가져오는 중이거나 초기 로딩 중일 때
@@ -93,16 +71,16 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
       hasMore: postsQuery.data?.hasMore || false,
       nextCursor: postsQuery.data?.nextCursor,
     };
-  }, [useMockData, postsQuery.data, postsQuery.isLoading]);
+  }, [postsQuery.data, postsQuery.isLoading]);
 
   // 디버깅: visiblePostIds 전달 확인
   useEffect(() => {
     debug('useFeedData', 'visiblePostIds passed to useWebSocket', options?.visiblePostIds || []);
   }, [options?.visiblePostIds]);
 
-  // WebSocket 연결 및 이벤트 핸들러
+  // WebSocket 연결 및 이벤트 핸들러 (currentSpaceSlug 사용으로 Space 전환 시 자동 재연결)
   const webSocketActions = useWebSocket({
-    spaceSlug,
+    spaceSlug: currentSpaceSlug || spaceSlug, // currentSpaceSlug를 우선 사용하여 Space 전환 시 재연결
     visiblePostIds: options?.visiblePostIds || [], // 현재 화면에 보이는 포스트 ID들
     onReconnectionDataSync: () => {
       debug('useFeedData', 'Reconnection data sync called');
@@ -312,20 +290,20 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                 const reaction = updatedReactions[existingReactionIndex];
 
                 // 스마트 업데이트: 이미 사용자가 있으면 업데이트하지 않음
-                if (!reaction.userIds.includes(message.data.userId)) {
+                if (!reaction.spaceMemberIds.includes(message.data.spaceMemberId)) {
                   debug('useFeedData', '리액션 추가 실행 - 새로운 사용자', {
                     emoji: message.data.emoji,
-                    userId: message.data.userId,
+                    spaceMemberId: message.data.spaceMemberId,
                   });
                   updatedReactions[existingReactionIndex] = {
                     ...reaction,
                     count: reaction.count + 1,
-                    userIds: [...reaction.userIds, message.data.userId],
+                    spaceMemberIds: [...reaction.spaceMemberIds, message.data.spaceMemberId],
                   };
                 } else {
                   debug('useFeedData', '리액션 추가 스킵 - 이미 존재하는 사용자', {
                     emoji: message.data.emoji,
-                    userId: message.data.userId,
+                    spaceMemberId: message.data.spaceMemberId,
                   });
                 }
 
@@ -334,7 +312,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                 // 새로운 리액션 추가
                 debug('useFeedData', '새로운 리액션 추가', {
                   emoji: message.data.emoji,
-                  userId: message.data.userId,
+                  spaceMemberId: message.data.spaceMemberId,
                 });
                 return {
                   ...post,
@@ -343,7 +321,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                     {
                       emoji: message.data.emoji,
                       count: 1,
-                      userIds: [message.data.userId],
+                      spaceMemberIds: [message.data.spaceMemberId],
                     },
                   ],
                 };
@@ -378,20 +356,20 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                     const reaction = updatedReactions[existingReactionIndex];
 
                     // 스마트 업데이트: 이미 사용자가 있으면 업데이트하지 않음
-                    if (!reaction.userIds.includes(message.data.userId)) {
+                    if (!reaction.spaceMemberIds.includes(message.data.spaceMemberId)) {
                       debug('useFeedData', '댓글 리액션 추가 실행 - 새로운 사용자', {
                         emoji: message.data.emoji,
-                        userId: message.data.userId,
+                        spaceMemberId: message.data.spaceMemberId,
                       });
                       updatedReactions[existingReactionIndex] = {
                         ...reaction,
                         count: reaction.count + 1,
-                        userIds: [...reaction.userIds, message.data.userId],
+                        spaceMemberIds: [...reaction.spaceMemberIds, message.data.spaceMemberId],
                       };
                     } else {
                       debug('useFeedData', '댓글 리액션 추가 스킵 - 이미 존재하는 사용자', {
                         emoji: message.data.emoji,
-                        userId: message.data.userId,
+                        spaceMemberId: message.data.spaceMemberId,
                       });
                     }
 
@@ -400,7 +378,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                     // 새로운 리액션 추가
                     debug('useFeedData', '새로운 댓글 리액션 추가', {
                       emoji: message.data.emoji,
-                      userId: message.data.userId,
+                      spaceMemberId: message.data.spaceMemberId,
                     });
                     return {
                       ...comment,
@@ -409,7 +387,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                         {
                           emoji: message.data.emoji,
                           count: 1,
-                          userIds: [message.data.userId],
+                          spaceMemberIds: [message.data.spaceMemberId],
                         },
                       ],
                     };
@@ -457,21 +435,23 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                   }
 
                   // 스마트 업데이트: 해당 사용자가 있는지 확인
-                  if (reaction.userIds.includes(message.data.userId)) {
+                  if (reaction.spaceMemberIds.includes(message.data.spaceMemberId)) {
                     debug('useFeedData', '리액션 제거 실행 - 사용자 존재', {
                       emoji: message.data.emoji,
-                      userId: message.data.userId,
+                      spaceMemberId: message.data.spaceMemberId,
                     });
-                    const newUserIds = reaction.userIds.filter(id => id !== message.data.userId);
+                    const newspaceMemberIds = reaction.spaceMemberIds.filter(
+                      id => id !== message.data.spaceMemberId
+                    );
                     return {
                       ...reaction,
                       count: Math.max(0, reaction.count - 1),
-                      userIds: newUserIds,
+                      spaceMemberIds: newspaceMemberIds,
                     };
                   } else {
                     debug('useFeedData', '리액션 제거 스킵 - 사용자 없음', {
                       emoji: message.data.emoji,
-                      userId: message.data.userId,
+                      spaceMemberId: message.data.spaceMemberId,
                     });
                     return reaction;
                   }
@@ -507,23 +487,23 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                       }
 
                       // 스마트 업데이트: 해당 사용자가 있는지 확인
-                      if (reaction.userIds.includes(message.data.userId)) {
+                      if (reaction.spaceMemberIds.includes(message.data.spaceMemberId)) {
                         debug('useFeedData', '댓글 리액션 제거 실행 - 사용자 존재', {
                           emoji: message.data.emoji,
-                          userId: message.data.userId,
+                          spaceMemberId: message.data.spaceMemberId,
                         });
-                        const newUserIds = reaction.userIds.filter(
-                          id => id !== message.data.userId
+                        const newspaceMemberIds = reaction.spaceMemberIds.filter(
+                          id => id !== message.data.spaceMemberId
                         );
                         return {
                           ...reaction,
                           count: Math.max(0, reaction.count - 1),
-                          userIds: newUserIds,
+                          spaceMemberIds: newspaceMemberIds,
                         };
                       } else {
                         debug('useFeedData', '댓글 리액션 제거 스킵 - 사용자 없음', {
                           emoji: message.data.emoji,
-                          userId: message.data.userId,
+                          spaceMemberId: message.data.spaceMemberId,
                         });
                         return reaction;
                       }
@@ -571,7 +551,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
           const comment: Comment = {
             id: message.data.commentId,
             author: {
-              id: message.data.userId,
+              id: message.data.spaceMemberId,
               name: message.data.userName,
               profileImage: message.data.userAvatarURL,
             },
@@ -590,7 +570,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
           const comment: Comment = {
             id: message.data.commentId,
             author: {
-              id: message.data.userId,
+              id: message.data.spaceMemberId,
               name: message.data.userName,
               profileImage: message.data.userAvatarURL,
             },
@@ -669,8 +649,5 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
     hasMore,
     nextCursor,
     refetch: postsQuery.refetch,
-
-    // 디버깅
-    useMockData,
   };
 };

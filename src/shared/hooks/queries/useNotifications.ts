@@ -15,18 +15,16 @@ import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tansta
 export const notificationKeys = {
   all: ['notifications'] as const,
   lists: () => [...notificationKeys.all, 'list'] as const,
-  list: (spaceSlug: string, memberId: string, filter?: NotificationFilter, cursor?: string) =>
-    [...notificationKeys.lists(), spaceSlug, memberId, filter, cursor] as const,
-  infinite: (spaceSlug: string, memberId: string, filter?: NotificationFilter) =>
-    [...notificationKeys.lists(), 'infinite', spaceSlug, memberId, filter] as const,
+  list: (filter?: NotificationFilter, cursor?: string) =>
+    [...notificationKeys.lists(), filter, cursor] as const,
+  infinite: (filter?: NotificationFilter) =>
+    [...notificationKeys.lists(), 'infinite', filter] as const,
   unreadCounts: () => [...notificationKeys.all, 'unreadCount'] as const,
-  unreadCount: (spaceSlug: string, memberId: string) =>
-    [...notificationKeys.unreadCounts(), spaceSlug, memberId] as const,
+  unreadCount: () =>
+    [...notificationKeys.unreadCounts()] as const,
 };
 
 interface UseNotificationsOptions {
-  spaceSlug: string;
-  memberId: string;
   filter?: NotificationFilter;
   cursor?: string;
   limit?: number;
@@ -37,11 +35,9 @@ interface UseNotificationsOptions {
  * 알림 목록을 가져오는 React Query 훅
  */
 export const useNotifications = (options: UseNotificationsOptions) => {
-  const { spaceSlug, memberId, filter, cursor, limit = 20, enabled = true } = options;
+  const { filter, cursor, limit = 20, enabled = true } = options;
 
   const queryParams: GetNotificationsRequest = {
-    spaceSlug,
-    memberId,
     cursor,
     limit,
     categories: filter?.category && filter.category !== 'all' ? filter.category : undefined,
@@ -49,7 +45,7 @@ export const useNotifications = (options: UseNotificationsOptions) => {
   };
 
   return useQuery({
-    queryKey: notificationKeys.list(spaceSlug, memberId, filter, cursor),
+    queryKey: notificationKeys.list(filter, cursor),
     queryFn: async () => {
       try {
         const result = await notificationsApi.getNotifications(queryParams);
@@ -81,7 +77,7 @@ export const useNotifications = (options: UseNotificationsOptions) => {
         throw error;
       }
     },
-    enabled: enabled && !!spaceSlug && !!memberId,
+    enabled: enabled,
     retry: (failureCount, error: any) => {
       // 권한 에러는 재시도하지 않음
       if (error.status === 401 || error.status === 403) {
@@ -169,8 +165,8 @@ export const useMarkAllAsRead = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (spaceSlug: string) => notificationsApi.markAllAsRead(spaceSlug),
-    onSuccess: (data, spaceSlug) => {
+    mutationFn: () => notificationsApi.markAllAsRead(),
+    onSuccess: (data) => {
       // 해당 스페이스의 모든 알림 목록 쿼리 무효화
       queryClient.invalidateQueries({
         queryKey: notificationKeys.lists(),
@@ -203,8 +199,6 @@ export const useMarkAllAsRead = () => {
 };
 
 interface UseInfiniteNotificationsOptions {
-  spaceSlug: string;
-  memberId: string;
   filter?: NotificationFilter;
   limit?: number;
   enabled?: boolean;
@@ -214,15 +208,13 @@ interface UseInfiniteNotificationsOptions {
  * 무한 스크롤을 위한 알림 목록 훅
  */
 export const useInfiniteNotifications = (options: UseInfiniteNotificationsOptions) => {
-  const { spaceSlug, memberId, filter, limit = 20, enabled = true } = options;
+  const { filter, limit = 20, enabled = true } = options;
 
   return useInfiniteQuery({
-    queryKey: notificationKeys.infinite(spaceSlug, memberId, filter),
+    queryKey: notificationKeys.infinite(filter),
     queryFn: async ({ pageParam }) => {
       try {
         const queryParams: GetNotificationsRequest = {
-          spaceSlug,
-          memberId,
           cursor: pageParam,
           limit,
           categories: filter?.category && filter.category !== 'all' ? filter.category : undefined,
@@ -262,7 +254,7 @@ export const useInfiniteNotifications = (options: UseInfiniteNotificationsOption
       return lastPage.hasMore ? lastPage.nextCursor : undefined;
     },
     initialPageParam: undefined as string | undefined,
-    enabled: enabled && !!spaceSlug && !!memberId,
+    enabled: enabled,
     retry: (failureCount, error: any) => {
       // 권한 에러는 재시도하지 않음
       if (error.status === 401 || error.status === 403) {
@@ -284,8 +276,6 @@ export const useInfiniteNotifications = (options: UseInfiniteNotificationsOption
 };
 
 interface UseNotificationUnreadCountOptions {
-  spaceSlug: string;
-  memberId: string;
   enabled?: boolean;
   refetchInterval?: number | false;
 }
@@ -294,14 +284,14 @@ interface UseNotificationUnreadCountOptions {
  * 읽지 않은 알림 개수를 가져오는 React Query 훅
  */
 export const useNotificationUnreadCount = (options: UseNotificationUnreadCountOptions) => {
-  const { spaceSlug, memberId, enabled = true, refetchInterval = 30000 } = options; // 기본 30초마다 자동 갱신
+  const { enabled = true, refetchInterval = 30000 } = options; // 기본 30초마다 자동 갱신
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: notificationKeys.unreadCount(spaceSlug, memberId),
+    queryKey: notificationKeys.unreadCount(),
     queryFn: async () => {
       try {
-        const result = await notificationsApi.getUnreadCount(spaceSlug, memberId);
+        const result = await notificationsApi.getUnreadCount();
 
         // 데이터 유효성 검사
         if (!result || typeof result.totalUnreadCount !== 'number') {
@@ -330,7 +320,7 @@ export const useNotificationUnreadCount = (options: UseNotificationUnreadCountOp
         throw error;
       }
     },
-    enabled: enabled && !!spaceSlug && !!memberId,
+    enabled: enabled,
     refetchInterval, // 주기적 자동 갱신
     refetchOnWindowFocus: true, // 윈도우 포커스 시 재조회
     retry: (failureCount, error: any) => {

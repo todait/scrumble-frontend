@@ -6,20 +6,19 @@ import { useRef, useState } from 'react';
 import type { EmojiData } from './EmojiPicker';
 
 // Dynamic import for EmojiPicker
-const EmojiPicker = dynamic(
-  () => import('./EmojiPicker').then(mod => mod.EmojiPicker),
-  { ssr: false }
-);
+const EmojiPicker = dynamic(() => import('./EmojiPicker').then(mod => mod.EmojiPicker), {
+  ssr: false,
+});
 
 export interface Reaction {
   emoji: string;
   count: number;
-  userIds: string[];
+  spaceMemberIds: string[];
 }
 
 interface EmojiReactionsProps {
   reactions: Reaction[];
-  currentUserId?: string;
+  currentSpaceMemberId?: string;
   targetType: 'posts' | 'comments';
   targetId: string;
   onReactionToggle?: (emoji: string) => void;
@@ -29,7 +28,7 @@ interface EmojiReactionsProps {
 
 export function EmojiReactions({
   reactions,
-  currentUserId,
+  currentSpaceMemberId,
   targetType,
   targetId,
   onReactionToggle,
@@ -79,7 +78,7 @@ export function EmojiReactions({
             handleReactionClick(reaction.emoji);
           }}
           className={`flex items-center gap-1 rounded-2xl border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
-            reaction.userIds.includes(currentUserId || '')
+            reaction.spaceMemberIds.includes(currentSpaceMemberId || '')
               ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
               : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
           }`}

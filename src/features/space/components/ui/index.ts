@@ -4,3 +4,4 @@ export * from './InviteButton';
 export * from './InviteSpaceButton';
 export * from './LogoutButton';
 export * from './CopyLinkButton';
+export * from './SpaceEnterButton';

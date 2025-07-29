@@ -33,9 +33,7 @@ export function NewCheckInPage() {
 
   // 팀 요약 정보 가져오기
   const { data: teamSummary, isLoading } = useTeamSummary({
-    spaceSlug,
     date: selectedDate,
-    enabled: !!spaceSlug,
   });
 
   // 컴포넌트 마운트 시 CheckInWriteModal 미리 로드

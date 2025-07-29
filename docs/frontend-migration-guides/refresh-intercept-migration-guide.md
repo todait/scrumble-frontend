@@ -671,32 +671,32 @@ describe('Concurrent token expiry', () => {
 
 ### 준비 단계
 
-- [ ] 백엔드 API가 에러 코드 (`USER_TOKEN_EXPIRED`, `SPACE_MEMBER_TOKEN_EXPIRED`)를 반환하는지 확인
-- [ ] 토큰 갱신 엔드포인트 확인:
-  - [ ] User: `POST /auth/refresh`
-  - [ ] SpaceMember: `POST /auth/space-member/refresh`
-- [ ] API 경로 패턴 정의 확인 (User vs SpaceMember 토큰 사용 구분)
+- [x] 백엔드 API가 에러 코드 (`USER_TOKEN_EXPIRED`, `SPACE_MEMBER_TOKEN_EXPIRED`)를 반환하는지 확인
+- [x] 토큰 갱신 엔드포인트 확인:
+  - [x] User: `POST /auth/refresh`
+  - [x] SpaceMember: `POST /auth/space-member/refresh`
+- [x] API 경로 패턴 정의 확인 (User vs SpaceMember 토큰 사용 구분)
 
 ### 구현 단계
 
-- [ ] EnhancedTokenManager 클래스 구현
-- [ ] 기존 TokenManager에서 EnhancedTokenManager로 마이그레이션
-- [ ] API 클라이언트 인터셉터 수정:
-  - [ ] URL 기반 토큰 타입 결정 로직
-  - [ ] Authorization 헤더 관리
-- [ ] 토큰 타입별 refresh 로직 구현
-- [ ] 에러 처리 로직 개선
+- [x] EnhancedTokenManager 클래스 구현 - SpaceMemberTokenManager로 구현
+- [x] 기존 TokenManager에서 EnhancedTokenManager로 마이그레이션 - 기존 TokenManager 유지하며 SpaceMemberTokenManager 추가
+- [x] API 클라이언트 인터셉터 수정:
+  - [x] URL 기반 토큰 타입 결정 로직
+  - [x] Authorization 헤더 관리
+- [x] 토큰 타입별 refresh 로직 구현
+- [x] 에러 처리 로직 개선
 
 ### 테스트 단계
 
-- [ ] 단위 테스트 작성 (TokenManager)
-- [ ] 통합 테스트 작성 (API 인터셉터)
+- [ ] 단위 테스트 작성 (TokenManager) - ❌ 미구현
+- [ ] 통합 테스트 작성 (API 인터셉터) - ❌ 미구현
 
 ### 배포 단계
 
-- [ ] 기존 토큰 마이그레이션 스크립트 준비
-- [ ] 점진적 롤아웃 계획 수립
-- [ ] 모니터링 및 에러 추적 설정
+- [ ] 기존 토큰 마이그레이션 스크립트 준비 - ❌ 미구현
+- [ ] 점진적 롤아웃 계획 수립 - ❌ 미구현
+- [ ] 모니터링 및 에러 추적 설정 - ❌ 미구현
 
 ## 주의사항
 

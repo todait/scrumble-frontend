@@ -34,8 +34,6 @@ export interface RelatedPost {
 
 // 알림 목록 조회 요청
 export interface GetNotificationsRequest {
-  spaceSlug: string;
-  memberId: string;
   cursor?: string;
   limit?: number;
   categories?: string; // 쉼표로 구분된 카테고리 목록
@@ -53,7 +51,6 @@ export interface GetNotificationsResponse {
 
 // 일괄 읽음 처리 요청
 export interface BulkMarkAsReadRequest {
-  spaceSlug: string;
   notificationIds: string[];
 }
 

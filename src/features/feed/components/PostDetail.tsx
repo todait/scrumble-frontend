@@ -39,9 +39,9 @@ export function PostDetail({
   const scrollableAreaRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
-  const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(spaceSlug);
-  const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(spaceSlug);
-  const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment(spaceSlug);
+  const { mutate: createComment, isPending: isCreatingComment } = useCreateComment();
+  const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment();
+  const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
