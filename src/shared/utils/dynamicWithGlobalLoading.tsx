@@ -11,7 +11,7 @@ interface DynamicOptions {
 
 /**
  * Next.js dynamic import를 전역 로딩 상태와 연동하는 래퍼
- * 
+ *
  * @param loader - 동적으로 로드할 컴포넌트를 반환하는 함수
  * @param options - dynamic import 옵션
  * @returns 전역 로딩을 사용하는 동적 컴포넌트

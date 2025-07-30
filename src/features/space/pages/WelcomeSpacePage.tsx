@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 
 import { IntroLayout } from '@/shared/components/layout';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useToast } from '@/shared/hooks/useToast';
 import { CreateSpaceButton, LogoutButton, WelcomeHeader } from '../components';
 
@@ -15,7 +15,6 @@ function WelcomeContent() {
   const { success, error } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const toastShownRef = useRef(false);
-
 
   useEffect(() => {
     // 로그인 성공 토스트 및 알림 표시

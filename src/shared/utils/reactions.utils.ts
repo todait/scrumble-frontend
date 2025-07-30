@@ -3,13 +3,13 @@
  * 백엔드 API 응답(개별 리액션들)을 프론트엔드 타입(집계된 리액션들)으로 변환
  */
 
-import type { ApiReaction, ApiUser } from '@/shared/types/api';
 import type { Reaction } from '@/features/feed/types/feed.types';
+import type { ApiReaction, ApiUser } from '@/shared/types/api';
 
 /**
  * 백엔드 개별 리액션들을 프론트엔드 집계 리액션들로 변환
  * @param apiReactions 백엔드에서 받은 개별 리액션 배열
- * @returns 집계된 리액션 배열 (emoji별로 그룹화하여 count와 userIds 포함)
+ * @returns 집계된 리액션 배열 (emoji별로 그룹화하여 count와 spaceMemberIds 포함)
  */
 export function convertApiReactionsToReactions(apiReactions: ApiReaction[] = []): Reaction[] {
   if (!apiReactions || apiReactions.length === 0) {
@@ -17,35 +17,38 @@ export function convertApiReactionsToReactions(apiReactions: ApiReaction[] = [])
   }
 
   // emoji별로 그룹화
-  const reactionMap = new Map<string, {
-    userIds: string[];
-    count: number;
-  }>();
+  const reactionMap = new Map<
+    string,
+    {
+      spaceMemberIds: string[];
+      count: number;
+    }
+  >();
 
   apiReactions.forEach(apiReaction => {
-    const { emoji, user_id } = apiReaction;
-    
+    const { emoji, space_member_id } = apiReaction;
+
     if (!reactionMap.has(emoji)) {
       reactionMap.set(emoji, {
-        userIds: [],
+        spaceMemberIds: [],
         count: 0,
       });
     }
 
     const reactionGroup = reactionMap.get(emoji)!;
-    
+
     // 중복 사용자 체크 (같은 사용자가 같은 이모지로 여러 번 리액션하는 경우 방지)
-    if (!reactionGroup.userIds.includes(user_id)) {
-      reactionGroup.userIds.push(user_id);
+    if (!reactionGroup.spaceMemberIds.includes(space_member_id)) {
+      reactionGroup.spaceMemberIds.push(space_member_id);
       reactionGroup.count++;
     }
   });
 
   // Map을 Reaction 배열로 변환
-  return Array.from(reactionMap.entries()).map(([emoji, { userIds, count }]) => ({
+  return Array.from(reactionMap.entries()).map(([emoji, { spaceMemberIds, count }]) => ({
     emoji,
     count,
-    userIds,
+    spaceMemberIds,
   }));
 }
 
@@ -66,13 +69,17 @@ export function convertApiUserToUser(apiUser: ApiUser) {
 /**
  * 프론트엔드 Reaction 배열에서 특정 사용자가 특정 이모지에 리액션했는지 확인
  * @param reactions 리액션 배열
- * @param userId 사용자 ID
+ * @param spaceMemberId 멤버 ID
  * @param emoji 이모지
  * @returns 리액션 여부
  */
-export function hasUserReacted(reactions: Reaction[], userId: string, emoji: string): boolean {
+export function hasUserReacted(
+  reactions: Reaction[],
+  spaceMemberId: string,
+  emoji: string
+): boolean {
   const reaction = reactions.find(r => r.emoji === emoji);
-  return reaction ? reaction.userIds.includes(userId) : false;
+  return reaction ? reaction.spaceMemberIds.includes(spaceMemberId) : false;
 }
 
 /**
@@ -86,15 +93,15 @@ export function getReactionStats(reactions: Reaction[]): {
   emojiCount: number;
 } {
   const totalCount = reactions.reduce((sum, reaction) => sum + reaction.count, 0);
-  const uniqueUserIds = new Set<string>();
-  
+  const uniquespaceMemberIds = new Set<string>();
+
   reactions.forEach(reaction => {
-    reaction.userIds.forEach(userId => uniqueUserIds.add(userId));
+    reaction.spaceMemberIds.forEach(spaceMemberId => uniquespaceMemberIds.add(spaceMemberId));
   });
 
   return {
     totalCount,
-    uniqueUsers: uniqueUserIds.size,
+    uniqueUsers: uniquespaceMemberIds.size,
     emojiCount: reactions.length,
   };
 }

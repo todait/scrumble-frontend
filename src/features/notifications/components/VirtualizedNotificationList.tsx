@@ -37,7 +37,7 @@ interface ItemProps {
 }
 
 const NotificationItem = memo(function NotificationItem({ index, style, data }: ItemProps) {
-  const { spaceSlug, notifications, onNotificationClick } = data;
+  const { notifications, onNotificationClick } = data;
   const notification = notifications[index];
 
   if (!notification) return null;
@@ -102,7 +102,6 @@ const VirtualizedNotificationList = memo(function VirtualizedNotificationList({
       // 읽지 않은 알림이면 읽음으로 표시
       if (!notification.isRead) {
         markAsRead({
-          spaceSlug,
           notificationIds: [notification.id],
         });
       }

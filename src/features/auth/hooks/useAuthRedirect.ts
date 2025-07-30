@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
-import { ROUTES, TEMP_SPACE_ID } from '@/shared/constants';
+import { useAuth } from '@/shared/contexts/AuthContext';
+import { useAuthStore } from '@/shared/stores/authStore';
+import { ROUTES } from '@/shared/constants';
 
 interface UseAuthRedirectOptions {
   /** 인증된 사용자를 리다이렉트할지 여부 (기본값: true) */
   redirectAuthenticated?: boolean;
-  /** 리다이렉트할 때 사용할 기본 스페이스 ID */
-  defaultSpaceId?: string;
 }
 
 /**
@@ -15,35 +14,30 @@ interface UseAuthRedirectOptions {
  * @param options 리다이렉트 옵션
  */
 export const useAuthRedirect = (options: UseAuthRedirectOptions = {}) => {
-  const { 
-    redirectAuthenticated = true, 
-    defaultSpaceId = TEMP_SPACE_ID 
-  } = options;
+  const { redirectAuthenticated = true } = options;
 
   const router = useRouter();
-  const { isAuthenticated, isLoading, latestSpace } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  const latestSpaceSlug = useAuthStore((state) => state.latestSpaceSlug);
 
   useEffect(() => {
     // 로딩 중이거나 리다이렉트를 원하지 않으면 실행하지 않음
     if (isLoading || !redirectAuthenticated) return;
 
     if (isAuthenticated) {
-      // 최신 스페이스가 있으면 해당 스페이스의 피드로, 없으면 기본 스페이스로
-      const targetSpaceId = latestSpace?.latestSpaceSlug || defaultSpaceId;
-      router.push(ROUTES.SPACE_FEED(targetSpaceId));
+      if (latestSpaceSlug) {
+        // 마지막 활동 스페이스가 있으면 해당 스페이스로 이동
+        router.push(ROUTES.SPACE_FEED(latestSpaceSlug));
+      } else {
+        // 없으면 스페이스 목록 페이지로 이동
+        router.push('/spaces/list');
+      }
     }
-  }, [
-    isAuthenticated, 
-    isLoading, 
-    latestSpace, 
-    redirectAuthenticated, 
-    defaultSpaceId, 
-    router
-  ]);
+  }, [isAuthenticated, isLoading, latestSpaceSlug, redirectAuthenticated, router]);
 
   return {
     isAuthenticated,
     isLoading,
-    latestSpace,
+    latestSpaceSlug,
   };
 };

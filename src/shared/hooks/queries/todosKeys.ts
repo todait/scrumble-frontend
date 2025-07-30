@@ -2,40 +2,37 @@ import type { QueryClient } from '@tanstack/react-query';
 import type { Todo } from '@/shared/types/todo';
 
 interface TodosFilters {
-  spaceSlug: string;
   date?: string;
+  spaceMemberID?: string;
 }
 
 export const todosKeys = {
-  // 최상위 키
+  // 최상위 키 (JWT에서 space 정보 추출)
   all: ['todos'] as const,
   
-  // 스페이스별 키
-  bySpace: (spaceSlug: string) => [...todosKeys.all, 'space', spaceSlug] as const,
-  
   // 목록 키
-  lists: (spaceSlug: string) => [...todosKeys.bySpace(spaceSlug), 'list'] as const,
-  list: (spaceSlug: string, filters?: Partial<TodosFilters>) => 
-    [...todosKeys.lists(spaceSlug), filters] as const,
+  lists: () => [...todosKeys.all, 'list'] as const,
+  list: (filters?: Partial<TodosFilters>) => 
+    [...todosKeys.lists(), filters] as const,
   
   // 개별 Todo 키
-  details: (spaceSlug: string) => [...todosKeys.bySpace(spaceSlug), 'detail'] as const,
-  detail: (spaceSlug: string, todoId: string) => 
-    [...todosKeys.details(spaceSlug), todoId] as const,
+  details: () => [...todosKeys.all, 'detail'] as const,
+  detail: (todoId: string) => 
+    [...todosKeys.details(), todoId] as const,
   
-  // 날짜별 Todo 키 (userId 옵션 추가)
-  byDate: (spaceSlug: string, date: string, userId?: string) =>
-    userId 
-      ? [...todosKeys.bySpace(spaceSlug), 'date', date, 'user', userId] as const
-      : [...todosKeys.bySpace(spaceSlug), 'date', date] as const,
+  // 날짜별 Todo 키 (spaceMemberID 옵션 추가)
+  byDate: (date: string, spaceMemberID?: string) =>
+    spaceMemberID 
+      ? [...todosKeys.all, 'date', date, 'member', spaceMemberID] as const
+      : [...todosKeys.all, 'date', date] as const,
 };
 
 // 선택적 무효화 헬퍼 함수들
 export const todoInvalidateHelpers = {
   // 특정 Todo의 하위 Todo들 무효화
-  invalidateChildTodos: (queryClient: QueryClient, spaceSlug: string, parentTodoId: string) => {
+  invalidateChildTodos: (queryClient: QueryClient, parentTodoId: string) => {
     queryClient.invalidateQueries({
-      queryKey: todosKeys.bySpace(spaceSlug),
+      queryKey: todosKeys.all,
       predicate: (query) => {
         const data = query.state.data as { todos: Todo[] } | undefined;
         if (!data?.todos) return false;
@@ -53,12 +50,11 @@ export const todoInvalidateHelpers = {
   // 특정 Todo 데이터만 업데이트 (무효화 없이)
   updateTodoInLists: (
     queryClient: QueryClient, 
-    spaceSlug: string, 
     todoId: string, 
     updater: (todo: Todo) => Todo
   ) => {
     queryClient.setQueriesData(
-      { queryKey: todosKeys.lists(spaceSlug), exact: false },
+      { queryKey: todosKeys.lists(), exact: false },
       (oldData: { todos: Todo[] } | undefined) => {
         if (!oldData?.todos) return oldData;
         
@@ -73,27 +69,26 @@ export const todoInvalidateHelpers = {
   },
   
   // 날짜별 Todo 캐시 무효화
-  invalidateDateTodos: (queryClient: QueryClient, spaceSlug: string, date: string, userId?: string) => {
+  invalidateDateTodos: (queryClient: QueryClient, date: string, spaceMemberID?: string) => {
     queryClient.invalidateQueries({
-      queryKey: todosKeys.byDate(spaceSlug, date, userId),
+      queryKey: todosKeys.byDate(date, spaceMemberID),
     });
   },
   
-  // 스페이스 전체 Todo 캐시 무효화
-  invalidateSpaceTodos: (queryClient: QueryClient, spaceSlug: string) => {
+  // 전체 Todo 캐시 무효화
+  invalidateAllTodos: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({
-      queryKey: todosKeys.bySpace(spaceSlug),
+      queryKey: todosKeys.all,
     });
   },
   
   // Todo 완료 상태 업데이트
   updateTodoCompletion: (
     queryClient: QueryClient,
-    spaceSlug: string,
     todoId: string,
     completedAt: string | undefined
   ) => {
-    todoInvalidateHelpers.updateTodoInLists(queryClient, spaceSlug, todoId, (todo) => ({
+    todoInvalidateHelpers.updateTodoInLists(queryClient, todoId, (todo) => ({
       ...todo,
       completedAt,
     }));
@@ -102,11 +97,10 @@ export const todoInvalidateHelpers = {
   // Todo 삭제 시 캐시에서 제거
   removeTodoFromCache: (
     queryClient: QueryClient,
-    spaceSlug: string,
     todoId: string
   ) => {
     queryClient.setQueriesData(
-      { queryKey: todosKeys.lists(spaceSlug), exact: false },
+      { queryKey: todosKeys.lists(), exact: false },
       (oldData: { todos: Todo[] } | undefined) => {
         if (!oldData?.todos) return oldData;
         

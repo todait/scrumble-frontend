@@ -16,7 +16,7 @@ export type SpaceMemberRole = 'owner' | 'admin' | 'member';
  */
 export interface SpaceMember {
   id: ID; // 멤버십 ID
-  userId: ID; // 사용자 ID
+  spaceId: ID; // 스페이스 ID
   name: string; // 사용자 이름
   avatarURL?: string; // 아바타 URL
   role: SpaceMemberRole; // 역할

@@ -1,5 +1,6 @@
 import { mockTeamSummary } from '@/features/feed/data/mockData';
 import type { TeamSummary } from '@/features/feed/types/feed.types';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { postsApi } from '@/shared/lib/api/posts';
 import type { GetFeedSummaryResponse } from '@/shared/types/post';
 import { formatDateToAPIString } from '@/shared/utils';
@@ -8,7 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import { postsKeys } from './postsKeys';
 
 interface UseTeamSummaryOptions {
-  spaceSlug: string;
   date?: Date;
   enabled?: boolean;
 }
@@ -19,17 +19,18 @@ interface UseTeamSummaryOptions {
  * @param options 쿼리 옵션
  * @returns React Query 결과
  */
-export const useTeamSummary = (options: UseTeamSummaryOptions) => {
-  const { spaceSlug, date = new Date(), enabled = true } = options;
+export const useTeamSummary = (options: UseTeamSummaryOptions = {}) => {
+  const { date = new Date(), enabled = true } = options;
+  const { currentSpaceSlug } = useAuth();
   const dateString = formatDateToAPIString(date);
 
   // temp-space-id일 때는 mock 데이터 사용
-  const useMockData = spaceSlug === 'temp-space-id';
+  const useMockData = currentSpaceSlug === 'temp-space-id';
 
   return useQuery({
     queryKey: useMockData
-      ? ['teamSummary', spaceSlug]
-      : postsKeys.feedSummary(spaceSlug, dateString),
+      ? ['teamSummary', currentSpaceSlug]
+      : postsKeys.feedSummary(currentSpaceSlug || '', dateString),
     queryFn: async (): Promise<TeamSummary> => {
       if (useMockData) {
         // Mock 데이터 반환
@@ -37,9 +38,8 @@ export const useTeamSummary = (options: UseTeamSummaryOptions) => {
         return mockTeamSummary;
       }
 
-      // 실제 API 호출
+      // 실제 API 호출 (spaceSlug는 JWT에서 추출)
       const response: GetFeedSummaryResponse = await postsApi.getFeedSummary({
-        spaceSlug,
         date: dateString,
       });
 
@@ -52,7 +52,7 @@ export const useTeamSummary = (options: UseTeamSummaryOptions) => {
         nextCheckinOrder: response.summary?.nextCheckinOrder ?? 0,
       };
     },
-    enabled: !!spaceSlug && enabled,
+    enabled: !!currentSpaceSlug && enabled,
     staleTime: 1000 * 30, // 30초 (실시간 데이터이므로 짧게)
     gcTime: 1000 * 60 * 10, // 10분
     refetchOnWindowFocus: true,

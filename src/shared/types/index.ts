@@ -7,8 +7,6 @@ export * from './todo';
 // Export from user and space with explicit handling for SpaceMember
 export { 
   type User,
-  type UserWithLatestSpace,
-  type UserWithCentrifugoToken,
   type UserProfile,
   type SpaceMember as UserSpaceMember
 } from './user';

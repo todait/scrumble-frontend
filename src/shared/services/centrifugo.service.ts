@@ -21,8 +21,8 @@ export class CentrifugoService {
   private connectionState: ConnectionState = 'disconnected';
   private eventHandlers = new Map<WebSocketEventType, WebSocketEventHandler[]>();
   private subscriptions = new Map<string, Subscription>();
-  private userID: string | null = null;
   private spaceSlug: string | null = null;
+  private spaceMemberId: string | null = null;
   private wsUrl: string;
   private centrifugoToken: string | null = null;
 
@@ -53,11 +53,11 @@ export class CentrifugoService {
   /**
    * Centrifugo 연결을 초기화합니다
    */
-  async connect(userID: string, spaceSlug: string, centrifugoToken: string): Promise<void> {
+  async connect(spaceMemberId: string, spaceSlug: string, centrifugoToken: string): Promise<void> {
     // 동일한 연결이 이미 활성화되어 있고 연결 상태가 좋으면 재사용
     if (
       this.centrifuge &&
-      this.userID === userID &&
+      this.spaceMemberId === spaceMemberId &&
       this.spaceSlug === spaceSlug &&
       this.centrifugoToken === centrifugoToken &&
       this.connectionState === 'connected'
@@ -72,7 +72,7 @@ export class CentrifugoService {
       this.disconnect();
     }
 
-    this.userID = userID;
+    this.spaceMemberId = spaceMemberId;
     this.spaceSlug = spaceSlug;
     this.centrifugoToken = centrifugoToken;
     this.connectionState = 'connecting';
@@ -84,9 +84,9 @@ export class CentrifugoService {
           token: centrifugoToken,
           debug: process.env.NODE_ENV === 'development',
           // 재연결 설정 (Centrifuge 5.x 형식)
-          minReconnectDelay: 1000,           // 최소 재연결 지연 시간 (1초)
-          maxReconnectDelay: 20000,          // 최대 재연결 지연 시간 (20초)
-          maxServerPingDelay: 10000,         // 서버 핑 최대 지연 시간 (10초)
+          minReconnectDelay: 1000, // 최소 재연결 지연 시간 (1초)
+          maxReconnectDelay: 20000, // 최대 재연결 지연 시간 (20초)
+          maxServerPingDelay: 10000, // 서버 핑 최대 지연 시간 (10초)
         });
 
         // 연결 상태 핸들러
@@ -105,7 +105,7 @@ export class CentrifugoService {
             spaceSlug: this.spaceSlug || '',
             timestamp: new Date().toISOString(),
             postId: '',
-            userId: this.userID || '',
+            spaceMemberId: this.spaceMemberId || '',
           });
 
           resolve();
@@ -121,7 +121,7 @@ export class CentrifugoService {
             spaceSlug: this.spaceSlug || '',
             timestamp: new Date().toISOString(),
             postId: '',
-            userId: this.userID || '',
+            spaceMemberId: this.spaceMemberId || '',
           });
         });
 
@@ -228,7 +228,7 @@ export class CentrifugoService {
         if (process.env.NODE_ENV === 'development') {
           console.warn(`[Centrifugo] ⚠️ Subscription error on ${channel}:`, errorMessage);
         }
-        
+
         // 중복 구독 에러인 경우 구독 목록에서 제거
         if (errorMessage.includes('already exists')) {
           this.subscriptions.delete(channel);
@@ -237,7 +237,7 @@ export class CentrifugoService {
 
       // 구독 시작
       debug('Centrifugo', `Starting subscription to ${channel}`);
-      
+
       try {
         subscription.subscribe();
         this.subscriptions.set(channel, subscription);
@@ -246,28 +246,28 @@ export class CentrifugoService {
       } catch (subscribeError) {
         // 구독 시작 중 에러 발생 시
         const errorMessage = (subscribeError as Error)?.message || 'Unknown subscription error';
-        
+
         if (process.env.NODE_ENV === 'development') {
           console.warn(`[Centrifugo] ⚠️ Failed to subscribe to ${channel}:`, errorMessage);
         }
-        
+
         // 중복 구독 에러인 경우 무시하고 null 반환
         if (errorMessage.includes('already exists')) {
           debug('Centrifugo', `Channel ${channel} already has a subscription, skipping`);
           return null;
         }
-        
+
         // 다른 에러는 다시 던짐
         throw subscribeError;
       }
     } catch (error) {
       // 전체 구독 프로세스 중 에러 발생
       const errorMessage = (error as Error)?.message || 'Unknown error';
-      
+
       if (process.env.NODE_ENV === 'development') {
         console.warn(`[Centrifugo] ⚠️ Error creating subscription for ${channel}:`, errorMessage);
       }
-      
+
       // 서비스가 다운되지 않도록 null 반환
       return null;
     }
@@ -457,13 +457,13 @@ export class CentrifugoService {
     }
 
     const channel = `space:${this.spaceSlug}:member:${memberId}:notifications`;
-    
+
     // 이미 구독 중인지 확인
     if (this.subscriptions.has(channel)) {
       debug('Centrifugo', '이미 알림 채널을 구독 중입니다', channel);
       return;
     }
-    
+
     debug('Centrifugo', 'Subscribing to notifications channel', channel);
     this.subscribe(channel);
   }
@@ -492,6 +492,10 @@ export class CentrifugoService {
     // 중복 핸들러 등록 방지
     if (!handlers.includes(handler)) {
       handlers.push(handler);
+      debug('Centrifugo', `Event handler registered for type: ${eventType}`, {
+        totalHandlers: handlers.length,
+        allEventTypes: Array.from(this.eventHandlers.keys()),
+      });
     }
   }
 
@@ -546,11 +550,19 @@ export class CentrifugoService {
         }
 
         // 등록된 핸들러들에게 메시지 전달
+        debug('Centrifugo', `Looking for handlers for message type: ${message.type}`, {
+          registeredEventTypes: Array.from(this.eventHandlers.keys()),
+          hasHandlers: this.eventHandlers.has(message.type),
+          handlerCount: this.eventHandlers.get(message.type)?.length || 0,
+        });
+        
         const handlers = this.eventHandlers.get(message.type);
         if (handlers && handlers.length > 0) {
-          handlers.forEach(handler => {
+          debug('Centrifugo', `Executing ${handlers.length} handler(s) for ${message.type}`);
+          handlers.forEach((handler, index) => {
             try {
               handler(message);
+              debug('Centrifugo', `Handler ${index + 1} executed successfully for ${message.type}`);
             } catch (error) {
               if (process.env.NODE_ENV === 'development') {
                 console.error('[Centrifugo] 핸들러 실행 에러:', error);
@@ -579,7 +591,7 @@ export class CentrifugoService {
     /* eslint-disable no-console */
     console.group('[Centrifugo Debug Info]');
     console.log('연결 상태:', this.connectionState);
-    console.log('사용자 ID:', this.userID);
+    console.log('사용자 ID:', this.spaceMemberId);
     console.log('스페이스 슬러그:', this.spaceSlug);
     console.log('구독 수:', this.subscriptions.size);
     console.log('등록된 이벤트 핸들러:');

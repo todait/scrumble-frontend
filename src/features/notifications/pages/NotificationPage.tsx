@@ -1,7 +1,7 @@
 'use client';
 
 import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
-import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
+import { useAuth as useAuthHook } from '@/shared/contexts/AuthContext';
 import { useNotificationUnreadCount } from '@/shared/hooks/queries/useNotifications';
 import { RiSettings6Line } from '@remixicon/react';
 import { useEffect, useRef, useState } from 'react';
@@ -13,7 +13,7 @@ interface NotificationPageProps {
 }
 
 export function NotificationPage({ spaceSlug }: NotificationPageProps) {
-  const { logout, latestSpace } = useAuthHook();
+  const { logout, currentSpaceMember: member } = useAuthHook();
 
   // 알림 페이지 통합 훅 사용
   const {
@@ -32,12 +32,10 @@ export function NotificationPage({ spaceSlug }: NotificationPageProps) {
     hasMore,
     isFetchingNextPage,
   } = useNotificationPage({ spaceSlug });
-  
+
   // 카테고리별 읽지 않은 알림 개수 가져오기
   const { data: unreadCountData } = useNotificationUnreadCount({
-    spaceSlug,
-    memberId: latestSpace?.memberId || '',
-    enabled: !!spaceSlug && !!latestSpace?.memberId,
+    enabled: !!spaceSlug && !!member?.id,
   });
 
   // 설정 드롭다운 상태

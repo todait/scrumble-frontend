@@ -4,6 +4,7 @@ import { ProfileImage, StatusBadge } from '@/shared/components/ui';
 import type { CheckInPostNotificationPayload, NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
+import { truncateText } from '../../utils/notificationHelpers';
 
 interface CheckInPostItemProps {
   notification: NotificationDTO<CheckInPostNotificationPayload>;
@@ -13,11 +14,6 @@ interface CheckInPostItemProps {
   'aria-label'?: string;
   onKeyDown?: (e: React.KeyboardEvent) => void;
 }
-
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-};
 
 const getConditionScoreColor = (score: number): string => {
   if (score >= 8) return '#10B981'; // green
@@ -56,8 +52,7 @@ const CheckInPostItem = memo(function CheckInPostItem({
       tabIndex={tabIndex}
       role={role}
       aria-label={
-        ariaLabel ||
-        `${author?.name || '사용자'}님의 체크인 알림, 컨디션 점수 ${conditionScore}점`
+        ariaLabel || `${author?.name || '사용자'}님의 체크인 알림, 컨디션 점수 ${conditionScore}점`
       }
       onKeyDown={onKeyDown}
       {...props}
@@ -75,7 +70,7 @@ const CheckInPostItem = memo(function CheckInPostItem({
         {/* 프로필 이미지 */}
         <div className="flex-shrink-0">
           <ProfileImage
-            src={author?.avatarUrl || ''}
+            src={author?.avatarURL || ''}
             alt={author?.name || '사용자'}
             size={32}
             className="h-8 w-8 md:h-10 md:w-10"

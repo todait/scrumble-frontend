@@ -3,13 +3,14 @@
  * Google OAuth, 토큰 갱신, 사용자 정보 조회 등
  */
 
+import { Member, MemberRole, MemberStatus } from '@/shared/types';
 import type {
   ApiUser,
-  GetUserWithLatestSpaceApiResponse,
+  GetCurrentSpaceMemberApiResponse,
   RefreshTokenApiResponse,
   TokenPair,
 } from '@/shared/types/api';
-import type { User, UserWithLatestSpace } from '@/shared/types/user';
+import type { User } from '@/shared/types/user';
 import { API_BASE_URL, apiClient, refreshApiClient } from '../api';
 
 /**
@@ -58,33 +59,6 @@ export const authApi = {
     return {
       id: data.id,
       email: data.email,
-      name: data.name,
-      avatarURL: data.avatar_url,
-    };
-  },
-
-  /**
-   * 최신 스페이스 정보가 포함된 현재 사용자 정보 조회
-   * 로그인 후 적절한 페이지로 리다이렉트하기 위해 사용
-   * @returns 최신 스페이스 정보가 포함된 사용자 정보
-   */
-  getCurrentUserWithLatestSpace: async (): Promise<
-    UserWithLatestSpace & { centrifugoToken?: string }
-  > => {
-    const { data } = await apiClient.get<GetUserWithLatestSpaceApiResponse>(
-      '/api/v1/users/me/latest-space'
-    );
-
-    // 백엔드 응답을 프론트엔드 타입으로 수동 변환
-    return {
-      id: data.id,
-      memberId: data.member_id,
-      email: data.email,
-      name: data.name,
-      avatarURL: data.avatar_url,
-      latestSpaceSlug: data.latest_space_slug,
-      latestSpaceName: data.latest_space_name,
-      centrifugoToken: data.centrifugo_token,
     };
   },
 
@@ -93,9 +67,104 @@ export const authApi = {
    * 현재 액세스 토큰이 유효한지 확인
    * @returns 토큰 유효 여부
    */
-  validateToken: async (): Promise<boolean> => {
+  validateAccessToken: async (): Promise<boolean> => {
     try {
       await authApi.getCurrentUser();
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  // ===== SpaceMember 관련 API =====
+
+  /**
+   * Space 로그인
+   * 특정 Space에 로그인하여 SpaceMember 토큰 발급
+   * @param spaceSlug Space 식별자
+   * @param password Space 비밀번호 (optional)
+   * @returns SpaceMember 토큰 정보
+   */
+  loginToSpace: async (
+    spaceSlug: string,
+    password?: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    spaceMemberId: string;
+    spaceSlug: string;
+    role: string;
+    centrifugoToken?: string;
+  }> => {
+    const { data } = await apiClient.post(`/auth/spaces/${spaceSlug}/login`, {
+      password,
+    });
+
+    // 응답 형식: { space_member_id, space_slug, role, centrifugo_token, tokens: { access_token, refresh_token } }
+    return {
+      accessToken: data.tokens.access_token,
+      refreshToken: data.tokens.refresh_token,
+      spaceMemberId: data.space_member_id,
+      spaceSlug: data.space_slug,
+      role: data.role,
+      centrifugoToken: data.centrifugo_token,
+    };
+  },
+
+  /**
+   * SpaceMember 토큰 갱신
+   * SpaceMember refresh token으로 access token 갱신
+   * @param refreshToken SpaceMember refresh token
+   * @returns 새로운 토큰 쌍
+   */
+  refreshSpaceMemberToken: async (refreshToken: string): Promise<TokenPair> => {
+    const { data } = await refreshApiClient.post<RefreshTokenApiResponse>(
+      '/auth/space-member/refresh',
+      {
+        refresh_token: refreshToken,
+      }
+    );
+
+    return {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+    };
+  },
+
+  /**
+   * SpaceMember 로그아웃
+   * 현재 Space에서 로그아웃
+   */
+  logoutFromSpace: async (): Promise<void> => {
+    await apiClient.post('/auth/space-member/logout');
+  },
+
+  /**
+   * 현재 SpaceMember 정보 조회
+   * @returns 현재 로그인된 SpaceMember 정보
+   */
+  getCurrentSpaceMember: async (): Promise<Member> => {
+    const { data } = await apiClient.get<GetCurrentSpaceMemberApiResponse>(
+      '/api/v1/space-members/me'
+    );
+
+    return {
+      id: data.id,
+      spaceId: data.space_id,
+      name: data.name,
+      avatarURL: data.avatar_url,
+      role: data.role as MemberRole,
+      spaceSlug: data.space_slug,
+      spaceName: data.space_name,
+      centrifugoToken: data.centrifugo_token,
+      joinedAt: data.joined_at,
+      status: data.status as MemberStatus,
+    };
+  },
+
+  validateSpaceMemberAccessToken: async (): Promise<boolean> => {
+    try {
+      await authApi.getCurrentSpaceMember();
       return true;
     } catch {
       return false;

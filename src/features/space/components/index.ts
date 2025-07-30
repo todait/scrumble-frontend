@@ -6,3 +6,7 @@ export * from './forms';
 
 // Layout Components
 export * from './layout';
+
+// Space Components
+export * from './SpaceList';
+export * from './SpaceItem';

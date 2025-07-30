@@ -1,22 +1,14 @@
 'use client';
 
-import { PageLoadingSpinner } from '@/shared/components/ui';
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { convertToKoreanOrder, formatDateForPage } from '@/shared/utils';
 import { RiCalendarFill } from '@remixicon/react';
-import dynamic from 'next/dynamic';
+
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { CheckInWriteModal } from '../components/CheckInWriteModal';
 import { TeamStatusCard } from '../components/ui';
-
-const CheckInWriteModal = dynamic(
-  () => import('../components/CheckInWriteModal').then(mod => mod.CheckInWriteModal),
-  {
-    ssr: false,
-    loading: () => <PageLoadingSpinner />,
-  }
-);
 
 // CheckInWriteModal 미리 로드하는 함수
 const preloadCheckInModal = () => {
@@ -33,9 +25,7 @@ export function NewCheckInPage() {
 
   // 팀 요약 정보 가져오기
   const { data: teamSummary, isLoading } = useTeamSummary({
-    spaceSlug,
     date: selectedDate,
-    enabled: !!spaceSlug,
   });
 
   // 컴포넌트 마운트 시 CheckInWriteModal 미리 로드
