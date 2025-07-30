@@ -1,14 +1,13 @@
 'use client';
 
 import { withAuth } from '@/shared/components/auth';
-import { PageLoadingSpinner } from '@/shared/components/ui';
-import dynamic from 'next/dynamic';
+import { dynamicWithGlobalLoading } from '@/shared/utils/dynamicWithGlobalLoading';
 
-const MemberSettingsPage = dynamic(
+const MemberSettingsPage = dynamicWithGlobalLoading(
   () => import('@/features/settings/pages/MemberSettingsPage'),
-  { 
+  {
     ssr: false,
-    loading: () => <PageLoadingSpinner />
+    loadingMessage: '멤버 설정 로딩 중...',
   }
 );
 

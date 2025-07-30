@@ -23,7 +23,7 @@ export type NotificationType =
 export interface RelatedUser {
   id: string;
   name: string;
-  avatarUrl: string;
+  avatarURL: string;
 }
 
 // 관련 포스트 정보
@@ -105,7 +105,7 @@ export interface CheckInPostNotificationPayload {
   author: {
     id: string;
     name: string;
-    avatarUrl: string | null;
+    avatarURL: string | null;
   };
   content?: string;
   conditionScore?: number;
@@ -115,7 +115,7 @@ export interface CheckOutPostNotificationPayload {
   author: {
     id: string;
     name: string;
-    avatarUrl: string | null;
+    avatarURL: string | null;
   };
   content?: string;
   completedTodos?: number;
@@ -125,7 +125,7 @@ export interface MemberJoinLeaveNotificationPayload {
   member: {
     id: string;
     name: string;
-    avatarUrl: string | null;
+    avatarURL: string | null;
   };
 }
 
@@ -194,7 +194,7 @@ export interface CommentReactionNotificationPayload {
     author: {
       id: string;
       name: string;
-      avatarURL?: string | null;
+      avatarURL: string | null;
     };
   };
 }

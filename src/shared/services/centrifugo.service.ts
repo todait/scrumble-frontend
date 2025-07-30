@@ -492,6 +492,10 @@ export class CentrifugoService {
     // 중복 핸들러 등록 방지
     if (!handlers.includes(handler)) {
       handlers.push(handler);
+      debug('Centrifugo', `Event handler registered for type: ${eventType}`, {
+        totalHandlers: handlers.length,
+        allEventTypes: Array.from(this.eventHandlers.keys()),
+      });
     }
   }
 
@@ -546,11 +550,19 @@ export class CentrifugoService {
         }
 
         // 등록된 핸들러들에게 메시지 전달
+        debug('Centrifugo', `Looking for handlers for message type: ${message.type}`, {
+          registeredEventTypes: Array.from(this.eventHandlers.keys()),
+          hasHandlers: this.eventHandlers.has(message.type),
+          handlerCount: this.eventHandlers.get(message.type)?.length || 0,
+        });
+        
         const handlers = this.eventHandlers.get(message.type);
         if (handlers && handlers.length > 0) {
-          handlers.forEach(handler => {
+          debug('Centrifugo', `Executing ${handlers.length} handler(s) for ${message.type}`);
+          handlers.forEach((handler, index) => {
             try {
               handler(message);
+              debug('Centrifugo', `Handler ${index + 1} executed successfully for ${message.type}`);
             } catch (error) {
               if (process.env.NODE_ENV === 'development') {
                 console.error('[Centrifugo] 핸들러 실행 에러:', error);

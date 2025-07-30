@@ -136,6 +136,15 @@ export class SpaceMemberTokenManager {
     }
   }
 
+  // JWT 디코드 헬퍼 (토큰 정보 추출용)
+  static decodeToken(token: string): JWTPayload | null {
+    try {
+      return jwtDecode<JWTPayload>(token);
+    } catch {
+      return null;
+    }
+  }
+
   // 현재 선택된 Space slug 관리
   private static CURRENT_SPACE_KEY = 'current_space_slug';
 

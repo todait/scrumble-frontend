@@ -43,8 +43,8 @@ export interface CommentCreatedMessage extends BaseWebSocketMessage {
     postId: string;
     commentId: string;
     spaceMemberId: string;
-    userName: string;
-    userAvatarURL: string;
+    spaceMemberName: string;
+    spaceMemberAvatarURL: string;
     spaceSlug: string;
     content: string;
     images: WebSocketImageMetadata[];
@@ -61,8 +61,8 @@ export interface CommentUpdatedMessage extends BaseWebSocketMessage {
     postId: string;
     commentId: string;
     spaceMemberId: string;
-    userName: string;
-    userAvatarURL: string;
+    spaceMemberName: string;
+    spaceMemberAvatarURL: string;
     spaceSlug: string;
     content: string;
     images: WebSocketImageMetadata[];
@@ -79,8 +79,8 @@ export interface CommentDeletedMessage extends BaseWebSocketMessage {
     postId: string;
     commentId: string;
     spaceMemberId: string;
-    userName: string;
-    userAvatarURL: string;
+    spaceMemberName: string;
+    spaceMemberAvatarURL: string;
     spaceSlug: string;
     action: string;
   };
@@ -95,7 +95,8 @@ export interface ReactionAddedMessage extends BaseWebSocketMessage {
     targetType: 'post' | 'comment';
     targetId: string;
     spaceMemberId: string;
-    userName: string;
+    spaceMemberName: string;
+    spaceMemberAvatarURL: string;
     emoji: string;
     spaceSlug: string;
     postId: string;
@@ -112,7 +113,8 @@ export interface ReactionRemovedMessage extends BaseWebSocketMessage {
     targetType: 'post' | 'comment';
     targetId: string;
     spaceMemberId: string;
-    userName: string;
+    spaceMemberName: string;
+    spaceMemberAvatarURL: string;
     emoji: string;
     spaceSlug: string;
     postId: string;
@@ -198,13 +200,13 @@ export interface NotificationCreatedMessage extends BaseWebSocketMessage {
   spaceMemberId: string;
   data: {
     notificationId: string;
-    memberId: string;
+    spaceMemberId: string;
     category: string;
     type: string;
     spaceId: string;
     spaceSlug: string;
     action: 'notification.created';
-    // 각 알림 타입별 데이터
+    // 백엔드에서 payload 필드들이 data에 직접 언팩됨
     post?: {
       postId: string;
       postType: string;
@@ -241,7 +243,7 @@ export interface NotificationReadMessage extends BaseWebSocketMessage {
   spaceMemberId: string;
   data: {
     notificationId: string;
-    memberId: string;
+    spaceMemberId: string;
     category: string;
     type: string;
     spaceId: string;

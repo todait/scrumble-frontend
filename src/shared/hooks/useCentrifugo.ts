@@ -3,7 +3,7 @@
  */
 
 import { useAuth } from '@/shared/contexts/AuthContext';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   centrifugoService,
   WebSocketEventHandler,
@@ -527,25 +527,43 @@ export function useCentrifugo({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoConnect, member?.id, member?.centrifugoToken, spaceSlug]);
 
-  return {
-    connected: centrifugoService.connected,
-    // 댓글 구독 함수들
-    subscribeToComments,
-    unsubscribeFromComments,
-    batchSubscribeToComments,
-    batchUnsubscribeFromComments,
-    // 리액션 구독 함수들
-    subscribeToReactions,
-    unsubscribeFromReactions,
-    batchSubscribeToReactions,
-    batchUnsubscribeFromReactions,
-    // 알림 구독 함수들
-    subscribeToNotifications,
-    unsubscribeFromNotifications,
-    // 타입 안전한 이벤트 리스너 함수들
-    addEventListener,
-    removeEventListener,
-  };
+  // 반환 객체를 useMemo로 감싸서 안정화
+  return useMemo(
+    () => ({
+      connected: wsConnected,
+      // 댓글 구독 함수들
+      subscribeToComments,
+      unsubscribeFromComments,
+      batchSubscribeToComments,
+      batchUnsubscribeFromComments,
+      // 리액션 구독 함수들
+      subscribeToReactions,
+      unsubscribeFromReactions,
+      batchSubscribeToReactions,
+      batchUnsubscribeFromReactions,
+      // 알림 구독 함수들
+      subscribeToNotifications,
+      unsubscribeFromNotifications,
+      // 타입 안전한 이벤트 리스너 함수들
+      addEventListener,
+      removeEventListener,
+    }),
+    [
+      wsConnected,
+      subscribeToComments,
+      unsubscribeFromComments,
+      batchSubscribeToComments,
+      batchUnsubscribeFromComments,
+      subscribeToReactions,
+      unsubscribeFromReactions,
+      batchSubscribeToReactions,
+      batchUnsubscribeFromReactions,
+      subscribeToNotifications,
+      unsubscribeFromNotifications,
+      addEventListener,
+      removeEventListener,
+    ]
+  );
 }
 
 /**
@@ -572,9 +590,5 @@ export function useCommentCentrifugo(spaceSlug: string, postId: string) {
     centrifugo.unsubscribeFromComments,
   ]);
 
-  return {
-    connected: centrifugo.connected,
-    subscribeToComments: centrifugo.subscribeToComments,
-    unsubscribeFromComments: centrifugo.unsubscribeFromComments,
-  };
+  return centrifugo;
 }

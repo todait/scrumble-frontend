@@ -552,8 +552,8 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
             id: message.data.commentId,
             author: {
               id: message.data.spaceMemberId,
-              name: message.data.userName,
-              profileImage: message.data.userAvatarURL,
+              name: message.data.spaceMemberName,
+              profileImage: message.data.spaceMemberAvatarURL,
             },
             content: message.data.content || '',
             createdAt: new Date(),
@@ -571,8 +571,8 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
             id: message.data.commentId,
             author: {
               id: message.data.spaceMemberId,
-              name: message.data.userName,
-              profileImage: message.data.userAvatarURL,
+              name: message.data.spaceMemberName,
+              profileImage: message.data.spaceMemberAvatarURL,
             },
             content: message.data.content || '',
             createdAt: new Date(message.timestamp || Date.now()), // 서버 타임스탬프 사용

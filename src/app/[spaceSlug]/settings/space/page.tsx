@@ -1,14 +1,13 @@
 'use client';
 
 import { withAuth } from '@/shared/components/auth';
-import { PageLoadingSpinner } from '@/shared/components/ui';
-import dynamic from 'next/dynamic';
+import { dynamicWithGlobalLoading } from '@/shared/utils/dynamicWithGlobalLoading';
 
-const SpaceSettingsPage = dynamic(
+const SpaceSettingsPage = dynamicWithGlobalLoading(
   () => import('@/features/settings/pages/SpaceSettingsPage'),
-  { 
+  {
     ssr: false,
-    loading: () => <PageLoadingSpinner />
+    loadingMessage: '공간 설정 로딩 중...',
   }
 );
 

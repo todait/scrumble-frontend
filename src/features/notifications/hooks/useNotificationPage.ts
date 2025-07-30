@@ -23,6 +23,7 @@ import type {
   NotificationReadMessage,
   WebSocketEventHandler,
 } from '@/shared/types/websocket.types';
+import { debug } from '@/shared/utils/debug';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -89,6 +90,13 @@ export const useNotificationPage = ({
         queryKey: ['notifications', currentSpaceSlug || spaceSlug, memberId],
       });
     },
+  });
+
+  debug('[useNotificationPage]', 'WebSocket initialized', {
+    hasWebSocketActions: !!webSocketActions,
+    memberId,
+    currentSpaceSlug,
+    spaceSlug,
   });
 
   // 알림 데이터 조회 (무한 스크롤)
@@ -167,7 +175,7 @@ export const useNotificationPage = ({
         throw error;
       }
     },
-    [spaceSlug, bulkMarkAsReadMutation, refetch]
+    [bulkMarkAsReadMutation, refetch]
   );
 
   // 모든 알림 읽음 처리
@@ -193,28 +201,28 @@ export const useNotificationPage = ({
   // 실시간 알림 이벤트 핸들러들
   const handleNotificationCreated = useCallback(
     (message: NotificationCreatedMessage) => {
-      console.log('[useNotificationPage] handleNotificationCreated called', message);
+      debug('[useNotificationPage]', 'handleNotificationCreated called', message);
       const { data } = message;
 
       // 현재 멤버의 알림인지 확인
-      if (data.memberId !== memberId) {
-        console.log('[useNotificationPage] Skipping notification - different member', {
-          messageMemberId: data.memberId,
+      if (data.spaceMemberId !== memberId) {
+        debug('[useNotificationPage]', 'Skipping notification - different member', {
+          messageSpaceMemberId: data.spaceMemberId,
           currentMemberId: memberId,
         });
         return;
       }
 
-      console.log('data', data);
+      debug('[useNotificationPage]', 'Notification data', data);
 
       // convertEventToDTO 함수 사용
       const newNotification = convertEventToDTO(data, message.timestamp);
 
-      console.log('[useNotificationPage] Creating new notification', newNotification);
+      debug('[useNotificationPage]', 'Creating new notification', newNotification);
 
       // React Query 캐시 업데이트 - 첫 번째 페이지 상단에 새 알림 추가
       const queryKey = notificationKeys.infinite(currentFilter);
-      console.log('[useNotificationPage] Updating cache with key', queryKey);
+      debug('[useNotificationPage]', 'Updating cache with key', queryKey);
 
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData || !oldData.pages) {
@@ -239,25 +247,25 @@ export const useNotificationPage = ({
           }
         }
 
-        console.log('[useNotificationPage] Cache updated successfully');
+        debug('[useNotificationPage]', 'Cache updated successfully');
         return {
           ...oldData,
           pages: updatedPages,
         };
       });
     },
-    [memberId, spaceSlug, currentFilter, queryClient]
+    [memberId, currentFilter, queryClient]
   );
 
   const handleNotificationRead = useCallback(
     (message: NotificationReadMessage) => {
-      console.log('[useNotificationPage] handleNotificationRead called', message);
+      debug('[useNotificationPage]', 'handleNotificationRead called', message);
       const { data } = message;
 
       // 현재 멤버의 알림인지 확인
-      if (data.memberId !== memberId) {
-        console.log('[useNotificationPage] Skipping notification read - different member', {
-          messageMemberId: data.memberId,
+      if (data.spaceMemberId !== memberId) {
+        debug('[useNotificationPage]', 'Skipping notification read - different member', {
+          messageSpaceMemberId: data.spaceMemberId,
           currentMemberId: memberId,
         });
         return;
@@ -265,7 +273,7 @@ export const useNotificationPage = ({
 
       // React Query 캐시 업데이트 - 해당 알림의 읽음 상태 변경
       const queryKey = notificationKeys.infinite(currentFilter);
-      console.log('[useNotificationPage] Updating cache for read notification with key', queryKey);
+      debug('[useNotificationPage]', 'Updating cache for read notification with key', queryKey);
 
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData || !oldData.pages) {
@@ -281,7 +289,7 @@ export const useNotificationPage = ({
           ),
         }));
 
-        console.log('[useNotificationPage] Cache updated successfully for read notification');
+        debug('[useNotificationPage]', 'Cache updated successfully for read notification');
         return {
           ...oldData,
           pages: updatedPages,
@@ -301,12 +309,24 @@ export const useNotificationPage = ({
   useEffect(() => {
     eventHandlersRef.current = {
       notificationCreated: (message: NotificationCreatedMessage) => {
-        if (message.data.memberId === memberId) {
+        debug('[useNotificationPage]', 'notificationCreated wrapper called // message', message);
+        debug('[useNotificationPage]', 'notificationCreated wrapper called', {
+          messageSpaceMemberId: message.data.spaceMemberId,
+          currentMemberId: memberId,
+          isMatch: message.data.spaceMemberId === memberId,
+          fullMessage: message,
+        });
+        if (message.data.spaceMemberId === memberId) {
           handleNotificationCreated(message);
         }
       },
       notificationRead: (message: NotificationReadMessage) => {
-        if (message.data.memberId === memberId) {
+        debug('[useNotificationPage]', 'notificationRead wrapper called', {
+          messageSpaceMemberId: message.data.spaceMemberId,
+          currentMemberId: memberId,
+          isMatch: message.data.spaceMemberId === memberId,
+        });
+        if (message.data.spaceMemberId === memberId) {
           handleNotificationRead(message);
         }
       },
@@ -315,18 +335,36 @@ export const useNotificationPage = ({
 
   // WebSocket 이벤트 리스너 등록/해제
   useEffect(() => {
+    debug('[useNotificationPage]', 'Event listener effect triggered', {
+      hasWebSocketActions: !!webSocketActions,
+      hasEventHandlersRef: !!eventHandlersRef.current,
+      memberId,
+      currentSpaceSlug,
+      spaceSlug,
+    });
+
     if (!webSocketActions || !eventHandlersRef.current || !memberId) {
+      debug('[useNotificationPage]', 'Skipping event listener registration', {
+        webSocketActions: !!webSocketActions,
+        eventHandlersRef: !!eventHandlersRef.current,
+        memberId,
+      });
       return;
     }
 
     const handlers = eventHandlersRef.current;
 
+    debug('[useNotificationPage]', 'Registering notification event listeners');
+
     // 타입 안전한 이벤트 리스너 등록
     webSocketActions.addEventListener('notification.created', handlers.notificationCreated);
     webSocketActions.addEventListener('notification.read', handlers.notificationRead);
 
+    debug('[useNotificationPage]', 'Event listeners registered successfully');
+
     // cleanup: 컴포넌트 언마운트 시 리스너 제거
     return () => {
+      debug('[useNotificationPage]', 'Cleaning up event listeners');
       webSocketActions.removeEventListener('notification.created', handlers.notificationCreated);
       webSocketActions.removeEventListener('notification.read', handlers.notificationRead);
     };

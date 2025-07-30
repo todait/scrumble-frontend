@@ -3,7 +3,7 @@ import type { ImageMetadata } from '@/shared/types/upload.types';
 export type PostType = 'checkin' | 'checkout';
 export type FilterType = 'all' | 'checkin' | 'checkout';
 
-export interface User {
+export interface Member {
   id: string;
   name: string;
   profileImage?: string;
@@ -17,7 +17,7 @@ export interface Reaction {
 
 export interface Comment {
   id: string;
-  author: User;
+  author: Member;
   content: string;
   createdAt: Date;
   updatedAt?: Date;
@@ -28,7 +28,7 @@ export interface Comment {
 
 export interface BasePost {
   id: string;
-  author: User;
+  author: Member;
   postedAt: Date;
   createdAt: Date;
   updatedAt?: Date;
@@ -77,8 +77,8 @@ export const isCheckoutPost = (post: Post): post is CheckoutPost => {
 
 export interface FeedData {
   posts: Post[];
-  activeUsers: number;
-  totalUsers: number;
+  activeMembers: number;
+  totalMembers: number;
 }
 
 export interface TeamSummary {

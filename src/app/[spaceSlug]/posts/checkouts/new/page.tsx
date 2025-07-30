@@ -1,16 +1,15 @@
 'use client';
 
 import { withAuth } from '@/shared/components/auth';
-import { PageLoadingSpinner } from '@/shared/components/ui';
-import dynamic from 'next/dynamic';
+import { dynamicWithGlobalLoading } from '@/shared/utils/dynamicWithGlobalLoading';
 import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 
-const CheckOutWriteModal = dynamic(
+const CheckOutWriteModal = dynamicWithGlobalLoading(
   () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
   {
     ssr: false,
-    loading: () => <PageLoadingSpinner />,
+    loadingMessage: '체크아웃 작성 로딩 중...',
   }
 );
 

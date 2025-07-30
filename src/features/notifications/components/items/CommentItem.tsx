@@ -5,16 +5,17 @@ import { useAuth } from '@/shared/contexts/AuthContext';
 import type { CommentNotificationPayload, NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
+import {
+  getActionAuthorDisplayName,
+  getAuthorDisplayName,
+  getPostTypeDisplayName,
+  truncateText,
+} from '../../utils/notificationHelpers';
 
 interface CommentItemProps {
   notification: NotificationDTO<CommentNotificationPayload>;
   onClick?: () => void;
 }
-
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-};
 
 const CommentItem = memo(function CommentItem({ notification, onClick }: CommentItemProps) {
   const { currentSpaceMember: member } = useAuth();
@@ -43,12 +44,12 @@ const CommentItem = memo(function CommentItem({ notification, onClick }: Comment
         {/* 콘텐츠 영역 */}
         <div className="min-w-0 flex-1">
           <div className="pb-1 text-[12px] font-semibold text-[#6E6E73] text-opacity-50">
-            #{post.author.id === member?.id ? '나' : post.author.name}님의{' '}
-            {post.postType === 'check_in' ? '체크인' : '체크아웃'}
+            #{getAuthorDisplayName(post.author.id, post.author.name, member?.id)}의{' '}
+            {getPostTypeDisplayName(post.postType)}
           </div>
           <div className="text-[13px] text-[#1D1D1F]">
-            <span className="font-semibold">{comment.author.name}</span>님의 댓글:{' '}
-            <span className="text-[#6E6E73]">{truncateText(comment.content || '', 150)}</span>
+            {getActionAuthorDisplayName(comment.author.id, comment.author.name, member?.id, '댓글')}
+            : <span className="text-[#6E6E73]">{truncateText(comment.content || '', 150)}</span>
           </div>
         </div>
 

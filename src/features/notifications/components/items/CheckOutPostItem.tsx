@@ -4,6 +4,7 @@ import { ProfileImage, StatusBadge } from '@/shared/components/ui';
 import type { CheckOutPostNotificationPayload, NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
+import { truncateText } from '../../utils/notificationHelpers';
 
 interface CheckOutPostItemProps {
   notification: NotificationDTO<CheckOutPostNotificationPayload>;
@@ -13,11 +14,6 @@ interface CheckOutPostItemProps {
   'aria-label'?: string;
   onKeyDown?: (e: React.KeyboardEvent) => void;
 }
-
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-};
 
 const CheckOutPostItem = memo(function CheckOutPostItem({
   notification,
@@ -56,7 +52,7 @@ const CheckOutPostItem = memo(function CheckOutPostItem({
         {/* 프로필 이미지 */}
         <div className="flex-shrink-0">
           <ProfileImage
-            src={author?.avatarUrl || ''}
+            src={author?.avatarURL || ''}
             alt={author?.name || '사용자'}
             size={32}
             className="h-8 w-8 md:h-10 md:w-10"

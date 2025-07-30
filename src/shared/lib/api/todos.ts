@@ -155,9 +155,9 @@ export const todosApi = {
     const queryParams = new URLSearchParams();
     queryParams.append('date', request.date);
     
-    // spaceMemberID가 있으면 쿼리 파라미터에 추가
-    if (request.spaceMemberID) {
-      queryParams.append('spaceMemberID', request.spaceMemberID);
+    // spaceMemberId가 있으면 쿼리 파라미터에 추가
+    if (request.spaceMemberId) {
+      queryParams.append('spaceMemberID', request.spaceMemberId);
     }
 
     const { data } = await apiClient.get<GetTodosApiResponse>(

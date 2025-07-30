@@ -1,5 +1,6 @@
 'use client';
 
+import { CheckOutWriteModal } from '@/features/checkout/components';
 import {
   FeedHeader,
   FeedListSkeleton,
@@ -7,7 +8,9 @@ import {
   FloatingCheckoutButton,
   GoToFocusedPostButton,
   PostCard,
+  TeamSummaryCard,
 } from '@/features/feed/components';
+import { PostDetail } from '@/features/feed/components/PostDetail';
 import {
   useFeedActions,
   useFeedData,
@@ -22,24 +25,7 @@ import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { usePostDate } from '@/shared/hooks/queries/usePosts';
-import dynamic from 'next/dynamic';
 
-// Dynamic imports for heavy components
-const PostDetail = dynamic(() => import('@/features/feed/components').then(mod => mod.PostDetail), {
-  ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse rounded-xl bg-gray-100" />,
-});
-
-const TeamSummaryCard = dynamic(
-  () => import('@/features/feed/components').then(mod => mod.TeamSummaryCard),
-  { ssr: false }
-);
-
-const CheckOutWriteModal = dynamic(
-  () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
-  { ssr: false }
-);
-// import { useWebSocket } from '@/shared/hooks/useWebSocket'; // 사용하지 않음 - useFeedData에서 처리
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 import { debug, debug as logDebug } from '@/shared/utils/debug';

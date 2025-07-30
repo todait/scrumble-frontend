@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 interface ProfileImageProps {
   src?: string;
-  alt: string;
+  alt?: string; // alt를 옵셔널로 변경
   size?: number;
   className?: string;
   variant?: 'square' | 'circle'; // 사각형 또는 원형
@@ -14,7 +14,7 @@ interface ProfileImageProps {
 
 export function ProfileImage({
   src,
-  alt,
+  alt = 'Profile',
   size = 40,
   className = '',
   variant = 'square',
@@ -27,7 +27,9 @@ export function ProfileImage({
 
   // 기본 아바타 생성 함수
   const generateDefaultAvatar = (name: string) => {
-    const initials = name
+    // name이 없거나 빈 문자열일 경우 기본값 처리
+    const safeName = name || 'Unknown';
+    const initials = safeName
       .split(' ')
       .map(word => word[0])
       .join('')
@@ -45,7 +47,7 @@ export function ProfileImage({
       'bg-red-500',
       'bg-teal-500',
     ];
-    const colorIndex = name.charCodeAt(0) % colors.length;
+    const colorIndex = safeName.charCodeAt(0) % colors.length;
 
     return {
       initials,

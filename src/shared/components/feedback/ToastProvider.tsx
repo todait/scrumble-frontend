@@ -1,16 +1,7 @@
 'use client';
 
 import { useToastStore } from '@/shared/stores/toast.store';
-import dynamic from 'next/dynamic';
-import { PageLoadingSpinner } from '../ui';
-
-const ToastContainer = dynamic(
-  () => import('./Toast').then(mod => mod.ToastContainer),
-  { 
-    ssr: false,
-    loading: () => <PageLoadingSpinner />
-  }
-);
+import { ToastContainer } from './Toast';
 
 export function ToastProvider() {
   const { toasts, removeToast } = useToastStore();

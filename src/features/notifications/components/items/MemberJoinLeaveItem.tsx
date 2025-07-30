@@ -98,7 +98,7 @@ const MemberJoinLeaveItem = memo(function MemberJoinLeaveItem({
           <div className="mb-3 rounded-lg bg-[#F8F9FA] p-2 md:p-3">
             <div className="flex items-center gap-2">
               <ProfileImage
-                src={member?.avatarUrl || ''}
+                src={member?.avatarURL || ''}
                 alt={member?.name || '사용자'}
                 size={24}
                 className="h-6 w-6 md:h-8 md:w-8"
