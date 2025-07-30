@@ -4,16 +4,12 @@ import { ProfileImage } from '@/shared/components/ui';
 import type { NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
+import { truncateText } from '../../utils/notificationHelpers';
 
 interface MentionItemProps {
   notification: NotificationDTO;
   onClick?: () => void;
 }
-
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-};
 
 const MentionItem = memo(function MentionItem({ notification, onClick }: MentionItemProps) {
   const { createdAt, isRead, payload } = notification;

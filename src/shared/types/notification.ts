@@ -23,7 +23,7 @@ export type NotificationType =
 export interface RelatedUser {
   id: string;
   name: string;
-  avatarUrl: string;
+  avatarURL: string;
 }
 
 // 관련 포스트 정보
@@ -34,8 +34,6 @@ export interface RelatedPost {
 
 // 알림 목록 조회 요청
 export interface GetNotificationsRequest {
-  spaceSlug: string;
-  memberId: string;
   cursor?: string;
   limit?: number;
   categories?: string; // 쉼표로 구분된 카테고리 목록
@@ -53,7 +51,6 @@ export interface GetNotificationsResponse {
 
 // 일괄 읽음 처리 요청
 export interface BulkMarkAsReadRequest {
-  spaceSlug: string;
   notificationIds: string[];
 }
 
@@ -108,7 +105,7 @@ export interface CheckInPostNotificationPayload {
   author: {
     id: string;
     name: string;
-    avatarUrl: string | null;
+    avatarURL: string | null;
   };
   content?: string;
   conditionScore?: number;
@@ -118,7 +115,7 @@ export interface CheckOutPostNotificationPayload {
   author: {
     id: string;
     name: string;
-    avatarUrl: string | null;
+    avatarURL: string | null;
   };
   content?: string;
   completedTodos?: number;
@@ -128,7 +125,7 @@ export interface MemberJoinLeaveNotificationPayload {
   member: {
     id: string;
     name: string;
-    avatarUrl: string | null;
+    avatarURL: string | null;
   };
 }
 
@@ -197,7 +194,7 @@ export interface CommentReactionNotificationPayload {
     author: {
       id: string;
       name: string;
-      avatarURL?: string | null;
+      avatarURL: string | null;
     };
   };
 }

@@ -163,7 +163,7 @@ export interface GetPostsApiResponse {
     posted_at: string;
     created_at: string;
     updated_at: string;
-    user_id: string;
+    space_member_id: string;
     space_slug: string;
     author: ApiUser;
     condition_score?: number;
@@ -240,7 +240,7 @@ export interface ApiUser {
  * 개별 리액션 정보 - 백엔드 ReactionDTO 구조
  */
 export interface ApiReaction {
-  user_id: string;
+  space_member_id: string;
   emoji: string;
   created_at: string;
   author: ApiUser;
@@ -263,15 +263,17 @@ export interface GetFeedSummaryApiResponse {
  * 최신 스페이스를 포함한 사용자 정보 API 응답 (백엔드)
  * 로그인 후 리다이렉트에 사용
  */
-export interface GetUserWithLatestSpaceApiResponse {
+export interface GetCurrentSpaceMemberApiResponse {
   id: string;
-  member_id: string;
-  email: string;
+  space_id: string;
   name: string;
-  avatar_url: string;
-  latest_space_slug: string;
-  latest_space_name: string;
+  role: string;
+  avatar_url?: string;
+  space_slug: string;
+  space_name: string;
   centrifugo_token?: string;
+  joined_at: string;
+  status: string;
 }
 
 /**
@@ -491,7 +493,7 @@ export interface BulkUpdateTodosApiResponse {
  */
 export interface ApiSpaceMember {
   id: string; // 멤버십 ID (UUID)
-  user_id: string; // 사용자 ID (UUID)
+  space_id: string; // 스페이스 ID (UUID)
   name: string; // 사용자 이름
   avatar_url?: string; // 아바타 URL (선택)
   role: string; // 역할: owner, admin, member

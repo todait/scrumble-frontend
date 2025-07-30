@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useNotificationUnreadCount } from '@/shared/hooks/queries/useNotifications';
 import {
   RiBarChartFill,
@@ -40,13 +40,11 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { logout, latestSpace } = useAuth();
+  const { logout, currentSpaceMember } = useAuth();
 
   // 읽지 않은 알림 개수 가져오기
   const { data: unreadCountData } = useNotificationUnreadCount({
-    spaceSlug,
-    memberId: latestSpace?.memberId || '',
-    enabled: !!spaceSlug && !!latestSpace?.memberId,
+    enabled: !!spaceSlug && !!currentSpaceMember?.id,
   });
 
   const totalUnreadCount = unreadCountData?.totalUnreadCount || 0;

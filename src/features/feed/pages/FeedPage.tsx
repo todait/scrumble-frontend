@@ -1,5 +1,6 @@
 'use client';
 
+import { CheckOutWriteModal } from '@/features/checkout/components';
 import {
   FeedHeader,
   FeedListSkeleton,
@@ -7,7 +8,9 @@ import {
   FloatingCheckoutButton,
   GoToFocusedPostButton,
   PostCard,
+  TeamSummaryCard,
 } from '@/features/feed/components';
+import { PostDetail } from '@/features/feed/components/PostDetail';
 import {
   useFeedActions,
   useFeedData,
@@ -21,31 +24,13 @@ import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
-import { useAuth as useAuthHook } from '@/shared/hooks/auth/useAuth';
 import { usePostDate } from '@/shared/hooks/queries/usePosts';
-import dynamic from 'next/dynamic';
 
-// Dynamic imports for heavy components
-const PostDetail = dynamic(() => import('@/features/feed/components').then(mod => mod.PostDetail), {
-  ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse rounded-xl bg-gray-100" />,
-});
-
-const TeamSummaryCard = dynamic(
-  () => import('@/features/feed/components').then(mod => mod.TeamSummaryCard),
-  { ssr: false }
-);
-
-const CheckOutWriteModal = dynamic(
-  () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
-  { ssr: false }
-);
-// import { useWebSocket } from '@/shared/hooks/useWebSocket'; // 사용하지 않음 - useFeedData에서 처리
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 import { debug, debug as logDebug } from '@/shared/utils/debug';
 import { RiSettings6Line } from '@remixicon/react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 interface FeedPageProps {
@@ -56,8 +41,8 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
-  const { logout } = useAuthHook();
+  const { currentSpaceMember: member } = useAuth();
+  const { logout } = useAuth();
   const { selectedDate, setSelectedDate, initializeFromUrl } = useDateStore();
 
   // 설정 드롭다운 상태
@@ -156,11 +141,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         logDebug('FeedPage', '재연결 감지 - 피드 데이터 동기화 완료');
       },
     });
-  const { handleCommentClick, handleViewSummaryClick } = useFeedActions(
-    spaceSlug,
-    posts as FeedPost[],
-    () => {}
-  );
+  const { handleCommentClick, handleViewSummaryClick } = useFeedActions(spaceSlug);
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
   const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } =
     useFeedNavigation(spaceSlug);
@@ -229,7 +210,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 포스트 날짜 조회
   const { data: postDateData } = usePostDate({
-    spaceSlug,
     postId: selectedPostId || '',
     enabled: !!selectedPostId,
   });
@@ -272,7 +252,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   }, [selectedPostId]);
   const existsMyCheckin = existsCheckinQuery.data?.exists;
   const existsMyCheckout = (posts as FeedPost[]).some(
-    post => post.type === 'checkout' && post.author.id === user?.id
+    post => post.type === 'checkout' && post.author.id === member?.id
   );
   const isCheckoutAvailable = existsMyCheckin && !existsMyCheckout;
 
@@ -490,11 +470,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
       )}
 
       {/* 체크아웃 작성 모달 */}
-      <CheckOutWriteModal
-        spaceSlug={spaceSlug}
-        isOpen={isCheckOutModalOpen}
-        onClose={closeCheckOutModal}
-      />
+      <CheckOutWriteModal isOpen={isCheckOutModalOpen} onClose={closeCheckOutModal} />
     </WebSocketErrorBoundary>
   );
 }

@@ -110,7 +110,7 @@ export const isConnectionEstablishedMessage = (data: any): data is ConnectionEst
     isValidWebSocketMessage(data) &&
     data.type === 'connection.established' &&
     isString(data.postId) &&
-    isString(data.userId)
+    isString(data.spaceMemberId)
   );
 };
 

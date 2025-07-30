@@ -37,10 +37,10 @@ const convertCommentImageToImageMetadata = (commentImage: CommentImage): ImageMe
  * 댓글 생성 훅
  * 새로운 댓글을 작성합니다 (Optimistic Update 지원)
  */
-export const useCreateComment = (spaceSlug: string) => {
+export const useCreateComment = () => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
-  const { user } = useAuth();
+  const { currentSpaceMember: member, currentSpaceSlug } = useAuth();
 
   type MutationContext = {
     previousQueries: [any, any][];
@@ -58,7 +58,7 @@ export const useCreateComment = (spaceSlug: string) => {
     },
     onMutate: async variables => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug || '') });
 
       // 현재 사용자 정보로 즉시 댓글 생성
       const tempId = `temp-${Date.now()}`;
@@ -79,9 +79,9 @@ export const useCreateComment = (spaceSlug: string) => {
       const optimisticComment: Comment = {
         id: tempId, // 임시 ID
         author: {
-          id: user?.id || '',
-          name: user?.name || '',
-          profileImage: user?.avatarURL || '',
+          id: member?.id || '',
+          name: member?.name || '',
+          profileImage: member?.avatarURL || '',
         },
         content: variables.content,
         createdAt: new Date(),
@@ -92,13 +92,13 @@ export const useCreateComment = (spaceSlug: string) => {
 
       // 이전 데이터들을 백업 (모든 관련 캐시)
       const previousQueries = queryClient.getQueriesData<any>({
-        queryKey: postsKeys.lists(spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug || ''),
         exact: false,
       });
 
       // 필터와 관계없이 모든 목록 캐시 업데이트
       queryClient.setQueriesData(
-        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        { queryKey: postsKeys.lists(currentSpaceSlug || ''), exact: false },
         (oldData: any) => {
           if (!oldData?.posts) return oldData;
 
@@ -152,7 +152,7 @@ export const useCreateComment = (spaceSlug: string) => {
 
       // 임시 ID를 실제 ID로 교체
       queryClient.setQueriesData(
-        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        { queryKey: postsKeys.lists(currentSpaceSlug || ''), exact: false },
         (oldData: any) => {
           if (!oldData?.posts) return oldData;
 
@@ -206,9 +206,10 @@ export const useCreateComment = (spaceSlug: string) => {
  * 댓글 수정 훅
  * 기존 댓글을 수정합니다 (Optimistic Update 지원)
  */
-export const useUpdateComment = (spaceSlug: string) => {
+export const useUpdateComment = () => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   type MutationContext = {
     previousQueries: [any, any][];
@@ -218,17 +219,17 @@ export const useUpdateComment = (spaceSlug: string) => {
     mutationFn: params => commentsApi.updateComment(params),
     onMutate: async variables => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug || '') });
 
       // 이전 데이터들을 백업 (모든 관련 캐시)
       const previousQueries = queryClient.getQueriesData<any>({
-        queryKey: postsKeys.lists(spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug || ''),
         exact: false,
       });
 
       // 필터와 관계없이 모든 목록 캐시 업데이트 (Optimistic Update)
       queryClient.setQueriesData(
-        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        { queryKey: postsKeys.lists(currentSpaceSlug || ''), exact: false },
         (oldData: any) => {
           if (!oldData?.posts) return oldData;
 
@@ -263,7 +264,7 @@ export const useUpdateComment = (spaceSlug: string) => {
       };
 
       queryClient.setQueriesData(
-        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        { queryKey: postsKeys.lists(currentSpaceSlug || ''), exact: false },
         (oldData: any) => {
           if (!oldData?.posts) return oldData;
 
@@ -311,9 +312,10 @@ export const useUpdateComment = (spaceSlug: string) => {
  * 댓글 삭제 훅
  * 댓글을 삭제합니다 (Optimistic Update 지원)
  */
-export const useDeleteComment = (spaceSlug: string) => {
+export const useDeleteComment = () => {
   const queryClient = useQueryClient();
   const { error, success } = useToast();
+  const { currentSpaceSlug } = useAuth();
 
   type MutationContext = {
     previousQueries: [any, any][];
@@ -323,17 +325,17 @@ export const useDeleteComment = (spaceSlug: string) => {
     mutationFn: params => commentsApi.deleteComment(params),
     onMutate: async variables => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
-      await queryClient.cancelQueries({ queryKey: postsKeys.lists(spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug || '') });
 
       // 이전 데이터들을 백업 (모든 관련 캐시)
       const previousQueries = queryClient.getQueriesData<any>({
-        queryKey: postsKeys.lists(spaceSlug),
+        queryKey: postsKeys.lists(currentSpaceSlug || ''),
         exact: false,
       });
 
       // 필터와 관계없이 모든 목록 캐시 업데이트
       queryClient.setQueriesData(
-        { queryKey: postsKeys.lists(spaceSlug), exact: false },
+        { queryKey: postsKeys.lists(currentSpaceSlug || ''), exact: false },
         (oldData: any) => {
           if (!oldData?.posts) return oldData;
 

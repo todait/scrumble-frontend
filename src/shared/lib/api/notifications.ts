@@ -42,7 +42,6 @@ export const notificationsApi = {
    * @returns 알림 목록 (페이지네이션 포함)
    */
   getNotifications: async (request: GetNotificationsRequest): Promise<GetNotificationsResponse> => {
-    debug('getNotifications', `spaceSlug: ${request.spaceSlug}, memberId: ${request.memberId}`);
     debug('getNotifications', `cursor: ${request.cursor}, limit: ${request.limit}`);
     debug('getNotifications', `categories: ${request.categories}, types: ${request.types}`);
     debug('getNotifications', `isRead: ${request.isRead}`);
@@ -70,7 +69,7 @@ export const notificationsApi = {
     }
 
     const { data } = await apiClient.get(
-      `/api/v1/spaces/${request.spaceSlug}/notifications/${request.memberId}?${queryParams.toString()}`
+      `/api/v1/notifications?${queryParams.toString()}`
     );
 
     return {
@@ -87,11 +86,10 @@ export const notificationsApi = {
    * @returns 처리 결과
    */
   bulkMarkAsRead: async (request: BulkMarkAsReadRequest): Promise<BulkMarkAsReadResponse> => {
-    debug('bulkMarkAsRead', `spaceSlug: ${request.spaceSlug}`);
     debug('bulkMarkAsRead', `notificationIds count: ${request.notificationIds.length}`);
 
     const { data } = await apiClient.post(
-      `/api/v1/spaces/${request.spaceSlug}/notifications/bulk-read`,
+      `/api/v1/notifications/bulk-read`,
       {
         notification_ids: request.notificationIds,
       }
@@ -108,14 +106,13 @@ export const notificationsApi = {
 
   /**
    * 모든 알림 읽음 처리
-   * @param spaceSlug 스페이스 식별자
    * @returns 처리 결과
    */
-  markAllAsRead: async (spaceSlug: string): Promise<MarkAllAsReadResponse> => {
-    debug('markAllAsRead', `spaceSlug: ${spaceSlug}`);
+  markAllAsRead: async (): Promise<MarkAllAsReadResponse> => {
+    debug('markAllAsRead', 'Marking all notifications as read');
 
     const { data } = await apiClient.post(
-      `/api/v1/spaces/${spaceSlug}/notifications/mark-all-read`
+      `/api/v1/notifications/mark-all-read`
     );
 
     return {
@@ -126,15 +123,13 @@ export const notificationsApi = {
 
   /**
    * 읽지 않은 알림 개수 조회
-   * @param spaceSlug 스페이스 식별자
-   * @param memberId 멤버 ID
    * @returns 카테고리별 읽지 않은 알림 개수
    */
-  getUnreadCount: async (spaceSlug: string, memberId: string): Promise<GetUnreadCountResponse> => {
-    debug('getUnreadCount', `spaceSlug: ${spaceSlug}, memberId: ${memberId}`);
+  getUnreadCount: async (): Promise<GetUnreadCountResponse> => {
+    debug('getUnreadCount', 'Getting unread notification count');
 
     const { data } = await apiClient.get(
-      `/api/v1/spaces/${spaceSlug}/notifications/${memberId}/unreadCount`
+      `/api/v1/notifications/unreadCount`
     );
 
     return {

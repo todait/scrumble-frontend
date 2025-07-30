@@ -12,26 +12,6 @@ import type { ID } from './api';
 export interface User {
   id: ID;
   email: string;
-  name: string;
-  avatarURL: string;
-}
-
-/**
- * 최신 스페이스 정보가 포함된 사용자
- * 로그인 후 대시보드 리다이렉트에 사용
- */
-export interface UserWithLatestSpace extends User {
-  memberId: string;
-  latestSpaceSlug: string;
-  latestSpaceName: string;
-}
-
-/**
- * Centrifugo 토큰이 포함된 사용자
- * WebSocket 연결에 사용
- */
-export interface UserWithCentrifugoToken extends User {
-  centrifugoToken?: string;
 }
 
 /**

@@ -2,7 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { getUserTimezone } from '../utils/timezone';
-import { TokenManager } from './token';
+import { TokenManager, SpaceMemberTokenManager } from './token';
+import { determineTokenType, handleTokenRefresh, handleAuthFailure } from './api/tokenRefreshHandler';
 
 // API 기본 URL 설정
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -13,20 +14,6 @@ let queryClientInstance: QueryClient | null = null;
 export function setQueryClient(client: QueryClient) {
   queryClientInstance = client;
 }
-
-// 토큰 갱신 상태 관리 (대기열 방식)
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
-
-// 대기 중인 요청들 처리
-const onTokenRefreshed = (token: string) => {
-  refreshSubscribers.forEach(callback => callback(token));
-  refreshSubscribers = [];
-};
-
-const addRefreshSubscriber = (callback: (token: string) => void) => {
-  refreshSubscribers.push(callback);
-};
 
 // Axios 인스턴스 생성
 export const apiClient = axios.create({
@@ -44,10 +31,23 @@ export const refreshApiClient = axios.create({
 // 요청 인터셉터: 토큰 및 타임존 헤더 자동 추가
 apiClient.interceptors.request.use(
   config => {
-    // 인증 토큰 추가
-    const token = TokenManager.getAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const tokenType = determineTokenType(config.url || '');
+
+    if (tokenType === 'user') {
+      // User 토큰 사용
+      const userToken = TokenManager.getAccessToken();
+      if (userToken) {
+        config.headers.Authorization = `Bearer ${userToken}`;
+      }
+    } else {
+      // SpaceMember 토큰 사용
+      const currentSpace = SpaceMemberTokenManager.getCurrentSpace();
+      if (currentSpace) {
+        const spaceMemberToken = SpaceMemberTokenManager.getAccessToken(currentSpace);
+        if (spaceMemberToken) {
+          config.headers.Authorization = `Bearer ${spaceMemberToken}`;
+        }
+      }
     }
 
     // 타임존 헤더 추가
@@ -60,7 +60,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// 응답 인터셉터: 토큰 만료 시 자동 갱신 (대기열 방식)
+// 응답 인터셉터: 토큰 만료 시 자동 갱신
 apiClient.interceptors.response.use(
   response => response,
   async error => {
@@ -69,66 +69,28 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      if (!isRefreshing) {
-        isRefreshing = true;
+      // 에러 코드로 토큰 타입 확인
+      const errorCode = error.response.data?.code;
+      const isUserTokenError = errorCode === 'TOKEN_EXPIRED' || errorCode === 'MISSING_AUTH_HEADER' || errorCode === 'INVALID_AUTH_HEADER';
+      const isSpaceMemberTokenError = errorCode === 'SPACE_MEMBER_EXPIRED' || errorCode === 'SPACE_MEMBER_NOT_FOUND';
 
-        try {
-          const refreshToken = TokenManager.getRefreshToken();
+      // 명시적인 에러 코드가 없으면 URL로 판단
+      const tokenType = isUserTokenError
+        ? 'user'
+        : isSpaceMemberTokenError
+          ? 'spaceMember'
+          : determineTokenType(originalRequest.url || '');
 
-          if (!refreshToken || !TokenManager.isRefreshTokenValid()) {
-            throw new Error('Refresh token expired');
-          }
-
-          // authApi를 동적 import로 사용 (순환 참조 방지)
-          const { authApi } = await import('./api/auth');
-          const tokenData = await authApi.refreshToken(refreshToken);
-
-          // 새 토큰 저장
-          TokenManager.setTokens(tokenData);
-
-          // React Query 캐시 무효화
-          if (queryClientInstance) {
-            queryClientInstance.invalidateQueries({ queryKey: ['auth'] });
-            window.dispatchEvent(new CustomEvent('tokenRefreshed'));
-          }
-
-          // 대기 중인 모든 요청에 새 토큰 전달
-          onTokenRefreshed(tokenData.accessToken);
-
-          // 원래 요청 재시도
-          originalRequest.headers.Authorization = `Bearer ${tokenData.accessToken}`;
-          return apiClient(originalRequest);
-        } catch (refreshError) {
-          // 리프레시 실패 - 로그아웃 처리
-
-          TokenManager.clearTokens();
-
-          if (queryClientInstance) {
-            queryClientInstance.cancelQueries();
-            queryClientInstance.clear();
-            queryClientInstance.removeQueries();
-          }
-
-          window.dispatchEvent(new CustomEvent('tokenCleared'));
-
-          if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
-            // window.location.href = '/auth';
-            window.location.replace('/auth');
-          }
-
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
+      try {
+        return await handleTokenRefresh(tokenType, originalRequest, queryClientInstance);
+      } catch (error) {
+        if (error && typeof error === 'object' && 'type' in error && (error as any).type === 'AUTH_FAILURE') {
+          handleAuthFailure(queryClientInstance);
+          const authError = error as { type: string; error?: unknown };
+          return Promise.reject(authError.error || error);
         }
+        return Promise.reject(error);
       }
-
-      // 토큰 갱신 중이면 대기열에 추가
-      return new Promise(resolve => {
-        addRefreshSubscriber((token: string) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          resolve(apiClient(originalRequest));
-        });
-      });
     }
 
     return Promise.reject(error);

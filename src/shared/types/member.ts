@@ -1,4 +1,4 @@
-import { ID, DateString } from './api';
+import { DateString, ID } from './api';
 
 /**
  * 멤버 관련 타입 정의
@@ -7,9 +7,12 @@ import { ID, DateString } from './api';
 
 export interface Member {
   id: ID;
+  spaceId: string;
   name: string;
-  email: string;
   avatarURL?: string;
+  spaceSlug: string;
+  spaceName: string;
+  centrifugoToken?: string;
   role: MemberRole;
   joinedAt: DateString;
   lastActiveAt?: DateString;

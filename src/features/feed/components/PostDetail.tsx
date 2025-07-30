@@ -2,6 +2,7 @@
 
 import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { CommentSection, DeleteConfirmDialog } from '@/shared/components/ui';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import {
   useCreateComment,
   useDeleteComment,
@@ -33,15 +34,18 @@ export function PostDetail({
   onDeleteDialogChange,
   highlightedCommentId,
 }: PostDetailProps) {
+  // 클라이언트 렌더링 대기
+  const { isInitialized } = useAuth();
+
   const isCheckIn = post.type === 'checkin';
   const commentInputRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
   const scrollableAreaRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
-  const { mutate: createComment, isPending: isCreatingComment } = useCreateComment(spaceSlug);
-  const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment(spaceSlug);
-  const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment(spaceSlug);
+  const { mutate: createComment, isPending: isCreatingComment } = useCreateComment();
+  const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment();
+  const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);

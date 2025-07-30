@@ -8,22 +8,23 @@ import type {
 } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
 import { memo } from 'react';
+import {
+  getActionAuthorDisplayName,
+  getAuthorDisplayName,
+  getPostTypeDisplayName,
+  truncateText,
+} from '../../utils/notificationHelpers';
 
 interface EmojiReactionItemProps {
   notification: PostReactionNotification | CommentReactionNotification;
   onClick?: () => void;
 }
 
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-};
-
 const EmojiReactionItem = memo(function EmojiReactionItem({
   notification,
   onClick,
 }: EmojiReactionItemProps) {
-  const { latestSpace } = useAuth();
+  const { currentSpaceMember: member } = useAuth();
   const { createdAt, isRead, payload } = notification;
   const { reaction, post } = payload;
 
@@ -55,21 +56,28 @@ const EmojiReactionItem = memo(function EmojiReactionItem({
             {isCommentReaction && payload.comment ? (
               <>
                 #
-                {payload.comment.author.id === latestSpace?.memberId
-                  ? '나'
-                  : payload.comment.author.name}
-                님의 댓글: {truncateText(payload.comment.content || '', 50)}
+                {getAuthorDisplayName(
+                  payload.comment.author.id,
+                  payload.comment.author.name,
+                  member?.id
+                )}
+                의 댓글: {truncateText(payload.comment.content || '', 50)}
               </>
             ) : (
               <>
-                #{post.author.id === latestSpace?.memberId ? '나' : post.author.name}
-                님의 {post.postType === 'check_in' ? '체크인' : '체크아웃'}
+                #{getAuthorDisplayName(post.author.id, post.author.name, member?.id)}의{' '}
+                {getPostTypeDisplayName(post.postType)}
               </>
             )}
           </div>
           <div className="text-[13px] text-[#1D1D1F]">
-            <span className="font-semibold">{reaction.author.name}</span>님의 반응:{' '}
-            {reaction.content}
+            {getActionAuthorDisplayName(
+              reaction.author.id,
+              reaction.author.name,
+              member?.id,
+              '반응'
+            )}
+            : {reaction.content}
           </div>
         </div>
 

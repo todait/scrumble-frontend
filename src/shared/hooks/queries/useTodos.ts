@@ -24,9 +24,8 @@ import { useToast } from '../useToast';
 import { todoInvalidateHelpers, todosKeys } from './todosKeys';
 
 interface UseTodosOptions {
-  spaceSlug: string;
   date: string; // YYYY-MM-DD 형식
-  userId?: string; // 특정 사용자의 Todo 조회
+  spaceMemberId?: string; // 특정 사용자의 Todo 조회
   enabled?: boolean;
 }
 
@@ -36,18 +35,17 @@ interface UseTodosOptions {
  * @returns React Query 결과
  */
 export const useTodos = (options: UseTodosOptions) => {
-  const { spaceSlug, date, userId, enabled = true } = options;
+  const { date, spaceMemberId, enabled = true } = options;
 
   const queryParams: GetTodosRequest = {
-    spaceSlug,
     date,
-    userId,
+    spaceMemberId,
   };
 
   return useQuery<GetTodosResponse, Error>({
-    queryKey: todosKeys.byDate(spaceSlug, date, userId),
+    queryKey: todosKeys.byDate(date, spaceMemberId),
     queryFn: () => todosApi.getTodos(queryParams),
-    enabled: enabled && !!spaceSlug && !!date,
+    enabled: enabled && !!date,
     retry: authRetry,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
@@ -56,18 +54,17 @@ export const useTodos = (options: UseTodosOptions) => {
 
 /**
  * Todo 생성 mutation 훅
- * @param spaceSlug 스페이스 슬러그
  * @returns React Query mutation 결과
  */
-export const useCreateTodos = (spaceSlug: string) => {
+export const useCreateTodos = () => {
   const queryClient = useQueryClient();
   const { success, error: toastError } = useToast();
 
-  return useMutation<CreateTodosResponse, Error, Omit<CreateTodosRequest, 'spaceSlug'>>({
-    mutationFn: request => todosApi.createTodos({ ...request, spaceSlug }),
+  return useMutation<CreateTodosResponse, Error, CreateTodosRequest>({
+    mutationFn: request => todosApi.createTodos(request),
     onSuccess: data => {
-      // 스페이스의 모든 Todo 캐시 무효화
-      todoInvalidateHelpers.invalidateSpaceTodos(queryClient, spaceSlug);
+      // 모든 Todo 캐시 무효화
+      todoInvalidateHelpers.invalidateAllTodos(queryClient);
 
       success({
         title: '성공',
@@ -99,18 +96,17 @@ export const useCreateTodos = (spaceSlug: string) => {
 
 /**
  * Todo 수정 mutation 훅
- * @param spaceSlug 스페이스 슬러그
  * @returns React Query mutation 결과
  */
-export const useUpdateTodo = (spaceSlug: string) => {
+export const useUpdateTodo = () => {
   const queryClient = useQueryClient();
   const { success, error: toastError } = useToast();
 
-  return useMutation<UpdateTodoResponse, Error, Omit<UpdateTodoRequest, 'spaceSlug'>>({
-    mutationFn: request => todosApi.updateTodo({ ...request, spaceSlug }),
+  return useMutation<UpdateTodoResponse, Error, UpdateTodoRequest>({
+    mutationFn: request => todosApi.updateTodo(request),
     onSuccess: (data, variables) => {
       // 해당 Todo만 캐시에서 업데이트
-      todoInvalidateHelpers.updateTodoInLists(queryClient, spaceSlug, variables.todoId, todo => ({
+      todoInvalidateHelpers.updateTodoInLists(queryClient, variables.todoId, todo => ({
         ...todo,
         ...(variables.name && { name: variables.name }),
         ...(variables.description !== undefined && { description: variables.description }),
@@ -150,49 +146,40 @@ export const useUpdateTodo = (spaceSlug: string) => {
 
 /**
  * Todo 완료 상태 토글 mutation 훅
- * @param spaceSlug 스페이스 슬러그
  * @returns React Query mutation 결과
  */
-export const useToggleTodo = (spaceSlug: string) => {
+export const useToggleTodo = () => {
   const queryClient = useQueryClient();
   const { error: toastError } = useToast();
 
-  return useMutation<
-    ToggleTodoResponse,
-    Error,
-    Omit<ToggleTodoRequest, 'spaceSlug'>,
-    { previousData: any }
-  >({
-    mutationFn: request => todosApi.toggleTodo({ ...request, spaceSlug }),
+  return useMutation<ToggleTodoResponse, Error, ToggleTodoRequest, { previousData: any }>({
+    mutationFn: request => todosApi.toggleTodo(request),
 
     // Optimistic Update: 서버 요청 전에 UI를 먼저 업데이트
     onMutate: async ({ todoId }) => {
       // 진행 중인 쿼리 취소
-      await queryClient.cancelQueries({ queryKey: todosKeys.bySpace(spaceSlug) });
+      await queryClient.cancelQueries({ queryKey: todosKeys.all });
 
       // 현재 캐시된 모든 데이터 백업 (롤백용)
       const previousData = queryClient.getQueriesData({
-        queryKey: todosKeys.bySpace(spaceSlug),
+        queryKey: todosKeys.all,
         exact: false,
       });
 
       // 캐시 데이터 낙관적 업데이트 (날짜별 쿼리 포함)
-      queryClient.setQueriesData(
-        { queryKey: todosKeys.bySpace(spaceSlug), exact: false },
-        (oldData: any) => {
-          if (!oldData) return oldData;
+      queryClient.setQueriesData({ queryKey: todosKeys.all, exact: false }, (oldData: any) => {
+        if (!oldData) return oldData;
 
-          // GetTodosResponse 형태: { todos: Todo[] }
-          if (oldData.todos) {
-            return {
-              ...oldData,
-              todos: updateTodosRecursively(oldData.todos, todoId),
-            };
-          }
-
-          return oldData;
+        // GetTodosResponse 형태: { todos: Todo[] }
+        if (oldData.todos) {
+          return {
+            ...oldData,
+            todos: updateTodosRecursively(oldData.todos, todoId),
+          };
         }
-      );
+
+        return oldData;
+      });
 
       return { previousData };
     },
@@ -223,7 +210,7 @@ export const useToggleTodo = (spaceSlug: string) => {
 
     // 성공/실패와 관계없이 관련 쿼리 리페치
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: todosKeys.bySpace(spaceSlug) });
+      queryClient.invalidateQueries({ queryKey: todosKeys.all });
     },
   });
 };
@@ -251,18 +238,17 @@ function updateTodosRecursively(todos: Todo[], targetId: string): Todo[] {
 
 /**
  * Todo 삭제 mutation 훅
- * @param spaceSlug 스페이스 슬러그
  * @returns React Query mutation 결과
  */
-export const useDeleteTodo = (spaceSlug: string) => {
+export const useDeleteTodo = () => {
   const queryClient = useQueryClient();
   const { success, error: toastError } = useToast();
 
-  return useMutation<DeleteTodoResponse, Error, Omit<DeleteTodoRequest, 'spaceSlug'>>({
-    mutationFn: request => todosApi.deleteTodo({ ...request, spaceSlug }),
+  return useMutation<DeleteTodoResponse, Error, DeleteTodoRequest>({
+    mutationFn: request => todosApi.deleteTodo(request),
     onSuccess: (_, variables) => {
       // 삭제된 Todo를 캐시에서 제거
-      todoInvalidateHelpers.removeTodoFromCache(queryClient, spaceSlug, variables.todoId);
+      todoInvalidateHelpers.removeTodoFromCache(queryClient, variables.todoId);
 
       success({
         title: '성공',
@@ -289,18 +275,17 @@ export const useDeleteTodo = (spaceSlug: string) => {
 
 /**
  * Todo 일괄 업데이트 mutation 훅
- * @param spaceSlug 스페이스 슬러그
  * @returns React Query mutation 결과
  */
-export const useBulkUpdateTodos = (spaceSlug: string) => {
+export const useBulkUpdateTodos = () => {
   const queryClient = useQueryClient();
   const { success, error: toastError } = useToast();
 
-  return useMutation<BulkUpdateTodosResponse, Error, Omit<BulkUpdateTodosRequest, 'spaceSlug'>>({
-    mutationFn: request => todosApi.bulkUpdateTodos({ ...request, spaceSlug }),
+  return useMutation<BulkUpdateTodosResponse, Error, BulkUpdateTodosRequest>({
+    mutationFn: request => todosApi.bulkUpdateTodos(request),
     onSuccess: data => {
-      // 스페이스의 모든 Todo 캐시 무효화
-      todoInvalidateHelpers.invalidateSpaceTodos(queryClient, spaceSlug);
+      // 모든 Todo 캐시 무효화
+      todoInvalidateHelpers.invalidateAllTodos(queryClient);
 
       const { created, updated, deleted } = data.result;
       let message = '할 일이 일괄 업데이트되었습니다.';
@@ -345,8 +330,8 @@ export const useBulkUpdateTodos = (spaceSlug: string) => {
  * 투두 저장을 위한 공통 훅
  * CheckInWriteModal과 PostContent에서 공통으로 사용
  */
-export const useSaveTodos = (spaceSlug: string) => {
-  const { mutate: bulkUpdateTodos, isPending: isSaving } = useBulkUpdateTodos(spaceSlug);
+export const useSaveTodos = () => {
+  const { mutate: bulkUpdateTodos, isPending: isSaving } = useBulkUpdateTodos();
 
   const saveTodos = useCallback(
     async (scheduledDate: string, todos: Todo[]): Promise<void> => {

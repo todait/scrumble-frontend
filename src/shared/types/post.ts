@@ -38,7 +38,7 @@ export interface Post {
   postedAt: DateString;
   createdAt: DateString;
   updatedAt: DateString;
-  userId: ID;
+  spaceMemberId: ID;
   spaceSlug: string;
   author: PostAuthor;
   conditionScore?: number; // 체크인 전용 (1-10)
@@ -57,7 +57,7 @@ export interface PostReaction {
   id: ID;
   emoji: string;
   count: number;
-  userIds: ID[];
+  spaceMemberIds: ID[];
   createdAt: DateString;
 }
 
@@ -94,7 +94,6 @@ export interface UpdatePostRequest {
  * 포스트 목록 조회 파라미터
  */
 export interface GetPostsParams {
-  spaceSlug: string;
   date?: string; // YYYY-MM-DD
   types?: string; // "checkin,checkout"
   cursor?: string;
@@ -115,12 +114,10 @@ export interface ExistsCheckinResponse {
 }
 
 export interface ExistsCheckinParams {
-  spaceSlug: string;
   date: string;
 }
 
 export interface GetFeedSummaryParams {
-  spaceSlug: string;
   date?: string; // 선택적, 기본값은 오늘 날짜
   timezone?: string; // 선택적, X-Timezone 헤더로 전송됨
 }
@@ -139,7 +136,6 @@ export interface GetFeedSummaryResponse {
 }
 
 export interface CreateCheckInRequest {
-  spaceSlug: string;
   postedDate?: string; // YYYY-MM-DD
   conditionScore: number; // 1-10
   conditionText: string;
@@ -156,7 +152,6 @@ export interface CreateCheckInResponse {
 }
 
 export interface UpdateCheckInRequest {
-  spaceSlug: string;
   postId: string;
   conditionScore: number;
   conditionText: string;
@@ -169,7 +164,6 @@ export interface UpdateCheckInResponse {
 }
 
 export interface DeleteCheckInRequest {
-  spaceSlug: string;
   postId: string;
 }
 
@@ -178,7 +172,6 @@ export interface DeleteCheckInResponse {
 }
 
 export interface CreateCheckOutRequest {
-  spaceSlug: string;
   postedDate?: string; // YYYY-MM-DD
   reflectionText?: string;
   images: ImageMetadata[];
@@ -194,7 +187,6 @@ export interface CreateCheckOutResponse {
 }
 
 export interface UpdateCheckOutRequest {
-  spaceSlug: string;
   postId: string;
   reflectionText: string;
   images: ImageMetadata[];
@@ -206,7 +198,6 @@ export interface UpdateCheckOutResponse {
 }
 
 export interface DeleteCheckOutRequest {
-  spaceSlug: string;
   postId: string;
 }
 
@@ -215,7 +206,6 @@ export interface DeleteCheckOutResponse {
 }
 
 export interface GetPostDateParams {
-  spaceSlug: string;
   postId: string;
 }
 

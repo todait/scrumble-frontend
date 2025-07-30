@@ -37,7 +37,6 @@ export interface CreateTodoItemRequest {
 }
 
 export interface CreateTodosRequest {
-  spaceSlug: string;
   todos: CreateTodoItemRequest[];
 }
 
@@ -46,9 +45,8 @@ export interface CreateTodosRequest {
  * 특정 날짜의 Todo 목록 조회 시 사용
  */
 export interface GetTodosRequest {
-  spaceSlug: string;
   date: string; // YYYY-MM-DD 형식
-  userId?: string; // 특정 사용자의 Todo 조회 (선택사항)
+  spaceMemberId?: string; // 특정 사용자의 Todo 조회 (선택사항)
 }
 
 /**
@@ -56,7 +54,6 @@ export interface GetTodosRequest {
  * Todo 필드 부분 수정 시 사용
  */
 export interface UpdateTodoRequest {
-  spaceSlug: string;
   todoId: string;
   name?: string;
   description?: string;
@@ -73,7 +70,6 @@ export interface UpdateTodoRequest {
  * Todo 완료 상태 토글 시 사용
  */
 export interface ToggleTodoRequest {
-  spaceSlug: string;
   todoId: string;
 }
 
@@ -82,7 +78,6 @@ export interface ToggleTodoRequest {
  * Todo 삭제 시 사용
  */
 export interface DeleteTodoRequest {
-  spaceSlug: string;
   todoId: string;
 }
 
@@ -91,7 +86,6 @@ export interface DeleteTodoRequest {
  * 여러 Todo를 한 번에 생성/수정/삭제할 때 사용
  */
 export interface BulkUpdateTodosRequest {
-  spaceSlug: string;
   scheduledDate: string; // YYYY-MM-DD 형식 (필수)
   todos: BulkUpdateTodoItem[];
 }

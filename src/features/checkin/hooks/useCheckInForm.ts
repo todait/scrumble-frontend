@@ -6,7 +6,6 @@ import type { ImageMetadata } from '@/shared/types/upload.types';
 
 interface UseCheckInFormProps {
   mode: 'create' | 'edit';
-  spaceSlug: string;
   postId?: string;
   initialData?: {
     score: number;
@@ -25,7 +24,6 @@ interface CheckInFormValues {
 
 export const useCheckInForm = ({
   mode,
-  spaceSlug,
   postId,
   initialData,
   onSuccess,
@@ -59,7 +57,6 @@ export const useCheckInForm = ({
 
       if (mode === 'create') {
         const result = await createMutation.mutateAsync({
-          spaceSlug,
           conditionScore: finalData.score,
           conditionText: finalData.message,
           images: finalData.images,
@@ -68,7 +65,6 @@ export const useCheckInForm = ({
         onSuccess?.(result.post.id);
       } else if (mode === 'edit' && postId) {
         await updateMutation.mutateAsync({
-          spaceSlug,
           postId,
           conditionScore: finalData.score,
           conditionText: finalData.message,

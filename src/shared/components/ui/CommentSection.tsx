@@ -3,8 +3,9 @@
 import type { Comment } from '@/features/feed/types/feed.types';
 import { EmojiReactions } from '@/shared/components/emoji';
 import type { EmojiData } from '@/shared/components/emoji/EmojiPicker';
+import { EmojiPicker } from '@/shared/components/emoji/EmojiPicker';
 import { SimpleToast } from '@/shared/components/feedback';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
@@ -14,20 +15,13 @@ import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine } from '@remixicon/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import dynamic from 'next/dynamic';
-import { useParams } from 'next/navigation';
 import type { ForwardedRef, ReactNode } from 'react';
-import { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { EditDeleteMenu } from './EditDeleteMenu';
 import { IconButton } from './IconButton';
 import { ImageGallery } from './ImageGallery';
 import { ImagePreview } from './ImagePreview';
 
-// Dynamic import for EmojiPicker
-const EmojiPicker = dynamic(
-  () => import('@/shared/components/emoji/EmojiPicker').then(mod => mod.EmojiPicker),
-  { ssr: false }
-);
 // import { LoadingSpinner } from './LoadingSpinner'; // 사용하지 않음
 import { ProfileImage } from './ProfileImage';
 
@@ -63,7 +57,7 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
     },
     ref
   ) => {
-    // useMemo로 중복 제거 연산 최적화 - early return 전에 호출
+    // useMemo로 중복 제거 연산 최적화
     const uniqueComments = useMemo(() => {
       const seen = new Set<string>();
       return comments.filter(comment => {
@@ -75,6 +69,29 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
       });
     }, [comments]);
 
+    // CommentItem 렌더링을 useMemo로 최적화
+    const commentItems = useMemo(() => 
+      uniqueComments.map((comment, index) =>
+        renderComment ? (
+          renderComment(comment, index)
+        ) : (
+          <CommentItem
+            key={comment.id}
+            comment={comment}
+            postId={postId}
+            onEdit={onCommentEdit ? () => onCommentEdit(comment.id) : undefined}
+            onDelete={onCommentDelete ? () => onCommentDelete(comment.id) : undefined}
+            onUpdate={onCommentUpdate}
+            editingCommentId={editingCommentId}
+            isUpdating={isUpdating}
+            isHighlighted={highlightedCommentId === comment.id}
+          />
+        )
+      ),
+      [uniqueComments, renderComment, postId, onCommentEdit, onCommentDelete, 
+       onCommentUpdate, editingCommentId, isUpdating, highlightedCommentId]
+    );
+
     if (commentCount === 0) {
       return null;
     }
@@ -83,23 +100,7 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
       <div ref={ref} className={`px-4 pb-6 md:px-[30px] md:pb-[30px] ${className}`}>
         <CommentDivider count={commentCount} />
         <div className="space-y-4">
-          {uniqueComments.map((comment, index) =>
-            renderComment ? (
-              renderComment(comment, index)
-            ) : (
-              <MemoizedCommentItem
-                key={comment.id}
-                comment={comment}
-                postId={postId}
-                onEdit={onCommentEdit ? () => onCommentEdit(comment.id) : undefined}
-                onDelete={onCommentDelete ? () => onCommentDelete(comment.id) : undefined}
-                onUpdate={onCommentUpdate}
-                editingCommentId={editingCommentId}
-                isUpdating={isUpdating}
-                isHighlighted={highlightedCommentId === comment.id}
-              />
-            )
-          )}
+          {commentItems}
         </div>
       </div>
     );
@@ -150,10 +151,10 @@ function CommentItem({
   isUpdating: _isUpdating, // _ prefix로 사용하지 않음을 명시
   isHighlighted,
 }: CommentItemProps) {
-  const { user } = useAuth();
-  const params = useParams();
-  const spaceSlug = params.spaceSlug as string;
-  const isMyComment = user?.id === comment.author.id;
+  const { currentSpaceMember: member } = useAuth();
+  // const params = useParams();
+  // const spaceSlug = params.spaceSlug as string;
+  const isMyComment = member?.id === comment.author.id;
   const isEditing = editingCommentId === comment.id;
   const [editContent, setEditContent] = useState(comment.content);
   const [showToast, setShowToast] = useState<{ message: string } | null>(null);
@@ -165,7 +166,7 @@ function CommentItem({
   const wasEditingRef = useRef(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const editingContainerRef = useRef<HTMLDivElement>(null);
-  const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
+  const { mutate: toggleReaction } = useToggleReaction();
 
   const hasReactions = comment.reactions && comment.reactions.length > 0;
 
@@ -354,6 +355,12 @@ function CommentItem({
     }
   };
 
+  // 날짜 포맷팅 메모이제이션
+  const formattedTime = useMemo(() => 
+    formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko }),
+    [comment.createdAt]
+  );
+
   if (isEditing) {
     return (
       <div
@@ -376,7 +383,7 @@ function CommentItem({
               {comment.author.name}
             </span>
             <span className="text-xs text-[#222222] opacity-40 md:text-[13px]">
-              {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko })}
+              {formattedTime}
             </span>
           </div>
 
@@ -500,7 +507,7 @@ function CommentItem({
               {comment.author.name}
             </span>
             <span className="text-xs text-[#222222] opacity-40 md:text-[13px]">
-              {formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ko })}
+              {formattedTime}
             </span>
           </div>
           <p className="whitespace-pre-line text-sm text-[#222222] md:text-[14px]">
@@ -515,7 +522,7 @@ function CommentItem({
             <div className="mt-2">
               <EmojiReactions
                 reactions={comment.reactions || []}
-                currentUserId={user?.id}
+                currentSpaceMemberId={member?.id}
                 targetType="comments"
                 targetId={comment.id}
                 onReactionToggle={handleReactionToggle}
@@ -553,23 +560,5 @@ function CommentItem({
   );
 }
 
-// React.memo로 CommentItem 최적화
-const MemoizedCommentItem = memo(CommentItem, (prevProps, nextProps) => {
-  // 다음 경우에만 재렌더링:
-  // 1. comment 객체가 변경됨 (내용, 리액션 등)
-  // 2. 편집 상태가 변경됨
-  // 3. 업데이트 중 상태가 변경됨
-  // 4. 하이라이팅 상태가 변경됨
-  return (
-    prevProps.comment === nextProps.comment &&
-    prevProps.editingCommentId === nextProps.editingCommentId &&
-    prevProps.isUpdating === nextProps.isUpdating &&
-    prevProps.postId === nextProps.postId &&
-    prevProps.isHighlighted === nextProps.isHighlighted
-  );
-});
-
-MemoizedCommentItem.displayName = 'MemoizedCommentItem';
-
-// 기존 CommentItem도 export (호환성 유지)
+// CommentItem export
 export { CommentItem };

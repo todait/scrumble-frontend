@@ -15,12 +15,11 @@ import { useCheckOutModalStore } from '../stores/useCheckOutModalStore';
 import { CheckOutForm } from './forms';
 
 interface CheckOutWriteModalProps {
-  spaceSlug: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWriteModalProps) {
+export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps) {
   const { mutate: createCheckOut, isPending } = useCreateCheckOut();
   const { selectedDate } = useDateStore();
   const [dateString, setDateString] = useState('');
@@ -31,7 +30,7 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
   const { step, setStep, reset: resetModalStore } = useCheckOutModalStore();
 
   // hooks 추가
-  const { isLoading, handleToggleTodo, todayData } = useCheckOutTodos(spaceSlug);
+  const { isLoading, handleToggleTodo, todayData } = useCheckOutTodos();
 
   useEffect(() => {
     setDateString(formatDate(selectedDate));
@@ -75,7 +74,6 @@ export function CheckOutWriteModal({ spaceSlug, isOpen, onClose }: CheckOutWrite
 
     createCheckOut(
       {
-        spaceSlug,
         postedDate: formatDateToAPIString(selectedDate),
         reflectionText: data.message,
         images: data.images || [],

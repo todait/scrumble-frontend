@@ -4,7 +4,7 @@ import React from 'react';
 
 import { PageLoadingSpinner } from '@/shared/components/ui';
 import { IntroLayout } from '@/shared/components/layout';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 
 import { AuthHeader, GoogleButton } from '../components';
 import { useGoogleAuth, useAuthRedirect, useAuthErrorHandling } from '../hooks';
@@ -14,7 +14,7 @@ const AuthPage = () => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const { handleGoogleLogin, handleLogout } = useGoogleAuth();
   const { isLoading: isRedirecting } = useAuthRedirect();
-  
+
   // URL 파라미터로부터 에러 처리
   useAuthErrorHandling();
 

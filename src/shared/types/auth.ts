@@ -4,17 +4,17 @@
  */
 
 // 기본 타입들을 user.ts에서 import
-import type { User, UserWithLatestSpace, UserWithCentrifugoToken } from './user';
 import type { TokenPair } from './api';
+import type { User } from './user';
 
-export type { User, UserWithLatestSpace, UserWithCentrifugoToken, TokenPair };
+export type { TokenPair, User };
 
 /**
  * 로그인 응답 타입
  * OAuth 로그인 성공 시 반환되는 데이터
  */
 export interface LoginResponse {
-  user: User & UserWithCentrifugoToken;
+  user: User;
   tokens: TokenPair;
 }
 
@@ -24,6 +24,6 @@ export interface LoginResponse {
  */
 export interface AuthState {
   isAuthenticated: boolean;
-  user: (User & UserWithCentrifugoToken) | null;
+  user: User | null;
   tokens: TokenPair | null;
 }

@@ -13,7 +13,7 @@ import {
   ProfileImage,
   StatusBadge,
 } from '@/shared/components/ui';
-import { useAuth } from '@/shared/hooks/auth/useAuth';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import {
   useDeleteCheckIn,
   useDeleteCheckOut,
@@ -61,11 +61,11 @@ export function PostContent({
 
   // 현재 post가 편집 중인지 확인
   const isTodoEditMode = editingPostId === post.id;
-  const { user } = useAuth();
+  const { currentSpaceMember: member } = useAuth();
 
   // Todo 저장을 위한 공통 훅
-  const { saveTodos: saveTodosApi, isSaving } = useSaveTodos(spaceSlug);
-  const isMyPost = user?.id === post.author.id;
+  const { saveTodos: saveTodosApi, isSaving } = useSaveTodos();
+  const isMyPost = member?.id === post.author.id;
   const isCheckIn = post.type === 'checkin';
   const isCheckOut = post.type === 'checkout';
   const content = getPostContent(post) || '';
@@ -73,10 +73,9 @@ export function PostContent({
   const { mutate: deleteCheckIn, isPending: isDeleteCheckInPending } = useDeleteCheckIn();
   const { mutate: deleteCheckOut, isPending: isDeleteCheckOutPending } = useDeleteCheckOut();
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
-    spaceSlug,
     date: formatDateToAPIString(new Date()),
   });
-  const { mutate: toggleReaction } = useToggleReaction(spaceSlug);
+  const { mutate: toggleReaction } = useToggleReaction();
   const imageUrls = post.images?.map(image => image.url);
 
   // Todo 리스트용 hook (lazy loading)
@@ -86,10 +85,9 @@ export function PostContent({
     handleToggleComplete,
     handleUpdateTodos,
   } = usePostTodos({
-    spaceSlug,
     postDate: new Date(post.postedAt),
     postId: post.id, // 현재 post의 ID 전달
-    userId: post.author.id, // 포스트 작성자의 Todo 조회
+    spaceMemberId: post.author.id, // 포스트 작성자의 Todo 조회
     enabled: !isTodoCollapsed || isDetailView, // Collapse가 열릴 때 또는 상세보기에서 로딩
   });
 
@@ -113,7 +111,6 @@ export function PostContent({
     if (isCheckIn) {
       deleteCheckIn(
         {
-          spaceSlug,
           postId: post.id,
         },
         {
@@ -142,7 +139,6 @@ export function PostContent({
     if (isCheckOut) {
       deleteCheckOut(
         {
-          spaceSlug,
           postId: post.id,
         },
         {
@@ -490,7 +486,7 @@ export function PostContent({
             {/* 이모지 리액션 */}
             <EmojiReactions
               reactions={post.reactions}
-              currentUserId={user?.id}
+              currentSpaceMemberId={member?.id}
               targetType="posts"
               targetId={post.id}
               onReactionToggle={handleReactionToggle}
@@ -523,7 +519,6 @@ export function PostContent({
       {/* 체크인 수정 모달 */}
       {isCheckIn && 'conditionScore' in post && (
         <CheckInEditModal
-          spaceSlug={spaceSlug}
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
           post={post}
@@ -534,7 +529,6 @@ export function PostContent({
       {/* 체크아웃 수정 모달 */}
       {isCheckOut && 'reflectionText' in post && (
         <CheckOutEditModal
-          spaceSlug={spaceSlug}
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
           post={post}

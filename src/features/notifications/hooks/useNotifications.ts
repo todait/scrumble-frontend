@@ -20,7 +20,6 @@ export const useMarkAsRead = () => {
       try {
         // bulkMarkAsRead API를 사용하여 단일 알림 처리
         return await notificationsApi.bulkMarkAsRead({
-          spaceSlug: spaceId,
           notificationIds: [notificationId],
         });
       } catch (error: any) {

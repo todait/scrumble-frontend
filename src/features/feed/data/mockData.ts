@@ -30,10 +30,10 @@ const createMockPosts = (): Post[] => {
       createdAt: new Date('2024-06-22T11:02:00'),
       updatedAt: new Date('2024-06-22T11:05:00'),
       reactions: [
-        { emoji: '🌼', count: 12, userIds: ['3', '4', '5'] },
-        { emoji: '💕', count: 1, userIds: ['2'] },
-        { emoji: '😍', count: 0, userIds: [] },
-        { emoji: '🥰', count: 12, userIds: ['5', '6'] },
+        { emoji: '🌼', count: 12, spaceMemberIds: ['3', '4', '5'] },
+        { emoji: '💕', count: 1, spaceMemberIds: ['2'] },
+        { emoji: '😍', count: 0, spaceMemberIds: [] },
+        { emoji: '🥰', count: 12, spaceMemberIds: ['5', '6'] },
       ],
       comments: [
         {
@@ -87,10 +87,10 @@ const createMockPosts = (): Post[] => {
       conditionScore: 10,
       conditionEmoji: '🦄',
       reactions: [
-        { emoji: '😃', count: 12, userIds: ['1', '3'] },
-        { emoji: '🌺', count: 12, userIds: ['4', '5'] },
-        { emoji: '🍭', count: 0, userIds: [] },
-        { emoji: '💕', count: 0, userIds: [] },
+        { emoji: '😃', count: 12, spaceMemberIds: ['1', '3'] },
+        { emoji: '🌺', count: 12, spaceMemberIds: ['4', '5'] },
+        { emoji: '🍭', count: 0, spaceMemberIds: [] },
+        { emoji: '💕', count: 0, spaceMemberIds: [] },
       ],
       comments: [
         {
@@ -440,10 +440,10 @@ const createMockPosts = (): Post[] => {
       conditionScore: 7,
       conditionEmoji: '🎵',
       reactions: [
-        { emoji: '🐝', count: 0, userIds: [] },
-        { emoji: '😀', count: 5, userIds: ['1', '2'] },
-        { emoji: '🍯', count: 0, userIds: [] },
-        { emoji: '👍', count: 8, userIds: ['4', '5', '6'] },
+        { emoji: '🐝', count: 0, spaceMemberIds: [] },
+        { emoji: '😀', count: 5, spaceMemberIds: ['1', '2'] },
+        { emoji: '🍯', count: 0, spaceMemberIds: [] },
+        { emoji: '👍', count: 8, spaceMemberIds: ['4', '5', '6'] },
       ],
       comments: [],
       images: createMockImageMetadata([
@@ -464,10 +464,10 @@ const createMockPosts = (): Post[] => {
       conditionScore: 4,
       conditionEmoji: '🐌',
       reactions: [
-        { emoji: '💐', count: 12, userIds: ['1', '2', '3'] },
-        { emoji: '🎶', count: 12, userIds: ['5', '6'] },
-        { emoji: '🤗', count: 0, userIds: [] },
-        { emoji: '🎈', count: 0, userIds: [] },
+        { emoji: '💐', count: 12, spaceMemberIds: ['1', '2', '3'] },
+        { emoji: '🎶', count: 12, spaceMemberIds: ['5', '6'] },
+        { emoji: '🤗', count: 0, spaceMemberIds: [] },
+        { emoji: '🎈', count: 0, spaceMemberIds: [] },
       ],
       comments: [
         {
@@ -532,10 +532,10 @@ const createMockPosts = (): Post[] => {
       conditionScore: 2,
       conditionEmoji: '💢',
       reactions: [
-        { emoji: '🌸', count: 12, userIds: ['1', '2'] },
-        { emoji: '😃', count: 12, userIds: ['3', '4'] },
-        { emoji: '😊', count: 0, userIds: [] },
-        { emoji: '🌈', count: 0, userIds: [] },
+        { emoji: '🌸', count: 12, spaceMemberIds: ['1', '2'] },
+        { emoji: '😃', count: 12, spaceMemberIds: ['3', '4'] },
+        { emoji: '😊', count: 0, spaceMemberIds: [] },
+        { emoji: '🌈', count: 0, spaceMemberIds: [] },
       ],
       comments: [
         {
@@ -592,10 +592,10 @@ const createMockPosts = (): Post[] => {
       conditionScore: 6,
       conditionEmoji: '🪴',
       reactions: [
-        { emoji: '🥳', count: 12, userIds: ['1', '2', '3'] },
-        { emoji: '🍭', count: 12, userIds: ['4', '5'] },
-        { emoji: '🍀', count: 0, userIds: [] },
-        { emoji: '🌻', count: 0, userIds: [] },
+        { emoji: '🥳', count: 12, spaceMemberIds: ['1', '2', '3'] },
+        { emoji: '🍭', count: 12, spaceMemberIds: ['4', '5'] },
+        { emoji: '🍀', count: 0, spaceMemberIds: [] },
+        { emoji: '🌻', count: 0, spaceMemberIds: [] },
       ],
       comments: [
         {

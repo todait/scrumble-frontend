@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 import { CheckOutForm } from './forms';
 
 interface CheckOutEditModalProps {
-  spaceSlug: string;
   isOpen: boolean;
   onClose: () => void;
   post: CheckoutPost;
@@ -19,7 +18,6 @@ interface CheckOutEditModalProps {
 }
 
 export function CheckOutEditModal({
-  spaceSlug,
   isOpen,
   onClose,
   post,
@@ -54,7 +52,6 @@ export function CheckOutEditModal({
 
     updateCheckOut(
       {
-        spaceSlug,
         postId: post.id,
         reflectionText: data.message,
         images: data.images,
