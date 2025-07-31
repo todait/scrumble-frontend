@@ -20,7 +20,7 @@ import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { EditDeleteMenu } from './EditDeleteMenu';
 import { IconButton } from './IconButton';
 import { ImageGallery } from './ImageGallery';
-import { ImagePreview } from './ImagePreview';
+import { ImagePreviewList } from './ImagePreviewList';
 
 // import { LoadingSpinner } from './LoadingSpinner'; // 사용하지 않음
 import { ProfileImage } from './ProfileImage';
@@ -423,19 +423,11 @@ function CommentItem({
 
             {/* 이미지 미리보기 */}
             {uploadingImages.length > 0 && (
-              <div className="scrollbar-hide flex gap-2 overflow-x-auto">
-                {uploadingImages.map(img => {
-                  return (
-                    <ImagePreview
-                      key={img.id}
-                      image={img}
-                      onRemove={removeImage}
-                      onClick={undefined}
-                      disabled={false}
-                    />
-                  );
-                })}
-              </div>
+              <ImagePreviewList
+                images={uploadingImages}
+                onRemove={removeImage}
+                disabled={false}
+              />
             )}
 
             {/* 액션 버튼 */}

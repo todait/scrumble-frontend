@@ -3,13 +3,11 @@
 import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
-import { useImageViewer } from '@/shared/hooks/useImageViewer';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiCheckLine, RiImageLine } from '@remixicon/react';
 import { useEffect, useRef, useState } from 'react';
-import { ImagePreview } from './ImagePreview';
-import { ImageViewer } from './ImageViewer';
+import { ImagePreviewList } from './ImagePreviewList';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface PostFormProps {
@@ -51,8 +49,6 @@ export const PostForm = ({
     onDrop: uploadImages,
     acceptedFileTypes: ['image/'],
   });
-
-  const imageViewer = useImageViewer();
 
   // 클립보드 이미지 붙여넣기 기능
   const { textareaProps } = useTextareaClipboardImagePaste({
@@ -127,50 +123,33 @@ export const PostForm = ({
         </div>
 
         {/* 이미지 업로드 버튼과 미리보기 */}
-        <div className="scrollbar-hide mt-3 flex gap-3 overflow-x-auto py-1">
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={e => handleFileInputChange(e, uploadImages, fileInputRef)}
-            className="hidden"
-            disabled={disabled || isUploading}
-          />
-
-          {/* 업로드 버튼 */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex h-[80px] w-[80px] flex-shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={disabled || isUploading}
-          >
-            <RiImageLine className="h-8 w-8 text-gray-400" />
-          </button>
-
-          {/* 이미지 미리보기 */}
-          {uploadingImages.map(img => {
-            const isCompleted = img.progress === 100 && img.metadata && !img.error;
-
-            return (
-              <ImagePreview
-                key={img.id}
-                image={img}
-                onRemove={removeImage}
-                onClick={
-                  isCompleted && img.metadata
-                    ? () =>
-                        imageViewer.handleImageClick(
-                          img.metadata!.url,
-                          completedImages.map(i => i.url)
-                        )
-                    : undefined
-                }
-                disabled={disabled}
-              />
-            );
-          })}
-        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={e => handleFileInputChange(e, uploadImages, fileInputRef)}
+          className="hidden"
+          disabled={disabled || isUploading}
+        />
+        
+        <ImagePreviewList
+          images={uploadingImages}
+          onRemove={removeImage}
+          disabled={disabled}
+          className="mt-3 py-1"
+          gap="gap-3"
+          uploadButton={
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-[80px] w-[80px] flex-shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={disabled || isUploading}
+            >
+              <RiImageLine className="h-8 w-8 text-gray-400" />
+            </button>
+          }
+        />
       </div>
 
       {/* 드래그 오버레이 */}
@@ -201,14 +180,6 @@ export const PostForm = ({
           )}
         </button>
       </div>
-
-      {/* 이미지 뷰어 */}
-      <ImageViewer
-        images={completedImages.map(img => img.url)}
-        initialIndex={imageViewer.selectedIndex}
-        isOpen={imageViewer.isOpen}
-        onClose={imageViewer.closeViewer}
-      />
     </div>
   );
 };

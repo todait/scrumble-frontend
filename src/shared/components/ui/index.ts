@@ -5,6 +5,7 @@ export * from './DropdownMenu';
 export * from './EditDeleteMenu';
 export * from './IconButton';
 export * from './ImageGallery';
+export * from './ImagePreviewList';
 export * from './ImageViewer';
 export * from './LoadingOverlay';
 export * from './LoadingSpinner';
