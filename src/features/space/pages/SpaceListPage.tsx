@@ -4,11 +4,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 
 import { IntroLayout } from '@/shared/components/layout';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useMySpaces } from '@/shared/hooks/queries/useSpaces';
 import { useToast } from '@/shared/hooks/useToast';
-import { useAuth } from '@/shared/contexts/AuthContext';
+import { CreateSpaceButton, LogoutButton, SpaceListHeader } from '../components';
 import { SpaceList } from '../components/SpaceList';
-import { CreateSpaceButton, LogoutButton, WelcomeHeader } from '../components';
 
 function SpaceListContent() {
   const router = useRouter();
@@ -62,7 +62,7 @@ function SpaceListContent() {
 
   if (isLoading) {
     return (
-      <IntroLayout>
+      <IntroLayout width={640}>
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7800]"></div>
         </div>
@@ -72,7 +72,7 @@ function SpaceListContent() {
 
   if (error) {
     return (
-      <IntroLayout>
+      <IntroLayout width={640}>
         <div className="text-center">
           <div className="mb-4 text-lg font-semibold text-red-600">
             스페이스 목록을 불러오는데 실패했습니다
@@ -86,22 +86,23 @@ function SpaceListContent() {
   const spaces = spacesData?.spaces || [];
 
   return (
-    <IntroLayout>
-      <div className="relative w-full">
-        <WelcomeHeader />
+    <IntroLayout width={640}>
+      {/* 헤더 섹션 */}
+      <div className="px-12 py-8">
+        <SpaceListHeader />
+      </div>
 
-        {/* 스페이스 목록 섹션 */}
-        <div className="mt-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-black">참여 중인 스페이스</h2>
-            <span className="text-sm text-gray-500">{spaces.length}개</span>
-          </div>
+      {/* Divider */}
+      <div className="h-[1px] bg-[#1D1D1F]/10" />
 
-          <SpaceList spaces={spaces} />
-        </div>
+      {/* 스페이스 목록 섹션 */}
+      <div className="px-12 py-8">
+        <SpaceList spaces={spaces} />
+      </div>
 
-        {/* 버튼 섹션 */}
-        <div className="mt-8 flex gap-[10px]">
+      {/* 액션 섹션 */}
+      <div className="px-12 pb-4 pt-2">
+        <div className="flex flex-col items-center gap-4">
           <CreateSpaceButton onClick={handleCreateSpace} />
           <LogoutButton onClick={handleLogout} isLoading={isLoggingOut} />
         </div>
@@ -115,7 +116,7 @@ const SpaceListPage = () => {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-[#FBFBFB]">
-          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#FF7800]"></div>
+          <div className="-b-2 h-12 w-12 animate-spin rounded-full border border-[#FF7800]"></div>
         </div>
       }
     >

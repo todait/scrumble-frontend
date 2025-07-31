@@ -5,3 +5,5 @@ export * from './InviteSpaceButton';
 export * from './LogoutButton';
 export * from './CopyLinkButton';
 export * from './SpaceEnterButton';
+export * from './JoinButton';
+export * from './CreateNewSpaceButton';

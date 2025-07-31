@@ -1,0 +1,509 @@
+{
+  "name": "Scrumble",
+  "lastModified": "2025-07-31T07:59:03Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/a40b1a62-f0ee-4a71-9cde-75d2fe30468f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC4AAMX6DD%2F20250731%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250731T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=b8072d68540bab19fccf8966704207b7607697224856360e3e2399869dc1829f",
+  "nodes": [
+    {
+      "id": "791:22924",
+      "name": "\bWelcome",
+      "type": "FRAME",
+      "layout": "layout_71WXZP",
+      "fills": "fill_AZVATT",
+      "children": [
+        {
+          "id": "791:22925",
+          "name": "Background",
+          "type": "FRAME",
+          "layout": "layout_7A6HOP",
+          "children": [
+            {
+              "id": "791:22926",
+              "name": "Group 30",
+              "type": "GROUP",
+              "layout": "layout_7T4Q8V",
+              "children": [
+                {
+                  "id": "791:22927",
+                  "name": "Vector 37",
+                  "type": "IMAGE-SVG",
+                  "layout": "layout_SQMYN0",
+                  "strokes": "stroke_ZQT82P",
+                  "effects": "effect_1TPA67"
+                },
+                {
+                  "id": "791:22928",
+                  "name": "Vector 38",
+                  "type": "IMAGE-SVG",
+                  "layout": "layout_F2C1OX",
+                  "strokes": "stroke_LFZRYL",
+                  "effects": "effect_1TPA67"
+                },
+                {
+                  "id": "791:22929",
+                  "name": "Texture",
+                  "type": "RECTANGLE",
+                  "layout": "layout_X7153D",
+                  "fills": "fill_ZFSFFH"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "791:22930",
+          "name": "Note Feed",
+          "type": "FRAME",
+          "layout": "layout_Z6YQ1Q",
+          "fills": "fill_AZVATT",
+          "strokes": "stroke_1IZJLA",
+          "effects": "effect_E056IW",
+          "borderRadius": "16px",
+          "children": [
+            {
+              "id": "791:22931",
+              "name": "Header Section",
+              "type": "FRAME",
+              "layout": "layout_XHF0OX",
+              "fills": "fill_AZVATT",
+              "strokes": "stroke_9TLWH7",
+              "children": [
+                {
+                  "id": "855:4620",
+                  "name": "Frame 209",
+                  "type": "FRAME",
+                  "layout": "layout_V01EC6",
+                  "children": [
+                    {
+                      "id": "855:4621",
+                      "name": "Vector 70",
+                      "type": "IMAGE-SVG",
+                      "layout": "layout_2ZOCXK",
+                      "strokes": "stroke_QY7HTU"
+                    }
+                  ]
+                },
+                {
+                  "id": "791:22941",
+                  "name": "Title",
+                  "type": "TEXT",
+                  "layout": "layout_DHNQ0A",
+                  "text": "팀워크의 온도를 지키는 법",
+                  "textStyle": "style_L6JWKE",
+                  "fills": "fill_BFF3LU"
+                },
+                {
+                  "id": "791:22942",
+                  "name": "Detail",
+                  "type": "TEXT",
+                  "layout": "layout_DHNQ0A",
+                  "text": "팀원 간 연결을 부드럽게 이어주는 Scrumbl 더 유연한 팀워크의 리듬, 직접 경험해보세요.",
+                  "textStyle": "style_X6112B",
+                  "fills": "fill_BFF3LU",
+                  "opacity": 0.5
+                }
+              ]
+            },
+            {
+              "id": "791:22943",
+              "name": "Action Section",
+              "type": "FRAME",
+              "layout": "layout_XHF0OX",
+              "fills": "fill_AZVATT",
+              "children": [
+                {
+                  "id": "791:22944",
+                  "name": "\bButton Section",
+                  "type": "FRAME",
+                  "layout": "layout_HPDQH9",
+                  "children": [
+                    {
+                      "id": "791:22945",
+                      "name": "Button",
+                      "type": "INSTANCE",
+                      "layout": "layout_96GSBT",
+                      "fills": "fill_AZVATT",
+                      "strokes": "stroke_VVS4G1",
+                      "borderRadius": "12px",
+                      "componentId": "791:20386",
+                      "componentProperties": [
+                        {
+                          "name": "텍스트#135:39",
+                          "value": "Google 계정으로 계속하기",
+                          "type": "TEXT"
+                        },
+                        {
+                          "name": "Color",
+                          "value": "🤍",
+                          "type": "VARIANT"
+                        },
+                        {
+                          "name": "Icon",
+                          "value": "On",
+                          "type": "VARIANT"
+                        },
+                        {
+                          "name": "Status",
+                          "value": "Active",
+                          "type": "VARIANT"
+                        },
+                        {
+                          "name": "Direction",
+                          "value": "좌측",
+                          "type": "VARIANT"
+                        },
+                        {
+                          "name": "Hover+Click",
+                          "value": "Off",
+                          "type": "VARIANT"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "I791:22945;791:20387",
+                          "name": "Icons",
+                          "type": "INSTANCE",
+                          "layout": "layout_JEN273",
+                          "fills": "fill_AZVATT",
+                          "componentId": "135:1036",
+                          "componentProperties": [
+                            {
+                              "name": "Icon",
+                              "value": "ri:google-fill",
+                              "type": "VARIANT"
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "I791:22945;791:20387;135:1035",
+                              "name": "Vector",
+                              "type": "IMAGE-SVG",
+                              "layout": "layout_SJSFWR",
+                              "fills": "fill_BFF3LU"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "I791:22945;791:20388",
+                          "name": "Button Name",
+                          "type": "TEXT",
+                          "layout": "layout_U0CE8I",
+                          "text": "Google 계정으로 계속하기",
+                          "textStyle": "style_80VCE8",
+                          "fills": "fill_WLIJVV"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "791:20386": {
+      "id": "791:20386",
+      "key": "8dc15f48313c9e79d51200cc5bf57ae68d4b1d05",
+      "name": "Color=🤍, Icon=On, Status=Active, Direction=좌측, Hover+Click=Off",
+      "componentSetId": "772:19717"
+    },
+    "135:1036": {
+      "id": "135:1036",
+      "key": "867b3547248a2e7a0e8a3df40adbca3cdc29a821",
+      "name": "Icon=ri:google-fill",
+      "componentSetId": "135:1040"
+    }
+  },
+  "componentSets": {
+    "772:19717": {
+      "id": "772:19717",
+      "key": "7911f55fa8f3ac141758e1e075f3316239e89e58",
+      "name": "Button",
+      "description": ""
+    },
+    "135:1040": {
+      "id": "135:1040",
+      "key": "590a5ccf3d2dd7216e6119589778d43982b17193",
+      "name": "Icons",
+      "description": ""
+    }
+  },
+  "globalVars": {
+    "styles": {
+      "layout_71WXZP": {
+        "mode": "none",
+        "sizing": {},
+        "dimensions": {
+          "width": 1440,
+          "height": 1024
+        }
+      },
+      "fill_AZVATT": [
+        "#FFFFFF"
+      ],
+      "layout_7A6HOP": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 1440,
+          "height": 1024
+        }
+      },
+      "layout_7T4Q8V": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": -35,
+          "y": -40
+        },
+        "dimensions": {
+          "width": 1585,
+          "height": 1175
+        }
+      },
+      "layout_SQMYN0": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 362,
+          "y": 185
+        },
+        "dimensions": {
+          "width": 1223,
+          "height": 990
+        }
+      },
+      "stroke_ZQT82P": {
+        "colors": [
+          "#9747FF"
+        ],
+        "strokeWeight": "95px"
+      },
+      "effect_1TPA67": {
+        "filter": "blur(40px)"
+      },
+      "layout_F2C1OX": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 659,
+          "height": 511
+        }
+      },
+      "stroke_LFZRYL": {
+        "colors": [
+          "#F1F1F1"
+        ],
+        "strokeWeight": "84px"
+      },
+      "layout_X7153D": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 35,
+          "y": 40
+        },
+        "dimensions": {
+          "width": 1440,
+          "height": 1024
+        }
+      },
+      "fill_ZFSFFH": [
+        {
+          "type": "IMAGE",
+          "imageRef": "bcfa0f2ecf6c15828a024b5c1166de4e07f82d98",
+          "scaleMode": "TILE",
+          "scalingFactor": 0.6090909242630005,
+          "backgroundRepeat": "repeat",
+          "backgroundSize": "calc(var(--original-width) * 0.6090909242630005) calc(var(--original-height) * 0.6090909242630005)",
+          "isBackground": true,
+          "imageDownloadArguments": {
+            "needsCropping": false,
+            "requiresImageDimensions": true
+          }
+        }
+      ],
+      "layout_Z6YQ1Q": {
+        "mode": "column",
+        "overflowScroll": [
+          "y"
+        ],
+        "alignItems": "center",
+        "padding": "30px 0px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "locationRelativeToParent": {
+          "x": 430,
+          "y": 252
+        },
+        "dimensions": {
+          "width": 580
+        }
+      },
+      "stroke_1IZJLA": {
+        "colors": [
+          "rgba(34, 34, 34, 0.08)"
+        ],
+        "strokeWeight": "1px"
+      },
+      "effect_E056IW": {
+        "boxShadow": "4px 4px 20px 0px rgba(160, 160, 160, 0.04), -4px -4px 20px 0px rgba(160, 160, 160, 0.04)"
+      },
+      "layout_XHF0OX": {
+        "mode": "column",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "alignSelf": "stretch",
+        "gap": "16px",
+        "padding": "30px 50px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "stroke_9TLWH7": {
+        "colors": [
+          "rgba(34, 34, 34, 0.08)"
+        ],
+        "strokeWeight": "0px 0px 1px"
+      },
+      "layout_V01EC6": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 274,
+          "height": 160
+        }
+      },
+      "layout_2ZOCXK": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 23.92,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 225.52,
+          "height": 183.23
+        }
+      },
+      "stroke_QY7HTU": {
+        "colors": [
+          "#FFC919"
+        ],
+        "strokeWeight": "24px"
+      },
+      "layout_DHNQ0A": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "style_L6JWKE": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 700,
+        "fontSize": 32,
+        "lineHeight": "1.5em",
+        "textAlignHorizontal": "CENTER",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_BFF3LU": [
+        "#222222"
+      ],
+      "style_X6112B": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 400,
+        "fontSize": 15,
+        "lineHeight": "1.5em",
+        "textAlignHorizontal": "CENTER",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_HPDQH9": {
+        "mode": "column",
+        "justifyContent": "center",
+        "gap": "10px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "dimensions": {
+          "width": 480
+        }
+      },
+      "layout_96GSBT": {
+        "mode": "row",
+        "alignItems": "center",
+        "alignSelf": "stretch",
+        "gap": "4px",
+        "padding": "16px 20px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "stroke_VVS4G1": {
+        "colors": [
+          "rgba(29, 29, 31, 0.08)"
+        ],
+        "strokeWeight": "1px"
+      },
+      "layout_JEN273": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 20,
+          "height": 20
+        }
+      },
+      "layout_SJSFWR": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 1.67,
+          "y": 1.67
+        },
+        "dimensions": {
+          "width": 16.33,
+          "height": 16.67
+        }
+      },
+      "layout_U0CE8I": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "style_80VCE8": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 400,
+        "fontSize": 15,
+        "lineHeight": "1.2em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_WLIJVV": [
+        "#1D1D1F"
+      ]
+    }
+  }
+}

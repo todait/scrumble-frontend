@@ -49,15 +49,15 @@ const convertApiMemberToMember = (apiMember: ApiSpaceMember): SpaceMember => {
  * 백엔드 API 스페이스 응답을 프론트엔드 타입으로 변환하는 함수
  * snake_case에서 camelCase로 변환
  */
-const convertApiSpaceToSpace = (apiSpace: ApiSpace): Space => {
+const convertApiSpaceToSpace = (apiSpace: any): Space => {
   return {
     id: apiSpace.id,
     slug: apiSpace.slug,
     name: apiSpace.name,
-    iconURL: apiSpace.icon_url,
+    iconURL: apiSpace.iconURL || apiSpace.icon_url,
     members: apiSpace.members.map(convertApiMemberToMember),
-    createdAt: apiSpace.created_at,
-    updatedAt: apiSpace.updated_at,
+    createdAt: apiSpace.createdAt || apiSpace.created_at,
+    updatedAt: apiSpace.updatedAt || apiSpace.updated_at,
   };
 };
 

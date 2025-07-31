@@ -68,21 +68,29 @@ const CreateSpacePage = () => {
 
   return (
     <IntroLayout>
-      <CreateSpaceHeader />
+      {/* 헤더 섹션 */}
+      <div className="px-12 py-8">
+        <CreateSpaceHeader />
+      </div>
 
-      {/* 스페이스 생성 폼 */}
-      <form onSubmit={handleSubmit} className="space-y-[10px]">
-        <SpaceNameInput
-          value={values.name || ''}
-          onChange={value => setValue('name', value)}
-          disabled={isSubmitting}
-        />
+      {/* Divider */}
+      <div className="h-[1px] bg-[#1D1D1F]/10" />
 
-        <CreateButton disabled={isSubmitting || !isValid} isLoading={isSubmitting} />
+      {/* 스페이스 생성 폼 섹션 */}
+      <form onSubmit={handleSubmit} className="px-12 pb-4 pt-8">
+        <div className="flex flex-col items-center gap-4">
+          <SpaceNameInput
+            value={values.name || ''}
+            onChange={value => setValue('name', value)}
+            disabled={isSubmitting}
+          />
 
-        <DividerLine />
+          <CreateButton disabled={isSubmitting || !isValid} isLoading={isSubmitting} />
 
-        <InviteSpaceButton onClick={handleJoinSpace} disabled={isSubmitting} />
+          <DividerLine />
+
+          <InviteSpaceButton onClick={handleJoinSpace} disabled={isSubmitting} />
+        </div>
       </form>
     </IntroLayout>
   );

@@ -14,7 +14,7 @@ export const CreateSpaceButton: React.FC<CreateSpaceButtonProps> = ({ onClick })
     <Button
       onClick={onClick}
       icon={<Plus className="w-5 h-5" />}
-      className="flex-1 max-w-[255px] font-normal"
+      className="w-full max-w-[480px] font-normal h-[54px] border border-[#1D1D1F]/10 hover:border-[#181818] rounded-[12px]"
     >
       스페이스 만들기
     </Button>

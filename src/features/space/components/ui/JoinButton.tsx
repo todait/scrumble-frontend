@@ -2,15 +2,12 @@
 
 import React from 'react';
 
-interface CreateButtonProps {
+interface JoinButtonProps {
   disabled?: boolean;
   isLoading?: boolean;
 }
 
-export const CreateButton: React.FC<CreateButtonProps> = ({ 
-  disabled = false, 
-  isLoading = false 
-}) => {
+export const JoinButton: React.FC<JoinButtonProps> = ({ disabled, isLoading }) => {
   return (
     <button
       type="submit"
@@ -22,8 +19,8 @@ export const CreateButton: React.FC<CreateButtonProps> = ({
           <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        '스페이스 만들기'
+        '입장하기'
       )}
     </button>
   );
-}; 
+};

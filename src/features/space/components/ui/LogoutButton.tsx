@@ -2,8 +2,6 @@
 
 import React from 'react';
 
-import { Button } from '@/shared/components/ui';
-
 interface LogoutButtonProps {
   onClick: () => void;
   isLoading?: boolean;
@@ -14,13 +12,12 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
   isLoading = false 
 }) => {
   return (
-    <Button
+    <button
       onClick={onClick}
-      isLoading={isLoading}
-      variant="secondary"
-      className="flex-1 max-w-[255px] font-normal"
+      disabled={isLoading}
+      className="w-full max-w-[480px] h-[54px] text-[15px] font-normal text-[#222222] font-pretendard border border-[#1D1D1F]/10 rounded-[12px] hover:bg-[#1D1D1F] hover:text-[#FFFFFF] hover:border-[#1D1D1F] transition-colors duration-200"
     >
       {isLoading ? '로그아웃 중...' : '로그아웃'}
-    </Button>
+    </button>
   );
 }; 
