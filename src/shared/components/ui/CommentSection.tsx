@@ -279,7 +279,7 @@ function CommentItem({
   };
 
   const handleSave = () => {
-    if (editContent.trim() && onUpdate) {
+    if ((editContent.trim() || completedImages.length > 0) && onUpdate) {
       onUpdate(comment.id, editContent.trim(), completedImages);
       // 편집 모드는 성공 응답 후에 종료하도록 변경
     }
@@ -290,7 +290,7 @@ function CommentItem({
   );
 
   const isSaveEnabled =
-    editContent.trim().length > 0 &&
+    (editContent.trim().length > 0 || completedImages.length > 0) &&
     !isUploading &&
     !hasUploadingImages &&
     (editContent.trim() !== comment.content.trim() || // 내용이 변경되었거나

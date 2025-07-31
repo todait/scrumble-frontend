@@ -144,7 +144,7 @@ export const reactionsApi = {
   removeReaction: async (params: RemoveReactionRequest): Promise<RemoveReactionResponse> => {
     const encodedEmoji = encodeURIComponent(params.emoji);
     const { data } = await apiClient.delete<RemoveReactionApiResponse>(
-      `/api/v1/${params.targetType}/${params.targetId}/reactions?emoji=${encodedEmoji}`
+      `/api/v1/${params.targetType}/${params.targetId}/reactions/${encodedEmoji}`
     );
 
     return {
