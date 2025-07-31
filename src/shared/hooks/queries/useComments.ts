@@ -213,10 +213,21 @@ export const useUpdateComment = () => {
 
   type MutationContext = {
     previousQueries: [any, any][];
+    originalImages?: ImageMetadata[]; // 원본 이미지 저장
+    newImages?: ImageMetadata[]; // 사용자가 새로 입력한 이미지
   };
 
   return useMutation<UpdateCommentResponse, Error, UpdateCommentRequest, MutationContext>({
-    mutationFn: params => commentsApi.updateComment(params),
+    mutationFn: params => {
+      debug('useUpdateComment', 'mutationFn called', {
+        commentId: params.commentId,
+        postId: params.postId,
+        content: params.content,
+        imageCount: params.images?.length || 0,
+        images: params.images,
+      });
+      return commentsApi.updateComment(params);
+    },
     onMutate: async variables => {
       // 진행 중인 쿼리들 취소 (낙관적 업데이트와 충돌 방지)
       await queryClient.cancelQueries({ queryKey: postsKeys.lists(currentSpaceSlug || '') });
@@ -225,6 +236,33 @@ export const useUpdateComment = () => {
       const previousQueries = queryClient.getQueriesData<any>({
         queryKey: postsKeys.lists(currentSpaceSlug || ''),
         exact: false,
+      });
+
+      // 현재 댓글의 원본 이미지를 찾아 저장
+      let originalImages: ImageMetadata[] | undefined;
+      for (const [, data] of previousQueries) {
+        if (data?.posts) {
+          for (const post of data.posts) {
+            const comment = post.comments?.find((c: any) => c.id === variables.commentId);
+            if (comment?.images) {
+              originalImages = comment.images;
+              break;
+            }
+          }
+          if (originalImages) break;
+        }
+      }
+
+      // 사용자가 입력한 새 이미지 저장
+      const newImages = variables.images || [];
+
+      debug('useUpdateComment', 'onMutate', {
+        commentId: variables.commentId,
+        originalImages: originalImages?.map(img => ({ id: img.id, url: img.url })),
+        originalImageCount: originalImages?.length || 0,
+        newImages: newImages.map(img => ({ id: img.id, url: img.url })),
+        newImageCount: newImages.length,
+        hasNewImages: newImages.length > 0,
       });
 
       // 필터와 관계없이 모든 목록 캐시 업데이트 (Optimistic Update)
@@ -237,31 +275,85 @@ export const useUpdateComment = () => {
             ...oldData,
             posts: oldData.posts.map((post: any) => ({
               ...post,
-              comments: post.comments.map((comment: any) =>
-                comment.id === variables.commentId
-                  ? {
-                      ...comment,
-                      content: variables.content,
-                      images: variables.images || comment.images || [], // 기존 이미지 유지
-                      updatedAt: new Date(),
-                      _isOptimistic: true, // 옵티미스틱 업데이트 표시
-                    }
-                  : comment
-              ),
+              comments: post.comments.map((comment: any) => {
+                if (comment.id === variables.commentId) {
+                  const optimisticImages = variables.images && variables.images.length > 0 
+                    ? variables.images 
+                    : comment.images || [];
+                  
+                  debug('useUpdateComment', 'Optimistic Update - Images', {
+                    commentId: comment.id,
+                    currentImages: comment.images?.map((img: any) => ({ id: img.id, url: img.url })),
+                    currentImageCount: comment.images?.length || 0,
+                    newImages: variables.images?.map(img => ({ id: img.id, url: img.url })),
+                    newImageCount: variables.images?.length || 0,
+                    optimisticImages: optimisticImages.map((img: any) => ({ id: img.id, url: img.url })),
+                    optimisticImageCount: optimisticImages.length,
+                  });
+
+                  return {
+                    ...comment,
+                    content: variables.content,
+                    images: optimisticImages,
+                    updatedAt: new Date(),
+                    _isOptimistic: true, // 옵티미스틱 업데이트 표시
+                  };
+                }
+                return comment;
+              }),
             })),
           };
         }
       );
 
-      return { previousQueries };
+      return { previousQueries, originalImages, newImages };
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (data, variables, context) => {
+      // 서버 응답에서 이미지 데이터가 없으면 사용자가 입력한 새 이미지 사용
+      const shouldUseNewImages = !data.comment.images || data.comment.images.length === 0;
+      const convertedImages = data.comment.images?.map(convertCommentImageToImageMetadata) || [];
+
+      debug('useUpdateComment', 'onSuccess - Server Response', {
+        commentId: variables.commentId,
+        serverComment: data.comment,
+        serverImageCount: data.comment.images?.length || 0,
+        serverImages: data.comment.images?.map(img => ({ 
+          id: img.id, 
+          url: img.url, 
+          key: img.key,
+          hasAllFields: !!(img.id && img.url && img.key && img.size && img.width && img.height)
+        })),
+      });
+
+      debug('useUpdateComment', 'onSuccess - Image Processing', {
+        convertedImages: convertedImages.map(img => ({ id: img.id, url: img.url })),
+        convertedImageCount: convertedImages.length,
+        shouldUseNewImages,
+        originalImages: context?.originalImages?.map(img => ({ id: img.id, url: img.url })),
+        originalImageCount: context?.originalImages?.length || 0,
+        newImages: context?.newImages?.map(img => ({ id: img.id, url: img.url })),
+        newImageCount: context?.newImages?.length || 0,
+        finalImages: shouldUseNewImages 
+          ? (context?.newImages || []).map(img => ({ id: img.id, url: img.url }))
+          : convertedImages.map(img => ({ id: img.id, url: img.url })),
+        finalImageCount: shouldUseNewImages 
+          ? (context?.newImages?.length || 0) 
+          : convertedImages.length,
+      });
+
       // 서버 응답으로 최종 업데이트 (더 정확한 데이터 반영)
       const updatedComment: Partial<Comment> = {
         content: data.comment.content,
-        images: data.comment.images?.map(convertCommentImageToImageMetadata) || [], // 서버 응답의 완전한 이미지 데이터 사용
+        images: shouldUseNewImages ? (context?.newImages || []) : convertedImages, // 서버에 이미지가 없으면 새로 입력한 이미지 사용
         updatedAt: new Date(data.comment.updatedAt || Date.now()), // 서버에서 온 수정 시간
       };
+
+      debug('useUpdateComment', 'onSuccess - Final Update', {
+        commentId: variables.commentId,
+        finalContent: updatedComment.content,
+        finalImages: updatedComment.images?.map(img => ({ id: img.id, url: img.url })),
+        finalImageCount: updatedComment.images?.length || 0,
+      });
 
       queryClient.setQueriesData(
         { queryKey: postsKeys.lists(currentSpaceSlug || ''), exact: false },
