@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 interface UseDragScrollReturn {
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
   isDragging: boolean;
   dragHandlers: {
     onMouseDown: (e: React.MouseEvent) => void;
