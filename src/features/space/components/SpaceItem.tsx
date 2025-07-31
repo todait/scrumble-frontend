@@ -1,10 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import { ArrowUpRight } from 'lucide-react';
 
 import type { Space } from '@/shared/types/space';
 import { useSpaceLogin } from '@/shared/hooks/auth/useSpaceLogin';
-import { SpaceEnterButton } from './ui/SpaceEnterButton';
 
 interface SpaceItemProps {
   space: Space;
@@ -17,8 +17,28 @@ export function SpaceItem({ space }: SpaceItemProps) {
     loginToSpace(space.slug, space.name);
   };
 
+  // 날짜 포맷팅
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '날짜 없음';
+    
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return '날짜 없음';
+    }
+    
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}년 ${month}월 ${day}일 개설`;
+  };
+
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
+    <button
+      onClick={handleEnterSpace}
+      disabled={isLoading}
+      className="flex items-center justify-between w-full max-w-[580px] bg-white p-4 transition-all hover:bg-gray-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+    >
       {/* 스페이스 정보 */}
       <div className="flex items-center space-x-4">
         {/* 스페이스 아이콘 */}
@@ -38,20 +58,22 @@ export function SpaceItem({ space }: SpaceItemProps) {
         </div>
 
         {/* 스페이스 정보 */}
-        <div className="flex-1">
+        <div className="flex-1 text-left">
           <h3 className="text-lg font-semibold text-gray-900">{space.name}</h3>
           <p className="text-sm text-gray-500">
-            멤버 {space.members.length}명 • 
-            {space.members.find(member => member.role === 'owner')?.name || '소유자 없음'}가 관리
+            {space.createdAt ? formatDate(space.createdAt) : '날짜 없음'} • {space.members.length}명
           </p>
         </div>
       </div>
 
-      {/* 입장 버튼 */}
-      <SpaceEnterButton
-        onClick={handleEnterSpace}
-        isLoading={isLoading}
-      />
-    </div>
+      {/* 입장 아이콘 */}
+      <div className="flex items-center justify-center w-10 h-10 rounded-lg border border-[#1D1D1F]/10 hover:bg-[#1D1D1F] hover:text-white transition-colors duration-200 text-[#222222] group-hover:bg-[#1D1D1F] group-hover:text-white">
+        {isLoading ? (
+          <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        ) : (
+          <ArrowUpRight className="w-5 h-5" />
+        )}  
+      </div>
+    </button>
   );
 }

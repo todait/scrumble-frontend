@@ -3,11 +3,11 @@
 import React from 'react';
 
 import { PageLoadingSpinner } from '@/shared/components/ui';
-import { IntroLayout } from '@/shared/components/layout';
 import { useAuth } from '@/shared/contexts/AuthContext';
 
+import { IntroLayout } from '@/shared/components/layout';
 import { AuthHeader, GoogleButton } from '../components';
-import { useGoogleAuth, useAuthRedirect, useAuthErrorHandling } from '../hooks';
+import { useAuthErrorHandling, useAuthRedirect, useGoogleAuth } from '../hooks';
 
 const AuthPage = () => {
   // 커스텀 훅들
@@ -25,10 +25,16 @@ const AuthPage = () => {
 
   return (
     <IntroLayout>
-      <AuthHeader />
+      {/* 헤더 섹션 */}
+      <div className="px-12 py-8">
+        <AuthHeader />
+      </div>
 
-      {/* 구글 로그인/로그아웃 버튼 섹션 */}
-      <div>
+      {/* Divider */}
+      <div className="h-[1px] bg-[#1D1D1F]/10" />
+
+      {/* 액션 섹션 */}
+      <div className="px-12 pb-4 pt-8">
         {!isAuthenticated ? (
           <LoginSection onLogin={handleGoogleLogin} />
         ) : (
@@ -45,11 +51,8 @@ interface LoginSectionProps {
 }
 
 const LoginSection: React.FC<LoginSectionProps> = ({ onLogin }) => (
-  <div>
-    <GoogleButton onClick={onLogin} text="구글 계정으로 계속하기" />
-    <p className="mt-2.5 font-pretendard text-xs font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-sm">
-      간편하게 Google 계정으로 시작하세요
-    </p>
+  <div className="flex justify-center">
+    <GoogleButton onClick={onLogin} text="Google 계정으로 계속하기" />
   </div>
 );
 
@@ -60,7 +63,7 @@ interface LogoutSectionProps {
 }
 
 const LogoutSection: React.FC<LogoutSectionProps> = ({ userEmail, onLogout }) => (
-  <div>
+  <div className="flex flex-col items-center">
     <GoogleButton onClick={onLogout} text="로그아웃하기" />
     <p className="mt-2.5 font-pretendard text-xs font-normal leading-[1.2] text-[#181818] opacity-50 transition-all duration-200 peer-hover:text-[#FF7800] peer-hover:opacity-100 lg:text-sm">
       계정 : {userEmail || '사용자'}

@@ -86,7 +86,10 @@ export function CommentInput({
     img => (img.progress > 0 && img.progress < 100) || !img.metadata
   );
 
-  const isSubmitEnabled = (content.trim().length > 0 || completedImages.length > 0) && !isUploading && !hasUploadingImages;
+  const isSubmitEnabled =
+    (content.trim().length > 0 || completedImages.length > 0) &&
+    !isUploading &&
+    !hasUploadingImages;
 
   const displayPlaceholder = placeholder || `${authorName}님의 체크인에 가볍게 코멘트를 남겨보세요`;
 
@@ -127,11 +130,7 @@ export function CommentInput({
 
       {/* 이미지 미리보기 */}
       {uploadingImages.length > 0 && (
-        <ImagePreviewList
-          images={uploadingImages}
-          onRemove={removeImage}
-          disabled={false}
-        />
+        <ImagePreviewList images={uploadingImages} onRemove={removeImage} disabled={false} />
       )}
 
       {/* 하단 액션 바 */}

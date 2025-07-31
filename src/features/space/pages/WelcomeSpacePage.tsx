@@ -55,15 +55,30 @@ function WelcomeContent() {
 
   return (
     <IntroLayout>
-      <div className="relative w-full">
+      {/* 헤더 섹션 */}
+      <div className="px-12 py-8">
         <WelcomeHeader />
+      </div>
 
-        {/* 버튼 섹션 */}
-        <div className="flex gap-[10px] pt-3">
+      {/* Divider */}
+      <div className="h-[1px] bg-[#1D1D1F]/10" />
+
+      {/* 액션 섹션 */}
+      <div className="px-12 pb-4 pt-8">
+        <div className="flex flex-col items-center gap-4">
           <CreateSpaceButton onClick={handleCreateSpace} />
-
           <LogoutButton onClick={handleLogout} isLoading={isLoggingOut} />
         </div>
+      </div>
+
+      {/* 초대코드 링크 */}
+      <div className="px-12 pb-8 flex justify-end">
+        <button
+          onClick={() => router.push('/invite')}
+          className="text-[13px] font-normal text-[#222222] opacity-50 hover:opacity-100 transition-opacity duration-200 font-pretendard"
+        >
+          초대코드로 입장하기
+        </button>
       </div>
     </IntroLayout>
   );
