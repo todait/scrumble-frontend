@@ -1,11 +1,9 @@
 'use client';
 
-import { IconButton, ImageViewer, LoadingSpinner } from '@/shared/components/ui';
-import { ImagePreview } from '@/shared/components/ui/ImagePreview';
+import { IconButton, ImagePreviewList, LoadingSpinner } from '@/shared/components/ui';
 import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
-import { useImageViewer } from '@/shared/hooks/useImageViewer';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine, RiSendPlaneFill } from '@remixicon/react';
@@ -42,8 +40,6 @@ export function CommentInput({
     acceptedFileTypes: ['image/'],
   });
 
-  const imageViewer = useImageViewer();
-
   // 클립보드 이미지 붙여넣기 기능
   const { textareaProps } = useTextareaClipboardImagePaste({
     onImagePaste: uploadImages,
@@ -63,7 +59,7 @@ export function CommentInput({
   }, [content]);
 
   const handleSubmit = () => {
-    if (content.trim()) {
+    if (content.trim() || completedImages.length > 0) {
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
       const contentToSubmit = content.trim();
@@ -90,7 +86,7 @@ export function CommentInput({
     img => (img.progress > 0 && img.progress < 100) || !img.metadata
   );
 
-  const isSubmitEnabled = content.trim().length > 0 && !isUploading && !hasUploadingImages;
+  const isSubmitEnabled = (content.trim().length > 0 || completedImages.length > 0) && !isUploading && !hasUploadingImages;
 
   const displayPlaceholder = placeholder || `${authorName}님의 체크인에 가볍게 코멘트를 남겨보세요`;
 
@@ -131,29 +127,11 @@ export function CommentInput({
 
       {/* 이미지 미리보기 */}
       {uploadingImages.length > 0 && (
-        <div className="scrollbar-hide flex gap-2 overflow-x-auto">
-          {uploadingImages.map(img => {
-            const isCompleted = img.progress === 100 && img.metadata && !img.error;
-
-            return (
-              <ImagePreview
-                key={img.id}
-                image={img}
-                onRemove={removeImage}
-                onClick={
-                  isCompleted && img.metadata
-                    ? () =>
-                        imageViewer.handleImageClick(
-                          img.metadata!.url,
-                          completedImages.map(i => i.url)
-                        )
-                    : undefined
-                }
-                disabled={false}
-              />
-            );
-          })}
-        </div>
+        <ImagePreviewList
+          images={uploadingImages}
+          onRemove={removeImage}
+          disabled={false}
+        />
       )}
 
       {/* 하단 액션 바 */}
@@ -218,14 +196,6 @@ export function CommentInput({
           </div>
         </div>
       )}
-
-      {/* 이미지 뷰어 */}
-      <ImageViewer
-        images={completedImages.map(img => img.url)}
-        initialIndex={imageViewer.selectedIndex}
-        isOpen={imageViewer.isOpen}
-        onClose={imageViewer.closeViewer}
-      />
     </div>
   );
 }
