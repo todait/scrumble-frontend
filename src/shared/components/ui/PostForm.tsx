@@ -12,6 +12,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 interface PostFormProps {
   onSubmit: (data: { message: string; images: ImageMetadata[] }) => void;
+  onChange?: (data: { message: string; images: ImageMetadata[] }) => void;
   disabled?: boolean;
   isLoading?: boolean;
   placeholder?: string;
@@ -24,6 +25,7 @@ interface PostFormProps {
 
 export const PostForm = ({
   onSubmit,
+  onChange,
   disabled = false,
   isLoading = false,
   placeholder = '오늘 하루는 어떠셨나요? 팀원들과 나누고 싶은 이야기를 들려주세요.',
@@ -62,6 +64,13 @@ export const PostForm = ({
   useEffect(() => {
     setMessage(initialMessage);
   }, [initialMessage]);
+
+  // onChange 콜백 호출
+  useEffect(() => {
+    if (onChange) {
+      onChange({ message, images: completedImages });
+    }
+  }, [message, completedImages, onChange]);
 
   // 제출 핸들러
   const handleSubmit = () => {

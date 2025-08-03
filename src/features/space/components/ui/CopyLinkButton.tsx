@@ -13,15 +13,13 @@ export const CopyLinkButton: React.FC<CopyLinkButtonProps> = ({
   disabled = false 
 }) => {
   return (
-    <Button
+    <button
       onClick={onClick}
       disabled={disabled}
-      variant="secondary"
-      size="full"
-      icon={<Link className="w-5 h-5" />}
-      className="justify-start font-normal gap-[10px]"
+      className="inline-flex items-center gap-2 px-4 py-3 bg-white border border-[#E5E5E7] text-[#666666] text-[14px] font-normal font-pretendard rounded-[12px] hover:bg-[#F5F5F7] hover:border-[#D1D1D6] active:bg-[#EBEBF0] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
     >
+      <Link className="w-4 h-4" />
       초대 링크 복사하기
-    </Button>
+    </button>
   );
 }; 

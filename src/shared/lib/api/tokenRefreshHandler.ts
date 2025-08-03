@@ -60,7 +60,7 @@ export async function handleTokenRefresh(
           window.dispatchEvent(new CustomEvent('userTokenRefreshed'));
         }
       } else {
-        const currentSpace = SpaceMemberTokenManager.getCurrentSpace();
+        const currentSpace = SpaceMemberTokenManager.getCurrentSpaceSlug();
         if (!currentSpace) {
           throw new Error('No current space');
         }
@@ -99,7 +99,7 @@ export async function handleTokenRefresh(
         throw { type: 'AUTH_FAILURE', error };
       } else {
         // SpaceMember 토큰 갱신 실패
-        const currentSpace = SpaceMemberTokenManager.getCurrentSpace();
+        const currentSpace = SpaceMemberTokenManager.getCurrentSpaceSlug();
         if (currentSpace) {
           SpaceMemberTokenManager.clearToken(currentSpace);
         }
@@ -130,16 +130,31 @@ export function determineTokenType(url: string): 'user' | 'spaceMember' {
   // User 토큰을 사용하는 경로들
   const userTokenPaths = [
     '/api/v1/users',
-    '/api/v1/spaces',
     '/auth/refresh',
     '/auth/logout',
     '/auth/spaces/'
   ];
 
-  // User 관련 API나 Space 관리 API는 User 토큰 사용
+  // User 관련 API는 User 토큰 사용
   const isUserTokenPath = userTokenPaths.some(path => url.includes(path));
-  
-  return isUserTokenPath ? 'user' : 'spaceMember';
+  if (isUserTokenPath) {
+    return 'user';
+  }
+
+  // Space 관련 API의 특별한 처리
+  if (url.includes('/api/v1/spaces')) {
+    // User 토큰을 사용하는 space 엔드포인트들 (CreateSpace, GetMySpaceList)
+    if (url === '/api/v1/spaces' || url.includes('/api/v1/spaces/my-list')) {
+      return 'user';
+    }
+    // 나머지 space 엔드포인트는 space member 토큰 사용
+    // (GET/PATCH/DELETE /api/v1/spaces/{spaceSlug})
+    return 'spaceMember';
+  }
+
+  // 나머지 모든 API는 space member 토큰 사용
+  // (/api/v1/posts, /api/v1/todos, /api/v1/reactions, /api/v1/comments, /api/v1/notifications, /api/v1/space-members)
+  return 'spaceMember';
 }
 
 // 인증 실패 처리 함수

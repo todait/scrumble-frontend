@@ -5,13 +5,16 @@ import type { Todo } from '@/features/todo';
 import { TodoContainer, TodoContainerRef } from '@/features/todo';
 import { useExistsCheckin } from '@/shared/hooks/queries/usePosts';
 import { useToast } from '@/shared/hooks/useToast';
+import { useAutosave } from '@/shared/hooks/useAutosave';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { ErrorCode } from '@/shared/types/api';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import type { CheckInAutosaveData } from '@/shared/services/autosave';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AutosaveIndicator } from '@/shared/components/ui';
 import { useCheckInForm } from '../hooks/useCheckInForm';
 import { useCheckInTodos } from '../hooks/useCheckInTodos';
 import { useCheckInModalStore } from '../stores/useCheckInModalStore';
@@ -93,6 +96,57 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   // hooks 추가
   const { isLoadingYesterday, isLoadingToday, saveTodos, isSaving } = useCheckInTodos('new');
 
+  // 실시간 폼 데이터 상태 관리
+  const [formScore, setFormScore] = useState<number | null>(values.score || null);
+  const [formMessage, setFormMessage] = useState(values.message || '');
+  const [formImages, setFormImages] = useState<ImageMetadata[]>(values.images || []);
+
+  // 자동 저장 데이터 준비
+  const autosaveData = useMemo<CheckInAutosaveData>(() => ({
+    score: formScore,
+    message: formMessage,
+    images: formImages,
+    step,
+    todos: {
+      yesterday: yesterdayTodos,
+      today: todayTodos,
+    },
+    date: formatDateToAPIString(selectedDate),
+  }), [formScore, formMessage, formImages, step, yesterdayTodos, todayTodos, selectedDate]);
+
+
+  // 자동 저장 훅 사용
+  const { status: autosaveStatus, restore, remove: removeAutosave } = useAutosave<CheckInAutosaveData>({
+    type: 'checkin',
+    data: autosaveData,
+    enabled: isOpen && mode === 'create', // 생성 모드에서만 자동 저장
+    options: {
+      onRestore: (restoredData) => {
+        // 복원된 데이터 적용
+        setValue('score', restoredData.score || 0);
+        setValue('message', restoredData.message || '');
+        setValue('images', restoredData.images || []);
+        setFormScore(restoredData.score);
+        setFormMessage(restoredData.message || '');
+        setFormImages(restoredData.images || []);
+        setStep(restoredData.step);
+        setYesterdayTodos(restoredData.todos.yesterday);
+        setTodayTodos(restoredData.todos.today);
+      },
+    },
+  });
+
+  // 컴포넌트 마운트 시 데이터 복원 (클라이언트에서만)
+  useEffect(() => {
+    if (isOpen && mode === 'create' && typeof window !== 'undefined') {
+      // 다음 렌더링 사이클에서 복원하여 hydration 문제 방지
+      const timer = setTimeout(() => {
+        restore();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, mode, restore]);
+
   // ESC 키로 모달 닫기
   useEffect(() => {
     if (!isOpen) return;
@@ -129,6 +183,11 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       setValue('score', data.score);
       setValue('message', data.message);
       setValue('images', data.images);
+      
+      // 폼 상태도 업데이트 (자동 저장을 위해)
+      setFormScore(data.score);
+      setFormMessage(data.message);
+      setFormImages(data.images);
 
       await save(
         {
@@ -178,6 +237,8 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       }
 
       if (success) {
+        // 성공 시 자동 저장 데이터 삭제
+        removeAutosave();
         router.replace(`/${spaceSlug}/feed`);
       } else {
         setIsProcessing(false);
@@ -274,7 +335,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   // 초기 brought 데이터를 메모이제이션
   const initialBroughtData = useMemo(() => {
     return calculateInitialBroughtData();
-  }, [todayTodos, yesterdayTodos]);
+  }, [calculateInitialBroughtData]);
 
   return (
     <CheckInModalLayout
@@ -287,8 +348,9 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         <>
           {/* Step 1: 체크인 노트 작성 */}
           <div className="border-b border-black/8 px-5 py-6 md:px-7 md:py-8">
-            <div className="mb-3 flex justify-start">
+            <div className="mb-3 flex items-center justify-between">
               <PagerDots total={2} current={0} />
+              <AutosaveIndicator status={autosaveStatus} />
             </div>
             <div className="mb-2 text-sm font-bold text-black md:text-[15px]">{dateString}</div>
             <div className="mb-2 flex items-center gap-2">
@@ -302,12 +364,19 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
           </div>
           <CheckInForm
             onSubmit={handleSubmit}
+            onChange={(data) => {
+              setFormScore(data.score);
+              setFormMessage(data.message);
+              setFormImages(data.images);
+            }}
             disabled={isLoading || isProcessing}
             isLoading={isLoading || isProcessing}
             onScoreRequiredToast={handleScoreRequiredToast}
             initialData={
               mode === 'edit'
                 ? { score: values.score, message: values.message, images: values.images }
+                : formScore !== null
+                ? { score: formScore, message: formMessage, images: formImages }
                 : undefined
             }
           />
@@ -316,8 +385,9 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         <>
           {/* Step 2: Todo 리스트 작성 */}
           <div className="border-b border-black/8 px-5 py-6 md:px-7 md:py-8">
-            <div className="mb-3 flex justify-start">
+            <div className="mb-3 flex items-center justify-between">
               <PagerDots total={2} current={1} />
+              <AutosaveIndicator status={autosaveStatus} />
             </div>
             <div className="mb-2 text-sm font-bold text-black md:text-[15px]">
               {dateString} · 체크인

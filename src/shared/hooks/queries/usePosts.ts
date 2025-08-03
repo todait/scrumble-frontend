@@ -32,7 +32,6 @@ interface UsePostsOptions {
 
 interface UseFeedSummaryOptions {
   date?: string; // 선택적, 기본값은 오늘 날짜
-  timezone?: string; // 선택적, 사용자 타임존
 }
 
 /**
@@ -71,7 +70,7 @@ export const usePosts = (options: UsePostsOptions) => {
 };
 
 export const useFeedSummary = (options: UseFeedSummaryOptions) => {
-  const { date, timezone } = options;
+  const { date } = options;
   const { currentSpaceSlug } = useAuth();
 
   return useQuery({
@@ -79,7 +78,7 @@ export const useFeedSummary = (options: UseFeedSummaryOptions) => {
       currentSpaceSlug || '',
       date || formatDateToAPIString(new Date())
     ),
-    queryFn: () => postsApi.getFeedSummary({ date, timezone }),
+    queryFn: () => postsApi.getFeedSummary({ date }),
     enabled: !!currentSpaceSlug,
     staleTime: 1000 * 30, // 30초
     gcTime: 1000 * 60 * 10, // 10분

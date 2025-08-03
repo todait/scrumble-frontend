@@ -19,7 +19,6 @@ import type {
   CreateSpaceResponse,
   DeleteSpaceParams,
   DeleteSpaceResponse,
-  GetMySpacesOptions,
   GetMySpacesResponse,
   GetSpaceParams,
   GetSpaceResponse,
@@ -68,21 +67,16 @@ export const spacesApi = {
   /**
    * 스페이스 생성
    * @param request 스페이스 생성 요청 데이터
-   * @param timezone 사용자 타임존 (선택사항)
    * @returns 생성된 스페이스 정보
    */
   createSpace: async (
-    request: CreateSpaceRequest,
-    timezone?: string
+    request: CreateSpaceRequest
   ): Promise<CreateSpaceResponse> => {
-    const headers = timezone ? { 'X-Timezone': timezone } : undefined;
-
     const { data } = await apiClient.post<CreateSpaceApiResponse>(
       '/api/v1/spaces',
       {
         name: request.name,
-      } as CreateSpaceApiRequest,
-      { headers }
+      } as CreateSpaceApiRequest
     );
 
     return {
@@ -94,15 +88,11 @@ export const spacesApi = {
   /**
    * 스페이스 수정
    * @param request 스페이스 수정 요청 데이터
-   * @param timezone 사용자 타임존 (선택사항)
    * @returns 수정된 스페이스 정보
    */
   updateSpace: async (
-    request: UpdateSpaceRequest,
-    timezone?: string
+    request: UpdateSpaceRequest
   ): Promise<UpdateSpaceResponse> => {
-    const headers = timezone ? { 'X-Timezone': timezone } : undefined;
-
     const apiRequest: UpdateSpaceApiRequest = {};
     if (request.name !== undefined) {
       apiRequest.name = request.name;
@@ -113,8 +103,7 @@ export const spacesApi = {
 
     const { data } = await apiClient.patch<UpdateSpaceApiResponse>(
       `/api/v1/spaces/${request.spaceSlug}`,
-      apiRequest,
-      { headers }
+      apiRequest
     );
 
     return {
@@ -125,15 +114,10 @@ export const spacesApi = {
 
   /**
    * 내 스페이스 목록 조회
-   * @param options 조회 옵션 (타임존 포함)
    * @returns 내가 속한 스페이스 목록
    */
-  getMySpaces: async (options?: GetMySpacesOptions): Promise<GetMySpacesResponse> => {
-    const headers = options?.timezone ? { 'X-Timezone': options.timezone } : undefined;
-
-    const { data } = await apiClient.get<GetMySpacesApiResponse>('/api/v1/spaces/my-list', {
-      headers,
-    });
+  getMySpaces: async (): Promise<GetMySpacesResponse> => {
+    const { data } = await apiClient.get<GetMySpacesApiResponse>('/api/v1/spaces/my-list');
 
     return {
       spaces: data.spaces.map(convertApiSpaceToSpace),
@@ -142,15 +126,12 @@ export const spacesApi = {
 
   /**
    * 스페이스 상세 조회
-   * @param params 조회 파라미터 (스페이스 슬러그, 타임존)
+   * @param params 조회 파라미터 (스페이스 슬러그)
    * @returns 스페이스 상세 정보
    */
   getSpace: async (params: GetSpaceParams): Promise<GetSpaceResponse> => {
-    const headers = params.timezone ? { 'X-Timezone': params.timezone } : undefined;
-
     const { data } = await apiClient.get<GetSpaceApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}`,
-      { headers }
+      `/api/v1/spaces/${params.spaceSlug}`
     );
 
     return {

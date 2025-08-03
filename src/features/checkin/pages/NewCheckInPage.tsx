@@ -8,7 +8,7 @@ import { RiCalendarFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CheckInWriteModal } from '../components/CheckInWriteModal';
-import { TeamStatusCard } from '../components/ui';
+import { TeamStatusSection } from '../components/ui';
 
 // CheckInWriteModal 미리 로드하는 함수
 const preloadCheckInModal = () => {
@@ -23,8 +23,8 @@ export function NewCheckInPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 팀 요약 정보 가져오기
-  const { data: teamSummary, isLoading } = useTeamSummary({
+  // 팀 요약 정보 가져오기 (nextCheckinOrder를 위해서만 사용)
+  const { data: teamSummary } = useTeamSummary({
     date: selectedDate,
   });
 
@@ -90,24 +90,7 @@ export function NewCheckInPage() {
                 </p>
               )}
 
-              {isLoading ? (
-                <div className="flex gap-4 py-[10px]">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="flex-1 rounded-lg bg-[#FAFAFA] p-4">
-                      <div className="animate-pulse">
-                        <div className="mb-2 h-3 w-16 rounded bg-gray-200"></div>
-                        <div className="h-4 w-12 rounded bg-gray-200"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <TeamStatusCard
-                  teamCondition={teamSummary?.teamCondition ?? 0}
-                  checkedInCount={teamSummary?.checkedInCount ?? 0}
-                  checkedOutCount={teamSummary?.checkedOutCount ?? 0}
-                />
-              )}
+              <TeamStatusSection selectedDate={selectedDate} />
             </div>
 
             {/* 하단 섹션 - 버튼 */}

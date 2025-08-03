@@ -1,10 +1,11 @@
 import { authApi } from '@/shared/lib/api/auth';
+import { spacesApi } from '@/shared/lib/api/spaces';
 import { SpaceMemberTokenManager } from '@/shared/lib/token';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { AuthPersistenceService } from '../services/authPersistence';
-import type { SpaceMemberInfo, SpaceAuthDataParams } from '../types';
+import type { SpaceMemberInfo, SpaceAuthDataParams, SpaceInfo } from '../types';
 import type { User } from '@/shared/types/auth';
 
 interface UseSpaceManagerOptions {
@@ -17,6 +18,13 @@ export function useSpaceManager({ user }: UseSpaceManagerOptions) {
 
   // 초기 상태
   const [currentSpaceSlug, setCurrentSpaceSlug] = useState<string | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      return SpaceMemberTokenManager.getCurrentSpaceSlug() || undefined;
+    }
+    return undefined;
+  });
+
+  const [currentSpace, setCurrentSpace] = useState<SpaceInfo | undefined>(() => {
     if (typeof window !== 'undefined') {
       return SpaceMemberTokenManager.getCurrentSpace() || undefined;
     }
@@ -63,7 +71,31 @@ export function useSpaceManager({ user }: UseSpaceManagerOptions) {
 
       // 현재 Space 변경
       setCurrentSpaceSlug(spaceSlug);
-      SpaceMemberTokenManager.setCurrentSpace(spaceSlug);
+      SpaceMemberTokenManager.setCurrentSpaceSlug(spaceSlug);
+      
+      // Space 상세 정보 가져오기
+      try {
+        const { space } = await spacesApi.getSpace({ spaceSlug });
+        const spaceInfo: SpaceInfo = {
+          id: space.id,
+          slug: space.slug,
+          name: space.name,
+          iconURL: space.iconURL,
+          members: space.members.map(member => ({
+            id: member.id,
+            spaceId: member.spaceId,
+            spaceSlug: space.slug,
+            role: member.role,
+            name: member.name,
+            avatarURL: member.avatarURL,
+          })),
+        };
+        setCurrentSpace(spaceInfo);
+        SpaceMemberTokenManager.setCurrentSpace(spaceInfo);
+      } catch (error) {
+        console.error('Failed to fetch space details:', error);
+        // Space 정보를 가져오지 못해도 로그인은 성공한 것으로 처리
+      }
       
       // Zustand store에도 저장
       useAuthStore.getState().setLatestSpaceSlug(spaceSlug);
@@ -103,6 +135,8 @@ export function useSpaceManager({ user }: UseSpaceManagerOptions) {
         } else {
           // 모든 Space에서 로그아웃됨
           setCurrentSpaceSlug(undefined);
+          setCurrentSpace(undefined);
+          SpaceMemberTokenManager.clearCurrentSpaceSlug();
           SpaceMemberTokenManager.clearCurrentSpace();
         }
       }
@@ -137,6 +171,7 @@ export function useSpaceManager({ user }: UseSpaceManagerOptions) {
 
   return {
     currentSpaceSlug,
+    currentSpace,
     availableSpaces,
     isSwitchingSpace,
     switchSpace,

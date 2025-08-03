@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
+import type { SpaceInfo } from '@/shared/contexts/auth/types';
 
 interface SpaceMemberTokens {
   accessToken: string;
@@ -79,6 +80,7 @@ export class SpaceMemberTokenManager {
 
     storage.removeItem(this.STORAGE_KEY);
     storage.removeItem(this.CURRENT_SPACE_KEY);
+    storage.removeItem(this.CURRENT_SPACE_INFO_KEY);
   }
 
   static hasValidToken(spaceSlug: string): boolean {
@@ -147,25 +149,55 @@ export class SpaceMemberTokenManager {
 
   // 현재 선택된 Space slug 관리
   private static CURRENT_SPACE_KEY = 'current_space_slug';
+  private static CURRENT_SPACE_INFO_KEY = 'current_space_info';
 
-  static setCurrentSpace(spaceSlug: string) {
+  static setCurrentSpaceSlug(spaceSlug: string) {
     const storage = this.getStorage();
     if (!storage) return;
 
     storage.setItem(this.CURRENT_SPACE_KEY, spaceSlug);
   }
 
-  static getCurrentSpace(): string | null {
+  static getCurrentSpaceSlug(): string | null {
     const storage = this.getStorage();
     if (!storage) return null;
 
     return storage.getItem(this.CURRENT_SPACE_KEY);
   }
 
-  static clearCurrentSpace() {
+  static clearCurrentSpaceSlug() {
     const storage = this.getStorage();
     if (!storage) return;
 
     storage.removeItem(this.CURRENT_SPACE_KEY);
+  }
+
+  // 현재 선택된 Space 정보 관리
+  static setCurrentSpace(space: SpaceInfo) {
+    const storage = this.getStorage();
+    if (!storage) return;
+
+    storage.setItem(this.CURRENT_SPACE_INFO_KEY, JSON.stringify(space));
+  }
+
+  static getCurrentSpace(): SpaceInfo | null {
+    const storage = this.getStorage();
+    if (!storage) return null;
+
+    const data = storage.getItem(this.CURRENT_SPACE_INFO_KEY);
+    if (!data) return null;
+
+    try {
+      return JSON.parse(data);
+    } catch {
+      return null;
+    }
+  }
+
+  static clearCurrentSpace() {
+    const storage = this.getStorage();
+    if (!storage) return;
+
+    storage.removeItem(this.CURRENT_SPACE_INFO_KEY);
   }
 }

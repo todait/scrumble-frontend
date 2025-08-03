@@ -7,9 +7,7 @@ import { inviteTeamSchema } from '@/schemas';
 import { IntroLayout } from '@/shared/components/layout';
 import { useForm } from '@/shared/hooks';
 
-import { InviteInput } from '../components/forms';
-import { InviteHeader } from '../components/layout';
-import { CopyLinkButton } from '../components/ui';
+import { EmailTagInput } from '../components/forms';
 
 interface InviteSpacePageProps {
   spaceSlug?: string; // 스페이스 ID
@@ -38,7 +36,7 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
         console.warn('초대할 이메일 목록:', data.emails);
 
         // 성공 시 다음 페이지로 이동 (추후 구현)
-        router.push(`/${spaceSlug}/settings/members`);
+        router.push(`/${spaceSlug}/feed`);
       } catch (error) {
         console.error('팀 초대 중 오류 발생:', error);
       }
@@ -60,38 +58,75 @@ export const InviteSpacePage: React.FC<InviteSpacePageProps> = ({
   };
 
   const handleSkip = () => {
-    router.push(`/${spaceSlug}/settings/members`);
+    router.push(`/${spaceSlug}/feed`);
   };
+
+  const emailCount = values.emails?.length || 0;
+  const hasValidEmails = emailCount > 0 && isValid;
 
   return (
     <IntroLayout>
-      <div className="w-full max-w-[524px]">
-        <InviteHeader spaceName={spaceName} />
+      <div className="relative flex flex-col items-center justify-center px-4 py-12">
+        <div className="w-full max-w-[480px] space-y-6">
+          {/* Header Section - 중앙 정렬 */}
+          <div className="text-center space-y-4">
+            {/* 스페이스 이름 칩 */}
+            <div className="inline-flex items-center rounded-full border border-[#9747FF]/40 bg-[#9747FF] px-4 py-1.5">
+              <span className="text-[15px] font-bold text-white">
+                {spaceName}
+              </span>
+            </div>
 
-        {/* 이메일 입력 및 버튼 */}
-        <div onSubmit={handleSubmit} className="space-y-[5px]">
-          <InviteInput
-            emails={values.emails || []}
-            onEmailsChange={emails => setValue('emails', emails)}
-            onInvite={handleSubmit}
-            disabled={!isValid}
-          />
-        </div>
+            {/* 타이틀 */}
+            <h1 className="text-[32px] font-bold text-[#222222]">
+              팀원을 초대하세요
+            </h1>
 
-        {/* 건너뛰기 버튼 */}
-        <div className="mt-4 text-center">
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="text-xs text-gray-500 underline transition-colors hover:text-gray-700"
-          >
-            건너뛰기
-          </button>
-        </div>
+            {/* 설명 */}
+            <p className="text-[15px] text-[#222222] opacity-50">
+              이 공간을 함께 채워갈 멤버를 불러보세요.<br />
+              이메일만 알려주시면, 저희가 초대 메일을 보낼게요.
+            </p>
+          </div>
 
-        {/* 초대 링크 복사 버튼 */}
-        <div className="mt-3">
-          <CopyLinkButton onClick={handleCopyInviteLink} />
+          {/* Body Section - Email Input & Buttons */}
+          <div className="space-y-4">
+            {/* Email Tags Input */}
+            <EmailTagInput
+              emails={values.emails || []}
+              onEmailsChange={emails => setValue('emails', emails)}
+            />
+
+            {/* 초대하기 버튼 */}
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!hasValidEmails}
+              className="w-full h-[54px] bg-[#222222] text-white text-[15px] font-medium rounded-[12px] hover:bg-[#181818] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {hasValidEmails ? `${emailCount}명 초대하기` : '초대하기'}
+            </button>
+
+            {/* 일단 시작하기 버튼 */}
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="w-full h-[54px] bg-[#F5F5F7] text-[#666666] text-[15px] font-medium rounded-[12px] hover:bg-[#EBEBF0] transition-colors"
+            >
+              일단 시작하기
+            </button>
+
+            {/* 초대 링크 복사하기 - 텍스트 링크 */}
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={handleCopyInviteLink}
+                className="text-[13px] text-[#222222] opacity-50 hover:opacity-70 transition-opacity"
+              >
+                초대 링크 복사하기
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </IntroLayout>
