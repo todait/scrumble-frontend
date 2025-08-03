@@ -45,7 +45,7 @@ export function CheckOutEditModal({
     data.message = data.message.trim();
     if (data.message === '') {
       error({
-        title: '메시지를 입력해주세요.',
+        message: '메시지를 입력해주세요.',
       });
       return;
     }

@@ -1,3 +1,2 @@
-export { Toast } from './Toast';
-export { SimpleToast } from './SimpleToast';
+export { SimpleToast, SimpleToastContainer } from './SimpleToast';
 export { ToastProvider } from './ToastProvider';

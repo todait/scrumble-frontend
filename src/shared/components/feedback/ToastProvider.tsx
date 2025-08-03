@@ -1,7 +1,7 @@
 'use client';
 
 import { useToastStore } from '@/shared/stores/toast.store';
-import { ToastContainer } from './Toast';
+import { SimpleToastContainer } from './SimpleToast';
 
 export function ToastProvider() {
   const { toasts, removeToast } = useToastStore();
@@ -9,5 +9,5 @@ export function ToastProvider() {
   // 토스트가 없으면 컴포넌트를 렌더링하지 않음
   if (toasts.length === 0) return null;
 
-  return <ToastContainer toasts={toasts} onClose={removeToast} />;
+  return <SimpleToastContainer toasts={toasts} onClose={removeToast} />;
 }

@@ -140,7 +140,7 @@ export const useBulkMarkAsRead = () => {
 
       if (processedCount > 0) {
         toast('success', {
-          title: `${processedCount}개의 알림을 읽음으로 표시했습니다.`,
+          message: `${processedCount}개의 알림을 읽음으로 표시했습니다.`,
         });
       }
 
@@ -151,7 +151,7 @@ export const useBulkMarkAsRead = () => {
     onError: (error: any) => {
       console.error('알림 일괄 읽음 처리 실패:', error);
       const errorMessage = error.message || '알림을 읽음으로 표시하는 중 오류가 발생했습니다.';
-      toast('error', { title: errorMessage });
+      toast('error', { message: errorMessage });
     },
     retry: 2, // 최대 2번 재시도
   });
@@ -181,18 +181,18 @@ export const useMarkAllAsRead = () => {
 
       if (processedCount > 0) {
         toast('success', {
-          title: `모든 알림(${processedCount}개)을 읽음으로 표시했습니다.`,
+          message: `모든 알림(${processedCount}개)을 읽음으로 표시했습니다.`,
         });
       } else {
         toast('info', {
-          title: '읽지 않은 알림이 없습니다.',
+          message: '읽지 않은 알림이 없습니다.',
         });
       }
     },
     onError: (error: any) => {
       console.error('모든 알림 읽음 처리 실패:', error);
       const errorMessage = error.message || '모든 알림을 읽음으로 표시하는 중 오류가 발생했습니다.';
-      toast('error', { title: errorMessage });
+      toast('error', { message: errorMessage });
     },
     retry: 2, // 최대 2번 재시도
   });

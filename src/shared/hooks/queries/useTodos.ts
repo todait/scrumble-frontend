@@ -67,7 +67,6 @@ export const useCreateTodos = () => {
       todoInvalidateHelpers.invalidateAllTodos(queryClient);
 
       success({
-        title: '성공',
         message: data.message || '할 일이 생성되었습니다.',
       });
     },
@@ -76,17 +75,14 @@ export const useCreateTodos = () => {
 
       if (isErrorCode(error, ErrorCode.SPACE_NOT_FOUND)) {
         toastError({
-          title: '오류',
-          message: '스페이스를 찾을 수 없습니다.',
+          message: '오류: 스페이스를 찾을 수 없습니다.',
         });
       } else if (isErrorCode(error, ErrorCode.VALIDATION_ERROR)) {
         toastError({
-          title: '오류',
-          message: '입력한 데이터에 오류가 있습니다.',
+          message: '오류: 입력한 데이터에 오류가 있습니다.',
         });
       } else {
         toastError({
-          title: '오류',
           message: errorMessage || '할 일 생성 중 오류가 발생했습니다.',
         });
       }
@@ -117,7 +113,6 @@ export const useUpdateTodo = () => {
       }));
 
       success({
-        title: '성공',
         message: data.message || '할 일이 수정되었습니다.',
       });
     },
@@ -126,17 +121,14 @@ export const useUpdateTodo = () => {
 
       if (isErrorCode(error, ErrorCode.NOT_FOUND)) {
         toastError({
-          title: '오류',
-          message: '할 일을 찾을 수 없습니다.',
+          message: '오류: 할 일을 찾을 수 없습니다.',
         });
       } else if (isErrorCode(error, ErrorCode.VALIDATION_ERROR)) {
         toastError({
-          title: '오류',
-          message: '입력한 데이터에 오류가 있습니다.',
+          message: '오류: 입력한 데이터에 오류가 있습니다.',
         });
       } else {
         toastError({
-          title: '오류',
           message: errorMessage || '할 일 수정 중 오류가 발생했습니다.',
         });
       }
@@ -197,12 +189,10 @@ export const useToggleTodo = () => {
 
       if (isErrorCode(error, ErrorCode.NOT_FOUND)) {
         toastError({
-          title: '오류',
-          message: '할 일을 찾을 수 없습니다.',
+          message: '오류: 할 일을 찾을 수 없습니다.',
         });
       } else {
         toastError({
-          title: '오류',
           message: errorMessage || '할 일 상태 변경 중 오류가 발생했습니다.',
         });
       }
@@ -251,7 +241,6 @@ export const useDeleteTodo = () => {
       todoInvalidateHelpers.removeTodoFromCache(queryClient, variables.todoId);
 
       success({
-        title: '성공',
         message: '할 일이 삭제되었습니다.',
       });
     },
@@ -260,12 +249,10 @@ export const useDeleteTodo = () => {
 
       if (isErrorCode(error, ErrorCode.NOT_FOUND)) {
         toastError({
-          title: '오류',
-          message: '할 일을 찾을 수 없습니다.',
+          message: '오류: 할 일을 찾을 수 없습니다.',
         });
       } else {
         toastError({
-          title: '오류',
           message: errorMessage || '할 일 삭제 중 오류가 발생했습니다.',
         });
       }
@@ -299,7 +286,6 @@ export const useBulkUpdateTodos = () => {
       }
 
       success({
-        title: '성공',
         message,
       });
     },
@@ -308,17 +294,14 @@ export const useBulkUpdateTodos = () => {
 
       if (isErrorCode(error, ErrorCode.SPACE_NOT_FOUND)) {
         toastError({
-          title: '오류',
-          message: '스페이스를 찾을 수 없습니다.',
+          message: '오류: 스페이스를 찾을 수 없습니다.',
         });
       } else if (isErrorCode(error, ErrorCode.VALIDATION_ERROR)) {
         toastError({
-          title: '오류',
-          message: '입력한 데이터에 오류가 있습니다.',
+          message: '오류: 입력한 데이터에 오류가 있습니다.',
         });
       } else {
         toastError({
-          title: '오류',
           message: errorMessage || '할 일 일괄 업데이트 중 오류가 발생했습니다.',
         });
       }

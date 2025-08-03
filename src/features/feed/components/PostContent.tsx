@@ -4,7 +4,6 @@ import { CheckInEditModal } from '@/features/checkin/components';
 import { CheckOutEditModal } from '@/features/checkout/components';
 import { CollapseSection, TodoContainer, TodoContainerRef } from '@/features/todo';
 import { EmojiReactions } from '@/shared/components/emoji';
-import { SimpleToast } from '@/shared/components/feedback';
 import {
   DeleteConfirmDialog,
   EditDeleteMenu,
@@ -20,6 +19,7 @@ import {
   useExistsCheckin,
   useSaveTodos,
 } from '@/shared/hooks/queries';
+import { useToast } from '@/shared/hooks/useToast';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
 import router from 'next/router';
@@ -50,11 +50,11 @@ export function PostContent({
   const [showFullContent, setShowFullContent] = useState(isDetailView);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showToast, setShowToast] = useState<{ message: string; actionText?: string } | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isTodoCollapsed, setIsTodoCollapsed] = useState(!isDetailView);
   const todoContainerRef = useRef<TodoContainerRef>(null);
+  const { show } = useToast();
 
   // Zustand store에서 편집 모드 상태 가져오기
   const { editingPostId, startEdit, cancelEdit, applyChanges } = usePostTodoStore();
@@ -105,7 +105,7 @@ export function PostContent({
 
     // 삭제 성공 후 토스트 표시
     const onSuccess = () => {
-      setShowToast({ message: '해당 게시물이 삭제되었습니다' });
+      show('해당 게시물이 삭제되었습니다');
     };
 
     if (isCheckIn) {
@@ -154,15 +154,15 @@ export function PostContent({
 
   const handleEditSubmit = () => {
     setShowEditModal(false);
-    setShowToast({
+    show({
       message: '노트를 수정했습니다',
       actionText: '보기',
+      onAction: () => {
+        // 보기 액션 처리
+      }
     });
   };
 
-  const handleToastAction = () => {
-    setShowToast(null);
-  };
 
   const handleReactionToggle = (emoji: string) => {
     if (onReaction) {
@@ -178,9 +178,7 @@ export function PostContent({
         {
           onError: error => {
             console.error('[PostContent] 리액션 토글 실패:', error);
-            setShowToast({
-              message: '리액션 처리에 실패했습니다. 다시 시도해주세요.',
-            });
+            show('리액션 처리에 실패했습니다. 다시 시도해주세요.');
           },
         }
       );
@@ -201,9 +199,7 @@ export function PostContent({
         {
           onError: error => {
             console.error('[PostContent] 리액션 실패:', error);
-            setShowToast({
-              message: '리액션 추가에 실패했습니다. 다시 시도해주세요.',
-            });
+            show('리액션 추가에 실패했습니다. 다시 시도해주세요.');
           },
         }
       );
@@ -211,7 +207,7 @@ export function PostContent({
   };
 
   const handleReactionError = (message: string) => {
-    setShowToast({ message });
+    show(message);
   };
 
   const handleToggleTodoEditMode = () => {
@@ -238,10 +234,10 @@ export function PostContent({
 
       applyChanges(todos); // store에서 편집 모드 종료 및 상태 적용
       todoContainerRef.current?.clearFocus(); // 포커스 초기화
-      setShowToast({ message: '투두가 성공적으로 저장되었습니다' });
+      show('투두가 성공적으로 저장되었습니다');
     } catch (error) {
       console.error('투두 저장 실패:', error);
-      setShowToast({ message: '투두 저장에 실패했습니다. 다시 시도해주세요.' });
+      show('투두 저장에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -536,15 +532,6 @@ export function PostContent({
         />
       )}
 
-      {/* 토스트 메시지 */}
-      {showToast && (
-        <SimpleToast
-          message={showToast.message}
-          actionText={showToast.actionText}
-          onAction={showToast.actionText ? handleToastAction : undefined}
-          onClose={() => setShowToast(null)}
-        />
-      )}
 
       {/* 이미지 뷰어 */}
       {imageUrls && imageUrls.length > 0 && (

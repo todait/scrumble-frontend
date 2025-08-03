@@ -81,7 +81,6 @@ export const useCreateSpace = () => {
       spaceInvalidateHelpers.invalidateMySpaces(queryClient);
 
       success({
-        title: '스페이스 생성 완료',
         message: `'${data.space.name}' 스페이스가 생성되었습니다.`,
       });
     },
@@ -95,18 +94,15 @@ export const useCreateSpace = () => {
       const errorCode = getErrorCode(err);
       if (errorCode === SpaceErrorCode.SPACE_NAME_REQUIRED as string) {
         error({
-          title: '스페이스 생성 실패',
-          message: '스페이스 이름을 입력해주세요.',
+          message: '스페이스 생성 실패: 스페이스 이름을 입력해주세요.',
         });
       } else if (errorCode === SpaceErrorCode.SPACE_NAME_TOO_LONG as string) {
         error({
-          title: '스페이스 생성 실패',
-          message: '스페이스 이름은 100자 이하로 입력해주세요.',
+          message: '스페이스 생성 실패: 스페이스 이름은 100자 이하로 입력해주세요.',
         });
       } else {
         error({
-          title: '스페이스 생성 실패',
-          message: getErrorMessage(err),
+          message: `스페이스 생성 실패: ${getErrorMessage(err)}`,
         });
       }
     },
@@ -157,7 +153,6 @@ export const useUpdateSpace = () => {
       );
 
       success({
-        title: '스페이스 수정 완료',
         message: '스페이스 정보가 수정되었습니다.',
       });
     },
@@ -173,23 +168,19 @@ export const useUpdateSpace = () => {
 
       if (isErrorCode(err, ErrorCode.FORBIDDEN) || getErrorCode(err) === SpaceErrorCode.NOT_SPACE_OWNER as string) {
         error({
-          title: '권한 없음',
-          message: '스페이스를 수정할 권한이 없습니다.',
+          message: '권한 없음: 스페이스를 수정할 권한이 없습니다.',
         });
       } else if (getErrorCode(err) === SpaceErrorCode.SPACE_NOT_FOUND as string) {
         error({
-          title: '스페이스를 찾을 수 없음',
-          message: '존재하지 않는 스페이스입니다.',
+          message: '스페이스를 찾을 수 없음: 존재하지 않는 스페이스입니다.',
         });
       } else if (getErrorCode(err) === SpaceErrorCode.INVALID_ICON_URL as string) {
         error({
-          title: '잘못된 아이콘 URL',
-          message: '올바른 URL 형식을 입력해주세요.',
+          message: '잘못된 아이콘 URL: 올바른 URL 형식을 입력해주세요.',
         });
       } else {
         error({
-          title: '스페이스 수정 실패',
-          message: getErrorMessage(err),
+          message: `스페이스 수정 실패: ${getErrorMessage(err)}`,
         });
       }
     },
@@ -222,7 +213,6 @@ export const useDeleteSpace = () => {
     },
     onSuccess: (_data, _variables, _context) => {
       success({
-        title: '스페이스 삭제 완료',
         message: '스페이스가 삭제되었습니다.',
       });
     },
@@ -238,18 +228,15 @@ export const useDeleteSpace = () => {
 
       if (isErrorCode(err, ErrorCode.FORBIDDEN) || getErrorCode(err) === SpaceErrorCode.NOT_SPACE_OWNER as string) {
         error({
-          title: '권한 없음',
-          message: '스페이스를 삭제할 권한이 없습니다. 소유자만 삭제할 수 있습니다.',
+          message: '권한 없음: 스페이스를 삭제할 권한이 없습니다. 소유자만 삭제할 수 있습니다.',
         });
       } else if (getErrorCode(err) === SpaceErrorCode.SPACE_NOT_FOUND as string) {
         error({
-          title: '스페이스를 찾을 수 없음',
-          message: '이미 삭제되었거나 존재하지 않는 스페이스입니다.',
+          message: '스페이스를 찾을 수 없음: 이미 삭제되었거나 존재하지 않는 스페이스입니다.',
         });
       } else {
         error({
-          title: '스페이스 삭제 실패',
-          message: getErrorMessage(err),
+          message: `스페이스 삭제 실패: ${getErrorMessage(err)}`,
         });
       }
     },

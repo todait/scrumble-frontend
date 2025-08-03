@@ -69,8 +69,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         router.replace(`/${spaceSlug}/feed`);
       } else {
         error({
-          title: '체크인 작성 실패',
-          message: '체크인 작성 중 오류가 발생했습니다. 다시 시도해주세요.',
+          message: '체크인 작성 실패: 체크인 작성 중 오류가 발생했습니다. 다시 시도해주세요.',
         });
       }
       setIsProcessing(false);
@@ -220,9 +219,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
 
   const handleScoreRequiredToast = () => {
     info({
-      title: '점수를 먼저 선택해주세요 😊',
-      message:
-        '오늘의 컴디션 점수를 먼저 선택한 후 메시지를 작성해주세요. 점수를 매기면 마음을 더 잘 정리할 수 있어요!',
+      message: '점수를 먼저 선택해주세요 😊: 오늘의 컴디션 점수를 먼저 선택한 후 메시지를 작성해주세요. 점수를 매기면 마음을 더 잘 정리할 수 있어요!',
     });
   };
 
@@ -254,15 +251,13 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       } else {
         setIsProcessing(false);
         error({
-          title: '체크인 완료 실패',
-          message: '체크인 완료 중 오류가 발생했습니다. 다시 시도해주세요.',
+          message: '체크인 완료 실패: 체크인 완료 중 오류가 발생했습니다. 다시 시도해주세요.',
         });
       }
     } catch {
       setIsProcessing(false);
       error({
-        title: '체크인 완료 실패',
-        message: '체크인 완료 중 오류가 발생했습니다. 다시 시도해주세요.',
+        message: '체크인 완료 실패: 체크인 완료 중 오류가 발생했습니다. 다시 시도해주세요.',
       });
     }
   };
