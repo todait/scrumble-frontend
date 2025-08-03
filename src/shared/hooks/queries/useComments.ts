@@ -182,7 +182,6 @@ export const useCreateComment = () => {
       );
 
       success({
-        title: '댓글 작성 완료',
         message: '댓글이 성공적으로 작성되었습니다.',
       });
     },
@@ -195,8 +194,7 @@ export const useCreateComment = () => {
       }
 
       error({
-        title: '댓글 작성 실패',
-        message: getErrorMessage(err),
+        message: `댓글 작성 실패: ${getErrorMessage(err)}`,
       });
     },
   });
@@ -380,7 +378,6 @@ export const useUpdateComment = () => {
       );
 
       success({
-        title: '댓글 수정 완료',
         message: '댓글이 성공적으로 수정되었습니다.',
       });
     },
@@ -393,8 +390,7 @@ export const useUpdateComment = () => {
       }
 
       error({
-        title: '댓글 수정 실패',
-        message: getErrorMessage(err),
+        message: `댓글 수정 실패: ${getErrorMessage(err)}`,
       });
     },
   });
@@ -451,7 +447,6 @@ export const useDeleteComment = () => {
     },
     onSuccess: (_data, _variables) => {
       success({
-        title: '댓글 삭제 완료',
         message: '댓글이 성공적으로 삭제되었습니다.',
       });
     },
@@ -464,8 +459,7 @@ export const useDeleteComment = () => {
       }
 
       error({
-        title: '댓글 삭제 실패',
-        message: getErrorMessage(err),
+        message: `댓글 삭제 실패: ${getErrorMessage(err)}`,
       });
     },
   });

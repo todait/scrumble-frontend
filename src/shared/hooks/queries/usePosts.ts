@@ -197,13 +197,11 @@ export const useCreateCheckIn = () => {
 
       if (isErrorCode(err, ErrorCode.CHECKIN_ALREADY_EXISTS)) {
         error({
-          title: '이미 작성한 체크인이 있습니다',
-          message: '오늘은 이미 체크인을 작성하셨습니다.',
+          message: '이미 작성한 체크인이 있습니다: 오늘은 이미 체크인을 작성하셨습니다.',
         });
       } else {
         error({
-          title: '체크인 작성 실패',
-          message: getErrorMessage(err),
+          message: `체크인 작성 실패: ${getErrorMessage(err)}`,
         });
       }
     },
@@ -280,8 +278,7 @@ export const useCreateCheckOut = () => {
       }
 
       error({
-        title: '체크아웃 작성 실패',
-        message: getErrorMessage(err),
+        message: `체크아웃 작성 실패: ${getErrorMessage(err)}`,
       });
     },
   });
@@ -336,8 +333,7 @@ export const useUpdateCheckIn = () => {
       }
 
       error({
-        title: '체크인 수정 실패',
-        message: getErrorMessage(err),
+        message: `체크인 수정 실패: ${getErrorMessage(err)}`,
       });
     },
   });
@@ -428,8 +424,7 @@ export const useDeleteCheckIn = () => {
       }
 
       error({
-        title: '체크인 삭제 실패',
-        message: getErrorMessage(err),
+        message: `체크인 삭제 실패: ${getErrorMessage(err)}`,
       });
     },
   });
@@ -484,8 +479,7 @@ export const useUpdateCheckOut = () => {
       }
 
       error({
-        title: '체크아웃 수정 실패',
-        message: getErrorMessage(err),
+        message: `체크아웃 수정 실패: ${getErrorMessage(err)}`,
       });
     },
   });
@@ -555,8 +549,7 @@ export const useDeleteCheckOut = () => {
       }
 
       error({
-        title: '체크아웃 삭제 실패',
-        message: getErrorMessage(err),
+        message: `체크아웃 삭제 실패: ${getErrorMessage(err)}`,
       });
     },
   });

@@ -36,8 +36,7 @@ export function CheckInEditModal({ isOpen, onClose, post, onSubmit }: CheckInEdi
     },
     onError: () => {
       error({
-        title: '체크인 수정 실패',
-        message: '체크인 수정 중 오류가 발생했습니다. 다시 시도해주세요.',
+        message: '체크인 수정 실패: 체크인 수정 중 오류가 발생했습니다. 다시 시도해주세요.',
       });
     },
   });

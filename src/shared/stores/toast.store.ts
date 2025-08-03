@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 
-import { ToastProps } from '../components/feedback/Toast';
+import { SimpleToastProps } from '../components/feedback/SimpleToast';
 
 interface ToastState {
-  toasts: Omit<ToastProps, 'onClose'>[];
+  toasts: Omit<SimpleToastProps, 'onClose'>[];
   toastCounter: number;
-  addToast: (toast: Omit<ToastProps, 'id' | 'onClose'>) => void;
+  addToast: (toast: Omit<SimpleToastProps, 'id' | 'onClose'>) => void;
   removeToast: (id: string) => void;
   clearToasts: () => void;
 }

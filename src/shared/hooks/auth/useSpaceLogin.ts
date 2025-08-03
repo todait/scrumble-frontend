@@ -46,7 +46,6 @@ export function useSpaceLogin(options: UseSpaceLoginOptions = {}) {
 
       // 성공 토스트
       success({
-        title: '스페이스 입장 성공',
         message: spaceName ? `${spaceName}에 입장했습니다.` : '스페이스에 입장했습니다.',
       });
 
@@ -64,8 +63,7 @@ export function useSpaceLogin(options: UseSpaceLoginOptions = {}) {
       
       // 에러 토스트
       error({
-        title: '스페이스 입장 실패',
-        message: '스페이스에 입장할 수 없습니다. 다시 시도해주세요.',
+        message: '스페이스 입장 실패: 스페이스에 입장할 수 없습니다. 다시 시도해주세요.',
       });
 
       // 에러 콜백 호출

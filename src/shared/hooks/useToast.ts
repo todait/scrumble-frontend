@@ -1,43 +1,62 @@
 import { useCallback } from 'react';
 
-import { ToastType } from '../components/feedback/Toast';
 import { useToastStore } from '../stores/toast.store';
 
 interface ToastOptions {
-  title: string;
+  title?: string;
   message?: string;
+  actionText?: string;
+  onAction?: () => void;
   duration?: number;
 }
 
 export function useToast() {
   const { addToast, removeToast, clearToasts } = useToastStore();
 
-  const toast = useCallback((type: ToastType, options: ToastOptions) => {
-    addToast({
-      type,
-      title: options.title,
-      message: options.message,
-      duration: options.duration,
-    });
+  const show = useCallback((options: ToastOptions | string) => {
+    if (typeof options === 'string') {
+      addToast({
+        message: options,
+        duration: 3000,
+      });
+    } else {
+      // title과 message가 모두 있으면 결합
+      const message = options.title && options.message 
+        ? `${options.title}: ${options.message}`
+        : options.title || options.message || '';
+      
+      addToast({
+        message,
+        actionText: options.actionText,
+        onAction: options.onAction,
+        duration: options.duration || 3000,
+      });
+    }
   }, [addToast]);
 
+  // 이전 API와의 호환성을 위한 메서드들
   const success = useCallback((options: ToastOptions) => {
-    toast('success', options);
-  }, [toast]);
+    show(options);
+  }, [show]);
 
   const error = useCallback((options: ToastOptions) => {
-    toast('error', options);
-  }, [toast]);
+    show(options);
+  }, [show]);
 
   const info = useCallback((options: ToastOptions) => {
-    toast('info', options);
-  }, [toast]);
+    show(options);
+  }, [show]);
 
   const warning = useCallback((options: ToastOptions) => {
-    toast('warning', options);
-  }, [toast]);
+    show(options);
+  }, [show]);
+
+  const toast = useCallback((_type: string, options: ToastOptions) => {
+    show(options);
+  }, [show]);
 
   return {
+    show,
     toast,
     success,
     error,

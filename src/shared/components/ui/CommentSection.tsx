@@ -4,8 +4,8 @@ import type { Comment } from '@/features/feed/types/feed.types';
 import { EmojiReactions } from '@/shared/components/emoji';
 import type { EmojiData } from '@/shared/components/emoji/EmojiPicker';
 import { EmojiPicker } from '@/shared/components/emoji/EmojiPicker';
-import { SimpleToast } from '@/shared/components/feedback';
 import { useAuth } from '@/shared/contexts/AuthContext';
+import { useToast } from '@/shared/hooks/useToast';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
@@ -157,7 +157,6 @@ function CommentItem({
   const isMyComment = member?.id === comment.author.id;
   const isEditing = editingCommentId === comment.id;
   const [editContent, setEditContent] = useState(comment.content);
-  const [showToast, setShowToast] = useState<{ message: string } | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
@@ -167,6 +166,7 @@ function CommentItem({
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const editingContainerRef = useRef<HTMLDivElement>(null);
   const { mutate: toggleReaction } = useToggleReaction();
+  const { show } = useToast();
 
   const hasReactions = comment.reactions && comment.reactions.length > 0;
 
@@ -194,7 +194,7 @@ function CommentItem({
   const { textareaProps } = useTextareaClipboardImagePaste({
     onImagePaste: uploadImages,
     onError: error => {
-      setShowToast({ message: error });
+      show(error);
     },
     enabled: isEditing,
   });
@@ -308,9 +308,7 @@ function CommentItem({
       {
         onError: error => {
           console.error('[CommentItem] 리액션 토글 실패:', error);
-          setShowToast({
-            message: '리액션 처리에 실패했습니다. 다시 시도해주세요.',
-          });
+          show('리액션 처리에 실패했습니다. 다시 시도해주세요.');
         },
       }
     );
@@ -328,16 +326,14 @@ function CommentItem({
       {
         onError: error => {
           console.error('[CommentItem] 리액션 추가 실패:', error);
-          setShowToast({
-            message: '리액션 추가에 실패했습니다. 다시 시도해주세요.',
-          });
+          show('리액션 추가에 실패했습니다. 다시 시도해주세요.');
         },
       }
     );
   };
 
   const handleReactionError = (message: string) => {
-    setShowToast({ message });
+    show(message);
   };
 
   const handleEmojiAdd = () => {
@@ -546,8 +542,6 @@ function CommentItem({
         )}
       </div>
 
-      {/* 토스트 메시지 */}
-      {showToast && <SimpleToast message={showToast.message} onClose={() => setShowToast(null)} />}
     </>
   );
 }
