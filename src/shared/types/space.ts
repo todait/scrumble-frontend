@@ -71,13 +71,6 @@ export interface UpdateSpaceResponse {
 }
 
 /**
- * 내 스페이스 목록 조회 옵션
- */
-export interface GetMySpacesOptions {
-  timezone?: string; // 사용자 타임존 (선택사항)
-}
-
-/**
  * 내 스페이스 목록 조회 응답
  */
 export interface GetMySpacesResponse {
@@ -89,7 +82,6 @@ export interface GetMySpacesResponse {
  */
 export interface GetSpaceParams {
   spaceSlug: string;
-  timezone?: string; // 사용자 타임존 (선택사항)
 }
 
 /**

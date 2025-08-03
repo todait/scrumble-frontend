@@ -61,7 +61,7 @@ export function useUserAuth() {
   const logoutMutation = useMutation({
     mutationFn: async () => {
       // 현재 Space에서 로그아웃 시도 (에러 무시)
-      const currentSpaceSlug = SpaceMemberTokenManager.getCurrentSpace();
+      const currentSpaceSlug = SpaceMemberTokenManager.getCurrentSpaceSlug();
       if (currentSpaceSlug && SpaceMemberTokenManager.hasValidToken(currentSpaceSlug)) {
         try {
           await authApi.logoutFromSpace();
@@ -80,6 +80,7 @@ export function useUserAuth() {
       // 모든 토큰 제거
       TokenManager.clearTokens();
       SpaceMemberTokenManager.clearAllTokens();
+      SpaceMemberTokenManager.clearCurrentSpaceSlug();
       SpaceMemberTokenManager.clearCurrentSpace();
 
       // 로컬 데이터 정리

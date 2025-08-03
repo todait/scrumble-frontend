@@ -1,3 +1,4 @@
+export * from './AutosaveIndicator';
 export * from './Button';
 export * from './CommentSection';
 export * from './DeleteConfirmDialog';

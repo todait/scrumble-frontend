@@ -27,6 +27,14 @@ export interface SpaceAuthDataParams {
   role: string;
 }
 
+export interface SpaceInfo {
+  id: string;
+  slug: string;
+  name: string;
+  iconURL?: string;
+  members: SpaceMemberInfo[];
+}
+
 // AuthContext 값 인터페이스
 export interface AuthContextValue {
   // User 정보 (기본 인증용)
@@ -36,6 +44,7 @@ export interface AuthContextValue {
   currentSpaceMember: SpaceMemberInfo | undefined;
   availableSpaces: SpaceMemberInfo[];
   currentSpaceSlug: string | undefined;
+  currentSpace: SpaceInfo | undefined;
 
   // 인증 상태
   isAuthenticated: boolean;

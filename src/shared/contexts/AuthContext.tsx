@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Space 관리
     currentSpaceSlug: spaceManager.currentSpaceSlug,
+    currentSpace: spaceManager.currentSpace,
     availableSpaces: spaceManager.availableSpaces,
     isSwitchingSpace: spaceManager.isSwitchingSpace,
     switchSpace: spaceManager.switchSpace,

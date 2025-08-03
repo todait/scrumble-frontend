@@ -10,7 +10,6 @@ import type {
   CreateSpaceResponse,
   DeleteSpaceParams,
   DeleteSpaceResponse,
-  GetMySpacesOptions,
   GetSpaceParams,
   Space,
   UpdateSpaceRequest,
@@ -28,10 +27,10 @@ import { spaceInvalidateHelpers, spacesKeys } from './spacesKeys';
  * @param options 조회 옵션 (타임존)
  * @returns React Query 결과
  */
-export const useMySpaces = (options?: GetMySpacesOptions) => {
+export const useMySpaces = () => {
   return useQuery({
     queryKey: spacesKeys.myList(),
-    queryFn: () => spacesApi.getMySpaces(options),
+    queryFn: () => spacesApi.getMySpaces(),
     staleTime: 1000 * 60 * 5, // 5분
     gcTime: 1000 * 60 * 15, // 15분
     refetchOnWindowFocus: false,
@@ -45,11 +44,11 @@ export const useMySpaces = (options?: GetMySpacesOptions) => {
  * @returns React Query 결과
  */
 export const useSpace = (params: GetSpaceParams & { enabled?: boolean }) => {
-  const { spaceSlug, timezone, enabled = true } = params;
+  const { spaceSlug, enabled = true } = params;
 
   return useQuery({
     queryKey: spacesKeys.detail(spaceSlug),
-    queryFn: () => spacesApi.getSpace({ spaceSlug, timezone }),
+    queryFn: () => spacesApi.getSpace({ spaceSlug }),
     enabled: !!spaceSlug && enabled,
     staleTime: 1000 * 60 * 2, // 2분
     gcTime: 1000 * 60 * 10, // 10분
@@ -66,8 +65,8 @@ export const useCreateSpace = () => {
   const queryClient = useQueryClient();
   const { success, error } = useToast();
 
-  return useMutation<CreateSpaceResponse, Error, CreateSpaceRequest & { timezone?: string }>({
-    mutationFn: ({ timezone, ...request }) => spacesApi.createSpace(request, timezone),
+  return useMutation<CreateSpaceResponse, Error, CreateSpaceRequest>({
+    mutationFn: (request) => spacesApi.createSpace(request),
     onMutate: async variables => {
       // Optimistic Update: 진행 중인 쿼리들 취소
       await queryClient.cancelQueries({ queryKey: spacesKeys.myList() });
@@ -122,8 +121,8 @@ export const useUpdateSpace = () => {
   const queryClient = useQueryClient();
   const { success, error } = useToast();
 
-  return useMutation<UpdateSpaceResponse, Error, UpdateSpaceRequest & { timezone?: string }>({
-    mutationFn: ({ timezone, ...request }) => spacesApi.updateSpace(request, timezone),
+  return useMutation<UpdateSpaceResponse, Error, UpdateSpaceRequest>({
+    mutationFn: (request) => spacesApi.updateSpace(request),
     onMutate: async variables => {
       // Optimistic Update: 진행 중인 쿼리들 취소
       await queryClient.cancelQueries({ queryKey: spacesKeys.detail(variables.spaceSlug) });

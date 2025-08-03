@@ -119,7 +119,6 @@ export interface ExistsCheckinParams {
 
 export interface GetFeedSummaryParams {
   date?: string; // 선택적, 기본값은 오늘 날짜
-  timezone?: string; // 선택적, X-Timezone 헤더로 전송됨
 }
 
 export interface GetFeedSummaryResponse {

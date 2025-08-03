@@ -154,12 +154,8 @@ export const postsApi = {
       queryParams.append('date', params.date);
     }
 
-    // timezone이 있을 때 X-Timezone 헤더로 전달
-    const headers = params.timezone ? { 'X-Timezone': params.timezone } : undefined;
-
     const { data } = await apiClient.get<GetFeedSummaryApiResponse>(
-      `/api/v1/posts/summary?${queryParams.toString()}`,
-      { headers }
+      `/api/v1/posts/summary?${queryParams.toString()}`
     );
 
     return {
