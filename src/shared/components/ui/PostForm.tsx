@@ -42,6 +42,11 @@ export const PostForm = ({
   const { uploadImages, uploadingImages, completedImages, removeImage, clearImages, isUploading } =
     useImageUpload({
       initialImages,
+      onUploadComplete: (images) => {
+        if (onChange) {
+          onChange({ message, images });
+        }
+      },
       onError: error => {
         alert(error);
       },
@@ -61,16 +66,21 @@ export const PostForm = ({
     enabled: !disabled,
   });
 
+  // removeImage 래핑 함수
+  const handleRemoveImage = (imageId: string) => {
+    removeImage(imageId);
+    // 이미지 제거 후 즉시 onChange 호출
+    if (onChange) {
+      const updatedImages = completedImages.filter(img => 
+        uploadingImages.find(ui => ui.id === imageId)?.metadata?.url !== img.url
+      );
+      onChange({ message, images: updatedImages });
+    }
+  };
+
   useEffect(() => {
     setMessage(initialMessage);
   }, [initialMessage]);
-
-  // onChange 콜백 호출
-  useEffect(() => {
-    if (onChange) {
-      onChange({ message, images: completedImages });
-    }
-  }, [message, completedImages, onChange]);
 
   // 제출 핸들러
   const handleSubmit = () => {
@@ -111,7 +121,13 @@ export const PostForm = ({
           <textarea
             {...textareaProps}
             value={message}
-            onChange={e => setMessage(e.target.value)}
+            onChange={e => {
+              const newMessage = e.target.value;
+              setMessage(newMessage);
+              if (onChange) {
+                onChange({ message: newMessage, images: completedImages });
+              }
+            }}
             onKeyDown={e => {
               if (e.key === 'Enter') {
                 // 모든 Enter 키 이벤트에 대해 전파 차단
@@ -144,7 +160,7 @@ export const PostForm = ({
         
         <ImagePreviewList
           images={uploadingImages}
-          onRemove={removeImage}
+          onRemove={handleRemoveImage}
           disabled={disabled}
           className="mt-3 py-1"
           gap="gap-3"

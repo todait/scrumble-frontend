@@ -3,18 +3,18 @@
 
 import type { Todo } from '@/features/todo';
 import { TodoContainer, TodoContainerRef } from '@/features/todo';
+import { AutosaveIndicator } from '@/shared/components/ui';
 import { useExistsCheckin } from '@/shared/hooks/queries/usePosts';
-import { useToast } from '@/shared/hooks/useToast';
 import { useAutosave } from '@/shared/hooks/useAutosave';
+import { useToast } from '@/shared/hooks/useToast';
+import type { CheckInAutosaveData } from '@/shared/services/autosave';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { ErrorCode } from '@/shared/types/api';
 import type { ImageMetadata } from '@/shared/types/upload.types';
-import type { CheckInAutosaveData } from '@/shared/services/autosave';
 import { formatDate, formatDateToAPIString, isErrorCode } from '@/shared/utils';
 import { RiPokerClubsFill } from '@remixicon/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AutosaveIndicator } from '@/shared/components/ui';
 import { useCheckInForm } from '../hooks/useCheckInForm';
 import { useCheckInTodos } from '../hooks/useCheckInTodos';
 import { useCheckInModalStore } from '../stores/useCheckInModalStore';
@@ -102,26 +102,32 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const [formImages, setFormImages] = useState<ImageMetadata[]>(values.images || []);
 
   // 자동 저장 데이터 준비
-  const autosaveData = useMemo<CheckInAutosaveData>(() => ({
-    score: formScore,
-    message: formMessage,
-    images: formImages,
-    step,
-    todos: {
-      yesterday: yesterdayTodos,
-      today: todayTodos,
-    },
-    date: formatDateToAPIString(selectedDate),
-  }), [formScore, formMessage, formImages, step, yesterdayTodos, todayTodos, selectedDate]);
-
+  const autosaveData = useMemo<CheckInAutosaveData>(
+    () => ({
+      score: formScore,
+      message: formMessage,
+      images: formImages,
+      step,
+      todos: {
+        yesterday: yesterdayTodos,
+        today: todayTodos,
+      },
+      date: formatDateToAPIString(selectedDate),
+    }),
+    [formScore, formMessage, formImages, step, yesterdayTodos, todayTodos, selectedDate]
+  );
 
   // 자동 저장 훅 사용
-  const { status: autosaveStatus, restore, remove: removeAutosave } = useAutosave<CheckInAutosaveData>({
+  const {
+    status: autosaveStatus,
+    restore,
+    remove: removeAutosave,
+  } = useAutosave<CheckInAutosaveData>({
     type: 'checkin',
     data: autosaveData,
     enabled: isOpen && mode === 'create', // 생성 모드에서만 자동 저장
     options: {
-      onRestore: (restoredData) => {
+      onRestore: restoredData => {
         // 복원된 데이터 적용
         setValue('score', restoredData.score || 0);
         setValue('message', restoredData.message || '');
@@ -183,7 +189,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       setValue('score', data.score);
       setValue('message', data.message);
       setValue('images', data.images);
-      
+
       // 폼 상태도 업데이트 (자동 저장을 위해)
       setFormScore(data.score);
       setFormMessage(data.message);
@@ -197,6 +203,11 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         },
         formatDateToAPIString(selectedDate)
       );
+
+      // create 모드에서 Step 1 완료 시 자동 저장 삭제
+      if (mode === 'create') {
+        removeAutosave();
+      }
 
       // create 모드에서는 onSuccess 콜백에서 step을 'todo'로 변경
       // edit 모드에서는 처리 완료
@@ -337,6 +348,15 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     return calculateInitialBroughtData();
   }, [calculateInitialBroughtData]);
 
+  const handleFormChange = useCallback(
+    (data: { score: number | null; message: string; images: ImageMetadata[] }) => {
+      setFormScore(data.score);
+      setFormMessage(data.message);
+      setFormImages(data.images);
+    },
+    []
+  );
+
   return (
     <CheckInModalLayout
       isOpen={isOpen}
@@ -364,11 +384,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
           </div>
           <CheckInForm
             onSubmit={handleSubmit}
-            onChange={(data) => {
-              setFormScore(data.score);
-              setFormMessage(data.message);
-              setFormImages(data.images);
-            }}
+            onChange={handleFormChange}
             disabled={isLoading || isProcessing}
             isLoading={isLoading || isProcessing}
             onScoreRequiredToast={handleScoreRequiredToast}
@@ -376,8 +392,8 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
               mode === 'edit'
                 ? { score: values.score, message: values.message, images: values.images }
                 : formScore !== null
-                ? { score: formScore, message: formMessage, images: formImages }
-                : undefined
+                  ? { score: formScore, message: formMessage, images: formImages }
+                  : undefined
             }
           />
         </>

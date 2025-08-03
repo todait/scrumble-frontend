@@ -2,7 +2,7 @@
 
 import { PostForm } from '@/shared/components/ui';
 import type { ImageMetadata } from '@/shared/types/upload.types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScoreSelector } from '../ui';
 
 interface CheckInFormProps {
@@ -27,19 +27,16 @@ export const CheckInForm = ({
     message: initialData?.message || '',
     images: initialData?.images || []
   });
+  
+  // selectedScore를 ref로도 관리하여 콜백에서 최신 값 참조
+  const selectedScoreRef = useRef(selectedScore);
+  selectedScoreRef.current = selectedScore;
 
   useEffect(() => {
     if (initialData) {
       setSelectedScore(initialData.score);
     }
   }, [initialData]);
-
-  // 점수가 변경될 때마다 onChange 호출
-  useEffect(() => {
-    if (onChange) {
-      onChange({ score: selectedScore, ...currentFormData });
-    }
-  }, [selectedScore]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
     if (!selectedScore) {
@@ -65,14 +62,17 @@ export const CheckInForm = ({
 
   const handleScoreChange = (score: number | null) => {
     setSelectedScore(score);
-  };
-
-  const handlePostFormChange = (data: { message: string; images: ImageMetadata[] }) => {
-    setCurrentFormData(data);
     if (onChange) {
-      onChange({ score: selectedScore, message: data.message, images: data.images });
+      onChange({ score, message: currentFormData.message, images: currentFormData.images });
     }
   };
+
+  const handlePostFormChange = useCallback((data: { message: string; images: ImageMetadata[] }) => {
+    setCurrentFormData(data);
+    if (onChange) {
+      onChange({ score: selectedScoreRef.current, message: data.message, images: data.images });
+    }
+  }, [onChange]);
 
   return (
     <PostForm
