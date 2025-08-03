@@ -1,12 +1,15 @@
-import { SettingsLayout } from '@/features/settings/components/layout';
+'use client';
 
-export default async function SettingsLayoutPage({
+import { SettingsLayout } from '@/features/settings/components/layout';
+import { use } from 'react';
+
+export default function SettingsLayoutPage({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: Promise<{ spaceSlug: string }>;
 }) {
-  const { spaceSlug } = await params;
+  const { spaceSlug } = use(params);
   return <SettingsLayout spaceSlug={spaceSlug}>{children}</SettingsLayout>;
 }

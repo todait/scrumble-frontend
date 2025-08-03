@@ -1,17 +1,8 @@
 'use client';
 
-import { use } from 'react';
+import { FeedPage } from '@/features/feed/pages';
 import { withAuth } from '@/shared/components/auth';
-import { dynamicWithGlobalLoading } from '@/shared/utils/dynamicWithGlobalLoading';
-
-const FeedPage = dynamicWithGlobalLoading(
-  () => import('@/features/feed/pages').then(mod => mod.FeedPage), 
-  {
-    ssr: false,
-    loadingMessage: '피드 로딩 중...',
-  }
-);
-
+import { use } from 'react';
 interface AppFeedPageProps {
   params: Promise<{ spaceSlug: string }>;
 }
