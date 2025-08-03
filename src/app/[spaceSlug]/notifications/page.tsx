@@ -1,19 +1,17 @@
-import { Metadata } from 'next';
-import { NotificationPageWrapper } from './NotificationPageWrapper';
+'use client';
 
-interface NotificationPageProps {
-  params: Promise<{
-    spaceSlug: string;
-  }>;
+import { NotificationPage } from '@/features/notifications/pages';
+import { withAuth } from '@/shared/components/auth';
+import { use } from 'react';
+
+interface AppNotificationPageProps {
+  params: Promise<{ spaceSlug: string }>;
 }
 
-export const metadata: Metadata = {
-  title: '알림',
-  description: '팀 활동 알림과 공지사항을 확인하세요.',
-  robots: 'noindex, nofollow',
-};
+function AppNotificationPage({ params }: AppNotificationPageProps) {
+  const { spaceSlug } = use(params);
 
-export default async function NotificationPageComponent({ params }: NotificationPageProps) {
-  const { spaceSlug } = await params;
-  return <NotificationPageWrapper spaceSlug={spaceSlug} />;
+  return <NotificationPage spaceSlug={spaceSlug} />;
 }
+
+export default withAuth(AppNotificationPage);
