@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthProvider, TimezoneProvider, GlobalLoadingProvider } from '@/shared/contexts';
+import { AutosaveCleanup } from '@/shared/components/ui';
 import { setQueryClient } from '@/shared/lib/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -52,6 +53,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <GlobalLoadingProvider>
       <QueryClientProvider client={queryClient}>
+        <AutosaveCleanup />
         <TimezoneProvider>
           <AuthProvider>{children}</AuthProvider>
         </TimezoneProvider>

@@ -1,3 +1,4 @@
+export * from './AutosaveCleanup';
 export * from './AutosaveIndicator';
 export * from './Button';
 export * from './CommentSection';

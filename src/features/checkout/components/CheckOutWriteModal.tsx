@@ -11,7 +11,7 @@ import type { ImageMetadata } from '@/shared/types/upload.types';
 import type { CheckOutAutosaveData } from '@/shared/services/autosave';
 import { formatDate, formatDateToAPIString } from '@/shared/utils';
 import { RiCheckFill, RiPokerDiamondsFill } from '@remixicon/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AutosaveIndicator } from '@/shared/components/ui';
 import { useCheckOutTodos } from '../hooks/useCheckOutTodos';
 import { useCheckOutModalStore } from '../stores/useCheckOutModalStore';
@@ -168,6 +168,11 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
   // TodoContainer props 수정
   // (convertToTodos 함수 삭제)
 
+  const handleFormChange = useCallback((data: { message: string; images: ImageMetadata[] }) => {
+    setFormMessage(data.message);
+    setFormImages(data.images);
+  }, []);
+
   return (
     <CheckInModalLayout
       isOpen={isOpen}
@@ -236,10 +241,7 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
           </div>
           <CheckOutForm
             onSubmit={handleSubmit}
-            onChange={(data) => {
-              setFormMessage(data.message);
-              setFormImages(data.images);
-            }}
+            onChange={handleFormChange}
             disabled={isPending || isProcessing}
             isLoading={isPending || isProcessing}
             initialData={{ message: formMessage, images: formImages }}

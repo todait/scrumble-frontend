@@ -1,5 +1,5 @@
 import type { AutosaveKey, AutosaveOptions, AutosaveStatus } from '@/shared/services/autosave';
-import { autosaveService, AutosaveService } from '@/shared/services/autosave';
+import { AutosaveService, autosaveService } from '@/shared/services/autosave';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { formatDateToAPIString } from '@/shared/utils';
 import { useParams } from 'next/navigation';
@@ -162,12 +162,7 @@ export function useAutosave<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, spaceSlug, data, debounceMs]); // save는 dataRef를 사용하므로 의도적으로 제외
 
-  // 컴포넌트 마운트 시 만료된 데이터 정리 (클라이언트에서만)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      autosaveService.cleanupExpiredData();
-    }
-  }, []);
+  // 컴포넌트별 정리는 제거 - 전역 AutosaveCleanup 컴포넌트가 처리
 
   // 날짜 변경 시 이전 자동 저장 데이터 초기화
   useEffect(() => {
