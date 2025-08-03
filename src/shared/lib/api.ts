@@ -41,7 +41,7 @@ apiClient.interceptors.request.use(
       }
     } else {
       // SpaceMember 토큰 사용
-      const currentSpace = SpaceMemberTokenManager.getCurrentSpace();
+      const currentSpace = SpaceMemberTokenManager.getCurrentSpaceSlug();
       if (currentSpace) {
         const spaceMemberToken = SpaceMemberTokenManager.getAccessToken(currentSpace);
         if (spaceMemberToken) {

@@ -5,11 +5,14 @@ import { PagerDots } from '@/features/checkin/components/PagerDots';
 import type { Todo } from '@/features/todo';
 import { TodoContainer, TodoContainerRef } from '@/features/todo';
 import { useCreateCheckOut } from '@/shared/hooks/queries';
+import { useAutosave } from '@/shared/hooks/useAutosave';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import type { CheckOutAutosaveData } from '@/shared/services/autosave';
 import { formatDate, formatDateToAPIString } from '@/shared/utils';
 import { RiCheckFill, RiPokerDiamondsFill } from '@remixicon/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AutosaveIndicator } from '@/shared/components/ui';
 import { useCheckOutTodos } from '../hooks/useCheckOutTodos';
 import { useCheckOutModalStore } from '../stores/useCheckOutModalStore';
 import { CheckOutForm } from './forms';
@@ -26,6 +29,10 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const todoContainerRef = useRef<TodoContainerRef>(null);
 
+  // 폼 데이터 상태
+  const [message, setMessage] = useState('');
+  const [images, setImages] = useState<ImageMetadata[]>([]);
+
   // 2-step 관리를 위한 스토어
   const { step, setStep, reset: resetModalStore } = useCheckOutModalStore();
 
@@ -40,10 +47,52 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
   useEffect(() => {
     if (!isOpen) {
       resetModalStore();
+      setMessage('');
+      setImages([]);
     }
   }, [isOpen, resetModalStore]);
 
-  // 초기 임시 데이터 제거 (useEffect 삭제)
+  // 실시간 폼 데이터 상태 관리
+  const [formMessage, setFormMessage] = useState(message);
+  const [formImages, setFormImages] = useState<ImageMetadata[]>(images);
+
+  // 자동 저장 데이터 준비
+  const autosaveData = useMemo<CheckOutAutosaveData>(() => ({
+    message: formMessage,
+    images: formImages,
+    step,
+    todos: todayData,
+    date: formatDateToAPIString(selectedDate),
+  }), [formMessage, formImages, step, todayData, selectedDate]);
+
+  // 자동 저장 훅 사용
+  const { status: autosaveStatus, restore, remove: removeAutosave } = useAutosave<CheckOutAutosaveData>({
+    type: 'checkout',
+    data: autosaveData,
+    enabled: isOpen,
+    options: {
+      onRestore: (restoredData) => {
+        // 복원된 데이터 적용
+        setMessage(restoredData.message || '');
+        setImages(restoredData.images || []);
+        setFormMessage(restoredData.message || '');
+        setFormImages(restoredData.images || []);
+        setStep(restoredData.step);
+        // TODO: Todo 데이터 복원은 API와 동기화 필요
+      },
+    },
+  });
+
+  // 컴포넌트 마운트 시 데이터 복원 (클라이언트에서만)
+  useEffect(() => {
+    if (isOpen && typeof window !== 'undefined') {
+      // 다음 렌더링 사이클에서 복원하여 hydration 문제 방지
+      const timer = setTimeout(() => {
+        restore();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, restore]);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -71,6 +120,12 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
 
   const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
     setIsProcessing(true);
+    
+    // 상태 업데이트 (자동 저장을 위해)
+    setMessage(data.message);
+    setImages(data.images);
+    setFormMessage(data.message);
+    setFormImages(data.images);
 
     createCheckOut(
       {
@@ -81,6 +136,8 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
       {
         onSuccess: () => {
           setIsProcessing(false);
+          // 성공 시 자동 저장 데이터 삭제
+          removeAutosave();
           onClose();
         },
         onError: () => {
@@ -122,8 +179,9 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
         <>
           {/* Step 1: 오늘의 투두 체크 */}
           <div className="border-b border-black/8 px-5 py-6 md:px-7 md:py-8">
-            <div className="mb-3 flex justify-start">
+            <div className="mb-3 flex items-center justify-between">
               <PagerDots total={2} current={0} />
+              <AutosaveIndicator status={autosaveStatus} />
             </div>
             <div className="mb-2 text-sm font-bold text-black md:text-[15px]">{dateString}</div>
             <div className="mb-2 flex items-center gap-2">
@@ -160,8 +218,9 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
         <>
           {/* Step 2: 체크아웃 노트 작성 */}
           <div className="border-b border-black/8 px-5 py-6 md:px-7 md:py-8">
-            <div className="mb-3 flex justify-start">
+            <div className="mb-3 flex items-center justify-between">
               <PagerDots total={2} current={1} />
+              <AutosaveIndicator status={autosaveStatus} />
             </div>
             <div className="mb-2 text-sm font-bold text-black md:text-[15px]">
               {dateString} · 체크아웃
@@ -177,8 +236,13 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
           </div>
           <CheckOutForm
             onSubmit={handleSubmit}
+            onChange={(data) => {
+              setFormMessage(data.message);
+              setFormImages(data.images);
+            }}
             disabled={isPending || isProcessing}
             isLoading={isPending || isProcessing}
+            initialData={{ message: formMessage, images: formImages }}
           />
         </>
       )}

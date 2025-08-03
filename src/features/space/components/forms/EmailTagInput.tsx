@@ -133,7 +133,7 @@ export const EmailTagInput: React.FC<EmailTagInputProps> = ({
   return (
     <div className="w-full">
       <div
-        className={`flex min-h-[40px] w-full flex-wrap items-start gap-2 rounded-xl border bg-white px-3 py-2 font-pretendard ${
+        className={`flex min-h-[80px] w-full flex-wrap items-start gap-2 rounded-xl border bg-white px-4 py-3 font-pretendard ${
           hasError ? 'border-red-500' : 'border-[#9747FF]'
         }`}
       >
