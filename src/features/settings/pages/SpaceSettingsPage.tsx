@@ -9,10 +9,15 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function SpaceSettingsPage() {
-  const { currentSpace, currentSpaceSlug } = useAuth();
+  const { currentSpace, currentSpaceSlug, currentSpaceMember } = useAuth();
   const router = useRouter();
   const updateSpaceMutation = useUpdateSpace();
   const deleteSpaceMutation = useDeleteSpace();
+  
+  // Role 기반 권한 체크
+  const canEdit = currentSpaceMember?.role === 'admin' || currentSpaceMember?.role === 'owner';
+  const canDelete = currentSpaceMember?.role === 'owner';
+  const canLeave = currentSpaceMember?.role === 'admin' || currentSpaceMember?.role === 'member';
   
   // useImageUpload 훅 사용
   const { uploadImages, isUploading } = useImageUpload({
@@ -41,8 +46,9 @@ export default function SpaceSettingsPage() {
   // 변경사항 감지
   const [hasChanges, setHasChanges] = useState(false);
 
-  // 삭제 다이얼로그 상태
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  // 액션 다이얼로그 상태
+  const [showActionDialog, setShowActionDialog] = useState(false);
+  const [actionType, setActionType] = useState<'delete' | 'leave'>('delete');
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
 
   // const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일']; // 미구현 기능
@@ -131,7 +137,13 @@ export default function SpaceSettingsPage() {
   };
 
   const handleDeleteSpace = () => {
-    setShowDeleteDialog(true);
+    setActionType('delete');
+    setShowActionDialog(true);
+  };
+
+  const handleLeaveSpace = () => {
+    setActionType('leave');
+    setShowActionDialog(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -145,14 +157,28 @@ export default function SpaceSettingsPage() {
         router.push('/');
       } catch (error) {
         // 에러는 useDeleteSpace 훅에서 toast로 처리됨
-        setShowDeleteDialog(false);
+        setShowActionDialog(false);
         setDeleteConfirmName('');
       }
     }
   };
 
-  const handleCancelDelete = () => {
-    setShowDeleteDialog(false);
+  const handleConfirmLeave = async () => {
+    // TODO: 스페이스 나가기 API 호출
+    alert('스페이스 나가기 기능은 아직 구현되지 않았습니다.');
+    setShowActionDialog(false);
+    
+    // API 구현 후 아래 코드 사용
+    // try {
+    //   await leaveSpaceMutation.mutateAsync({ spaceSlug: currentSpaceSlug });
+    //   router.push('/');
+    // } catch (error) {
+    //   // 에러 처리
+    // }
+  };
+
+  const handleCancelAction = () => {
+    setShowActionDialog(false);
     setDeleteConfirmName('');
   };
 
@@ -160,10 +186,12 @@ export default function SpaceSettingsPage() {
     <div className="p-10">
       <div className="mb-10">
         <h1 className="mb-2 text-[20px] font-bold text-[#1D1D1F]">스페이스 정보</h1>
-        <p className="text-[14px] leading-[20px] text-[#86868B]">
-          스페이스 정보를 직접 수정할 수 있으며, 변경 사항은 모든 멤버에게 자동으로 알림이
-          전송됩니다.
-        </p>
+        {canEdit && (
+          <p className="text-[14px] leading-[20px] text-[#86868B]">
+            스페이스 정보를 직접 수정할 수 있으며, 변경 사항은 모든 멤버에게 자동으로 알림이
+            전송됩니다.
+          </p>
+        )}
       </div>
 
       <div className="space-y-12">
@@ -172,9 +200,9 @@ export default function SpaceSettingsPage() {
           <div className="flex items-start gap-[30px]">
             {/* 스페이스 아이콘 - 120x120 */}
             <button
-              onClick={() => document.getElementById('icon-upload')?.click()}
-              className="block transition-opacity hover:opacity-80 relative"
-              disabled={isUploading}
+              onClick={() => canEdit && document.getElementById('icon-upload')?.click()}
+              className={`block transition-opacity relative ${canEdit ? 'hover:opacity-80 cursor-pointer' : 'cursor-default'}`}
+              disabled={isUploading || !canEdit}
             >
               <div className="flex h-[120px] w-[120px] items-center justify-center overflow-hidden rounded-[20px] bg-[#9747FF]">
                 {localSpaceIconPreview || currentSpace?.iconURL ? (
@@ -235,13 +263,19 @@ export default function SpaceSettingsPage() {
         <div className="flex items-start justify-between gap-6">
           <h3 className="whitespace-nowrap text-[15px] font-bold text-[#1D1D1F]">스페이스 이름</h3>
           <div className="w-full max-w-[750px]">
-            <input
-              type="text"
-              value={localSpaceName}
-              onChange={handleSpaceNameChange}
-              className="h-[54px] w-full rounded-[10px] border border-[#D2D2D7] bg-[#F9F9FB] px-4 text-[16px] font-normal text-[#1D1D1F] transition-colors focus:border-[#9747FF] focus:outline-none"
-              placeholder="스페이스 이름 입력"
-            />
+            {canEdit ? (
+              <input
+                type="text"
+                value={localSpaceName}
+                onChange={handleSpaceNameChange}
+                className="h-[54px] w-full rounded-[10px] border border-[#D2D2D7] bg-[#F9F9FB] px-4 text-[16px] font-normal text-[#1D1D1F] transition-colors focus:border-[#9747FF] focus:outline-none"
+                placeholder="스페이스 이름 입력"
+              />
+            ) : (
+              <div className="flex h-[54px] items-center text-[16px] font-normal text-[#1D1D1F]">
+                {localSpaceName}
+              </div>
+            )}
           </div>
         </div>
 
@@ -306,47 +340,59 @@ export default function SpaceSettingsPage() {
         </div>
         */}
 
-        <div>
-          {/* 저장/취소 버튼 */}
-          <div className="mt-12 flex gap-5">
-            <button
-              onClick={handleCancelChanges}
-              className={`flex-1 rounded-[10px] px-6 py-3.5 text-[14px] font-medium transition-colors ${
-                hasChanges && !updateSpaceMutation.isPending
-                  ? 'bg-[#F2F2F7] text-[#1D1D1F] hover:bg-[#E5E5EA]'
-                  : 'cursor-not-allowed bg-[#F2F2F7] text-[#C7C7CC]'
-              }`}
-              disabled={!hasChanges || updateSpaceMutation.isPending}
-            >
-              취소
-            </button>
-            <button
-              onClick={handleSaveChanges}
-              className={`flex-1 rounded-[10px] px-6 py-3.5 text-[14px] font-medium transition-colors ${
-                hasChanges && !updateSpaceMutation.isPending && !isUploading
-                  ? 'bg-[#9747FF] text-white hover:bg-[#8739E6]'
-                  : 'cursor-not-allowed bg-[#E5E5EA] text-[#C7C7CC]'
-              }`}
-              disabled={!hasChanges || updateSpaceMutation.isPending || isUploading}
-            >
-              {updateSpaceMutation.isPending ? '저장 중...' : '저장'}
-            </button>
+        {canEdit && (
+          <div>
+            {/* 저장/취소 버튼 */}
+            <div className="mt-12 flex gap-5">
+              <button
+                onClick={handleCancelChanges}
+                className={`flex-1 rounded-[10px] px-6 py-3.5 text-[14px] font-medium transition-colors ${
+                  hasChanges && !updateSpaceMutation.isPending
+                    ? 'bg-[#F2F2F7] text-[#1D1D1F] hover:bg-[#E5E5EA]'
+                    : 'cursor-not-allowed bg-[#F2F2F7] text-[#C7C7CC]'
+                }`}
+                disabled={!hasChanges || updateSpaceMutation.isPending}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSaveChanges}
+                className={`flex-1 rounded-[10px] px-6 py-3.5 text-[14px] font-medium transition-colors ${
+                  hasChanges && !updateSpaceMutation.isPending && !isUploading
+                    ? 'bg-[#9747FF] text-white hover:bg-[#8739E6]'
+                    : 'cursor-not-allowed bg-[#E5E5EA] text-[#C7C7CC]'
+                }`}
+                disabled={!hasChanges || updateSpaceMutation.isPending || isUploading}
+              >
+                {updateSpaceMutation.isPending ? '저장 중...' : '저장'}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 스페이스 삭제 섹션 */}
+        {/* 스페이스 삭제/나가기 섹션 */}
         <div className="mt-16 flex justify-end border-t border-[#F2F2F7] pt-10">
-          <button
-            onClick={handleDeleteSpace}
-            className="text-[14px] font-medium text-[#FF3B30] transition-colors hover:text-[#D70015]"
-          >
-            스페이스 삭제하기
-          </button>
+          {canDelete && (
+            <button
+              onClick={handleDeleteSpace}
+              className="text-[14px] font-medium text-[#FF3B30] transition-colors hover:text-[#D70015]"
+            >
+              스페이스 삭제하기
+            </button>
+          )}
+          {canLeave && (
+            <button
+              onClick={handleLeaveSpace}
+              className="text-[14px] font-medium text-[#FF3B30] transition-colors hover:text-[#D70015]"
+            >
+              스페이스 나가기
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 스페이스 삭제 확인 다이얼로그 */}
-      {showDeleteDialog && (
+      {/* 스페이스 삭제/나가기 확인 다이얼로그 */}
+      {showActionDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
           <div className="w-full max-w-md rounded-lg bg-white p-4 md:p-6">
             <div className="mb-4 flex items-center">
@@ -365,51 +411,68 @@ export default function SpaceSettingsPage() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">스페이스 삭제</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {actionType === 'delete' ? '스페이스 삭제' : '스페이스 나가기'}
+              </h3>
             </div>
 
             <div className="mb-4">
               <p className="mb-2 text-sm text-gray-600 md:text-base">
-                정말로 이 스페이스를 삭제하시겠습니까?
+                {actionType === 'delete' 
+                  ? '정말로 이 스페이스를 삭제하시겠습니까?' 
+                  : '정말로 이 스페이스를 나가시겠습니까?'}
               </p>
               <p className="mb-4 text-xs text-red-600 md:text-sm">
-                이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.
+                {actionType === 'delete'
+                  ? '이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.'
+                  : '나간 후에는 다시 초대받아야 합니다.'}
               </p>
 
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  확인을 위해 스페이스 이름{' '}
-                  <span className="font-semibold text-gray-900">&quot;{localSpaceName}&quot;</span>
-                  을 정확히 입력하세요:
-                </label>
-                <input
-                  type="text"
-                  value={deleteConfirmName}
-                  onChange={e => setDeleteConfirmName(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="스페이스 이름을 입력하세요"
-                />
-              </div>
+              {actionType === 'delete' && (
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    확인을 위해 스페이스 이름{' '}
+                    <span className="font-semibold text-gray-900">&quot;{localSpaceName}&quot;</span>
+                    을 정확히 입력하세요:
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmName}
+                    onChange={e => setDeleteConfirmName(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="스페이스 이름을 입력하세요"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end space-x-3">
               <button
-                onClick={handleCancelDelete}
+                onClick={handleCancelAction}
                 className="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600"
               >
                 취소
               </button>
-              <button
-                onClick={handleConfirmDelete}
-                disabled={deleteConfirmName !== localSpaceName || deleteSpaceMutation.isPending}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  deleteConfirmName === localSpaceName && !deleteSpaceMutation.isPending
-                    ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'cursor-not-allowed bg-gray-300 text-gray-500'
-                }`}
-              >
-                {deleteSpaceMutation.isPending ? '삭제 중...' : '삭제하기'}
-              </button>
+              {actionType === 'delete' ? (
+                <button
+                  onClick={handleConfirmDelete}
+                  disabled={deleteConfirmName !== localSpaceName || deleteSpaceMutation.isPending}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                    deleteConfirmName === localSpaceName && !deleteSpaceMutation.isPending
+                      ? 'bg-red-600 text-white hover:bg-red-700'
+                      : 'cursor-not-allowed bg-gray-300 text-gray-500'
+                  }`}
+                >
+                  {deleteSpaceMutation.isPending ? '삭제 중...' : '삭제하기'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleConfirmLeave}
+                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                >
+                  나가기
+                </button>
+              )}
             </div>
           </div>
         </div>
