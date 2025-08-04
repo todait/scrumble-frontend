@@ -18,8 +18,6 @@ import {
 } from '@remixicon/react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { SettingsDropdown } from './SettingsDropdown';
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -36,11 +34,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isPostDetailOpen = !!searchParams.get('post');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const settingsButtonRef = useRef<HTMLButtonElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { logout, currentSpaceMember } = useAuth();
+  const { currentSpaceMember } = useAuth();
 
   // 읽지 않은 알림 개수 가져오기
   const { data: unreadCountData } = useNotificationUnreadCount({
@@ -48,36 +42,6 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
   });
 
   const totalUnreadCount = unreadCountData?.totalUnreadCount || 0;
-
-  // 로그아웃 처리 함수
-  function handleLogout() {
-    setIsDropdownOpen(false);
-    logout();
-  }
-
-  // 호버 이벤트 핸들러
-  const handleMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setIsDropdownOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsDropdownOpen(false);
-    }, 200); // 200ms 지연으로 의도하지 않은 닫힘 방지
-  };
-
-  // 컴포넌트 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const navItems: NavItem[] = [
     {
@@ -157,24 +121,18 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
         </div>
 
         {/* 설정 아이템 - 하단에 위치 */}
-        <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-          <button
-            ref={settingsButtonRef}
-            className="flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all hover:bg-[rgba(34,34,34,0.08)]"
-          >
-            <SettingsIcon className="h-8 w-8 text-[#222222] opacity-20 hover:opacity-40" />
-          </button>
-
-          {/* 드롭다운 메뉴 */}
-          {isDropdownOpen && (
-            <SettingsDropdown
-              ref={dropdownRef}
-              spaceSlug={spaceSlug}
-              onLogout={handleLogout}
-              className="absolute bottom-full left-0 mb-2"
-            />
-          )}
-        </div>
+        <Link
+          href={settingsItem.href}
+          className={`flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
+            isActive(settingsItem.href) ? '' : 'hover:bg-[rgba(34,34,34,0.08)]'
+          }`}
+        >
+          <SettingsIcon
+            className={`h-8 w-8 text-[#222222] ${
+              isActive(settingsItem.href) ? 'opacity-80' : 'opacity-30 hover:opacity-50'
+            }`}
+          />
+        </Link>
       </div>
 
       {/* 모바일 바텀 네비게이션 - PostDetail 열렸을 때는 숨김, 1024px 이상에서도 숨김 */}

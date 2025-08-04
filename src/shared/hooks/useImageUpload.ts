@@ -1,6 +1,7 @@
 import { r2Service } from '@/shared/services/r2.service';
 import type { ImageMetadata, UploadingImage } from '@/shared/types/upload.types';
 import { convertHeicToJpeg, isHeicFile } from '@/shared/utils';
+import { compressImage } from '@/shared/utils/imageCompression';
 import { debug } from '@/shared/utils/debug';
 import { useCallback, useRef, useState } from 'react';
 
@@ -73,26 +74,43 @@ export function useImageUpload({
   // 단일 이미지 업로드
   const uploadSingleImage = async (file: File, uploadId: string): Promise<ImageMetadata> => {
     try {
-      // 1. Presigned URL 가져오기
-      const { uploadUrl, publicUrl, key } = await r2Service.getPresignedUrl(file.name, file.type);
+      // 1. 이미지 압축 (GIF 제외)
+      let processedFile = file;
+      if (file.type !== 'image/gif') {
+        try {
+          processedFile = await compressImage(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.85,
+            format: 'jpeg'
+          });
+          debug('UPLOAD', `Image compressed: ${file.size} -> ${processedFile.size} bytes`);
+        } catch (compressionError) {
+          debug('UPLOAD', `Image compression failed, using original: ${compressionError}`);
+          // 압축 실패 시 원본 사용
+        }
+      }
 
-      // 2. 이미지 메타데이터 추출
-      const imageMeta = await r2Service.getImageMetadata(file);
+      // 2. Presigned URL 가져오기
+      const { uploadUrl, publicUrl, key } = await r2Service.getPresignedUrl(processedFile.name, processedFile.type);
 
-      // 3. R2에 업로드
-      await r2Service.uploadToR2(uploadUrl, file, progress => {
+      // 3. 이미지 메타데이터 추출
+      const imageMeta = await r2Service.getImageMetadata(processedFile);
+
+      // 4. R2에 업로드
+      await r2Service.uploadToR2(uploadUrl, processedFile, progress => {
         setUploadingImages(prev =>
           prev.map(img => (img.id === uploadId ? { ...img, progress } : img))
         );
       });
 
-      // 4. 최종 메타데이터 생성
+      // 5. 최종 메타데이터 생성
       const metadata: ImageMetadata = {
         url: publicUrl,
         key,
-        size: file.size,
-        format: file.type,
-        name: file.name,
+        size: processedFile.size,
+        format: processedFile.type,
+        name: processedFile.name,
         width: imageMeta.width || 0,
         height: imageMeta.height || 0,
       };

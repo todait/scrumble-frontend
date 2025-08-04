@@ -17,12 +17,27 @@
   }
 }
 
+html {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 body {
   color: var(--foreground);
   background: #fafafa;
   font-family: 'Pretendard', system-ui, sans-serif;
   /* 모바일 터치 확대 방지 */
   touch-action: manipulation;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* 스크롤바 숨김 */

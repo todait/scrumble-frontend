@@ -147,7 +147,7 @@ export default function MemberSettingsPage() {
       {/* 헤더 */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-[24px] font-bold text-[#1D1D1F]">
+          <h1 className="text-[20px] font-bold text-[#1D1D1F]">
             전체 28명 <span className="text-[14px] font-normal text-[#86868B] ml-2">6월 31일 오전 11:48 기준</span>
           </h1>
         </div>
