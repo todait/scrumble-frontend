@@ -41,8 +41,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { currentSpaceMember: member } = useAuth();
-  const { logout } = useAuth();
+  const { currentSpaceMember: member, isAuthenticated, isSpaceAuthenticated, logout } = useAuth();
   const { selectedDate, setSelectedDate, initializeFromUrl } = useDateStore();
 
   // 설정 드롭다운 상태
@@ -53,6 +52,17 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoNavigatedRef = useRef<string | null>(null); // 자동 날짜 이동이 실행된 postId 추적
+
+  // 인증 체크 - 토큰이 없으면 로그인 페이지로 이동
+  useEffect(() => {
+    if (!isAuthenticated || !isSpaceAuthenticated) {
+      debug('FeedPage', 'No authentication detected - redirecting to auth', {
+        isAuthenticated,
+        isSpaceAuthenticated
+      });
+      router.replace(ROUTES.AUTH);
+    }
+  }, [isAuthenticated, isSpaceAuthenticated, router]);
 
   // URL 파라미터에서 날짜 초기화 (URL → localStorage → 오늘 순서)
   useEffect(() => {
@@ -275,6 +285,11 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
               : 'pt-4 md:w-[672px] md:pt-6'
           }`}
         >
+          {/* SidebarNav 공간 확보용 spacer - PostDetail이 없고 lg 이상일 때만 표시 */}
+          {!(selectedPost && isPostDetailVisible) && (
+            <div className="hidden lg:block lg:w-[70px] xl:hidden" />
+          )}
+          
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
             className={`relative flex min-h-0 w-full flex-col px-2 transition-all duration-300 md:px-4 ${

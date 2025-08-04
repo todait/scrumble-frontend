@@ -145,6 +145,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
                   <Icon
                     className={`h-8 w-8 text-[#222222] ${active ? 'opacity-80' : 'opacity-30 hover:opacity-50'}`}
                   />
+
                   {/* 읽지 않은 알림 표시 점 - 알림 메뉴에만 표시 */}
                   {item.href === `/${spaceSlug}/notifications` && totalUnreadCount > 0 && (
                     <div className="absolute right-3 top-3 h-[6px] w-[6px] rounded-full bg-[#9747FF]" />

@@ -29,34 +29,29 @@ export function useSpaceMemberAuth({
     queryFn: async () => {
       if (!currentSpaceSlug) return null;
 
-      try {
-        // 토큰 리프레시 로직 제거 - 자동 리프레시 훅이 처리
-        const data = await authApi.getCurrentSpaceMember();
+      // 토큰 리프레시 로직 제거 - API 인터셉터가 처리
+      const data = await authApi.getCurrentSpaceMember();
 
-        // SpaceMember 정보 포맷
-        const spaceMemberInfo: SpaceMemberInfo = {
-          id: data.id,
-          spaceId: data.spaceId,
-          spaceSlug: data.spaceSlug,
-          role: data.role,
-          name: data.name,
-          avatarURL: data.avatarURL,
-          centrifugoToken: data.centrifugoToken,
-        };
+      // SpaceMember 정보 포맷
+      const spaceMemberInfo: SpaceMemberInfo = {
+        id: data.id,
+        spaceId: data.spaceId,
+        spaceSlug: data.spaceSlug,
+        role: data.role,
+        name: data.name,
+        avatarURL: data.avatarURL,
+        centrifugoToken: data.centrifugoToken,
+      };
 
-        // 사용 가능한 Space 목록 업데이트
-        const updatedSpaces = AuthPersistenceService.updateSpaceInfo(
-          currentSpaceSlug,
-          spaceMemberInfo,
-          availableSpaces
-        );
-        setAvailableSpaces(updatedSpaces);
+      // 사용 가능한 Space 목록 업데이트
+      const updatedSpaces = AuthPersistenceService.updateSpaceInfo(
+        currentSpaceSlug,
+        spaceMemberInfo,
+        availableSpaces
+      );
+      setAvailableSpaces(updatedSpaces);
 
-        return spaceMemberInfo;
-      } catch (error) {
-        console.error('Failed to fetch space member:', error);
-        return null;
-      }
+      return spaceMemberInfo;
     },
     enabled:
       isInitialized &&

@@ -2,7 +2,6 @@
 
 import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { CommentSection, DeleteConfirmDialog } from '@/shared/components/ui';
-import { useAuth } from '@/shared/contexts/AuthContext';
 import {
   useCreateComment,
   useDeleteComment,
@@ -34,9 +33,6 @@ export function PostDetail({
   onDeleteDialogChange,
   highlightedCommentId,
 }: PostDetailProps) {
-  // 클라이언트 렌더링 대기
-  const { isInitialized } = useAuth();
-
   const isCheckIn = post.type === 'checkin';
   const commentInputRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);

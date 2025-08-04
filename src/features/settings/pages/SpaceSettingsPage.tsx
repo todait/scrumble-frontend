@@ -1,16 +1,17 @@
 'use client';
 
-import Image from 'next/image';
-// import { useParams } from 'next/navigation';
+import { useAuth } from '@/shared/contexts/AuthContext';
+import { RiAddLine } from '@remixicon/react';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 export default function SpaceSettingsPage() {
-  // const params = useParams();
-  // const spaceSlug = params.spaceSlug as string;
+  const { currentSpace } = useAuth();
 
   // 원본 데이터 (서버에서 가져온 데이터)
-  const [originalSpaceName] = useState('팀 스페이스');
-  const [originalSpaceIcon] = useState<string | null>(null);
+  const [originalSpaceName] = useState(currentSpace?.name || 'dev_ved');
+  const [originalSpaceIcon] = useState<string | null>(currentSpace?.iconURL || null);
+  const [originalSpaceDays] = useState<string[]>(['월', '화', '수', '목', '금']);
 
   // 로컬 편집 상태
   const [localSpaceName, setLocalSpaceName] = useState(originalSpaceName);
@@ -18,8 +19,7 @@ export default function SpaceSettingsPage() {
   const [localSpaceIconPreview, setLocalSpaceIconPreview] = useState<string | null>(
     originalSpaceIcon
   );
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [tempSpaceName, setTempSpaceName] = useState(originalSpaceName);
+  const [localSpaceDays, setLocalSpaceDays] = useState<string[]>(originalSpaceDays);
 
   // 변경사항 감지
   const [hasChanges, setHasChanges] = useState(false);
@@ -28,11 +28,15 @@ export default function SpaceSettingsPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
 
+  const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
+
   useEffect(() => {
     const nameChanged = localSpaceName.trim() !== originalSpaceName.trim();
     const iconChanged = localSpaceIcon !== null;
-    setHasChanges(nameChanged || iconChanged);
-  }, [localSpaceName, localSpaceIcon, originalSpaceName]);
+    const daysChanged =
+      JSON.stringify(localSpaceDays.sort()) !== JSON.stringify(originalSpaceDays.sort());
+    setHasChanges(nameChanged || iconChanged || daysChanged);
+  }, [localSpaceName, localSpaceIcon, localSpaceDays, originalSpaceName, originalSpaceDays]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -51,56 +55,18 @@ export default function SpaceSettingsPage() {
         return;
       }
 
-      // 이미지 크기 검증
-      const img = new window.Image();
-      img.onload = () => {
-        if (img.width < 132 || img.height < 132) {
-          alert('이미지는 최소 132x132px 이상이어야 합니다.');
-          return;
-        }
-
-        // 정사각형 이미지 권장
-        if (Math.abs(img.width - img.height) > img.width * 0.1) {
-          const proceed = confirm('정사각형 이미지를 권장합니다. 계속 진행하시겠습니까?');
-          if (!proceed) return;
-        }
-
-        setLocalSpaceIcon(file);
-        const previewUrl = URL.createObjectURL(file);
-        setLocalSpaceIconPreview(previewUrl);
-      };
-
-      img.onerror = () => {
-        alert('유효하지 않은 이미지 파일입니다.');
-      };
-
-      img.src = URL.createObjectURL(file);
+      setLocalSpaceIcon(file);
+      const previewUrl = URL.createObjectURL(file);
+      setLocalSpaceIconPreview(previewUrl);
     }
   };
 
-  const handleNameEdit = () => {
-    setTempSpaceName(localSpaceName);
-    setIsEditingName(true);
+  const handleSpaceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSpaceName(e.target.value);
   };
 
-  const handleNameChange = (value: string) => {
-    setTempSpaceName(value);
-  };
-
-  const handleNameConfirm = () => {
-    // 빈칸일 경우 원본으로 되돌리기
-    const trimmedName = tempSpaceName.trim();
-    if (!trimmedName) {
-      setLocalSpaceName(originalSpaceName);
-    } else {
-      setLocalSpaceName(trimmedName);
-    }
-    setIsEditingName(false);
-  };
-
-  const handleNameCancel = () => {
-    setTempSpaceName(localSpaceName);
-    setIsEditingName(false);
+  const handleDayToggle = (day: string) => {
+    setLocalSpaceDays(prev => (prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]));
   };
 
   const handleSaveChanges = () => {
@@ -112,7 +78,8 @@ export default function SpaceSettingsPage() {
     }
 
     // TODO: API 호출로 변경사항 저장
-    // Save changes: { spaceSlug, name: trimmedName, icon: localSpaceIcon }
+    // Save changes: { spaceSlug, name: trimmedName, icon: localSpaceIcon, days: localSpaceDays }
+    alert('변경사항이 저장되었습니다.');
     setHasChanges(false);
   };
 
@@ -120,7 +87,7 @@ export default function SpaceSettingsPage() {
     setLocalSpaceName(originalSpaceName);
     setLocalSpaceIcon(null);
     setLocalSpaceIconPreview(originalSpaceIcon);
-    setIsEditingName(false);
+    setLocalSpaceDays(originalSpaceDays);
     setHasChanges(false);
   };
 
@@ -130,7 +97,8 @@ export default function SpaceSettingsPage() {
 
   const handleConfirmDelete = () => {
     if (deleteConfirmName === localSpaceName) {
-      // TODO: 실제 삭제 API 호출 (spaceSlug: ${spaceSlug})
+      // TODO: 실제 삭제 API 호출
+      alert('스페이스가 삭제되었습니다.');
       setShowDeleteDialog(false);
       setDeleteConfirmName('');
     }
@@ -142,197 +110,178 @@ export default function SpaceSettingsPage() {
   };
 
   return (
-    <div className="px-4 py-4 md:px-8 md:py-8">
-      <div className="mb-6 md:mb-8">
-        <h1 className="mb-2 text-2xl font-bold text-[#181818] md:text-3xl">스페이스 설정</h1>
-        <p className="text-sm text-gray-600 md:text-base">스페이스의 기본 정보와 설정을 관리하세요</p>
+    <div className="p-10">
+      <div className="mb-10">
+        <h1 className="mb-2 text-[20px] font-bold text-[#1D1D1F]">스페이스 정보</h1>
+        <p className="text-[14px] leading-[20px] text-[#86868B]">
+          스페이스 정보를 직접 수정할 수 있으며, 변경 사항은 모든 멤버에게 자동으로 알림이
+          전송됩니다.
+        </p>
       </div>
 
-      <div className="space-y-8">
-        {/* 변경사항 저장 버튼 */}
-        {hasChanges && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center space-x-2">
-                <svg
-                  className="h-5 w-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span className="text-sm font-medium text-blue-900">변경사항이 있습니다</span>
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleCancelChanges}
-                  className="flex-1 rounded-lg bg-gray-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600 md:flex-none md:px-4"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleSaveChanges}
-                  className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 md:flex-none md:px-4"
-                >
-                  변경사항 저장
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 스페이스 아이콘 설정 */}
-        <div className="rounded-lg border border-gray-200 bg-white p-4 md:p-6">
-          <h2 className="mb-4 text-base font-semibold text-gray-900 md:text-lg">스페이스 아이콘</h2>
-          <div className="flex flex-col items-start space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-            <div className="relative">
-              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-2 border-gray-200 bg-gray-100">
-                {localSpaceIconPreview ? (
+      <div className="space-y-12">
+        {/* 스페이스 정보 섹션 */}
+        <div className="rounded-[30px] bg-[#FAFAFA] p-8">
+          <div className="flex items-start gap-[30px]">
+            {/* 스페이스 아이콘 - 120x120 */}
+            <button
+              onClick={() => document.getElementById('icon-upload')?.click()}
+              className="block hover:opacity-80 transition-opacity"
+            >
+              <div className="h-[120px] w-[120px] overflow-hidden rounded-[20px] bg-[#9747FF] flex items-center justify-center">
+                {localSpaceIconPreview || currentSpace?.iconURL ? (
                   <Image
-                    src={localSpaceIconPreview}
-                    alt="스페이스 아이콘"
-                    width={96}
-                    height={96}
+                    src={localSpaceIconPreview || currentSpace?.iconURL || ''}
+                    alt={currentSpace?.name || localSpaceName || 'Space'}
+                    width={120}
+                    height={120}
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-gray-400">
-                    <svg
-                      className="mb-1 h-8 w-8"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span className="text-xs font-medium">아이콘</span>
-                  </div>
+                  <span className="text-[48px] font-bold text-white">
+                    {(currentSpace?.name || localSpaceName || 'S').charAt(0).toUpperCase()}
+                  </span>
                 )}
               </div>
-              {localSpaceIcon && (
-                <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500">
-                  <svg
-                    className="h-2.5 w-2.5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            </button>
+            <input
+              id="icon-upload"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+
+            {/* 스페이스 정보 영역 */}
+            <div className="flex h-[120px] flex-1 flex-col justify-between">
+              {/* 상단 정보 */}
+              <div>
+                <h2 className="text-[20px] font-bold text-[#1D1D1F]">
+                  {currentSpace?.name || localSpaceName}
+                </h2>
+                <p className="mt-1 text-[15px] font-medium text-[#6E6E73]">
+                  2025년 7월 16일 개설 • {currentSpace?.members?.length || 39}명
+                </p>
+                <p className="text-[15px] font-medium text-[#6E6E73]">워크데이 : 월-금</p>
+              </div>
+
+              {/* 하단 초대하기 버튼 */}
+              <div className="flex justify-end">
+                <button className="flex items-center gap-1 rounded-[8px] border border-[#E5E5EA] bg-white px-3 py-2 text-[13px] text-[#1D1D1F] transition-colors hover:bg-gray-50">
+                  <RiAddLine className="h-4 w-4" />
+                  초대하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 스페이스 이름 수정 */}
+        <div className="">
+          <h3 className="mb-4 text-[16px] font-semibold text-[#1D1D1F]">스페이스 이름</h3>
+          <div className="w-full max-w-[500px]">
+            <input
+              type="text"
+              value={localSpaceName}
+              onChange={handleSpaceNameChange}
+              className="w-full rounded-[10px] border border-[#D2D2D7] bg-[#F9F9FB] px-4 py-3 text-[14px] text-[#1D1D1F] transition-colors focus:border-[#9747FF] focus:outline-none"
+              placeholder="스페이스 이름 입력"
+            />
+          </div>
+        </div>
+
+        {/* 스페이스 데이 섹션 */}
+        <div className="">
+          <div className="mb-3 flex items-center gap-2">
+            <h3 className="text-[16px] font-semibold text-[#1D1D1F]">스페이스 데이</h3>
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#86868B] text-[10px] font-medium text-white">
+              ?
+            </div>
+          </div>
+          <p className="mb-2 text-[13px] text-[#86868B]">
+            팀의 주간 업무 리듬에 맞춰 워크데이와 오프데이를 선택하세요.
+          </p>
+          <p className="mb-6 text-[11px] text-[#B1B1B6]">
+            매주 반복되는 업무일과 휴일을 설정하면, 팀 스케줄을 더 정확히 관리할 수 있어요.
+          </p>
+
+          {/* 요일 선택 */}
+          <div className="grid max-w-[500px] grid-cols-7 gap-3">
+            {daysOfWeek.map(day => {
+              const isSelected = localSpaceDays.includes(day);
+              const isWeekend = day === '토' || day === '일';
+
+              return (
+                <div key={day} className="flex flex-col items-center gap-2">
+                  <button
+                    onClick={() => !isWeekend && handleDayToggle(day)}
+                    className={`relative flex h-[56px] w-[56px] items-center justify-center rounded-[10px] text-[14px] font-medium transition-all ${
+                      isSelected
+                        ? 'bg-[#9747FF] text-white'
+                        : isWeekend
+                          ? 'bg-[#F2F2F7] text-[#C7C7CC]'
+                          : 'bg-[#F2F2F7] text-[#1D1D1F] hover:bg-[#E5E5EA]'
+                    }`}
+                    disabled={isWeekend}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                    {day}
+                    {isSelected && !isWeekend && (
+                      <svg
+                        className="absolute bottom-1 right-1 h-4 w-4"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                      >
+                        <path
+                          d="M13 4L6 11L3 8"
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                  {isWeekend && <span className="mt-1 text-[12px] text-[#C7C7CC]">✕</span>}
                 </div>
-              )}
-            </div>
-            <div className="w-full sm:w-auto">
-              <label className="inline-flex cursor-pointer items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 md:px-4">
-                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                이미지 업로드
-                <input
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
-              <div className="mt-3 text-sm text-gray-500">
-                <p className="mb-1 text-xs font-medium md:text-sm">권장사항:</p>
-                <ul className="space-y-1 text-xs">
-                  <li>• 최소 132x132px 이상의 정사각형 이미지</li>
-                  <li>• 단색 배경과 명확한 그래픽/로고 사용</li>
-                  <li>• JPG, PNG 형식 (최대 5MB)</li>
-                  <li>• 아이콘 주변에 여백 포함</li>
-                </ul>
-              </div>
-            </div>
+              );
+            })}
           </div>
-        </div>
 
-        {/* 스페이스 이름 설정 */}
-        <div className="rounded-lg border border-gray-200 bg-white p-4 md:p-6">
-          <h2 className="mb-4 text-base font-semibold text-gray-900 md:text-lg">스페이스 이름</h2>
-          <div className="flex items-center space-x-4">
-            {isEditingName ? (
-              <div className="flex flex-1 items-center space-x-3">
-                <input
-                  type="text"
-                  value={tempSpaceName}
-                  onChange={e => handleNameChange(e.target.value)}
-                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      handleNameConfirm();
-                    } else if (e.key === 'Escape') {
-                      handleNameCancel();
-                    }
-                  }}
-                />
-                <button
-                  onClick={handleNameConfirm}
-                  className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-                >
-                  확인
-                </button>
-                <button
-                  onClick={handleNameCancel}
-                  className="rounded-lg bg-gray-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600"
-                >
-                  취소
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-1 items-center justify-between">
-                <span className="text-base font-medium text-gray-900 md:text-lg">{localSpaceName}</span>
-                <button
-                  onClick={handleNameEdit}
-                  className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 md:px-4"
-                >
-                  수정
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 스페이스 삭제 */}
-        <div className="rounded-lg border border-red-200 bg-white p-4 md:p-6">
-          <h2 className="mb-4 text-base font-semibold text-red-900 md:text-lg">위험 구역</h2>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-sm font-medium text-red-900">스페이스 삭제</h3>
-              <p className="text-xs text-red-700 md:text-sm">
-                이 작업은 되돌릴 수 없습니다. 모든 데이터가 영구적으로 삭제됩니다.
-              </p>
-            </div>
+          {/* 저장/취소 버튼 */}
+          <div className="mt-12 flex justify-center gap-4">
             <button
-              onClick={handleDeleteSpace}
-              className="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 sm:w-auto md:px-4"
+              onClick={handleCancelChanges}
+              className={`w-[180px] rounded-[10px] px-6 py-3.5 text-[14px] font-medium transition-colors ${
+                hasChanges
+                  ? 'bg-[#F2F2F7] text-[#1D1D1F] hover:bg-[#E5E5EA]'
+                  : 'cursor-not-allowed bg-[#F2F2F7] text-[#C7C7CC]'
+              }`}
+              disabled={!hasChanges}
             >
-              스페이스 삭제
+              취소
+            </button>
+            <button
+              onClick={handleSaveChanges}
+              className={`w-[180px] rounded-[10px] px-6 py-3.5 text-[14px] font-medium transition-colors ${
+                hasChanges
+                  ? 'bg-[#9747FF] text-white hover:bg-[#8739E6]'
+                  : 'cursor-not-allowed bg-[#E5E5EA] text-[#C7C7CC]'
+              }`}
+              disabled={!hasChanges}
+            >
+              저장
             </button>
           </div>
+        </div>
+
+        {/* 스페이스 삭제 섹션 */}
+        <div className="mt-16 border-t border-[#F2F2F7] pt-10">
+          <button
+            onClick={handleDeleteSpace}
+            className="text-[14px] font-medium text-[#FF3B30] transition-colors hover:text-[#D70015]"
+          >
+            스페이스 삭제하기
+          </button>
         </div>
       </div>
 
@@ -360,7 +309,9 @@ export default function SpaceSettingsPage() {
             </div>
 
             <div className="mb-4">
-              <p className="mb-2 text-sm text-gray-600 md:text-base">정말로 이 스페이스를 삭제하시겠습니까?</p>
+              <p className="mb-2 text-sm text-gray-600 md:text-base">
+                정말로 이 스페이스를 삭제하시겠습니까?
+              </p>
               <p className="mb-4 text-xs text-red-600 md:text-sm">
                 이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.
               </p>
