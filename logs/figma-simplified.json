@@ -1,197 +1,2151 @@
 {
   "name": "Scrumble",
-  "lastModified": "2025-07-31T07:59:03Z",
-  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/a40b1a62-f0ee-4a71-9cde-75d2fe30468f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC4AAMX6DD%2F20250731%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250731T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=b8072d68540bab19fccf8966704207b7607697224856360e3e2399869dc1829f",
+  "lastModified": "2025-08-03T15:07:39Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/be0d4f57-a526-4519-aef0-655c9b550713?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWC4AAMX6DD%2F20250803%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250803T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=520bb021e51b99c2b4bb19b3fb91a8e2eba82cd03820f240ea5f54816ffc718e",
   "nodes": [
     {
-      "id": "791:22924",
-      "name": "\bWelcome",
+      "id": "2015:70658",
+      "name": "설정 / 내 프로필 / 프로필 사진 업로드 / 반영",
       "type": "FRAME",
-      "layout": "layout_71WXZP",
-      "fills": "fill_AZVATT",
+      "layout": "layout_ENJL9D",
+      "fills": "fill_KUHAF9",
       "children": [
         {
-          "id": "791:22925",
-          "name": "Background",
+          "id": "2015:70659",
+          "name": "Frame 154",
           "type": "FRAME",
-          "layout": "layout_7A6HOP",
+          "layout": "layout_VO6X2T",
+          "fills": "fill_10ZBTU",
+          "effects": "effect_5WBGFY",
+          "borderRadius": "16px 16px 0px 0px",
           "children": [
             {
-              "id": "791:22926",
-              "name": "Group 30",
-              "type": "GROUP",
-              "layout": "layout_7T4Q8V",
+              "id": "2015:70660",
+              "name": "Settings Menu",
+              "type": "INSTANCE",
+              "layout": "layout_D2O702",
+              "fills": "fill_10ZBTU",
+              "strokes": "stroke_FIRGT3",
+              "componentId": "1908:122003",
+              "componentProperties": [
+                {
+                  "name": "속성 1",
+                  "value": "Top Bar: 상단 고정 내비게이션",
+                  "type": "VARIANT"
+                }
+              ],
               "children": [
                 {
-                  "id": "791:22927",
-                  "name": "Vector 37",
-                  "type": "IMAGE-SVG",
-                  "layout": "layout_SQMYN0",
-                  "strokes": "stroke_ZQT82P",
-                  "effects": "effect_1TPA67"
+                  "id": "I2015:70660;1908:120941",
+                  "name": "Date",
+                  "type": "FRAME",
+                  "layout": "layout_DJN9T7",
+                  "children": [
+                    {
+                      "id": "I2015:70660;1908:121997",
+                      "name": "Label",
+                      "type": "INSTANCE",
+                      "layout": "layout_L37KFO",
+                      "fills": "fill_10ZBTU",
+                      "componentId": "1908:121413",
+                      "componentProperties": [
+                        {
+                          "name": "Label#1908:5",
+                          "value": "설정",
+                          "type": "TEXT"
+                        },
+                        {
+                          "name": "Property 1",
+                          "value": "Default",
+                          "type": "VARIANT"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "I2015:70660;1908:121997;1908:121414",
+                          "name": "Text",
+                          "type": "TEXT",
+                          "layout": "layout_BZBFPQ",
+                          "text": "설정",
+                          "textStyle": "style_M6DXCV",
+                          "fills": "fill_I4OMLA"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I2015:70660;1908:120943",
+                      "name": "MMDD",
+                      "type": "TEXT",
+                      "layout": "layout_BZBFPQ",
+                      "text": "/",
+                      "textStyle": "style_HZOCRT",
+                      "fills": "fill_TOCA92",
+                      "opacity": 0.20000000298023224
+                    },
+                    {
+                      "id": "I2015:70660;1908:122001",
+                      "name": "Label",
+                      "type": "INSTANCE",
+                      "layout": "layout_L37KFO",
+                      "fills": "fill_10ZBTU",
+                      "componentId": "1908:121413",
+                      "componentProperties": [
+                        {
+                          "name": "Label#1908:5",
+                          "value": "스페이스 정보",
+                          "type": "TEXT"
+                        },
+                        {
+                          "name": "Property 1",
+                          "value": "Default",
+                          "type": "VARIANT"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "I2015:70660;1908:122001;1908:121414",
+                          "name": "Text",
+                          "type": "TEXT",
+                          "layout": "layout_BZBFPQ",
+                          "text": "스페이스 정보",
+                          "textStyle": "style_TXMRC7",
+                          "fills": "fill_TOCA92"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "2015:70661",
+              "name": "Post Frame",
+              "type": "FRAME",
+              "layout": "layout_SIWFRO",
+              "fills": "fill_10ZBTU",
+              "children": [
+                {
+                  "id": "2015:70662",
+                  "name": "Settings Menu",
+                  "type": "INSTANCE",
+                  "layout": "layout_O0W5IS",
+                  "fills": "fill_10ZBTU",
+                  "strokes": "stroke_Y92KA9",
+                  "componentId": "1908:121988",
+                  "componentProperties": [
+                    {
+                      "name": "속성 1",
+                      "value": "Side Bar: 메뉴 트리거",
+                      "type": "VARIANT"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "id": "I2015:70662;1990:44282",
+                      "name": "Menu Set",
+                      "type": "INSTANCE",
+                      "layout": "layout_SG5A32",
+                      "componentId": "1985:31552",
+                      "componentProperties": [
+                        {
+                          "name": "Selected",
+                          "value": "Menu 01",
+                          "type": "VARIANT"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "I2015:70662;1990:44282;1985:31435",
+                          "name": "Menu Group",
+                          "type": "INSTANCE",
+                          "layout": "layout_4MQT8X",
+                          "componentId": "1908:121558",
+                          "componentProperties": [
+                            {
+                              "name": "속성 1",
+                              "value": "스페이스 정보",
+                              "type": "VARIANT"
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31435;1908:121524",
+                              "name": "Group Title",
+                              "type": "INSTANCE",
+                              "layout": "layout_CL5N2F",
+                              "fills": "fill_KUHAF9",
+                              "borderRadius": "8px",
+                              "componentId": "1908:121523",
+                              "componentProperties": [
+                                {
+                                  "name": "Property 1",
+                                  "value": "Default",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31435;1908:121524;1908:121521",
+                                  "name": "Label",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_L37KFO",
+                                  "fills": "fill_10ZBTU",
+                                  "componentId": "1908:121413",
+                                  "componentProperties": [
+                                    {
+                                      "name": "Label#1908:5",
+                                      "value": "스페이스 설정",
+                                      "type": "TEXT"
+                                    },
+                                    {
+                                      "name": "Property 1",
+                                      "value": "Default",
+                                      "type": "VARIANT"
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31435;1908:121524;1908:121521;1908:121414",
+                                      "name": "Text",
+                                      "type": "TEXT",
+                                      "layout": "layout_BZBFPQ",
+                                      "text": "스페이스 설정",
+                                      "textStyle": "style_BXWKE3",
+                                      "fills": "fill_I4OMLA"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31435;1908:121504",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_RJNAAT",
+                              "fills": "fill_10ZBTU",
+                              "componentId": "1948:125585",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "Space (스페이스 정보)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Active",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31435;1908:121504;1948:125579",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_6FX9N8",
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31435;1908:121504;1948:125579;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125416",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:planet-line",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31435;1908:121504;1948:125579;1948:125557;1948:125417",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_QWZFOZ",
+                                          "fills": "fill_GQ3TCU"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31435;1908:121504;1948:125579;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "스페이스 정보",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31435;1908:121504;1948:125579;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "스페이스 정보",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_GQ3TCU"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31435;1908:121510",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_0KZLMJ",
+                              "fills": "fill_10ZBTU",
+                              "componentId": "1960:133744",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "Members (멤버 리스트)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Default",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31435;1908:121510;1960:133745",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_10ZBTU",
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31435;1908:121510;1960:133745;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125418",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:group-3-line",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31435;1908:121510;1960:133745;1948:125557;1948:125419",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_QH9VK6",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31435;1908:121510;1960:133745;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "멤버 리스트",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31435;1908:121510;1960:133745;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "멤버 리스트",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31435;1908:121542",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_RJNAAT",
+                              "componentId": "1960:134035",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "App center (외부 연동)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Inactive",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31435;1908:121542;1960:134036",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_6FX9N8",
+                                  "opacity": 0.30000001192092896,
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31435;1908:121542;1960:134036;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125420",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:shapes-line",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31435;1908:121542;1960:134036;1948:125557;1948:125421",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_QPZNQ2",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31435;1908:121542;1960:134036;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "앱 센터 (연동)",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31435;1908:121542;1960:134036;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "앱 센터 (연동)",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "I2015:70662;1990:44282;1985:31458",
+                          "name": "Menu Group",
+                          "type": "INSTANCE",
+                          "layout": "layout_4MQT8X",
+                          "componentId": "1908:121560",
+                          "componentProperties": [
+                            {
+                              "name": "속성 1",
+                              "value": "내 정보",
+                              "type": "VARIANT"
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31458;1908:121561",
+                              "name": "Group Title",
+                              "type": "INSTANCE",
+                              "layout": "layout_CL5N2F",
+                              "fills": "fill_KUHAF9",
+                              "borderRadius": "8px",
+                              "componentId": "1908:121523",
+                              "componentProperties": [
+                                {
+                                  "name": "Property 1",
+                                  "value": "Default",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31458;1908:121561;1908:121521",
+                                  "name": "Label",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_L37KFO",
+                                  "fills": "fill_10ZBTU",
+                                  "componentId": "1908:121413",
+                                  "componentProperties": [
+                                    {
+                                      "name": "Label#1908:5",
+                                      "value": "내 설정",
+                                      "type": "TEXT"
+                                    },
+                                    {
+                                      "name": "Property 1",
+                                      "value": "Default",
+                                      "type": "VARIANT"
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121561;1908:121521;1908:121414",
+                                      "name": "Text",
+                                      "type": "TEXT",
+                                      "layout": "layout_BZBFPQ",
+                                      "text": "내 설정",
+                                      "textStyle": "style_BXWKE3",
+                                      "fills": "fill_I4OMLA"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31458;1908:121563",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_RJNAAT",
+                              "fills": "fill_10ZBTU",
+                              "componentId": "1960:134095",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "My Settings (내 정보)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Default",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31458;1908:121563;1960:134096",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_10ZBTU",
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121563;1960:134096;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125422",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:user-6-line",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121563;1960:134096;1948:125557;1948:125423",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_ZD5ZIB",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121563;1960:134096;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "내 정보",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121563;1960:134096;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "내 정보",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31458;1908:121562",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_0KZLMJ",
+                              "componentId": "1960:134041",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "Workspaces (워크스페이스)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Inactive",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31458;1908:121562;1960:134042",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_6FX9N8",
+                                  "opacity": 0.30000001192092896,
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121562;1960:134042;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125432",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:gallery-view-2",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121562;1960:134042;1948:125557;1948:125433",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_QH9VK6",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121562;1960:134042;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "워크스페이스",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121562;1960:134042;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "워크스페이스",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31458;1908:121592",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_RJNAAT",
+                              "fills": "fill_10ZBTU",
+                              "componentId": "1960:133870",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "Notification (알림)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Default",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31458;1908:121592;1960:133871",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_10ZBTU",
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121592;1960:133871;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125424",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:notification-3-line",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121592;1960:133871;1948:125557;1948:125425",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_CN8UUW",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121592;1960:133871;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "알림",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121592;1960:133871;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "알림",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31458;1908:121686",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_RJNAAT",
+                              "fills": "fill_10ZBTU",
+                              "componentId": "1960:133906",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "Feedback (피드백)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Default",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31458;1908:121686;1960:133907",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_10ZBTU",
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121686;1960:133907;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125426",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:feedback-line",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121686;1960:133907;1948:125557;1948:125427",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_HSZ4UA",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121686;1960:133907;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "피드백",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121686;1960:133907;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "피드백",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I2015:70662;1990:44282;1985:31458;1908:121564",
+                              "name": "Menu Item (States)",
+                              "type": "INSTANCE",
+                              "layout": "layout_RJNAAT",
+                              "fills": "fill_10ZBTU",
+                              "componentId": "1960:133927",
+                              "componentProperties": [
+                                {
+                                  "name": "Menu",
+                                  "value": "Referrals (추천하기)",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "State",
+                                  "value": "Default",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1990:44282;1985:31458;1908:121564;1960:133928",
+                                  "name": "Menu Item",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_GCBH2F",
+                                  "fills": "fill_10ZBTU",
+                                  "borderRadius": "8px",
+                                  "componentId": "1948:125561",
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121564;1960:133928;1948:125557",
+                                      "name": "Icons - Settings",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_8EU3DK",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1948:125428",
+                                      "componentProperties": [
+                                        {
+                                          "name": "속성 1",
+                                          "value": "ri:cake-3-line",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121564;1960:133928;1948:125557;1948:125429",
+                                          "name": "Vector",
+                                          "type": "IMAGE-SVG",
+                                          "layout": "layout_PWOGR8",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "I2015:70662;1990:44282;1985:31458;1908:121564;1960:133928;1948:125558",
+                                      "name": "Label",
+                                      "type": "INSTANCE",
+                                      "layout": "layout_2IKICX",
+                                      "fills": "fill_10ZBTU",
+                                      "componentId": "1908:121377",
+                                      "componentProperties": [
+                                        {
+                                          "name": "Label#1908:5",
+                                          "value": "추천하기",
+                                          "type": "TEXT"
+                                        },
+                                        {
+                                          "name": "Property 1",
+                                          "value": "Text",
+                                          "type": "VARIANT"
+                                        }
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "I2015:70662;1990:44282;1985:31458;1908:121564;1960:133928;1948:125558;1908:121375",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BKNG2Z",
+                                          "text": "추천하기",
+                                          "textStyle": "style_M9FDE4",
+                                          "fills": "fill_V0911E"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I2015:70662;1908:121976",
+                      "name": "Menu Item / Types",
+                      "type": "INSTANCE",
+                      "layout": "layout_AJLUEJ",
+                      "fills": "fill_10ZBTU",
+                      "componentId": "1908:121489",
+                      "componentProperties": [
+                        {
+                          "name": "Menu",
+                          "value": "Logout (로그아웃)",
+                          "type": "VARIANT"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "I2015:70662;1908:121976;1908:121490",
+                          "name": "Menu Item (States)",
+                          "type": "INSTANCE",
+                          "layout": "layout_0KZLMJ",
+                          "fills": "fill_10ZBTU",
+                          "componentId": "1948:125586",
+                          "componentProperties": [
+                            {
+                              "name": "Menu",
+                              "value": "Space (스페이스 정보)",
+                              "type": "VARIANT"
+                            },
+                            {
+                              "name": "State",
+                              "value": "Default",
+                              "type": "VARIANT"
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "I2015:70662;1908:121976;1908:121490;1948:125568",
+                              "name": "Menu Item",
+                              "type": "INSTANCE",
+                              "layout": "layout_GCBH2F",
+                              "fills": "fill_10ZBTU",
+                              "borderRadius": "8px",
+                              "componentId": "1948:125561",
+                              "children": [
+                                {
+                                  "id": "I2015:70662;1908:121976;1908:121490;1948:125568;1948:125557",
+                                  "name": "Icons - Settings",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_8EU3DK",
+                                  "fills": "fill_10ZBTU",
+                                  "componentId": "1948:125430",
+                                  "componentProperties": [
+                                    {
+                                      "name": "속성 1",
+                                      "value": "ri:logout-box-line",
+                                      "type": "VARIANT"
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1908:121976;1908:121490;1948:125568;1948:125557;1948:125431",
+                                      "name": "Vector",
+                                      "type": "IMAGE-SVG",
+                                      "layout": "layout_A08S8J",
+                                      "fills": "fill_V0911E"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "I2015:70662;1908:121976;1908:121490;1948:125568;1948:125558",
+                                  "name": "Label",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_2IKICX",
+                                  "fills": "fill_10ZBTU",
+                                  "componentId": "1908:121377",
+                                  "componentProperties": [
+                                    {
+                                      "name": "Label#1908:5",
+                                      "value": "로그아웃",
+                                      "type": "TEXT"
+                                    },
+                                    {
+                                      "name": "Property 1",
+                                      "value": "Text",
+                                      "type": "VARIANT"
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "I2015:70662;1908:121976;1908:121490;1948:125568;1948:125558;1908:121375",
+                                      "name": "Label",
+                                      "type": "TEXT",
+                                      "layout": "layout_BKNG2Z",
+                                      "text": "로그아웃",
+                                      "textStyle": "style_M9FDE4",
+                                      "fills": "fill_V0911E"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
-                  "id": "791:22928",
-                  "name": "Vector 38",
-                  "type": "IMAGE-SVG",
-                  "layout": "layout_F2C1OX",
-                  "strokes": "stroke_LFZRYL",
-                  "effects": "effect_1TPA67"
-                },
-                {
-                  "id": "791:22929",
-                  "name": "Texture",
-                  "type": "RECTANGLE",
-                  "layout": "layout_X7153D",
-                  "fills": "fill_ZFSFFH"
+                  "id": "2015:70663",
+                  "name": "Content Area",
+                  "type": "FRAME",
+                  "layout": "layout_T1P9LO",
+                  "fills": "fill_10ZBTU",
+                  "strokes": "stroke_FIRGT3",
+                  "children": [
+                    {
+                      "id": "2015:70664",
+                      "name": "Contents (Scroll)",
+                      "type": "FRAME",
+                      "layout": "layout_6P8JEX",
+                      "children": [
+                        {
+                          "id": "2015:70665",
+                          "name": "Frame 273",
+                          "type": "FRAME",
+                          "layout": "layout_F9H4ST",
+                          "children": [
+                            {
+                              "id": "2015:70666",
+                              "name": "Header",
+                              "type": "FRAME",
+                              "layout": "layout_GCWDC3",
+                              "children": [
+                                {
+                                  "id": "2015:70667",
+                                  "name": "Title",
+                                  "type": "TEXT",
+                                  "layout": "layout_Q593QL",
+                                  "text": "스페이스 정보",
+                                  "textStyle": "style_JWIJA0",
+                                  "fills": "fill_TOCA92"
+                                },
+                                {
+                                  "id": "2027:71296",
+                                  "name": "Detail",
+                                  "type": "TEXT",
+                                  "layout": "layout_Q593QL",
+                                  "text": "스페이스 정보를 직접 수정할 수 있으며, 변경 사항은 모든 멤버에게 자동으로 알림이 전송돼요.",
+                                  "textStyle": "style_6F1W48",
+                                  "fills": "fill_I4OMLA"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "2027:71181",
+                              "name": "Contents",
+                              "type": "FRAME",
+                              "layout": "layout_QPV1IV",
+                              "children": [
+                                {
+                                  "id": "2033:64949",
+                                  "name": "SpaceInfoCard",
+                                  "type": "FRAME",
+                                  "layout": "layout_3S03IZ",
+                                  "fills": "fill_KUHAF9",
+                                  "borderRadius": "30px",
+                                  "children": [
+                                    {
+                                      "id": "2033:64950",
+                                      "name": "Space Image",
+                                      "type": "GROUP",
+                                      "layout": "layout_9M350V",
+                                      "borderRadius": "20px",
+                                      "children": [
+                                        {
+                                          "id": "2033:64951",
+                                          "name": "Space Image",
+                                          "type": "RECTANGLE",
+                                          "layout": "layout_MBWR7A",
+                                          "fills": "fill_ELQGN8",
+                                          "strokes": "stroke_EPYDLH",
+                                          "borderRadius": "20px"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "2033:64954",
+                                      "name": "Space Information",
+                                      "type": "FRAME",
+                                      "layout": "layout_AGR18K",
+                                      "children": [
+                                        {
+                                          "id": "2033:64955",
+                                          "name": "Text",
+                                          "type": "TEXT",
+                                          "layout": "layout_Q593QL",
+                                          "text": "dev_ved",
+                                          "textStyle": "style_H5H0UI",
+                                          "fills": "fill_TOCA92"
+                                        },
+                                        {
+                                          "id": "2033:64956",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_Q593QL",
+                                          "text": "2025년 7월 16일 개설 • 39명",
+                                          "textStyle": "style_L1MJO6",
+                                          "fills": "fill_V0911E"
+                                        },
+                                        {
+                                          "id": "2033:64957",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_Q593QL",
+                                          "text": "워크데이 : 월-금",
+                                          "textStyle": "style_L1MJO6",
+                                          "fills": "fill_V0911E"
+                                        },
+                                        {
+                                          "id": "2033:64958",
+                                          "name": "Button",
+                                          "type": "INSTANCE",
+                                          "layout": "layout_PNU518",
+                                          "fills": "fill_10ZBTU",
+                                          "strokes": "stroke_EPYDLH",
+                                          "borderRadius": "8px",
+                                          "componentId": "791:20368",
+                                          "componentProperties": [
+                                            {
+                                              "name": "텍스트#135:39",
+                                              "value": "초대하기",
+                                              "type": "TEXT"
+                                            },
+                                            {
+                                              "name": "Color",
+                                              "value": "🤍",
+                                              "type": "VARIANT"
+                                            },
+                                            {
+                                              "name": "Icon",
+                                              "value": "On",
+                                              "type": "VARIANT"
+                                            },
+                                            {
+                                              "name": "Status",
+                                              "value": "Active",
+                                              "type": "VARIANT"
+                                            },
+                                            {
+                                              "name": "Direction",
+                                              "value": "가운데",
+                                              "type": "VARIANT"
+                                            },
+                                            {
+                                              "name": "Hover+Click",
+                                              "value": "Off",
+                                              "type": "VARIANT"
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "id": "I2033:64958;791:20369",
+                                              "name": "Icons",
+                                              "type": "INSTANCE",
+                                              "layout": "layout_TY88GO",
+                                              "fills": "fill_10ZBTU",
+                                              "componentId": "173:907",
+                                              "componentProperties": [
+                                                {
+                                                  "name": "Icon",
+                                                  "value": "ri:add-line",
+                                                  "type": "VARIANT"
+                                                }
+                                              ],
+                                              "children": [
+                                                {
+                                                  "id": "I2033:64958;791:20369;173:910",
+                                                  "name": "Vector",
+                                                  "type": "IMAGE-SVG",
+                                                  "layout": "layout_5LZERG",
+                                                  "fills": "fill_TOCA92"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "I2033:64958;791:20370",
+                                              "name": "Button Name",
+                                              "type": "TEXT",
+                                              "layout": "layout_BZBFPQ",
+                                              "text": "초대하기",
+                                              "textStyle": "style_B9HK3B",
+                                              "fills": "fill_TOCA92"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "2027:71192",
+                                  "name": "Line 42",
+                                  "type": "LINE",
+                                  "layout": "layout_GBTW49",
+                                  "strokes": "stroke_EPYDLH"
+                                },
+                                {
+                                  "id": "2027:71193",
+                                  "name": "Label + InputArea",
+                                  "type": "FRAME",
+                                  "layout": "layout_DCPN79",
+                                  "children": [
+                                    {
+                                      "id": "2027:71194",
+                                      "name": "Label",
+                                      "type": "TEXT",
+                                      "layout": "layout_TFGMR9",
+                                      "text": "스페이스 이름",
+                                      "textStyle": "style_6G560E",
+                                      "fills": "fill_TOCA92"
+                                    },
+                                    {
+                                      "id": "2027:71195",
+                                      "name": "InputArea + HintText",
+                                      "type": "FRAME",
+                                      "layout": "layout_TIZ6ZT",
+                                      "children": [
+                                        {
+                                          "id": "2027:71196",
+                                          "name": "Text Field",
+                                          "type": "INSTANCE",
+                                          "layout": "layout_ITW06G",
+                                          "fills": "fill_10ZBTU",
+                                          "strokes": "stroke_EPYDLH",
+                                          "borderRadius": "12px",
+                                          "componentId": "791:20692",
+                                          "componentProperties": [
+                                            {
+                                              "name": "텍스트#135:28",
+                                              "value": "dev_ved",
+                                              "type": "TEXT"
+                                            },
+                                            {
+                                              "name": "State",
+                                              "value": "Default",
+                                              "type": "VARIANT"
+                                            },
+                                            {
+                                              "name": "Icon",
+                                              "value": "On",
+                                              "type": "VARIANT"
+                                            }
+                                          ],
+                                          "children": [
+                                            {
+                                              "id": "I2027:71196;791:20694",
+                                              "name": "Input box",
+                                              "type": "FRAME",
+                                              "layout": "layout_SEXNT5",
+                                              "children": [
+                                                {
+                                                  "id": "I2027:71196;791:20695",
+                                                  "name": "Text field",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_DPZ2DS",
+                                                  "text": "dev_ved",
+                                                  "textStyle": "style_S5RCE0",
+                                                  "fills": "fill_TOCA92"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "2033:64447",
+                                  "name": "Label + InputArea",
+                                  "type": "FRAME",
+                                  "layout": "layout_DCPN79",
+                                  "children": [
+                                    {
+                                      "id": "2033:64448",
+                                      "name": "Frame 308",
+                                      "type": "FRAME",
+                                      "layout": "layout_2HAQEK",
+                                      "children": [
+                                        {
+                                          "id": "2033:64449",
+                                          "name": "Label",
+                                          "type": "TEXT",
+                                          "layout": "layout_BZBFPQ",
+                                          "text": "스페이스 데이",
+                                          "textStyle": "style_6G560E",
+                                          "fills": "fill_TOCA92"
+                                        },
+                                        {
+                                          "id": "2033:64450",
+                                          "name": "ri:question-fill",
+                                          "type": "FRAME",
+                                          "layout": "layout_8EU3DK",
+                                          "fills": "fill_10ZBTU",
+                                          "children": [
+                                            {
+                                              "id": "2033:64451",
+                                              "name": "Vector",
+                                              "type": "IMAGE-SVG",
+                                              "layout": "layout_PWOGR8",
+                                              "fills": "fill_V0911E"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "2033:64452",
+                                      "name": "Frame 305",
+                                      "type": "FRAME",
+                                      "layout": "layout_TIZ6ZT",
+                                      "children": [
+                                        {
+                                          "id": "2033:64453",
+                                          "name": "Frame 309",
+                                          "type": "FRAME",
+                                          "layout": "layout_ABDJ4B",
+                                          "children": [
+                                            {
+                                              "id": "2033:64454",
+                                              "name": "HintText",
+                                              "type": "TEXT",
+                                              "layout": "layout_Q593QL",
+                                              "text": "팀의 주간 업무 리듬에 맞게 워크데이와 오프데이를 선택하세요.",
+                                              "textStyle": "style_720TC8",
+                                              "fills": "fill_V0911E"
+                                            },
+                                            {
+                                              "id": "2033:64455",
+                                              "name": "name",
+                                              "type": "TEXT",
+                                              "layout": "layout_Q593QL",
+                                              "text": "매주 반복되는 업무일과 휴일을 설정하면, 팀 스케줄을 더 정확히 관리할 수 있어요.",
+                                              "textStyle": "style_TO28Q6",
+                                              "fills": "fill_I4OMLA"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "2033:64456",
+                                          "name": "Frame 244",
+                                          "type": "FRAME",
+                                          "layout": "layout_RY6N8Z",
+                                          "fills": "fill_KUHAF9",
+                                          "borderRadius": "10px",
+                                          "children": [
+                                            {
+                                              "id": "2033:64457",
+                                              "name": "Cell",
+                                              "type": "FRAME",
+                                              "layout": "layout_W1GVIX",
+                                              "fills": "fill_GQ3TCU",
+                                              "borderRadius": "10px",
+                                              "children": [
+                                                {
+                                                  "id": "2033:64458",
+                                                  "name": "요일",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_BZBFPQ",
+                                                  "text": "월",
+                                                  "textStyle": "style_H75UI3",
+                                                  "fills": "fill_10ZBTU"
+                                                },
+                                                {
+                                                  "id": "2033:64459",
+                                                  "name": "Rectangle 91",
+                                                  "type": "RECTANGLE",
+                                                  "layout": "layout_2CRKG4",
+                                                  "fills": "fill_10ZBTU",
+                                                  "opacity": 0.20000000298023224
+                                                },
+                                                {
+                                                  "id": "2033:64460",
+                                                  "name": "ri:check-fill",
+                                                  "type": "FRAME",
+                                                  "layout": "layout_8EU3DK",
+                                                  "fills": "fill_10ZBTU",
+                                                  "children": [
+                                                    {
+                                                      "id": "2033:64461",
+                                                      "name": "Vector",
+                                                      "type": "IMAGE-SVG",
+                                                      "layout": "layout_XJVGEA",
+                                                      "fills": "fill_10ZBTU"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "2033:64462",
+                                              "name": "Cell",
+                                              "type": "FRAME",
+                                              "layout": "layout_W1GVIX",
+                                              "fills": "fill_GQ3TCU",
+                                              "borderRadius": "10px",
+                                              "children": [
+                                                {
+                                                  "id": "2033:64463",
+                                                  "name": "요일",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_BZBFPQ",
+                                                  "text": "화",
+                                                  "textStyle": "style_H75UI3",
+                                                  "fills": "fill_10ZBTU"
+                                                },
+                                                {
+                                                  "id": "2033:64464",
+                                                  "name": "Rectangle 91",
+                                                  "type": "RECTANGLE",
+                                                  "layout": "layout_2CRKG4",
+                                                  "fills": "fill_10ZBTU",
+                                                  "opacity": 0.20000000298023224
+                                                },
+                                                {
+                                                  "id": "2033:64465",
+                                                  "name": "ri:check-fill",
+                                                  "type": "FRAME",
+                                                  "layout": "layout_8EU3DK",
+                                                  "fills": "fill_10ZBTU",
+                                                  "children": [
+                                                    {
+                                                      "id": "2033:64466",
+                                                      "name": "Vector",
+                                                      "type": "IMAGE-SVG",
+                                                      "layout": "layout_XJVGEA",
+                                                      "fills": "fill_10ZBTU"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "2033:64467",
+                                              "name": "Cell",
+                                              "type": "FRAME",
+                                              "layout": "layout_W1GVIX",
+                                              "fills": "fill_GQ3TCU",
+                                              "borderRadius": "10px",
+                                              "children": [
+                                                {
+                                                  "id": "2033:64468",
+                                                  "name": "요일",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_BZBFPQ",
+                                                  "text": "수",
+                                                  "textStyle": "style_H75UI3",
+                                                  "fills": "fill_10ZBTU"
+                                                },
+                                                {
+                                                  "id": "2033:64469",
+                                                  "name": "Rectangle 91",
+                                                  "type": "RECTANGLE",
+                                                  "layout": "layout_2CRKG4",
+                                                  "fills": "fill_10ZBTU",
+                                                  "opacity": 0.20000000298023224
+                                                },
+                                                {
+                                                  "id": "2033:64470",
+                                                  "name": "ri:check-fill",
+                                                  "type": "FRAME",
+                                                  "layout": "layout_8EU3DK",
+                                                  "fills": "fill_10ZBTU",
+                                                  "children": [
+                                                    {
+                                                      "id": "2033:64471",
+                                                      "name": "Vector",
+                                                      "type": "IMAGE-SVG",
+                                                      "layout": "layout_XJVGEA",
+                                                      "fills": "fill_10ZBTU"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "2033:64477",
+                                              "name": "Cell",
+                                              "type": "FRAME",
+                                              "layout": "layout_W1GVIX",
+                                              "fills": "fill_GQ3TCU",
+                                              "borderRadius": "10px",
+                                              "children": [
+                                                {
+                                                  "id": "2033:64478",
+                                                  "name": "요일",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_BZBFPQ",
+                                                  "text": "목",
+                                                  "textStyle": "style_H75UI3",
+                                                  "fills": "fill_10ZBTU"
+                                                },
+                                                {
+                                                  "id": "2033:64479",
+                                                  "name": "Rectangle 91",
+                                                  "type": "RECTANGLE",
+                                                  "layout": "layout_2CRKG4",
+                                                  "fills": "fill_10ZBTU",
+                                                  "opacity": 0.20000000298023224
+                                                },
+                                                {
+                                                  "id": "2033:64480",
+                                                  "name": "ri:check-fill",
+                                                  "type": "FRAME",
+                                                  "layout": "layout_8EU3DK",
+                                                  "fills": "fill_10ZBTU",
+                                                  "children": [
+                                                    {
+                                                      "id": "2033:64481",
+                                                      "name": "Vector",
+                                                      "type": "IMAGE-SVG",
+                                                      "layout": "layout_XJVGEA",
+                                                      "fills": "fill_10ZBTU"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "2033:64686",
+                                              "name": "Cell",
+                                              "type": "FRAME",
+                                              "layout": "layout_W1GVIX",
+                                              "fills": "fill_GQ3TCU",
+                                              "borderRadius": "10px",
+                                              "children": [
+                                                {
+                                                  "id": "2033:64687",
+                                                  "name": "요일",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_BZBFPQ",
+                                                  "text": "금",
+                                                  "textStyle": "style_H75UI3",
+                                                  "fills": "fill_10ZBTU"
+                                                },
+                                                {
+                                                  "id": "2033:64688",
+                                                  "name": "Rectangle 91",
+                                                  "type": "RECTANGLE",
+                                                  "layout": "layout_2CRKG4",
+                                                  "fills": "fill_10ZBTU",
+                                                  "opacity": 0.20000000298023224
+                                                },
+                                                {
+                                                  "id": "2033:64689",
+                                                  "name": "ri:check-fill",
+                                                  "type": "FRAME",
+                                                  "layout": "layout_8EU3DK",
+                                                  "fills": "fill_10ZBTU",
+                                                  "children": [
+                                                    {
+                                                      "id": "2033:64690",
+                                                      "name": "Vector",
+                                                      "type": "IMAGE-SVG",
+                                                      "layout": "layout_XJVGEA",
+                                                      "fills": "fill_10ZBTU"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "2033:64482",
+                                              "name": "Cell",
+                                              "type": "FRAME",
+                                              "layout": "layout_W1GVIX",
+                                              "fills": "fill_KUHAF9",
+                                              "strokes": "stroke_EPYDLH",
+                                              "borderRadius": "10px",
+                                              "children": [
+                                                {
+                                                  "id": "2033:64483",
+                                                  "name": "요일",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_BZBFPQ",
+                                                  "text": "토",
+                                                  "textStyle": "style_H75UI3",
+                                                  "fills": "fill_V0911E"
+                                                },
+                                                {
+                                                  "id": "2033:64484",
+                                                  "name": "Rectangle 91",
+                                                  "type": "RECTANGLE",
+                                                  "layout": "layout_2CRKG4",
+                                                  "fills": "fill_WR2O27",
+                                                  "opacity": 0.20000000298023224
+                                                },
+                                                {
+                                                  "id": "2033:64485",
+                                                  "name": "ri:close-fill",
+                                                  "type": "FRAME",
+                                                  "layout": "layout_8EU3DK",
+                                                  "fills": "fill_10ZBTU",
+                                                  "children": [
+                                                    {
+                                                      "id": "2033:64486",
+                                                      "name": "Vector",
+                                                      "type": "IMAGE-SVG",
+                                                      "layout": "layout_E6ALIJ",
+                                                      "fills": "fill_V0911E"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": "2033:64487",
+                                              "name": "Cell",
+                                              "type": "FRAME",
+                                              "layout": "layout_W1GVIX",
+                                              "fills": "fill_KUHAF9",
+                                              "strokes": "stroke_EPYDLH",
+                                              "borderRadius": "10px",
+                                              "children": [
+                                                {
+                                                  "id": "2033:64488",
+                                                  "name": "요일",
+                                                  "type": "TEXT",
+                                                  "layout": "layout_BZBFPQ",
+                                                  "text": "일",
+                                                  "textStyle": "style_H75UI3",
+                                                  "fills": "fill_V0911E"
+                                                },
+                                                {
+                                                  "id": "2033:64489",
+                                                  "name": "Rectangle 91",
+                                                  "type": "RECTANGLE",
+                                                  "layout": "layout_2CRKG4",
+                                                  "fills": "fill_WR2O27",
+                                                  "opacity": 0.20000000298023224
+                                                },
+                                                {
+                                                  "id": "2033:64490",
+                                                  "name": "ri:close-fill",
+                                                  "type": "FRAME",
+                                                  "layout": "layout_8EU3DK",
+                                                  "fills": "fill_10ZBTU",
+                                                  "children": [
+                                                    {
+                                                      "id": "2033:64491",
+                                                      "name": "Vector",
+                                                      "type": "IMAGE-SVG",
+                                                      "layout": "layout_E6ALIJ",
+                                                      "fills": "fill_V0911E"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "2015:70705",
+                          "name": "Frame 282",
+                          "type": "FRAME",
+                          "layout": "layout_IBOP3F",
+                          "children": [
+                            {
+                              "id": "2015:70706",
+                              "name": "Button",
+                              "type": "INSTANCE",
+                              "layout": "layout_PS4PM7",
+                              "fills": "fill_3Y2JHM",
+                              "strokes": "stroke_EPYDLH",
+                              "opacity": 0.30000001192092896,
+                              "borderRadius": "12px",
+                              "componentId": "791:20377",
+                              "componentProperties": [
+                                {
+                                  "name": "텍스트#135:39",
+                                  "value": "취소",
+                                  "type": "TEXT"
+                                },
+                                {
+                                  "name": "Color",
+                                  "value": "🤍",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Icon",
+                                  "value": "Off",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Status",
+                                  "value": "Inactive",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Direction",
+                                  "value": "가운데",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Hover+Click",
+                                  "value": "Off",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70706;791:20378",
+                                  "name": "Icons",
+                                  "type": "INSTANCE",
+                                  "layout": "layout_TVBCKP",
+                                  "fills": "fill_10ZBTU",
+                                  "componentId": "173:901",
+                                  "componentProperties": [
+                                    {
+                                      "name": "Icon",
+                                      "value": "ri:check-fill",
+                                      "type": "VARIANT"
+                                    }
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "I2015:70706;791:20378;173:906",
+                                      "name": "Vector",
+                                      "type": "IMAGE-SVG",
+                                      "layout": "layout_2DN099",
+                                      "fills": "fill_10ZBTU"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "I2015:70706;791:20379",
+                                  "name": "Button Name",
+                                  "type": "TEXT",
+                                  "layout": "layout_BZBFPQ",
+                                  "text": "취소",
+                                  "textStyle": "style_H75UI3",
+                                  "fills": "fill_TOCA92"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "2015:70707",
+                              "name": "Button",
+                              "type": "INSTANCE",
+                              "layout": "layout_PS4PM7",
+                              "fills": "fill_TOCA92",
+                              "strokes": "stroke_UCK4N6",
+                              "opacity": 0.20000000298023224,
+                              "borderRadius": "12px",
+                              "componentId": "791:19975",
+                              "componentProperties": [
+                                {
+                                  "name": "텍스트#135:39",
+                                  "value": "저장",
+                                  "type": "TEXT"
+                                },
+                                {
+                                  "name": "Color",
+                                  "value": "🖤",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Icon",
+                                  "value": "Off",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Status",
+                                  "value": "Inactive",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Direction",
+                                  "value": "가운데",
+                                  "type": "VARIANT"
+                                },
+                                {
+                                  "name": "Hover+Click",
+                                  "value": "Off",
+                                  "type": "VARIANT"
+                                }
+                              ],
+                              "children": [
+                                {
+                                  "id": "I2015:70707;791:19977",
+                                  "name": "Button Name",
+                                  "type": "TEXT",
+                                  "layout": "layout_BZBFPQ",
+                                  "text": "저장",
+                                  "textStyle": "style_KTB8U7",
+                                  "fills": "fill_10ZBTU"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "2033:64445",
+                          "name": "Section Title",
+                          "type": "TEXT",
+                          "layout": "layout_Q593QL",
+                          "text": "스페이스 삭제하기",
+                          "textStyle": "style_WJUFB7",
+                          "fills": "fill_FUJYI2",
+                          "opacity": 0.5
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "id": "791:22930",
-          "name": "Note Feed",
-          "type": "FRAME",
-          "layout": "layout_Z6YQ1Q",
-          "fills": "fill_AZVATT",
-          "strokes": "stroke_1IZJLA",
-          "effects": "effect_E056IW",
-          "borderRadius": "16px",
+          "id": "2015:70709",
+          "name": "Navigation Bar / Icons",
+          "type": "INSTANCE",
+          "layout": "layout_KPT7MF",
+          "opacity": 0.800000011920929,
+          "borderRadius": "8px",
+          "componentId": "387:19497",
+          "componentProperties": [
+            {
+              "name": "Menu",
+              "value": "Setting",
+              "type": "VARIANT"
+            },
+            {
+              "name": "Hover",
+              "value": "Off",
+              "type": "VARIANT"
+            },
+            {
+              "name": "Selected",
+              "value": "On",
+              "type": "VARIANT"
+            }
+          ],
           "children": [
             {
-              "id": "791:22931",
-              "name": "Header Section",
+              "id": "I2015:70709;387:19498",
+              "name": "ri:settings-6-fill",
               "type": "FRAME",
-              "layout": "layout_XHF0OX",
-              "fills": "fill_AZVATT",
-              "strokes": "stroke_9TLWH7",
+              "layout": "layout_L1WABG",
+              "fills": "fill_10ZBTU",
               "children": [
                 {
-                  "id": "855:4620",
-                  "name": "Frame 209",
+                  "id": "I2015:70709;387:19516",
+                  "name": "Vector",
+                  "type": "IMAGE-SVG",
+                  "layout": "layout_XFQIV8",
+                  "fills": "fill_YQ6FC1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2015:70710",
+          "name": "Navigation Bar",
+          "type": "INSTANCE",
+          "layout": "layout_BWRXNF",
+          "componentId": "387:19677",
+          "componentProperties": [
+            {
+              "name": "속성 1",
+              "value": "Button 05",
+              "type": "VARIANT"
+            }
+          ],
+          "children": [
+            {
+              "id": "I2015:70710;387:19571",
+              "name": "Navigation Bar / Icons",
+              "type": "INSTANCE",
+              "layout": "layout_ACLKV4",
+              "opacity": 0.30000001192092896,
+              "borderRadius": "8px",
+              "componentId": "387:19408",
+              "componentProperties": [
+                {
+                  "name": "Menu",
+                  "value": "Home",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Hover",
+                  "value": "Off",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Selected",
+                  "value": "Off",
+                  "type": "VARIANT"
+                }
+              ],
+              "children": [
+                {
+                  "id": "I2015:70710;387:19571;387:19422",
+                  "name": "ri:home-5-line",
                   "type": "FRAME",
-                  "layout": "layout_V01EC6",
+                  "layout": "layout_L1WABG",
+                  "fills": "fill_10ZBTU",
                   "children": [
                     {
-                      "id": "855:4621",
-                      "name": "Vector 70",
+                      "id": "I2015:70710;387:19571;387:19423",
+                      "name": "Vector",
                       "type": "IMAGE-SVG",
-                      "layout": "layout_2ZOCXK",
-                      "strokes": "stroke_QY7HTU"
+                      "layout": "layout_HBYCDP",
+                      "fills": "fill_YQ6FC1"
                     }
                   ]
-                },
-                {
-                  "id": "791:22941",
-                  "name": "Title",
-                  "type": "TEXT",
-                  "layout": "layout_DHNQ0A",
-                  "text": "팀워크의 온도를 지키는 법",
-                  "textStyle": "style_L6JWKE",
-                  "fills": "fill_BFF3LU"
-                },
-                {
-                  "id": "791:22942",
-                  "name": "Detail",
-                  "type": "TEXT",
-                  "layout": "layout_DHNQ0A",
-                  "text": "팀원 간 연결을 부드럽게 이어주는 Scrumbl 더 유연한 팀워크의 리듬, 직접 경험해보세요.",
-                  "textStyle": "style_X6112B",
-                  "fills": "fill_BFF3LU",
-                  "opacity": 0.5
                 }
               ]
             },
             {
-              "id": "791:22943",
-              "name": "Action Section",
-              "type": "FRAME",
-              "layout": "layout_XHF0OX",
-              "fills": "fill_AZVATT",
+              "id": "I2015:70710;387:19574",
+              "name": "Navigation Bar / Icons",
+              "type": "INSTANCE",
+              "layout": "layout_ACLKV4",
+              "opacity": 0.30000001192092896,
+              "borderRadius": "8px",
+              "componentId": "387:19506",
+              "componentProperties": [
+                {
+                  "name": "Menu",
+                  "value": "Activity",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Hover",
+                  "value": "Off",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Selected",
+                  "value": "Off",
+                  "type": "VARIANT"
+                }
+              ],
               "children": [
                 {
-                  "id": "791:22944",
-                  "name": "\bButton Section",
+                  "id": "I2015:70710;387:19574;387:19507",
+                  "name": "ri:heart-3-line",
                   "type": "FRAME",
-                  "layout": "layout_HPDQH9",
+                  "layout": "layout_L1WABG",
+                  "fills": "fill_10ZBTU",
                   "children": [
                     {
-                      "id": "791:22945",
-                      "name": "Button",
-                      "type": "INSTANCE",
-                      "layout": "layout_96GSBT",
-                      "fills": "fill_AZVATT",
-                      "strokes": "stroke_VVS4G1",
-                      "borderRadius": "12px",
-                      "componentId": "791:20386",
-                      "componentProperties": [
-                        {
-                          "name": "텍스트#135:39",
-                          "value": "Google 계정으로 계속하기",
-                          "type": "TEXT"
-                        },
-                        {
-                          "name": "Color",
-                          "value": "🤍",
-                          "type": "VARIANT"
-                        },
-                        {
-                          "name": "Icon",
-                          "value": "On",
-                          "type": "VARIANT"
-                        },
-                        {
-                          "name": "Status",
-                          "value": "Active",
-                          "type": "VARIANT"
-                        },
-                        {
-                          "name": "Direction",
-                          "value": "좌측",
-                          "type": "VARIANT"
-                        },
-                        {
-                          "name": "Hover+Click",
-                          "value": "Off",
-                          "type": "VARIANT"
-                        }
-                      ],
-                      "children": [
-                        {
-                          "id": "I791:22945;791:20387",
-                          "name": "Icons",
-                          "type": "INSTANCE",
-                          "layout": "layout_JEN273",
-                          "fills": "fill_AZVATT",
-                          "componentId": "135:1036",
-                          "componentProperties": [
-                            {
-                              "name": "Icon",
-                              "value": "ri:google-fill",
-                              "type": "VARIANT"
-                            }
-                          ],
-                          "children": [
-                            {
-                              "id": "I791:22945;791:20387;135:1035",
-                              "name": "Vector",
-                              "type": "IMAGE-SVG",
-                              "layout": "layout_SJSFWR",
-                              "fills": "fill_BFF3LU"
-                            }
-                          ]
-                        },
-                        {
-                          "id": "I791:22945;791:20388",
-                          "name": "Button Name",
-                          "type": "TEXT",
-                          "layout": "layout_U0CE8I",
-                          "text": "Google 계정으로 계속하기",
-                          "textStyle": "style_80VCE8",
-                          "fills": "fill_WLIJVV"
-                        }
-                      ]
+                      "id": "I2015:70710;387:19574;387:19508",
+                      "name": "Vector",
+                      "type": "IMAGE-SVG",
+                      "layout": "layout_DP0PK2",
+                      "fills": "fill_YQ6FC1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I2015:70710;404:20134",
+              "name": "Navigation Bar / Icons",
+              "type": "INSTANCE",
+              "layout": "layout_ACLKV4",
+              "opacity": 0.30000001192092896,
+              "borderRadius": "8px",
+              "componentId": "404:20031",
+              "componentProperties": [
+                {
+                  "name": "Menu",
+                  "value": "States",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Hover",
+                  "value": "Off",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Selected",
+                  "value": "Off",
+                  "type": "VARIANT"
+                }
+              ],
+              "children": [
+                {
+                  "id": "I2015:70710;404:20134;404:20037",
+                  "name": "ri:bar-chart-line",
+                  "type": "FRAME",
+                  "layout": "layout_L1WABG",
+                  "fills": "fill_10ZBTU",
+                  "children": [
+                    {
+                      "id": "I2015:70710;404:20134;2002:36328",
+                      "name": "Vector",
+                      "type": "IMAGE-SVG",
+                      "layout": "layout_PKIS9F",
+                      "fills": "fill_YQ6FC1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I2015:70710;387:19575",
+              "name": "Navigation Bar / Icons",
+              "type": "INSTANCE",
+              "layout": "layout_ACLKV4",
+              "opacity": 0.30000001192092896,
+              "borderRadius": "8px",
+              "componentId": "387:19453",
+              "componentProperties": [
+                {
+                  "name": "Menu",
+                  "value": "User",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Hover",
+                  "value": "Off",
+                  "type": "VARIANT"
+                },
+                {
+                  "name": "Selected",
+                  "value": "Off",
+                  "type": "VARIANT"
+                }
+              ],
+              "children": [
+                {
+                  "id": "I2015:70710;387:19575;387:19464",
+                  "name": "ri:calendar-line",
+                  "type": "FRAME",
+                  "layout": "layout_L1WABG",
+                  "fills": "fill_10ZBTU",
+                  "children": [
+                    {
+                      "id": "I2015:70710;387:19575;2002:37169",
+                      "name": "Vector",
+                      "type": "IMAGE-SVG",
+                      "layout": "layout_0QRYBX",
+                      "fills": "fill_YQ6FC1"
                     }
                   ]
                 }
@@ -203,20 +2157,331 @@
     }
   ],
   "components": {
-    "791:20386": {
-      "id": "791:20386",
-      "key": "8dc15f48313c9e79d51200cc5bf57ae68d4b1d05",
-      "name": "Color=🤍, Icon=On, Status=Active, Direction=좌측, Hover+Click=Off",
+    "1908:122003": {
+      "id": "1908:122003",
+      "key": "29843665e0d56e706ca186eaac6061edf6dd0a6e",
+      "name": "속성 1=Top Bar: 상단 고정 내비게이션",
+      "componentSetId": "1908:122004"
+    },
+    "1908:121413": {
+      "id": "1908:121413",
+      "key": "31f1a2290dcdde8d48c824897daecf31810a3736",
+      "name": "Property 1=Default",
+      "componentSetId": "1908:121412"
+    },
+    "1908:121988": {
+      "id": "1908:121988",
+      "key": "4ccf4b96415360d648e32b7fe8ca83bef994c316",
+      "name": "속성 1=Side Bar: 메뉴 트리거",
+      "componentSetId": "1908:122004"
+    },
+    "1985:31552": {
+      "id": "1985:31552",
+      "key": "e436a3096f00ca5fa798433e7ab2023b173e93fe",
+      "name": "Selected=Menu 01",
+      "componentSetId": "1990:29137"
+    },
+    "1908:121558": {
+      "id": "1908:121558",
+      "key": "d21932c280dcf20c88cc0e792c6859808df38041",
+      "name": "속성 1=스페이스 정보",
+      "componentSetId": "1908:121559"
+    },
+    "1908:121523": {
+      "id": "1908:121523",
+      "key": "a6ae2b3caff1a35eab6fc7ce1e36fe5868253729",
+      "name": "Property 1=Default",
+      "componentSetId": "1908:121534"
+    },
+    "1948:125585": {
+      "id": "1948:125585",
+      "key": "0bcdf0d7cbd804f5c99d6bd1ac439a688fd32898",
+      "name": "Menu=Space (스페이스 정보), State=Active",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125561": {
+      "id": "1948:125561",
+      "key": "a9d8f47a4a7aa7546afb6169c4f2edaa28d4d984",
+      "name": "Menu Item"
+    },
+    "1948:125416": {
+      "id": "1948:125416",
+      "key": "06f52a5fb6b0f151e8f92cb1187a72f694a0f6ce",
+      "name": "속성 1=ri:planet-line",
+      "componentSetId": "1948:125415"
+    },
+    "1908:121377": {
+      "id": "1908:121377",
+      "key": "b268a792b42bf2241222dba7c09715dfe058dc47",
+      "name": "Property 1=Text",
+      "componentSetId": "1948:125596"
+    },
+    "1960:133744": {
+      "id": "1960:133744",
+      "key": "05305b4b623ff676acd31c3ce500483fd1493a52",
+      "name": "Menu=Members (멤버 리스트), State=Default",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125418": {
+      "id": "1948:125418",
+      "key": "5621ca5d8b389eadba6a908432ae42602cf00b67",
+      "name": "속성 1=ri:group-3-line",
+      "componentSetId": "1948:125415"
+    },
+    "1960:134035": {
+      "id": "1960:134035",
+      "key": "486af80c67e3b94d0b62a76a8be4c794719c52c4",
+      "name": "Menu=App center (외부 연동), State=Inactive",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125420": {
+      "id": "1948:125420",
+      "key": "1a6f5af078e95e059f5d990f7fb437eac1614ab3",
+      "name": "속성 1=ri:shapes-line",
+      "componentSetId": "1948:125415"
+    },
+    "1908:121560": {
+      "id": "1908:121560",
+      "key": "dd0403748c1e24068b1e922bfa5384019b0f9e01",
+      "name": "속성 1=내 정보",
+      "componentSetId": "1908:121559"
+    },
+    "1960:134095": {
+      "id": "1960:134095",
+      "key": "8292a5d2b008b35e293c2c8d201b7515fa444cbe",
+      "name": "Menu=My Settings (내 정보), State=Default",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125422": {
+      "id": "1948:125422",
+      "key": "5e9ae9f5969d5910cdc48fbf8749edcacc5c4644",
+      "name": "속성 1=ri:user-6-line",
+      "componentSetId": "1948:125415"
+    },
+    "1960:134041": {
+      "id": "1960:134041",
+      "key": "37b11816a2f0613edd06e3971d445f833368a814",
+      "name": "Menu=Workspaces (워크스페이스), State=Inactive",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125432": {
+      "id": "1948:125432",
+      "key": "3f9dc346601fceaa2eac8be6fd57072c7d5598e8",
+      "name": "속성 1=ri:gallery-view-2",
+      "componentSetId": "1948:125415"
+    },
+    "1960:133870": {
+      "id": "1960:133870",
+      "key": "ac0bd78e2501200c76f708671ba89be5adb086ac",
+      "name": "Menu=Notification (알림), State=Default",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125424": {
+      "id": "1948:125424",
+      "key": "62ae4c1fc2981e1c45eb0403a035185268bcaa9f",
+      "name": "속성 1=ri:notification-3-line",
+      "componentSetId": "1948:125415"
+    },
+    "1960:133906": {
+      "id": "1960:133906",
+      "key": "7ae47c6c6a3205ce480c76680abe6899b2e007a9",
+      "name": "Menu=Feedback (피드백), State=Default",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125426": {
+      "id": "1948:125426",
+      "key": "bb6d3b8d32db63aebad35c359c6f67686ac02b53",
+      "name": "속성 1=ri:feedback-line",
+      "componentSetId": "1948:125415"
+    },
+    "1960:133927": {
+      "id": "1960:133927",
+      "key": "447a9b268c934dcbab4f8953569c204ac0b53cda",
+      "name": "Menu=Referrals (추천하기), State=Default",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125428": {
+      "id": "1948:125428",
+      "key": "c5c13cab217d34bdecb91b6fe5f579df4f6f8895",
+      "name": "속성 1=ri:cake-3-line",
+      "componentSetId": "1948:125415"
+    },
+    "1908:121489": {
+      "id": "1908:121489",
+      "key": "6a005a81b49a8b52693eee22da1f74fcb213a5b3",
+      "name": "Menu=Logout (로그아웃)",
+      "componentSetId": "1908:121446"
+    },
+    "1948:125586": {
+      "id": "1948:125586",
+      "key": "d413d5596cb79c3b8472e8a51fc21aa5e59fc637",
+      "name": "Menu=Space (스페이스 정보), State=Default",
+      "componentSetId": "1948:125587"
+    },
+    "1948:125430": {
+      "id": "1948:125430",
+      "key": "755e561f387c57724b930925ab9ee109aeb9300a",
+      "name": "속성 1=ri:logout-box-line",
+      "componentSetId": "1948:125415"
+    },
+    "791:20368": {
+      "id": "791:20368",
+      "key": "bfe0c8a1b6a27146336c5a51f263eddae03e4898",
+      "name": "Color=🤍, Icon=On, Status=Active, Direction=가운데, Hover+Click=Off",
       "componentSetId": "772:19717"
     },
-    "135:1036": {
-      "id": "135:1036",
-      "key": "867b3547248a2e7a0e8a3df40adbca3cdc29a821",
-      "name": "Icon=ri:google-fill",
+    "173:907": {
+      "id": "173:907",
+      "key": "37cf88835687fbd2a6ac58913f43174916b727cf",
+      "name": "Icon=ri:add-line",
       "componentSetId": "135:1040"
+    },
+    "791:20692": {
+      "id": "791:20692",
+      "key": "522855e757717b385bb4a01ca87d3a557150cd11",
+      "name": "State=Default, Icon=On",
+      "componentSetId": "791:20687"
+    },
+    "1493:42246": {
+      "id": "1493:42246",
+      "key": "4c55bb3adfd3c12d1346dae1468414068e29ba31",
+      "name": "Icon=ri:user-6-line",
+      "componentSetId": "135:1040"
+    },
+    "135:367": {
+      "id": "135:367",
+      "key": "1d055c8a8721df52145126b5bbfd9918f4f56f49",
+      "name": "속성 1=깜",
+      "componentSetId": "135:369"
+    },
+    "791:20377": {
+      "id": "791:20377",
+      "key": "2aa77fe5236ea44bc7a7974e108673a2def159b2",
+      "name": "Color=🤍, Icon=Off, Status=Inactive, Direction=가운데, Hover+Click=Off",
+      "componentSetId": "772:19717"
+    },
+    "173:901": {
+      "id": "173:901",
+      "key": "1b29b6c0abdeea60f07ad32ef86995ff7640c22d",
+      "name": "Icon=ri:check-fill",
+      "componentSetId": "135:1040"
+    },
+    "791:19975": {
+      "id": "791:19975",
+      "key": "2f787d4520a2cd279d08ede53f2416b7df4296b8",
+      "name": "Color=🖤, Icon=Off, Status=Inactive, Direction=가운데, Hover+Click=Off",
+      "componentSetId": "772:19717"
+    },
+    "135:1180": {
+      "id": "135:1180",
+      "key": "7ca76422f10bd5aef8e82ad507040fec3e0379e0",
+      "name": "Icon=Default",
+      "componentSetId": "135:1040"
+    },
+    "360:11300": {
+      "id": "360:11300",
+      "key": "5a38c2a38283d685a93901465a339737a52e0ed9",
+      "name": "Hover+Click=Off, Direction=우측, Icon=On",
+      "componentSetId": "360:11275"
+    },
+    "135:1038": {
+      "id": "135:1038",
+      "key": "003e619c63692d178ce21cb49783df14595a5417",
+      "name": "Icon=ri:arrow-right-line",
+      "componentSetId": "135:1040"
+    },
+    "387:19497": {
+      "id": "387:19497",
+      "key": "df38dde8357c942c16d95d3e2a4ea3f394a8f9d2",
+      "name": "Menu=Setting, Hover=Off, Selected=On",
+      "componentSetId": "387:19407"
+    },
+    "387:19677": {
+      "id": "387:19677",
+      "key": "e346c4d993493704b8354b991a480ec7c8b72c04",
+      "name": "속성 1=Button 05",
+      "componentSetId": "387:19679"
+    },
+    "387:19408": {
+      "id": "387:19408",
+      "key": "6911a145a3f83e41e25e8e01ff02362f49850e15",
+      "name": "Menu=Home, Hover=Off, Selected=Off",
+      "componentSetId": "387:19407"
+    },
+    "387:19506": {
+      "id": "387:19506",
+      "key": "8f239c2a4856688ae662283ad4458f5e4b0256b3",
+      "name": "Menu=Activity, Hover=Off, Selected=Off",
+      "componentSetId": "387:19407"
+    },
+    "404:20031": {
+      "id": "404:20031",
+      "key": "dc760ebd1d477ae3a37477b5441d111ecd6832a7",
+      "name": "Menu=States, Hover=Off, Selected=Off",
+      "componentSetId": "387:19407"
+    },
+    "387:19453": {
+      "id": "387:19453",
+      "key": "1f334cea850c73368482cc5ce8587864c5d34263",
+      "name": "Menu=User, Hover=Off, Selected=Off",
+      "componentSetId": "387:19407"
     }
   },
   "componentSets": {
+    "1908:122004": {
+      "id": "1908:122004",
+      "key": "3df14481192681b8f51bb7e90257f268ba71ac64",
+      "name": "Settings Menu",
+      "description": ""
+    },
+    "1908:121412": {
+      "id": "1908:121412",
+      "key": "db9b36a6532e1a8de0aafc813a271ce5ab8da4d7",
+      "name": "Label",
+      "description": ""
+    },
+    "1990:29137": {
+      "id": "1990:29137",
+      "key": "fc191c72d863f4ff2e7da2a1fd7a1de2d34df59a",
+      "name": "Menu Set",
+      "description": ""
+    },
+    "1908:121559": {
+      "id": "1908:121559",
+      "key": "427aaed62f940b3b7c46bea7f7917768d07b0fd7",
+      "name": "Menu Group",
+      "description": ""
+    },
+    "1908:121534": {
+      "id": "1908:121534",
+      "key": "8f6be93f34ee87e03048df60b61cd0fce6ecaba3",
+      "name": "Group Title",
+      "description": ""
+    },
+    "1948:125587": {
+      "id": "1948:125587",
+      "key": "742469deb5e43abbd6ebbf955cb67dd3f76cff5e",
+      "name": "Menu Item (States)",
+      "description": ""
+    },
+    "1948:125415": {
+      "id": "1948:125415",
+      "key": "953a83ca799da0aa04c88500349c19c7045f59b5",
+      "name": "Icons - Settings",
+      "description": ""
+    },
+    "1948:125596": {
+      "id": "1948:125596",
+      "key": "e8c897ddce7ae2ff97ed5eb47b2ed29af3ce5e6b",
+      "name": "Label",
+      "description": ""
+    },
+    "1908:121446": {
+      "id": "1908:121446",
+      "key": "6e2ab4ad6244aac0e239e40b345a0b03d9dd81dd",
+      "name": "Menu Item / Types",
+      "description": ""
+    },
     "772:19717": {
       "id": "772:19717",
       "key": "7911f55fa8f3ac141758e1e075f3316239e89e58",
@@ -228,242 +2493,828 @@
       "key": "590a5ccf3d2dd7216e6119589778d43982b17193",
       "name": "Icons",
       "description": ""
+    },
+    "791:20687": {
+      "id": "791:20687",
+      "key": "57465ba2575058237ecf862344b2b6b64fdff8d5",
+      "name": "Text Field",
+      "description": ""
+    },
+    "135:369": {
+      "id": "135:369",
+      "key": "f223fcfdb626bd09f42922e11a316dcf8522c7c1",
+      "name": "\bInput Cursor Animation",
+      "description": ""
+    },
+    "360:11275": {
+      "id": "360:11275",
+      "key": "dca0afa4fa2f1a2b8b74bcee30347b16bab915ba",
+      "name": "Button_WH_color",
+      "description": ""
+    },
+    "387:19407": {
+      "id": "387:19407",
+      "key": "3fd916dcaa387d31765a2da69951ac727a2d6200",
+      "name": "Navigation Bar / Icons",
+      "description": ""
+    },
+    "387:19679": {
+      "id": "387:19679",
+      "key": "2a2ed1b12b543fa4d477c595460ac34a4139729b",
+      "name": "Navigation Bar",
+      "description": ""
     }
   },
   "globalVars": {
     "styles": {
-      "layout_71WXZP": {
+      "layout_ENJL9D": {
         "mode": "none",
-        "sizing": {},
-        "dimensions": {
-          "width": 1440,
-          "height": 1024
-        }
-      },
-      "fill_AZVATT": [
-        "#FFFFFF"
-      ],
-      "layout_7A6HOP": {
-        "mode": "none",
-        "sizing": {},
-        "locationRelativeToParent": {
-          "x": 0,
-          "y": 0
-        },
-        "dimensions": {
-          "width": 1440,
-          "height": 1024
-        }
-      },
-      "layout_7T4Q8V": {
-        "mode": "none",
-        "sizing": {},
-        "locationRelativeToParent": {
-          "x": -35,
-          "y": -40
-        },
-        "dimensions": {
-          "width": 1585,
-          "height": 1175
-        }
-      },
-      "layout_SQMYN0": {
-        "mode": "none",
-        "sizing": {},
-        "locationRelativeToParent": {
-          "x": 362,
-          "y": 185
-        },
-        "dimensions": {
-          "width": 1223,
-          "height": 990
-        }
-      },
-      "stroke_ZQT82P": {
-        "colors": [
-          "#9747FF"
-        ],
-        "strokeWeight": "95px"
-      },
-      "effect_1TPA67": {
-        "filter": "blur(40px)"
-      },
-      "layout_F2C1OX": {
-        "mode": "none",
-        "sizing": {},
-        "locationRelativeToParent": {
-          "x": 0,
-          "y": 0
-        },
-        "dimensions": {
-          "width": 659,
-          "height": 511
-        }
-      },
-      "stroke_LFZRYL": {
-        "colors": [
-          "#F1F1F1"
-        ],
-        "strokeWeight": "84px"
-      },
-      "layout_X7153D": {
-        "mode": "none",
-        "sizing": {},
-        "locationRelativeToParent": {
-          "x": 35,
-          "y": 40
-        },
-        "dimensions": {
-          "width": 1440,
-          "height": 1024
-        }
-      },
-      "fill_ZFSFFH": [
-        {
-          "type": "IMAGE",
-          "imageRef": "bcfa0f2ecf6c15828a024b5c1166de4e07f82d98",
-          "scaleMode": "TILE",
-          "scalingFactor": 0.6090909242630005,
-          "backgroundRepeat": "repeat",
-          "backgroundSize": "calc(var(--original-width) * 0.6090909242630005) calc(var(--original-height) * 0.6090909242630005)",
-          "isBackground": true,
-          "imageDownloadArguments": {
-            "needsCropping": false,
-            "requiresImageDimensions": true
-          }
-        }
-      ],
-      "layout_Z6YQ1Q": {
-        "mode": "column",
         "overflowScroll": [
           "y"
         ],
-        "alignItems": "center",
-        "padding": "30px 0px",
-        "sizing": {
-          "horizontal": "fixed",
-          "vertical": "hug"
-        },
-        "locationRelativeToParent": {
-          "x": 430,
-          "y": 252
-        },
+        "sizing": {},
         "dimensions": {
-          "width": 580
+          "width": 1440,
+          "height": 1024
         }
       },
-      "stroke_1IZJLA": {
-        "colors": [
-          "rgba(34, 34, 34, 0.08)"
-        ],
-        "strokeWeight": "1px"
-      },
-      "effect_E056IW": {
-        "boxShadow": "4px 4px 20px 0px rgba(160, 160, 160, 0.04), -4px -4px 20px 0px rgba(160, 160, 160, 0.04)"
-      },
-      "layout_XHF0OX": {
+      "fill_KUHAF9": [
+        "#FAFAFA"
+      ],
+      "layout_VO6X2T": {
         "mode": "column",
-        "justifyContent": "center",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "locationRelativeToParent": {
+          "x": 120,
+          "y": 90
+        },
+        "dimensions": {
+          "width": 1200,
+          "height": 934
+        }
+      },
+      "fill_10ZBTU": [
+        "#FFFFFF"
+      ],
+      "effect_5WBGFY": {
+        "boxShadow": "-4px -4px 20px 0px rgba(160, 160, 160, 0.04), 4px 4px 20px 0px rgba(160, 160, 160, 0.04)"
+      },
+      "layout_D2O702": {
+        "mode": "row",
         "alignItems": "center",
         "alignSelf": "stretch",
-        "gap": "16px",
-        "padding": "30px 50px",
+        "gap": "8px",
+        "padding": "20px 30px",
         "sizing": {
           "horizontal": "fill",
           "vertical": "hug"
         }
       },
-      "stroke_9TLWH7": {
+      "stroke_FIRGT3": {
         "colors": [
-          "rgba(34, 34, 34, 0.08)"
+          "rgba(29, 29, 31, 0.08)"
         ],
         "strokeWeight": "0px 0px 1px"
       },
-      "layout_V01EC6": {
+      "layout_DJN9T7": {
+        "mode": "row",
+        "alignItems": "center",
+        "gap": "8px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "layout_L37KFO": {
+        "mode": "row",
+        "alignItems": "center",
+        "gap": "10px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "layout_BZBFPQ": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "style_M6DXCV": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 600,
+        "fontSize": 18,
+        "lineHeight": "1.2000000211927626em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_I4OMLA": [
+        "#9999A2"
+      ],
+      "style_HZOCRT": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 700,
+        "fontSize": 18,
+        "lineHeight": "1.2000000211927626em",
+        "textAlignHorizontal": "CENTER",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_TOCA92": [
+        "#1D1D1F"
+      ],
+      "style_TXMRC7": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 700,
+        "fontSize": 18,
+        "lineHeight": "1.2000000211927626em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_SIWFRO": {
+        "mode": "row",
+        "overflowScroll": [
+          "y"
+        ],
+        "justifyContent": "center",
+        "alignSelf": "stretch",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fill"
+        }
+      },
+      "layout_O0W5IS": {
+        "mode": "column",
+        "overflowScroll": [
+          "y"
+        ],
+        "justifyContent": "space-between",
+        "gap": "10px",
+        "padding": "20px 10px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 160,
+          "height": 800
+        }
+      },
+      "stroke_Y92KA9": {
+        "colors": [
+          "rgba(29, 29, 31, 0.08)"
+        ],
+        "strokeWeight": "0px 1px 0px 0px"
+      },
+      "layout_SG5A32": {
+        "mode": "column",
+        "gap": "40px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "layout_4MQT8X": {
+        "mode": "column",
+        "gap": "8px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "dimensions": {
+          "width": 140
+        }
+      },
+      "layout_CL5N2F": {
+        "mode": "row",
+        "alignItems": "center",
+        "alignSelf": "stretch",
+        "gap": "4px",
+        "padding": "10px 16px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "style_BXWKE3": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 600,
+        "fontSize": 12,
+        "lineHeight": "1.2000000476837158em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_RJNAAT": {
+        "mode": "row",
+        "alignSelf": "stretch",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "layout_GCBH2F": {
+        "mode": "row",
+        "alignItems": "center",
+        "gap": "8px",
+        "padding": "10px 16px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "dimensions": {
+          "width": 140
+        }
+      },
+      "fill_6FX9N8": [
+        "#FFFFFF",
+        "rgba(151, 71, 255, 0.1)"
+      ],
+      "layout_8EU3DK": {
         "mode": "none",
         "sizing": {
           "horizontal": "fixed",
           "vertical": "fixed"
         },
         "dimensions": {
-          "width": 274,
-          "height": 160
+          "width": 16,
+          "height": 16
         }
       },
-      "layout_2ZOCXK": {
+      "layout_QWZFOZ": {
         "mode": "none",
         "sizing": {},
         "locationRelativeToParent": {
-          "x": 23.92,
+          "x": 2,
+          "y": 1.48
+        },
+        "dimensions": {
+          "width": 12.52,
+          "height": 12.52
+        }
+      },
+      "fill_GQ3TCU": [
+        "#9747FF"
+      ],
+      "layout_2IKICX": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 84,
+          "height": 16
+        }
+      },
+      "layout_BKNG2Z": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
           "y": 0
         },
         "dimensions": {
-          "width": 225.52,
-          "height": 183.23
+          "width": 84,
+          "height": 16
         }
       },
-      "stroke_QY7HTU": {
-        "colors": [
-          "#FFC919"
-        ],
-        "strokeWeight": "24px"
+      "style_M9FDE4": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 600,
+        "fontSize": 13,
+        "lineHeight": "1.200000029343825em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
       },
-      "layout_DHNQ0A": {
-        "mode": "none",
+      "layout_0KZLMJ": {
+        "mode": "row",
         "sizing": {
-          "horizontal": "fill",
+          "horizontal": "hug",
           "vertical": "hug"
         }
       },
-      "style_L6JWKE": {
-        "fontFamily": "Pretendard",
-        "fontWeight": 700,
-        "fontSize": 32,
-        "lineHeight": "1.5em",
-        "textAlignHorizontal": "CENTER",
-        "textAlignVertical": "CENTER"
+      "layout_QH9VK6": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 1.34,
+          "y": 2
+        },
+        "dimensions": {
+          "width": 13.33,
+          "height": 12
+        }
       },
-      "fill_BFF3LU": [
-        "#222222"
+      "fill_V0911E": [
+        "#6E6E73"
       ],
-      "style_X6112B": {
-        "fontFamily": "Pretendard",
-        "fontWeight": 400,
-        "fontSize": 15,
-        "lineHeight": "1.5em",
-        "textAlignHorizontal": "CENTER",
-        "textAlignVertical": "CENTER"
+      "layout_QPZNQ2": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 1.34,
+          "y": 0.67
+        },
+        "dimensions": {
+          "width": 12.67,
+          "height": 14
+        }
       },
-      "layout_HPDQH9": {
-        "mode": "column",
-        "justifyContent": "center",
-        "gap": "10px",
+      "layout_ZD5ZIB": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 2.27,
+          "y": 1.33
+        },
+        "dimensions": {
+          "width": 11.48,
+          "height": 13.2
+        }
+      },
+      "layout_CN8UUW": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 1.34,
+          "y": 1.33
+        },
+        "dimensions": {
+          "width": 13.33,
+          "height": 14
+        }
+      },
+      "layout_HSZ4UA": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 1.34,
+          "y": 2
+        },
+        "dimensions": {
+          "width": 13.33,
+          "height": 13
+        }
+      },
+      "layout_PWOGR8": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 1.34,
+          "y": 1.33
+        },
+        "dimensions": {
+          "width": 13.33,
+          "height": 13.33
+        }
+      },
+      "layout_AJLUEJ": {
+        "mode": "row",
         "sizing": {
           "horizontal": "fixed",
           "vertical": "hug"
         },
         "dimensions": {
-          "width": 480
+          "width": 140
         }
       },
-      "layout_96GSBT": {
-        "mode": "row",
-        "alignItems": "center",
+      "layout_A08S8J": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0.66,
+          "y": 1.33
+        },
+        "dimensions": {
+          "width": 12.67,
+          "height": 13.33
+        }
+      },
+      "layout_T1P9LO": {
+        "mode": "column",
+        "overflowScroll": [
+          "y"
+        ],
         "alignSelf": "stretch",
-        "gap": "4px",
-        "padding": "16px 20px",
+        "gap": "40px",
+        "padding": "40px 40px 100px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fill"
+        }
+      },
+      "layout_6P8JEX": {
+        "mode": "column",
+        "alignSelf": "stretch",
+        "gap": "40px",
+        "padding": "0px 0px 100px",
         "sizing": {
           "horizontal": "fill",
           "vertical": "hug"
         }
       },
-      "stroke_VVS4G1": {
+      "layout_F9H4ST": {
+        "mode": "column",
+        "alignSelf": "stretch",
+        "gap": "20px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_GCWDC3": {
+        "mode": "column",
+        "alignSelf": "stretch",
+        "gap": "10px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_Q593QL": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "style_JWIJA0": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 700,
+        "fontSize": 20,
+        "lineHeight": "1.2em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "style_6F1W48": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 400,
+        "fontSize": 15,
+        "lineHeight": "1.6em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_QPV1IV": {
+        "mode": "column",
+        "alignSelf": "stretch",
+        "gap": "40px",
+        "padding": "20px 0px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_3S03IZ": {
+        "mode": "row",
+        "alignItems": "center",
+        "alignSelf": "stretch",
+        "gap": "60px",
+        "padding": "30px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_9M350V": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 120,
+          "height": 120
+        }
+      },
+      "layout_MBWR7A": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 120,
+          "height": 120
+        }
+      },
+      "fill_ELQGN8": [
+        {
+          "type": "IMAGE",
+          "imageRef": "a902369d0c63af658cc72085281f14d3ffb8f9c6",
+          "scaleMode": "FILL",
+          "objectFit": "cover",
+          "isBackground": false,
+          "imageDownloadArguments": {
+            "needsCropping": false,
+            "requiresImageDimensions": false
+          }
+        }
+      ],
+      "stroke_EPYDLH": {
         "colors": [
           "rgba(29, 29, 31, 0.08)"
         ],
         "strokeWeight": "1px"
       },
-      "layout_JEN273": {
+      "layout_AGR18K": {
+        "mode": "column",
+        "justifyContent": "flex-end",
+        "alignItems": "flex-end",
+        "gap": "4px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "style_H5H0UI": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 700,
+        "fontSize": 20,
+        "lineHeight": "1.6em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "style_L1MJO6": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 500,
+        "fontSize": 15,
+        "lineHeight": "1.2em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_PNU518": {
+        "mode": "row",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "gap": "4px",
+        "padding": "10px 20px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "height": 36
+        }
+      },
+      "layout_TY88GO": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fill"
+        },
+        "dimensions": {
+          "width": 16
+        }
+      },
+      "layout_5LZERG": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 3.34,
+          "y": 3.33
+        },
+        "dimensions": {
+          "width": 9.33,
+          "height": 9.33
+        }
+      },
+      "style_B9HK3B": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 400,
+        "fontSize": 13,
+        "lineHeight": "1.200000029343825em",
+        "textAlignHorizontal": "CENTER",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_GBTW49": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "height": 0
+        }
+      },
+      "layout_DCPN79": {
+        "mode": "row",
+        "alignSelf": "stretch",
+        "gap": "10px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_TFGMR9": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "dimensions": {
+          "width": 200
+        }
+      },
+      "style_6G560E": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 700,
+        "fontSize": 15,
+        "lineHeight": "1.2em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_TIZ6ZT": {
+        "mode": "column",
+        "gap": "10px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_ITW06G": {
+        "mode": "row",
+        "alignItems": "center",
+        "alignSelf": "stretch",
+        "gap": "10px",
+        "padding": "16px 20px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fixed"
+        }
+      },
+      "layout_SEXNT5": {
+        "mode": "row",
+        "justifyContent": "stretch",
+        "alignItems": "stretch",
+        "gap": "10px",
+        "padding": "10px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_DPZ2DS": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "position": "absolute",
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 2
+        },
+        "dimensions": {
+          "width": 58,
+          "height": 19
+        }
+      },
+      "style_S5RCE0": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 400,
+        "fontSize": 16,
+        "lineHeight": "1.2000000476837158em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_2HAQEK": {
+        "mode": "row",
+        "alignItems": "center",
+        "gap": "4px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "dimensions": {
+          "width": 200
+        }
+      },
+      "layout_ABDJ4B": {
+        "mode": "column",
+        "alignSelf": "stretch",
+        "gap": "4px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "style_720TC8": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 500,
+        "fontSize": 15,
+        "lineHeight": "1.6em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "style_TO28Q6": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 400,
+        "fontSize": 13,
+        "lineHeight": "1.6000000880314753em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_RY6N8Z": {
+        "mode": "row",
+        "justifyContent": "stretch",
+        "alignItems": "stretch",
+        "alignSelf": "stretch",
+        "gap": "10px",
+        "padding": "10px 0px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_W1GVIX": {
+        "mode": "column",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "gap": "8px",
+        "padding": "8px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fixed"
+        }
+      },
+      "style_H75UI3": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 700,
+        "fontSize": 15,
+        "lineHeight": "1.2em",
+        "textAlignHorizontal": "CENTER",
+        "textAlignVertical": "CENTER"
+      },
+      "layout_2CRKG4": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "height": 1
+        }
+      },
+      "layout_XJVGEA": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 2.42,
+          "y": 3.99
+        },
+        "dimensions": {
+          "width": 11.31,
+          "height": 8.01
+        }
+      },
+      "fill_WR2O27": [
+        "rgba(29, 29, 31, 0.08)"
+      ],
+      "layout_E6ALIJ": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 3.76,
+          "y": 3.76
+        },
+        "dimensions": {
+          "width": 8.49,
+          "height": 8.49
+        }
+      },
+      "layout_IBOP3F": {
+        "mode": "row",
+        "justifyContent": "stretch",
+        "alignItems": "stretch",
+        "alignSelf": "stretch",
+        "gap": "20px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "layout_PS4PM7": {
+        "mode": "row",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "gap": "4px",
+        "padding": "16px 20px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "height": 54
+        }
+      },
+      "fill_3Y2JHM": [
+        "#F1F1F1"
+      ],
+      "layout_TVBCKP": {
         "mode": "none",
         "sizing": {
           "horizontal": "fixed",
@@ -474,36 +3325,164 @@
           "height": 20
         }
       },
-      "layout_SJSFWR": {
+      "layout_2DN099": {
         "mode": "none",
         "sizing": {},
         "locationRelativeToParent": {
-          "x": 1.67,
-          "y": 1.67
+          "x": 3.03,
+          "y": 4.98
         },
         "dimensions": {
-          "width": 16.33,
-          "height": 16.67
+          "width": 14.14,
+          "height": 10.02
         }
       },
-      "layout_U0CE8I": {
-        "mode": "none",
-        "sizing": {
-          "horizontal": "hug",
-          "vertical": "hug"
-        }
+      "stroke_UCK4N6": {
+        "colors": [
+          "rgba(255, 255, 255, 0.08)"
+        ],
+        "strokeWeight": "1px"
       },
-      "style_80VCE8": {
+      "style_KTB8U7": {
         "fontFamily": "Pretendard",
         "fontWeight": 400,
         "fontSize": 15,
         "lineHeight": "1.2em",
-        "textAlignHorizontal": "LEFT",
+        "textAlignHorizontal": "CENTER",
         "textAlignVertical": "CENTER"
       },
-      "fill_WLIJVV": [
-        "#1D1D1F"
-      ]
+      "style_WJUFB7": {
+        "fontFamily": "Pretendard",
+        "fontWeight": 400,
+        "fontSize": 15,
+        "lineHeight": "1.6em",
+        "textAlignHorizontal": "RIGHT",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_FUJYI2": [
+        "#D23C24"
+      ],
+      "layout_KPT7MF": {
+        "mode": "row",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "gap": "10px",
+        "padding": "8px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "locationRelativeToParent": {
+          "x": 10,
+          "y": 934
+        },
+        "dimensions": {
+          "width": 60,
+          "height": 60
+        }
+      },
+      "layout_L1WABG": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        }
+      },
+      "layout_XFQIV8": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 1.34,
+          "y": 3.3
+        },
+        "dimensions": {
+          "width": 29.33,
+          "height": 25.4
+        }
+      },
+      "fill_YQ6FC1": [
+        "#000000"
+      ],
+      "layout_BWRXNF": {
+        "mode": "column",
+        "justifyContent": "center",
+        "gap": "20px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        },
+        "locationRelativeToParent": {
+          "x": 10,
+          "y": 380.5
+        }
+      },
+      "layout_ACLKV4": {
+        "mode": "row",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "gap": "10px",
+        "padding": "8px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 50,
+          "height": 50
+        }
+      },
+      "layout_HBYCDP": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 4,
+          "y": 3.02
+        },
+        "dimensions": {
+          "width": 24,
+          "height": 24.98
+        }
+      },
+      "layout_DP0PK2": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 2.66,
+          "y": 4
+        },
+        "dimensions": {
+          "width": 26.67,
+          "height": 24.67
+        }
+      },
+      "layout_PKIS9F": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 4,
+          "y": 2.67
+        },
+        "dimensions": {
+          "width": 24,
+          "height": 25.33
+        }
+      },
+      "layout_0QRYBX": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 2.66,
+          "y": 1.33
+        },
+        "dimensions": {
+          "width": 26.67,
+          "height": 26.67
+        }
+      }
     }
   }
 }

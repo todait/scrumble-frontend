@@ -1,212 +1,239 @@
 'use client';
 
 import { useState } from 'react';
+import { RiMoreLine, RiSearchLine, RiAddLine } from '@remixicon/react';
 
-import { InviteInput } from '@/features/space/components/forms';
-import { CopyLinkButton } from '@/features/space/components/ui/CopyLinkButton';
-import { inviteTeamSchema } from '@/schemas';
-import { useForm } from '@/shared/hooks';
-import { useToast } from '@/shared/hooks/useToast';
-
-import { MemberTable, type Member } from '../components/tables';
+interface Member {
+  id: string;
+  name: string;
+  mention: string;
+  email: string;
+  role: string;
+  lastSeen: string;
+  joinedAt: string;
+  isInvited?: boolean;
+  avatarUrl?: string;
+}
 
 // 더미 데이터
 const dummyMembers: Member[] = [
   {
     id: '1',
-    name: '장하준',
-    displayName: '은붕어',
-    email: '5zinguh@sea.food',
+    name: '홍가은',
+    mention: '@ Lawson',
+    email: '14equal@two.seven',
     role: '멤버',
-    isActive: true,
-    lastActivity: '오전 10:49 (1시간 전)',
-    invitedAt: '2025-06-03',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-03-20',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1',
   },
   {
     id: '2',
-    name: '박노라',
-    displayName: '느므좋아',
-    email: '5zinguh@sea.food',
+    name: '유진',
+    mention: '@ Sainz',
+    email: '2du@si.gi',
     role: '멤버',
-    isActive: true,
-    lastActivity: '오전 11:49 (1분 전)',
-    invitedAt: '2025-06-03',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-12-25',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=2',
   },
   {
     id: '3',
-    name: '김승호',
-    displayName: '해운대쌀밥',
-    email: '5zinguh@sea.food',
+    name: '이솔',
+    mention: '@ Charles',
+    email: '1hannom@scrum.com',
     role: '멤버',
-    isActive: false,
-    lastActivity: '오전 10:49 (1시간 전)',
-    invitedAt: '2025-06-03',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-07-18',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=3',
   },
   {
     id: '4',
-    name: '유자청',
-    displayName: '때잉',
+    name: '배지우',
+    mention: '@ Bortoleto',
     email: '5zinguh@sea.food',
     role: '멤버',
-    isActive: false,
-    lastActivity: '6월 2일 (2일 전)',
-    invitedAt: '2025-06-03',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-05-25',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=4',
   },
   {
     id: '5',
-    name: '우아정',
-    displayName: '쫄라당쑤나',
-    email: '5zinguh@sea.food',
+    name: '이하진',
+    mention: '@ Hamilton',
+    email: '8bochae@za.zang',
     role: '멤버',
-    isActive: true,
-    lastActivity: '오전 9:49 (19시간 전)',
-    invitedAt: '2025-06-03',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-02-29',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=5',
   },
   {
     id: '6',
-    name: '김준수',
-    displayName: '컬리',
-    email: '5zinguh@sea.food',
+    name: '주우재',
+    mention: '@ Stroll',
+    email: '11seven@nine.ten',
     role: '멤버',
-    isActive: true,
-    lastActivity: '오전 10:49 (1시간 전)',
-    invitedAt: '2025-06-03',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-04-19',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=6',
   },
   {
     id: '7',
-    name: '백차롱',
-    displayName: '킹카원훈',
-    email: '5zinguh@sea.food',
+    name: '정태현',
+    mention: '@ Alpine',
+    email: '12si@door.close',
     role: '멤버',
-    isActive: false,
-    lastActivity: '오전 10:49 (1시간 전)',
-    invitedAt: '2025-06-03',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-09-16',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=7',
+  },
+  {
+    id: '8',
+    name: '홍길동',
+    mention: '@ gdhong',
+    email: 'gildonghong@gmail.com',
+    role: '멤버',
+    lastSeen: '오전 10:49 (20시간 전)',
+    joinedAt: '2025-06-03',
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=8',
+  },
+];
+
+const invitedMembers: Member[] = [
+  {
+    id: '9',
+    name: '',
+    mention: '@ —',
+    email: '1hannom@num.com',
+    role: '멤버',
+    lastSeen: '(참여 대기 중)',
+    joinedAt: '초대 완료',
+    isInvited: true,
+  },
+  {
+    id: '10',
+    name: '',
+    mention: '@ —',
+    email: '2dusigi@num.com',
+    role: '멤버',
+    lastSeen: '(참여 대기 중)',
+    joinedAt: '초대 완료',
+    isInvited: true,
+  },
+  {
+    id: '11',
+    name: '',
+    mention: '@ —',
+    email: '3suksam@num.com',
+    role: '멤버',
+    lastSeen: '(참여 대기 중)',
+    joinedAt: '초대 완료',
+    isInvited: true,
   },
 ];
 
 export default function MemberSettingsPage() {
-  const [members] = useState<Member[]>(dummyMembers);
-  const { success, info } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [members] = useState<Member[]>([...dummyMembers, ...invitedMembers]);
 
-  const { values, setValue, isValid, handleSubmit } = useForm({
-    schema: inviteTeamSchema,
-    initialValues: { emails: [] },
-    onSubmit: async data => {
-      try {
-        // TODO: API 호출로 팀 멤버 초대
-        console.warn('초대할 이메일 목록:', data.emails);
-
-        // 성공 시 토스트 표시
-        success({
-          title: '초대 완료',
-          message: `${data.emails.length}명에게 초대장을 발송했습니다.`,
-        });
-
-        // 이메일 초기화
-        setValue('emails', []);
-      } catch (error) {
-        console.error('팀 초대 중 오류 발생:', error);
-      }
-    },
-  });
-
-  const handleCopyEmail = () => {
-    info({
-      title: '복사 완료',
-      message: '이메일 주소가 클립보드에 복사되었습니다.',
-    });
-  };
-
-  const handleCopyInviteLink = async () => {
-    try {
-      // TODO: 실제 스페이스 ID를 사용해야 함
-      const spaceSlug = 'current-space-id';
-      const inviteLink = `${window.location.origin}/invite/${spaceSlug}`;
-
-      await navigator.clipboard.writeText(inviteLink);
-
-      success({
-        title: '링크 복사 완료',
-        message: '초대 링크가 클립보드에 복사되었습니다.',
-      });
-    } catch (error) {
-      console.error('링크 복사 중 오류 발생:', error);
-    }
-  };
-
-  const handleMemberAction = (memberId: string, action: string) => {
-    console.warn('Member action:', memberId, action);
-    // TODO: 멤버 관리 액션 구현 (권한 변경, 제거 등)
-  };
-
-  const getCurrentDateTime = () => {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const period = hours < 12 ? '오전' : '오후';
-    const displayHours = hours > 12 ? hours - 12 : hours || 12;
-
-    return `${month}월 ${date}일 ${period} ${displayHours}:${minutes.toString().padStart(2, '0')} 기준`;
-  };
+  const filteredMembers = members.filter(member => 
+    member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.mention.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="px-8 py-8">
+    <div className="p-10">
       {/* 헤더 */}
-      <div className="mb-8">
-        <div className="mb-2 flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-[#181818]">멤버 관리</h1>
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-600">
-            전체 {members.length}명
-          </span>
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-[24px] font-bold text-[#1D1D1F]">
+            전체 28명 <span className="text-[14px] font-normal text-[#86868B] ml-2">6월 31일 오전 11:48 기준</span>
+          </h1>
         </div>
-        <p className="text-gray-600">팀 멤버를 초대하고 관리하세요 • {getCurrentDateTime()}</p>
-      </div>
 
-      {/* 이메일 입력 및 초대하기 */}
-      <div className="mb-8 rounded-lg bg-gray-50 p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-800">새 멤버 초대</h3>
-        <div className="flex w-full items-start gap-3">
-          {/* 이메일 입력 및 초대 버튼 */}
-          <div className="flex-1">
-            <InviteInput
-              emails={values.emails || []}
-              onEmailsChange={emails => setValue('emails', emails)}
-              onInvite={handleSubmit}
-              disabled={!isValid}
-              layout="inline"
-              buttonText="+ 초대하기"
+        {/* 검색 및 초대하기 */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1 relative">
+            <RiSearchLine className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#86868B]" />
+            <input
+              type="text"
+              placeholder="멤버를 검색하거나 초대하세요"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 rounded-[10px] bg-[#F5F5F7] text-[14px] placeholder-[#86868B] focus:outline-none focus:ring-2 focus:ring-[#9747FF]/20"
             />
           </div>
-
-          {/* 구분선 */}
-          <div className="flex items-center px-2 pt-[10px]">
-            <span className="text-sm text-gray-400">또는</span>
-          </div>
-
-          {/* 초대 링크 복사 */}
-          <div className="shrink-0">
-            <CopyLinkButton onClick={handleCopyInviteLink} />
-          </div>
+          <button className="flex items-center gap-2 px-6 py-3 bg-[#D1D1D6] text-white rounded-[10px] hover:bg-[#C1C1C6] transition-colors">
+            <RiAddLine className="h-4 w-4" />
+            <span className="text-[14px] font-medium">초대하기</span>
+          </button>
         </div>
       </div>
 
       {/* 멤버 테이블 */}
-      <div>
-        <h3 className="mb-4 text-lg font-semibold text-gray-800">현재 멤버</h3>
-        <MemberTable
-          members={members}
-          onCopyEmail={handleCopyEmail}
-          onMemberAction={handleMemberAction}
-        />
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-[#F2F2F7]">
+              <th className="text-left py-3 px-4">
+                <input type="checkbox" className="rounded" />
+              </th>
+              <th className="text-left py-3 px-4 text-[12px] font-medium text-[#86868B]">이름</th>
+              <th className="text-left py-3 px-4 text-[12px] font-medium text-[#86868B]">@멘션</th>
+              <th className="text-left py-3 px-4 text-[12px] font-medium text-[#86868B]">이메일</th>
+              <th className="text-left py-3 px-4 text-[12px] font-medium text-[#86868B]">역할</th>
+              <th className="text-left py-3 px-4 text-[12px] font-medium text-[#86868B]">최근 활동</th>
+              <th className="text-left py-3 px-4 text-[12px] font-medium text-[#86868B]">시작 날짜</th>
+              <th className="text-left py-3 px-4 text-[12px] font-medium text-[#86868B]">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredMembers.map((member) => (
+              <tr key={member.id} className="border-b border-[#F2F2F7] hover:bg-gray-50">
+                <td className="py-4 px-4">
+                  <input type="checkbox" className="rounded" />
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-3">
+                    {member.isInvited ? (
+                      <div className="h-8 w-8 rounded-full bg-[#9747FF] flex items-center justify-center">
+                        <span className="text-white text-[12px]">?</span>
+                      </div>
+                    ) : member.avatarUrl ? (
+                      <img src={member.avatarUrl} alt={member.name} className="h-8 w-8 rounded-full" />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-gray-200" />
+                    )}
+                    <span className="text-[14px] text-[#1D1D1F]">{member.name || '—'}</span>
+                  </div>
+                </td>
+                <td className="py-4 px-4">
+                  <span className="text-[13px] text-[#6E6E73]">{member.mention}</span>
+                </td>
+                <td className="py-4 px-4">
+                  <span className="text-[13px] text-[#1D1D1F]">{member.email}</span>
+                </td>
+                <td className="py-4 px-4">
+                  <span className="text-[13px] text-[#1D1D1F]">{member.role}</span>
+                </td>
+                <td className="py-4 px-4">
+                  <span className="text-[13px] text-[#86868B]">{member.lastSeen}</span>
+                </td>
+                <td className="py-4 px-4">
+                  <span className={`text-[13px] ${member.isInvited ? 'text-[#86868B]' : 'text-[#9747FF]'}`}>
+                    {member.joinedAt}
+                  </span>
+                </td>
+                <td className="py-4 px-4">
+                  <button className="p-1 hover:bg-gray-100 rounded">
+                    <RiMoreLine className="h-5 w-5 text-[#6E6E73]" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

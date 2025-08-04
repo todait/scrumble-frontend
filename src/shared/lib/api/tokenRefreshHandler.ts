@@ -43,7 +43,7 @@ export async function handleTokenRefresh(
       if (tokenType === 'user') {
         const refreshToken = TokenManager.getRefreshToken();
         if (!refreshToken || !TokenManager.isRefreshTokenValid()) {
-          throw new Error('Refresh token expired');
+          throw { type: 'AUTH_FAILURE', error: new Error('Refresh token invalid') };
         }
 
         // 동적 import (순환 참조 방지)
@@ -66,7 +66,7 @@ export async function handleTokenRefresh(
         }
 
         const refreshToken = SpaceMemberTokenManager.getRefreshToken(currentSpace);
-        if (!refreshToken) {
+        if (!refreshToken || !SpaceMemberTokenManager.isRefreshTokenValid(currentSpace)) {
           throw new Error('No space member refresh token');
         }
 

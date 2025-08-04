@@ -126,6 +126,21 @@ export class SpaceMemberTokenManager {
     return tokens?.refreshToken || null;
   }
 
+  static isRefreshTokenValid(spaceSlug: string): boolean {
+    const tokens = this.getToken(spaceSlug);
+    if (!tokens || !tokens.refreshToken) return false;
+
+    try {
+      const decoded = jwtDecode<JWTPayload>(tokens.refreshToken);
+      if (!decoded.exp) return false;
+
+      const currentTime = Date.now() / 1000;
+      return decoded.exp > currentTime;
+    } catch {
+      return false;
+    }
+  }
+
   // 토큰에서 SpaceMember 정보 추출
   static getSpaceMemberInfo(spaceSlug: string): JWTPayload | null {
     const tokens = this.getToken(spaceSlug);

@@ -100,4 +100,11 @@ export class UserTokenManager extends BaseTokenManager<TokenPair> {
   static setTokensLegacy(accessToken: string, refreshToken: string): void {
     UserTokenManager.setTokens({ accessToken, refreshToken });
   }
+
+  // 토큰 존재 여부 확인
+  static hasValidToken(): boolean {
+    const accessToken = UserTokenManager.getAccessToken();
+    const refreshToken = UserTokenManager.getRefreshToken();
+    return !!(accessToken || refreshToken);
+  }
 }

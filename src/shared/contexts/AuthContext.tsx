@@ -1,8 +1,11 @@
 'use client';
 
+import { ROUTES } from '@/shared/constants';
 import { useAutoRefreshToken } from '@/shared/hooks/auth/useAutoRefreshToken';
 import { useAutoRefreshSpaceMemberToken } from '@/shared/hooks/auth/useAutoRefreshSpaceMemberToken';
-import { createContext, ReactNode, useContext } from 'react';
+import { storageEventListener } from '@/shared/lib/token';
+import { useRouter } from 'next/navigation';
+import { createContext, ReactNode, useContext, useEffect } from 'react';
 import { useUserAuth } from './auth/hooks/useUserAuth';
 import { useSpaceManager } from './auth/hooks/useSpaceManager';
 import { useSpaceMemberAuth } from './auth/hooks/useSpaceMemberAuth';
@@ -11,6 +14,8 @@ import type { AuthContextValue } from './auth/types';
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  
   // User 인증 관련
   const userAuth = useUserAuth();
   
@@ -33,6 +38,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     currentSpaceSlug: spaceManager.currentSpaceSlug,
     enabled: userAuth.isInitialized && !!spaceManager.currentSpaceSlug,
   });
+
+  // 탭 간 로그아웃 동기화 및 인증 실패 처리
+  useEffect(() => {
+    // Storage 이벤트 리스너 시작
+    storageEventListener.start();
+
+    // 다른 탭에서 로그아웃 시 처리
+    const unsubscribeStorage = storageEventListener.subscribe(() => {
+      // 토큰이 없으면 로그인 페이지로 이동
+      if (!storageEventListener.checkTokenStatus()) {
+        router.replace(ROUTES.AUTH);
+      }
+    });
+
+    // authenticationFailed 이벤트 리스너
+    const handleAuthFailed = () => {
+      router.replace(ROUTES.AUTH);
+    };
+
+    window.addEventListener('authenticationFailed', handleAuthFailed);
+
+    // visibilitychange 이벤트로 탭 전환 시 토큰 상태 확인
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // 토큰 상태 재확인
+        if (!storageEventListener.checkTokenStatus() && !window.location.pathname.includes('/auth')) {
+          router.replace(ROUTES.AUTH);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      unsubscribeStorage();
+      window.removeEventListener('authenticationFailed', handleAuthFailed);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [router]);
 
   // Context 값 조합
   const value: AuthContextValue = {

@@ -12,9 +12,9 @@ export default function SpaceLayout({ children, params }: SpaceLayoutProps) {
   const { spaceSlug } = use(params);
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="flex min-h-screen bg-[#FAFAFA]">
       <SidebarNav spaceSlug={spaceSlug} />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 overflow-x-auto">{children}</main>
     </div>
   );
 }
