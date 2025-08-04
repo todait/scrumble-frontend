@@ -98,7 +98,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceS
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-5">
+    <div className="min-h-screen bg-gray-50 p-5 md:py-[90px]">
       <div className="mx-auto max-w-[1200px]">
         {/* 모바일 헤더 */}
         <div className="mb-4 flex items-center justify-between lg:hidden">
@@ -132,7 +132,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceS
         </div>
 
         {/* 데스크톱 - 하나의 카드 안에 모든 콘텐츠 */}
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div className="scrollbar-hide overflow-hidden rounded-2xl bg-white shadow-sm">
           {/* 헤더 - 카드 안에 위치 */}
           <div className="hidden border-b border-[#F2F2F7] px-[30px] py-5 lg:block">
             <h1 className="text-[16px] font-normal leading-[22px]">
@@ -143,9 +143,9 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceS
           </div>
 
           {/* 메인 레이아웃 - 사이드바와 컨텐츠 */}
-          <div className="flex min-h-[700px]">
+          <div className="scrollbar-hide flex min-h-[700px]">
             {/* 데스크톱 사이드바 */}
-            <aside className="hidden w-[260px] flex-col border-r border-[#F2F2F7] px-[30px] py-8 lg:flex">
+            <aside className="hidden w-[160px] flex-col border-r border-[#F2F2F7] px-[10px] py-[20px] lg:flex">
               <div className="flex-1">
                 {/* 스페이스 설정 섹션 */}
                 <div className="mb-8">
@@ -173,7 +173,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children, spaceS
             </aside>
 
             {/* 메인 컨텐츠 */}
-            <main className="flex-1 overflow-auto">{children}</main>
+            <main className="scrollbar-hide flex-1 overflow-auto">{children}</main>
           </div>
         </div>
       </div>

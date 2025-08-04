@@ -12,9 +12,12 @@ export default function SpaceLayout({ children, params }: SpaceLayoutProps) {
   const { spaceSlug } = use(params);
 
   return (
-    <div className="flex min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA]">
       <SidebarNav spaceSlug={spaceSlug} />
-      <main className="flex-1 overflow-x-auto">{children}</main>
+      {/* SidebarNav는 fixed이므로 main은 전체 너비 사용 가능 */}
+      <main className="min-h-screen">
+        {children}
+      </main>
     </div>
   );
 }

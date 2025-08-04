@@ -4,10 +4,10 @@ import { withAuth } from '@/shared/components/auth';
 
 function IntegrationsSettingsPage() {
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="mb-2 text-[28px] font-bold text-[#1D1D1F]">연동</h1>
-        <p className="text-[14px] text-[#86868B]">
+    <div className="p-10">
+      <div className="mb-10">
+        <h1 className="mb-2 text-[20px] font-bold text-[#1D1D1F]">연동</h1>
+        <p className="text-[14px] text-[#86868B] leading-[20px]">
           외부 서비스와의 연동을 관리하세요.
         </p>
       </div>

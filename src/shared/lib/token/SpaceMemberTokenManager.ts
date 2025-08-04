@@ -1,5 +1,5 @@
-import { jwtDecode } from 'jwt-decode';
 import type { SpaceInfo } from '@/shared/contexts/auth/types';
+import { jwtDecode } from 'jwt-decode';
 
 interface SpaceMemberTokens {
   accessToken: string;
@@ -37,7 +37,7 @@ export class SpaceMemberTokenManager {
 
     const data = storage.getItem(this.STORAGE_KEY);
     if (!data) return {};
-    
+
     try {
       return JSON.parse(data);
     } catch {
@@ -65,7 +65,7 @@ export class SpaceMemberTokenManager {
 
     const allTokens = this.getTokens();
     delete allTokens[spaceSlug];
-    
+
     // 모든 토큰이 삭제된 경우 localStorage 항목을 완전히 제거
     if (Object.keys(allTokens).length === 0) {
       storage.removeItem(this.STORAGE_KEY);

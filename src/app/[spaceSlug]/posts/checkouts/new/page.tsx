@@ -1,17 +1,9 @@
 'use client';
 
+import { CheckOutWriteModal } from '@/features/checkout';
 import { withAuth } from '@/shared/components/auth';
-import { dynamicWithGlobalLoading } from '@/shared/utils/dynamicWithGlobalLoading';
 import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
-
-const CheckOutWriteModal = dynamicWithGlobalLoading(
-  () => import('@/features/checkout/components').then(mod => mod.CheckOutWriteModal),
-  {
-    ssr: false,
-    loadingMessage: '체크아웃 작성 로딩 중...',
-  }
-);
 
 interface CheckOutNewPageProps {
   params: Promise<{ spaceSlug: string }>;
