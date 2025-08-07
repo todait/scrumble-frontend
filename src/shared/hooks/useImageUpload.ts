@@ -2,6 +2,7 @@ import { r2Service } from '@/shared/services/r2.service';
 import type { ImageMetadata, UploadingImage } from '@/shared/types/upload.types';
 import { convertHeicToJpeg, isHeicFile } from '@/shared/utils';
 import { compressImage } from '@/shared/utils/imageCompression';
+import type { CompressionOptions } from '@/shared/utils/imageCompression';
 import { debug } from '@/shared/utils/debug';
 import { useCallback, useRef, useState } from 'react';
 
@@ -12,6 +13,7 @@ interface UseImageUploadOptions {
   initialImages?: ImageMetadata[];
   onUploadComplete?: (images: ImageMetadata[]) => void;
   onError?: (error: string) => void;
+  compressionOptions?: CompressionOptions;
 }
 
 export function useImageUpload({
@@ -28,6 +30,7 @@ export function useImageUpload({
   initialImages = [],
   onUploadComplete,
   onError,
+  compressionOptions,
 }: UseImageUploadOptions = {}) {
   const [uploadingImages, setUploadingImages] = useState<UploadingImage[]>(() => {
     // 초기 이미지들을 UploadingImage 형태로 변환
@@ -72,19 +75,35 @@ export function useImageUpload({
   );
 
   // 단일 이미지 업로드
-  const uploadSingleImage = async (file: File, uploadId: string): Promise<ImageMetadata> => {
+  const uploadSingleImage = useCallback(async (file: File, uploadId: string): Promise<ImageMetadata> => {
     try {
       // 1. 이미지 압축 (GIF 제외)
       let processedFile = file;
       if (file.type !== 'image/gif') {
         try {
-          processedFile = await compressImage(file, {
+          // 커스텀 압축 옵션 또는 기본값 사용
+          const defaultOptions: CompressionOptions = {
             maxWidth: 1920,
             maxHeight: 1920,
             quality: 0.85,
             format: 'jpeg'
-          });
+          };
+          
+          processedFile = await compressImage(file, compressionOptions || defaultOptions);
           debug('UPLOAD', `Image compressed: ${file.size} -> ${processedFile.size} bytes`);
+          
+          // 압축 후에도 maxSize를 초과하면 추가 압축
+          if (processedFile.size > maxSize && compressionOptions?.quality !== undefined) {
+            const aggressiveOptions: CompressionOptions = {
+              ...compressionOptions,
+              quality: Math.max(0.5, (compressionOptions.quality || 0.85) - 0.2)
+            };
+            const recompressed = await compressImage(file, aggressiveOptions);
+            if (recompressed.size < processedFile.size) {
+              processedFile = recompressed;
+              debug('UPLOAD', `Additional compression: ${file.size} -> ${processedFile.size} bytes`);
+            }
+          }
         } catch (compressionError) {
           debug('UPLOAD', `Image compression failed, using original: ${compressionError}`);
           // 압축 실패 시 원본 사용
@@ -119,7 +138,7 @@ export function useImageUpload({
     } catch (error) {
       throw new Error(`업로드 실패 ${error}`);
     }
-  };
+  }, [compressionOptions, maxSize]);
 
   // 이미지 업로드 처리
   const uploadImages = useCallback(
@@ -259,7 +278,7 @@ export function useImageUpload({
         debug('UPLOAD', `Upload queue error: ${error}`);
       }
     },
-    [validateFiles, onError, onUploadComplete]
+    [validateFiles, onError, onUploadComplete, uploadSingleImage]
   );
 
   // 이미지 제거

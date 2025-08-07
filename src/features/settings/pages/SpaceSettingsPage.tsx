@@ -1,38 +1,55 @@
 'use client';
 
 import { useAuth } from '@/shared/contexts/AuthContext';
+import { useDeleteSpace, useSpace, useUpdateSpace } from '@/shared/hooks/queries/useSpaces';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
-import { useUpdateSpace, useDeleteSpace } from '@/shared/hooks/queries/useSpaces';
+import { SpaceMemberTokenManager } from '@/shared/lib/token';
 import { RiAddLine } from '@remixicon/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function SpaceSettingsPage() {
-  const { currentSpace, currentSpaceSlug, currentSpaceMember } = useAuth();
+  const { currentSpace: authCurrentSpace, currentSpaceSlug, currentSpaceMember } = useAuth();
   const router = useRouter();
   const updateSpaceMutation = useUpdateSpace();
   const deleteSpaceMutation = useDeleteSpace();
-  
+
+  // useSpace 쿼리로 최신 스페이스 정보 가져오기
+  const { data: spaceData } = useSpace({
+    spaceSlug: currentSpaceSlug || '',
+    enabled: !!currentSpaceSlug,
+  });
+
+  // 쿼리 데이터를 우선적으로 사용, 없으면 authCurrentSpace 사용
+  const currentSpace = spaceData?.space || authCurrentSpace;
+
   // Role 기반 권한 체크
   const canEdit = currentSpaceMember?.role === 'admin' || currentSpaceMember?.role === 'owner';
   const canDelete = currentSpaceMember?.role === 'owner';
   const canLeave = currentSpaceMember?.role === 'admin' || currentSpaceMember?.role === 'member';
-  
-  // useImageUpload 훅 사용
+
+  // useImageUpload 훅 사용 - 아이콘용 압축 설정
   const { uploadImages, isUploading } = useImageUpload({
     maxFiles: 1,
-    onUploadComplete: (images) => {
+    onUploadComplete: images => {
       if (images.length > 0) {
         setUploadedIconUrl(images[0].url);
       }
     },
+    // 아이콘용 최적화된 압축 옵션
+    compressionOptions: {
+      maxWidth: 240,  // 120px * 2 for retina
+      maxHeight: 240, // 120px * 2 for retina
+      quality: 0.9,   // 아이콘은 품질 중요
+      format: 'jpeg'
+    }
   });
 
-  // 원본 데이터 (서버에서 가져온 데이터)
-  const [originalSpaceName] = useState(currentSpace?.name || 'dev_ved');
-  const [originalSpaceIcon] = useState<string | null>(currentSpace?.iconURL || null);
-  // const [originalSpaceDays] = useState<string[]>(['월', '화', '수', '목', '금']); // 미구현 기능
+  // 원본 데이터 (서버에서 가져온 데이터) - 쿼리 데이터에 따라 동적으로 변경
+  const originalSpaceName = currentSpace?.name || '';
+  const originalSpaceIcon = currentSpace?.iconURL || null;
+  // const originalSpaceDays = ['월', '화', '수', '목', '금']; // 미구현 기능
 
   // 로컬 편집 상태
   const [localSpaceName, setLocalSpaceName] = useState(originalSpaceName);
@@ -42,6 +59,17 @@ export default function SpaceSettingsPage() {
   );
   const [uploadedIconUrl, setUploadedIconUrl] = useState<string | null>(null);
   // const [localSpaceDays, setLocalSpaceDays] = useState<string[]>(originalSpaceDays); // 미구현 기능
+
+  // 쿼리 데이터가 변경되면 로컬 상태 업데이트
+  useEffect(() => {
+    if (currentSpace) {
+      setLocalSpaceName(currentSpace.name || '');
+      // 업로드된 아이콘이 없을 때만 업데이트 (사용자가 수정 중이 아닐 때)
+      if (!localSpaceIcon && !uploadedIconUrl) {
+        setLocalSpaceIconPreview(currentSpace.iconURL || null);
+      }
+    }
+  }, [currentSpace?.name, currentSpace?.iconURL]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 변경사항 감지
   const [hasChanges, setHasChanges] = useState(false);
@@ -59,7 +87,12 @@ export default function SpaceSettingsPage() {
     // const daysChanged =
     //   JSON.stringify(localSpaceDays.sort()) !== JSON.stringify(originalSpaceDays.sort()); // 미구현 기능
     setHasChanges(nameChanged || iconChanged /* || daysChanged */);
-  }, [localSpaceName, localSpaceIcon, uploadedIconUrl, originalSpaceName /* , localSpaceDays, originalSpaceDays */]);
+  }, [
+    localSpaceName,
+    localSpaceIcon,
+    uploadedIconUrl,
+    originalSpaceName /* , localSpaceDays, originalSpaceDays */,
+  ]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -81,7 +114,7 @@ export default function SpaceSettingsPage() {
       setLocalSpaceIcon(file);
       const previewUrl = URL.createObjectURL(file);
       setLocalSpaceIconPreview(previewUrl);
-      
+
       // R2에 업로드
       await uploadImages([file]);
     }
@@ -128,9 +161,9 @@ export default function SpaceSettingsPage() {
   };
 
   const handleCancelChanges = () => {
-    setLocalSpaceName(originalSpaceName);
+    setLocalSpaceName(currentSpace?.name || '');
     setLocalSpaceIcon(null);
-    setLocalSpaceIconPreview(originalSpaceIcon);
+    setLocalSpaceIconPreview(currentSpace?.iconURL || null);
     setUploadedIconUrl(null);
     // setLocalSpaceDays(originalSpaceDays); // 미구현 기능
     setHasChanges(false);
@@ -152,9 +185,14 @@ export default function SpaceSettingsPage() {
         await deleteSpaceMutation.mutateAsync({
           spaceSlug: currentSpaceSlug,
         });
+
+        // 스페이스 삭제 성공 후 현재 스페이스 토큰과 정보 정리
+        SpaceMemberTokenManager.clearToken(currentSpaceSlug);
+        SpaceMemberTokenManager.clearCurrentSpaceSlug();
+        SpaceMemberTokenManager.clearCurrentSpace();
         
-        // 성공 시 홈으로 이동
-        router.push('/');
+        // 스페이스 목록 페이지로 이동 (사용자가 직접 다음 스페이스 선택)
+        router.push('/spaces/list');
       } catch (error) {
         // 에러는 useDeleteSpace 훅에서 toast로 처리됨
         setShowActionDialog(false);
@@ -167,7 +205,7 @@ export default function SpaceSettingsPage() {
     // TODO: 스페이스 나가기 API 호출
     alert('스페이스 나가기 기능은 아직 구현되지 않았습니다.');
     setShowActionDialog(false);
-    
+
     // API 구현 후 아래 코드 사용
     // try {
     //   await leaveSpaceMutation.mutateAsync({ spaceSlug: currentSpaceSlug });
@@ -201,7 +239,7 @@ export default function SpaceSettingsPage() {
             {/* 스페이스 아이콘 - 120x120 */}
             <button
               onClick={() => canEdit && document.getElementById('icon-upload')?.click()}
-              className={`block transition-opacity relative ${canEdit ? 'hover:opacity-80 cursor-pointer' : 'cursor-default'}`}
+              className={`relative block transition-opacity ${canEdit ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}`}
               disabled={isUploading || !canEdit}
             >
               <div className="flex h-[120px] w-[120px] items-center justify-center overflow-hidden rounded-[20px] bg-[#9747FF]">
@@ -220,8 +258,8 @@ export default function SpaceSettingsPage() {
                 )}
               </div>
               {isUploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-[20px]">
-                  <div className="text-white text-sm">업로드 중...</div>
+                <div className="absolute inset-0 flex items-center justify-center rounded-[20px] bg-black bg-opacity-50">
+                  <div className="text-sm text-white">업로드 중...</div>
                 </div>
               )}
             </button>
@@ -257,27 +295,26 @@ export default function SpaceSettingsPage() {
           </div>
         </div>
 
-        <div className="border-b border-[#F2F2F7]"></div>
+        {/* member는 스페이스 이름 수정 섹션 전체를 표시하지 않음 */}
+        {canEdit && (
+          <>
+            <div className="border-b border-[#F2F2F7]"></div>
 
-        {/* 스페이스 이름 수정 */}
-        <div className="flex items-start justify-between gap-6">
-          <h3 className="whitespace-nowrap text-[15px] font-bold text-[#1D1D1F]">스페이스 이름</h3>
-          <div className="w-full max-w-[750px]">
-            {canEdit ? (
-              <input
-                type="text"
-                value={localSpaceName}
-                onChange={handleSpaceNameChange}
-                className="h-[54px] w-full rounded-[10px] border border-[#D2D2D7] bg-[#F9F9FB] px-4 text-[16px] font-normal text-[#1D1D1F] transition-colors focus:border-[#9747FF] focus:outline-none"
-                placeholder="스페이스 이름 입력"
-              />
-            ) : (
-              <div className="flex h-[54px] items-center text-[16px] font-normal text-[#1D1D1F]">
-                {localSpaceName}
+            {/* 스페이스 이름 수정 */}
+            <div className="flex items-start justify-between gap-6">
+              <h3 className="whitespace-nowrap text-[15px] font-bold text-[#1D1D1F]">스페이스 이름</h3>
+              <div className="w-full max-w-[750px]">
+                <input
+                  type="text"
+                  value={localSpaceName}
+                  onChange={handleSpaceNameChange}
+                  className="h-[54px] w-full rounded-[10px] border border-[#D2D2D7] bg-[#F9F9FB] px-4 text-[16px] font-normal text-[#1D1D1F] transition-colors focus:border-[#9747FF] focus:outline-none"
+                  placeholder="스페이스 이름 입력"
+                />
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </>
+        )}
 
         {/* 스페이스 데이 섹션 - 미구현 기능으로 주석 처리 */}
         {/*
@@ -418,8 +455,8 @@ export default function SpaceSettingsPage() {
 
             <div className="mb-4">
               <p className="mb-2 text-sm text-gray-600 md:text-base">
-                {actionType === 'delete' 
-                  ? '정말로 이 스페이스를 삭제하시겠습니까?' 
+                {actionType === 'delete'
+                  ? '정말로 이 스페이스를 삭제하시겠습니까?'
                   : '정말로 이 스페이스를 나가시겠습니까?'}
               </p>
               <p className="mb-4 text-xs text-red-600 md:text-sm">
@@ -432,7 +469,9 @@ export default function SpaceSettingsPage() {
                 <div className="mb-4">
                   <label className="mb-2 block text-sm font-medium text-gray-700">
                     확인을 위해 스페이스 이름{' '}
-                    <span className="font-semibold text-gray-900">&quot;{localSpaceName}&quot;</span>
+                    <span className="font-semibold text-gray-900">
+                      &quot;{localSpaceName}&quot;
+                    </span>
                     을 정확히 입력하세요:
                   </label>
                   <input

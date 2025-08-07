@@ -70,4 +70,5 @@ export interface AuthContextValue {
   // 유틸리티 함수들
   setAuthData: (params: AuthDataParams) => Promise<void>;
   setSpaceAuthData: (params: SpaceAuthDataParams) => Promise<void>;
+  updateCurrentSpace: (updatedSpace: Partial<SpaceInfo>) => void;
 }

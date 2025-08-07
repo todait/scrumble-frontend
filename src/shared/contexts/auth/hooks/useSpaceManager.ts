@@ -168,6 +168,22 @@ export function useSpaceManager({ user }: UseSpaceManagerOptions) {
     // 현재 Space로 설정
     await switchSpace(params.spaceSlug);
   }, [availableSpaces, user?.email, switchSpace]);
+  
+  // 현재 Space 정보 업데이트 (스페이스 수정 시 사용)
+  const updateCurrentSpace = useCallback((updatedSpace: Partial<SpaceInfo>) => {
+    if (currentSpace && currentSpaceSlug) {
+      const newSpaceInfo: SpaceInfo = {
+        ...currentSpace,
+        ...updatedSpace,
+      };
+      
+      // 메모리 상태 업데이트
+      setCurrentSpace(newSpaceInfo);
+      
+      // localStorage 업데이트
+      SpaceMemberTokenManager.setCurrentSpace(newSpaceInfo);
+    }
+  }, [currentSpace, currentSpaceSlug]);
 
   return {
     currentSpaceSlug,
@@ -177,6 +193,7 @@ export function useSpaceManager({ user }: UseSpaceManagerOptions) {
     switchSpace,
     logoutFromSpace,
     setSpaceAuthData,
+    updateCurrentSpace,
     // 내부 상태 업데이트용
     setAvailableSpaces,
   };

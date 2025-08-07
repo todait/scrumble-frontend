@@ -2,7 +2,7 @@
  * 이미지 압축 및 리사이즈 유틸리티
  */
 
-interface CompressionOptions {
+export interface CompressionOptions {
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
