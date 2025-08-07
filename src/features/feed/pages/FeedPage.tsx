@@ -192,9 +192,14 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   useEffect(() => {
     // 오늘일 때만 체크인 강제 (과거 날짜는 체크인 없어도 피드 볼 수 있음)
     const isToday = formatDateToAPIString(selectedDate) === formatDateToAPIString(new Date());
+    
+    // "나중에 하기"를 선택했는지 확인
+    const skippedDate = sessionStorage.getItem('checkin-skipped-date');
+    const hasSkippedToday = skippedDate === formatDateToAPIString(selectedDate);
 
     if (
       isToday &&
+      !hasSkippedToday && // 오늘 "나중에 하기"를 선택하지 않았을 때만
       !existsCheckinQuery.isLoading &&
       existsCheckinQuery.data &&
       existsCheckinQuery.data.exists === false
