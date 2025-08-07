@@ -4,6 +4,7 @@
  */
 
 import { spacesApi } from '@/shared/lib/api/spaces';
+import { SpaceMemberTokenManager } from '@/shared/lib/token';
 import { ErrorCode } from '@/shared/types/api';
 import type {
   CreateSpaceRequest,
@@ -151,6 +152,20 @@ export const useUpdateSpace = () => {
         variables.spaceSlug,
         () => data.space
       );
+      
+      // 현재 스페이스가 수정된 스페이스인 경우 localStorage도 업데이트
+      const currentSpaceSlug = SpaceMemberTokenManager.getCurrentSpaceSlug();
+      if (currentSpaceSlug === variables.spaceSlug) {
+        const currentSpace = SpaceMemberTokenManager.getCurrentSpace();
+        if (currentSpace) {
+          const updatedSpaceInfo = {
+            ...currentSpace,
+            name: data.space.name,
+            iconURL: data.space.iconURL,
+          };
+          SpaceMemberTokenManager.setCurrentSpace(updatedSpaceInfo);
+        }
+      }
 
       success({
         message: '스페이스 정보가 수정되었습니다.',

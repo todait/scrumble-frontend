@@ -103,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     switchSpace: spaceManager.switchSpace,
     logoutFromSpace: spaceManager.logoutFromSpace,
     setSpaceAuthData: spaceManager.setSpaceAuthData,
+    updateCurrentSpace: spaceManager.updateCurrentSpace,
     
     // 로딩 및 에러 상태
     isLoading: userAuth.isLoading || spaceMemberAuth.isSpaceMemberLoading,
