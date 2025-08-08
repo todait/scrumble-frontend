@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  RiArrowRightSLine,
   RiHeart3Fill,
   RiPokerClubsFill,
   RiPokerDiamondsFill,
@@ -11,23 +10,18 @@ import type { TeamSummary } from '../types/feed.types';
 
 interface TeamSummaryCardProps {
   summary: TeamSummary;
-  onViewSummaryClick?: () => void;
 }
 
-export function TeamSummaryCard({ summary, onViewSummaryClick }: TeamSummaryCardProps) {
+export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
   const { teamCondition, checkedInCount, totalMembers, checkedOutCount } = summary;
   const isAllCheckedIn = checkedInCount === totalMembers;
 
   return (
     <div className="rounded-2xl border border-[rgba(34,34,34,0.08)] bg-white p-2.5">
       {/* 활동 요약 보기 버튼 */}
-      <button
-        onClick={onViewSummaryClick}
-        className="flex w-full items-center justify-between rounded-lg p-2.5 hover:bg-gray-50"
-      >
-        <span className="text-xs font-bold text-[#222222]">활동 요약 보기</span>
-        <RiArrowRightSLine className="h-4 w-4 text-[#222222]" />
-      </button>
+      <div className="flex w-[140px] flex-col gap-1 px-2 py-2.5">
+        <span className="text-xs font-bold text-[#222222]">오늘의 팀 활동</span>
+      </div>
 
       {/* 팀 컨디션 */}
       <div className="flex flex-col gap-1 px-2 py-2.5">

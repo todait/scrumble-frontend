@@ -41,7 +41,13 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { currentSpaceMember: member, isAuthenticated, isSpaceAuthenticated, logout } = useAuth();
+  const {
+    currentSpaceMember: member,
+    isAuthenticated,
+    isSpaceAuthenticated,
+    logout,
+    switchSpace,
+  } = useAuth();
   const { selectedDate, setSelectedDate, initializeFromUrl } = useDateStore();
 
   // 설정 드롭다운 상태
@@ -53,16 +59,25 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoNavigatedRef = useRef<string | null>(null); // 자동 날짜 이동이 실행된 postId 추적
 
-  // 인증 체크 - 토큰이 없으면 로그인 페이지로 이동
+  // 인증 체크 - 유저 미인증은 /auth, 스페이스 미인증은 조용히 복구 시도
   useEffect(() => {
-    if (!isAuthenticated || !isSpaceAuthenticated) {
-      debug('FeedPage', 'No authentication detected - redirecting to auth', {
+    if (!isAuthenticated) {
+      debug('FeedPage', 'No user auth - redirecting to auth', {
         isAuthenticated,
-        isSpaceAuthenticated
+        isSpaceAuthenticated,
       });
       router.replace(ROUTES.AUTH);
+      return;
     }
-  }, [isAuthenticated, isSpaceAuthenticated, router]);
+
+    if (!isSpaceAuthenticated) {
+      debug('FeedPage', 'Space auth missing - attempting silent space switch/login', { spaceSlug });
+      switchSpace(spaceSlug).catch(() => {
+        // 스페이스 세션 복구 실패 시 스페이스 목록으로 이동
+        router.replace('/spaces/list');
+      });
+    }
+  }, [isAuthenticated, isSpaceAuthenticated, router, spaceSlug, switchSpace]);
 
   // URL 파라미터에서 날짜 초기화 (URL → localStorage → 오늘 순서)
   useEffect(() => {
@@ -193,8 +208,13 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     // 오늘일 때만 체크인 강제 (과거 날짜는 체크인 없어도 피드 볼 수 있음)
     const isToday = formatDateToAPIString(selectedDate) === formatDateToAPIString(new Date());
 
+    // "나중에 하기"를 선택했는지 확인
+    const skippedDate = sessionStorage.getItem('checkin-skipped-date');
+    const hasSkippedToday = skippedDate === formatDateToAPIString(selectedDate);
+
     if (
       isToday &&
+      !hasSkippedToday && // 오늘 "나중에 하기"를 선택하지 않았을 때만
       !existsCheckinQuery.isLoading &&
       existsCheckinQuery.data &&
       existsCheckinQuery.data.exists === false
@@ -289,7 +309,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
           {!(selectedPost && isPostDetailVisible) && (
             <div className="hidden lg:block lg:w-[70px] xl:hidden" />
           )}
-          
+
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
             className={`relative flex min-h-0 w-full flex-col px-2 transition-all duration-300 md:px-4 ${
@@ -465,9 +485,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             selectedPost && isPostDetailVisible ? 'pointer-events-none opacity-0' : 'opacity-100'
           }`}
         >
-          {teamSummary && (
-            <TeamSummaryCard summary={teamSummary} onViewSummaryClick={handleViewSummaryClick} />
-          )}
+          {teamSummary && <TeamSummaryCard summary={teamSummary} />}
         </div>
       </div>
 

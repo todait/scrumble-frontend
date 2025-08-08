@@ -1,27 +1,27 @@
 'use client';
 
 import { ROUTES } from '@/shared/constants';
-import { useAutoRefreshToken } from '@/shared/hooks/auth/useAutoRefreshToken';
 import { useAutoRefreshSpaceMemberToken } from '@/shared/hooks/auth/useAutoRefreshSpaceMemberToken';
-import { storageEventListener } from '@/shared/lib/token';
+import { useAutoRefreshToken } from '@/shared/hooks/auth/useAutoRefreshToken';
+import { SpaceMemberTokenManager, storageEventListener, TokenManager } from '@/shared/lib/token';
 import { useRouter } from 'next/navigation';
 import { createContext, ReactNode, useContext, useEffect } from 'react';
-import { useUserAuth } from './auth/hooks/useUserAuth';
 import { useSpaceManager } from './auth/hooks/useSpaceManager';
 import { useSpaceMemberAuth } from './auth/hooks/useSpaceMemberAuth';
+import { useUserAuth } from './auth/hooks/useUserAuth';
 import type { AuthContextValue } from './auth/types';
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  
+
   // User 인증 관련
   const userAuth = useUserAuth();
-  
+
   // Space 관리 관련
   const spaceManager = useSpaceManager({ user: userAuth.user });
-  
+
   // SpaceMember 인증 관련
   const spaceMemberAuth = useSpaceMemberAuth({
     currentSpaceSlug: spaceManager.currentSpaceSlug,
@@ -32,24 +32,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 자동 토큰 갱신 활성화
   useAutoRefreshToken();
-  
+
   // SpaceMember 토큰 자동 갱신 활성화
   useAutoRefreshSpaceMemberToken({
     currentSpaceSlug: spaceManager.currentSpaceSlug,
     enabled: userAuth.isInitialized && !!spaceManager.currentSpaceSlug,
   });
 
+  // Effect에서 사용할 의존성 최소화용 구조분해
+  const { currentSpaceSlug, switchSpace } = spaceManager;
+  const { refetchSpaceMember } = spaceMemberAuth;
+
   // 탭 간 로그아웃 동기화 및 인증 실패 처리
   useEffect(() => {
     // Storage 이벤트 리스너 시작
     storageEventListener.start();
 
-    // 다른 탭에서 로그아웃 시 처리
+    // 다른 탭에서 토큰 변경 시 처리
     const unsubscribeStorage = storageEventListener.subscribe(() => {
-      // 토큰이 없으면 로그인 페이지로 이동
-      if (!storageEventListener.checkTokenStatus()) {
+      // 유저 리프레시 토큰이 유효하지 않다면 로그인 페이지로 이동
+      if (!TokenManager.isRefreshTokenValid()) {
         router.replace(ROUTES.AUTH);
+        return;
       }
+
+      // 현재 스페이스의 리프레시 토큰이 유효하지 않다면 조용히 스페이스 세션 복구 시도
+      const slug = currentSpaceSlug;
+      if (slug && !SpaceMemberTokenManager.isRefreshTokenValid(slug)) {
+        switchSpace(slug).catch(() => {
+          // 조용히 실패 무시 (사용자에게 선택 기회를 주기 위함)
+        });
+        return;
+      }
+
+      // 정상 케이스: 멤버 정보 리패치로 centrifugoToken 최신화
+      refetchSpaceMember();
     });
 
     // authenticationFailed 이벤트 리스너
@@ -57,27 +74,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.replace(ROUTES.AUTH);
     };
 
-    window.addEventListener('authenticationFailed', handleAuthFailed);
-
-    // visibilitychange 이벤트로 탭 전환 시 토큰 상태 확인
+    // 탭 복귀 시 토큰 상태 확인 및 복구
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        // 토큰 상태 재확인
-        if (!storageEventListener.checkTokenStatus() && !window.location.pathname.includes('/auth')) {
+      if (document.visibilityState !== 'visible') return;
+
+      // 유저 리프레시 토큰이 유효하지 않으면 로그인 페이지로 이동
+      if (!TokenManager.isRefreshTokenValid()) {
+        if (!window.location.pathname.includes('/auth')) {
           router.replace(ROUTES.AUTH);
         }
+        return;
+      }
+
+      // 스페이스 리프레시 토큰이 만료되었으면 조용히 복구 시도
+      const slug = currentSpaceSlug;
+      if (slug && !SpaceMemberTokenManager.isRefreshTokenValid(slug)) {
+        switchSpace(slug).catch(() => {
+          // 조용히 실패 무시
+        });
+        return;
+      }
+
+      // 정상 케이스: 멤버 정보 리패치로 centrifugoToken 최신화
+      refetchSpaceMember();
+    };
+
+    // spaceMember 토큰 이벤트 핸들링
+    const handleSpaceMemberTokenRefreshed = () => {
+      refetchSpaceMember();
+    };
+    const handleSpaceMemberTokenExpired = () => {
+      const slug = currentSpaceSlug;
+      if (slug) {
+        switchSpace(slug).catch(() => {
+          // 조용히 실패 무시
+        });
       }
     };
 
+    window.addEventListener('authenticationFailed', handleAuthFailed);
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener(
+      'spaceMemberTokenRefreshed',
+      handleSpaceMemberTokenRefreshed as unknown as EventListener
+    );
+    window.addEventListener(
+      'spaceMemberTokenExpired',
+      handleSpaceMemberTokenExpired as unknown as EventListener
+    );
 
     // Cleanup
     return () => {
       unsubscribeStorage();
       window.removeEventListener('authenticationFailed', handleAuthFailed);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener(
+        'spaceMemberTokenRefreshed',
+        handleSpaceMemberTokenRefreshed as unknown as EventListener
+      );
+      window.removeEventListener(
+        'spaceMemberTokenExpired',
+        handleSpaceMemberTokenExpired as unknown as EventListener
+      );
     };
-  }, [router]);
+  }, [router, currentSpaceSlug, switchSpace, refetchSpaceMember]);
 
   // Context 값 조합
   const value: AuthContextValue = {
@@ -89,12 +149,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout: userAuth.logout,
     isLoggingOut: userAuth.isLoggingOut,
     setAuthData: userAuth.setAuthData,
-    
+
     // SpaceMember 정보
     currentSpaceMember: spaceMemberAuth.currentSpaceMember,
     isSpaceAuthenticated: spaceMemberAuth.isSpaceAuthenticated,
     refetchSpaceMember: spaceMemberAuth.refetchSpaceMember,
-    
+
     // Space 관리
     currentSpaceSlug: spaceManager.currentSpaceSlug,
     currentSpace: spaceManager.currentSpace,
@@ -104,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logoutFromSpace: spaceManager.logoutFromSpace,
     setSpaceAuthData: spaceManager.setSpaceAuthData,
     updateCurrentSpace: spaceManager.updateCurrentSpace,
-    
+
     // 로딩 및 에러 상태
     isLoading: userAuth.isLoading || spaceMemberAuth.isSpaceMemberLoading,
     error: userAuth.error || spaceMemberAuth.spaceMemberError,

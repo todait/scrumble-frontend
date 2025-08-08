@@ -2,7 +2,7 @@
 
 import { useTeamSummary } from '@/shared/hooks/queries/useTeamSummary';
 import { useDateStore } from '@/shared/stores/useDateStore';
-import { convertToKoreanOrder, formatDateForPage } from '@/shared/utils';
+import { convertToKoreanOrder, formatDateForPage, formatDateToAPIString } from '@/shared/utils';
 import { RiCalendarFill } from '@remixicon/react';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -56,7 +56,9 @@ export function NewCheckInPage() {
   };
 
   const handleBack = () => {
-    router.push(`/${spaceSlug}`);
+    // 오늘 날짜로 "나중에 하기" 플래그 저장
+    sessionStorage.setItem('checkin-skipped-date', formatDateToAPIString(selectedDate));
+    router.push(`/${spaceSlug}/feed`);
   };
 
   return (

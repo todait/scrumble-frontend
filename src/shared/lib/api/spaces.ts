@@ -4,7 +4,6 @@
  */
 
 import type {
-  ApiSpace,
   ApiSpaceMember,
   CreateSpaceApiRequest,
   CreateSpaceApiResponse,
@@ -34,13 +33,26 @@ import { apiClient } from '../api';
  * snake_case에서 camelCase로 변환
  */
 const convertApiMemberToMember = (apiMember: ApiSpaceMember): SpaceMember => {
+  // 백엔드 응답의 필드 표기(snake_case)와 일부 엔드포인트의 camelCase를 모두 허용
+  const anyMember = apiMember as unknown as {
+    id: string;
+    spaceId?: string;
+    space_id?: string;
+    name: string;
+    avatar_url?: string;
+    avatarURL?: string;
+    role: string;
+    joined_at?: string;
+    joinedAt?: string;
+  };
+
   return {
-    id: apiMember.id,
-    spaceId: apiMember.space_id,
-    name: apiMember.name,
-    avatarURL: apiMember.avatar_url,
-    role: apiMember.role as SpaceMember['role'],
-    joinedAt: apiMember.joined_at,
+    id: anyMember.id,
+    spaceId: anyMember.space_id ?? anyMember.spaceId ?? '',
+    name: anyMember.name,
+    avatarURL: anyMember.avatar_url ?? anyMember.avatarURL,
+    role: anyMember.role as SpaceMember['role'],
+    joinedAt: anyMember.joined_at ?? anyMember.joinedAt ?? '',
   };
 };
 
@@ -69,15 +81,10 @@ export const spacesApi = {
    * @param request 스페이스 생성 요청 데이터
    * @returns 생성된 스페이스 정보
    */
-  createSpace: async (
-    request: CreateSpaceRequest
-  ): Promise<CreateSpaceResponse> => {
-    const { data } = await apiClient.post<CreateSpaceApiResponse>(
-      '/api/v1/spaces',
-      {
-        name: request.name,
-      } as CreateSpaceApiRequest
-    );
+  createSpace: async (request: CreateSpaceRequest): Promise<CreateSpaceResponse> => {
+    const { data } = await apiClient.post<CreateSpaceApiResponse>('/api/v1/spaces', {
+      name: request.name,
+    } as CreateSpaceApiRequest);
 
     return {
       message: data.message,
@@ -90,9 +97,7 @@ export const spacesApi = {
    * @param request 스페이스 수정 요청 데이터
    * @returns 수정된 스페이스 정보
    */
-  updateSpace: async (
-    request: UpdateSpaceRequest
-  ): Promise<UpdateSpaceResponse> => {
+  updateSpace: async (request: UpdateSpaceRequest): Promise<UpdateSpaceResponse> => {
     const apiRequest: UpdateSpaceApiRequest = {};
     if (request.name !== undefined) {
       apiRequest.name = request.name;
@@ -130,9 +135,7 @@ export const spacesApi = {
    * @returns 스페이스 상세 정보
    */
   getSpace: async (params: GetSpaceParams): Promise<GetSpaceResponse> => {
-    const { data } = await apiClient.get<GetSpaceApiResponse>(
-      `/api/v1/spaces/${params.spaceSlug}`
-    );
+    const { data } = await apiClient.get<GetSpaceApiResponse>(`/api/v1/spaces/${params.spaceSlug}`);
 
     return {
       space: convertApiSpaceToSpace(data.space),
