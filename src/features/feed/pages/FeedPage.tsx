@@ -485,9 +485,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             selectedPost && isPostDetailVisible ? 'pointer-events-none opacity-0' : 'opacity-100'
           }`}
         >
-          {teamSummary && (
-            <TeamSummaryCard summary={teamSummary} onViewSummaryClick={handleViewSummaryClick} />
-          )}
+          {teamSummary && <TeamSummaryCard summary={teamSummary} />}
         </div>
       </div>
 

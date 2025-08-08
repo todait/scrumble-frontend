@@ -5,6 +5,8 @@ import { useNotificationUnreadCount } from '@/shared/hooks/queries/useNotificati
 import {
   RiBarChartFill,
   RiBarChartLine,
+  RiCalendarFill,
+  RiCalendarLine,
   RiHeart3Fill,
   RiHeart3Line,
   RiHome5Fill,
@@ -13,8 +15,6 @@ import {
   RiPencilLine,
   RiSettings6Fill,
   RiSettings6Line,
-  RiUser6Fill,
-  RiUser6Line,
 } from '@remixicon/react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -69,8 +69,8 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
       label: '리포트',
     },
     {
-      icon: RiUser6Line,
-      activeIcon: RiUser6Fill,
+      icon: RiCalendarLine,
+      activeIcon: RiCalendarFill,
       href: `/${spaceSlug}/my-page`,
       label: '마이페이지',
     },
@@ -102,12 +102,12 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
+                  className={`relative flex h-[50px] w-[50px] items-center justify-center rounded-lg transition-all ${
                     active ? '' : 'hover:bg-[rgba(34,34,34,0.08)]'
                   }`}
                 >
                   <Icon
-                    className={`h-8 w-8 text-[#222222] ${active ? 'opacity-80' : 'opacity-30 hover:opacity-50'}`}
+                    className={`h-8 w-8 text-[#000000] ${active ? 'opacity-80' : 'opacity-30 hover:opacity-50'}`}
                   />
 
                   {/* 읽지 않은 알림 표시 점 - 알림 메뉴에만 표시 */}
@@ -123,12 +123,12 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
         {/* 설정 아이템 - 하단에 위치 */}
         <Link
           href={settingsItem.href}
-          className={`flex h-[60px] w-[60px] items-center justify-center rounded-lg transition-all ${
+          className={`flex h-[50px] w-[50px] items-center justify-center rounded-lg transition-all ${
             isActive(settingsItem.href) ? '' : 'hover:bg-[rgba(34,34,34,0.08)]'
           }`}
         >
           <SettingsIcon
-            className={`h-8 w-8 text-[#222222] ${
+            className={`h-8 w-8 text-[#000000] ${
               isActive(settingsItem.href) ? 'opacity-80' : 'opacity-30 hover:opacity-50'
             }`}
           />
