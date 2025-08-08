@@ -1,5 +1,6 @@
 'use client';
 
+import { Checkbox } from '@/shared/components/ui';
 import { ProfileImage } from '@/shared/components/ui/ProfileImage';
 import { RiMoreLine } from '@remixicon/react';
 
@@ -38,29 +39,12 @@ export function MemberTableRow({
     >
       <td className="p-[10px]">
         <div className="flex items-center justify-center">
-          <label className="relative inline-flex h-[15px] w-[15px] items-center justify-center">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={e => onToggleSelected(e.target.checked)}
-              className="peer h-[15px] w-[15px] appearance-none border-2 border-[#1D1D1F]/20 checked:border-[#9747FF] checked:bg-[#9747FF]"
-            />
-            <svg
-              viewBox="0 0 12 10"
-              className="pointer-events-none absolute left-1/2 top-1/2 mt-px -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100"
-              width="10"
-              height="8"
-            >
-              <path
-                d="M10.3 1.3L4.5 7.1 1.7 4.3"
-                stroke="white"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </label>
+          <Checkbox
+            checked={isSelected}
+            onChange={onToggleSelected}
+            size={15}
+            ariaLabel={`멤버 ${member.name} 선택`}
+          />
         </div>
       </td>
       <td className="p-[10px]">
