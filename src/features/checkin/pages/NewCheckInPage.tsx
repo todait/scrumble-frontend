@@ -56,8 +56,15 @@ export function NewCheckInPage() {
   };
 
   const handleBack = () => {
-    // 오늘 날짜로 "나중에 하기" 플래그 저장
-    sessionStorage.setItem('checkin-skipped-date', formatDateToAPIString(selectedDate));
+    // space별로 고유한 "나중에 하기" 정보를 JSON으로 저장 (30분 타임아웃)
+    const skipData = {
+      timestamp: Date.now(),
+      date: formatDateToAPIString(selectedDate)
+    };
+    sessionStorage.setItem(
+      `checkin-skipped-${spaceSlug}`,
+      JSON.stringify(skipData)
+    );
     router.push(`/${spaceSlug}/feed`);
   };
 

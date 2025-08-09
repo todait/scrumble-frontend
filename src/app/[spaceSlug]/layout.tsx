@@ -15,9 +15,7 @@ export default function SpaceLayout({ children, params }: SpaceLayoutProps) {
     <div className="min-h-screen bg-[#FAFAFA]">
       <SidebarNav spaceSlug={spaceSlug} />
       {/* SidebarNav는 fixed이므로 main은 전체 너비 사용 가능 */}
-      <main className="min-h-screen">
-        {children}
-      </main>
+      <main className="min-h-screen pb-[60px] lg:px-[70px] lg:pb-0">{children}</main>
     </div>
   );
 }

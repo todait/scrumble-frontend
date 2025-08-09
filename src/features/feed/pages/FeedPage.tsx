@@ -166,7 +166,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         logDebug('FeedPage', '재연결 감지 - 피드 데이터 동기화 완료');
       },
     });
-  const { handleCommentClick, handleViewSummaryClick } = useFeedActions(spaceSlug);
+  const { handleCommentClick } = useFeedActions(spaceSlug);
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
   const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } =
     useFeedNavigation(spaceSlug);
@@ -208,13 +208,32 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     // 오늘일 때만 체크인 강제 (과거 날짜는 체크인 없어도 피드 볼 수 있음)
     const isToday = formatDateToAPIString(selectedDate) === formatDateToAPIString(new Date());
 
-    // "나중에 하기"를 선택했는지 확인
-    const skippedDate = sessionStorage.getItem('checkin-skipped-date');
-    const hasSkippedToday = skippedDate === formatDateToAPIString(selectedDate);
+    // space별로 "나중에 하기"를 선택했는지 확인 (30분 타임아웃 포함)
+    const skipDataStr = sessionStorage.getItem(`checkin-skipped-${spaceSlug}`);
+    let hasSkippedRecently = false;
+
+    if (skipDataStr) {
+      try {
+        const skipData = JSON.parse(skipDataStr);
+        const timePassed = Date.now() - skipData.timestamp;
+        const thirtyMinutes = 30 * 60 * 1000; // 30분 = 1800000ms
+
+        // 날짜가 같고 30분이 안 지났을 때만 유효
+        if (skipData.date === formatDateToAPIString(selectedDate) && timePassed < thirtyMinutes) {
+          hasSkippedRecently = true;
+        } else {
+          // 만료된 데이터 삭제
+          sessionStorage.removeItem(`checkin-skipped-${spaceSlug}`);
+        }
+      } catch {
+        // 파싱 실패 시 (이전 버전 데이터) 삭제
+        sessionStorage.removeItem(`checkin-skipped-${spaceSlug}`);
+      }
+    }
 
     if (
       isToday &&
-      !hasSkippedToday && // 오늘 "나중에 하기"를 선택하지 않았을 때만
+      !hasSkippedRecently && // 30분 내에 "나중에 하기"를 선택하지 않았을 때만
       !existsCheckinQuery.isLoading &&
       existsCheckinQuery.data &&
       existsCheckinQuery.data.exists === false
@@ -301,20 +320,15 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         <div
           className={`flex w-full transition-all duration-300 ${
             selectedPost && isPostDetailVisible
-              ? 'pt-2 lg:w-[1196px] lg:pt-6'
-              : 'pt-4 md:w-[672px] md:pt-6'
+              ? 'pt-2 lg:max-w-[1196px] lg:pt-6'
+              : 'pt-4 md:max-w-[672px] md:pt-6'
           }`}
         >
-          {/* SidebarNav 공간 확보용 spacer - PostDetail이 없고 lg 이상일 때만 표시 */}
-          {!(selectedPost && isPostDetailVisible) && (
-            <div className="hidden lg:block lg:w-[70px] xl:hidden" />
-          )}
-
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
-            className={`relative flex min-h-0 w-full flex-col px-2 transition-all duration-300 md:px-4 ${
+            className={`relative flex min-h-0 w-full flex-col px-2 transition-[flex-basis] duration-300 ease-in-out md:px-4 ${
               selectedPost && isPostDetailVisible
-                ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0'
+                ? 'hidden lg:flex lg:flex-none lg:basis-[496px] lg:pl-4 lg:pr-0'
                 : 'md:w-[672px]'
             }`}
           >
