@@ -1,25 +1,28 @@
 'use client';
 
-import { withAuth } from '@/shared/components/auth';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useMySpaces } from '@/shared/hooks/queries/useSpaces';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useComponentLoading } from '@/shared/contexts/GlobalLoadingContext';
+import { LandingPage } from '@/features/landing/pages';
 
-function Home() {
+export default function Home() {
   const router = useRouter();
-  const { isLoading: isAuthLoading } = useAuth();
-  const { data: spacesData, isLoading: isSpacesLoading } = useMySpaces();
+  const { isAuthenticated, isLoading: isAuthLoading, isInitialized } = useAuth();
+  // 인증된 사용자만 스페이스 목록을 가져옴
+  const { data: spacesData, isLoading: isSpacesLoading } = useMySpaces({ 
+    enabled: isAuthenticated && isInitialized 
+  });
   const { startLoading, stopLoading } = useComponentLoading('home-redirect');
   const latestSpaceSlug = useAuthStore((state) => state.latestSpaceSlug);
 
   useEffect(() => {
-    // 로딩 중이면 기다림
-    if (isAuthLoading || isSpacesLoading) return;
+    // 인증되지 않았거나 초기화 중이면 리다이렉트 하지 않음
+    if (!isInitialized || !isAuthenticated || isAuthLoading || isSpacesLoading) return;
 
-    // 리다이렉트 시작
+    // 인증된 사용자만 리다이렉트
     startLoading('리다이렉트 중...');
 
     const spaces = spacesData?.spaces || [];
@@ -39,10 +42,18 @@ function Home() {
     // 리다이렉트 후 로딩 종료 (컴포넌트 언마운트 시 자동 정리됨)
     stopLoading();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, spacesData?.spaces, isAuthLoading, isSpacesLoading, latestSpaceSlug]);
+  }, [router, spacesData?.spaces, isAuthLoading, isSpacesLoading, latestSpaceSlug, isAuthenticated, isInitialized]);
 
-  // 로딩 스피너 제거 - 전역 로딩이 처리함
+  // 초기화 중이거나 인증 로딩 중일 때
+  if (!isInitialized || isAuthLoading) {
+    return null; // 전역 로딩이 처리함
+  }
+
+  // 인증되지 않은 사용자에게는 랜딩페이지 표시
+  if (!isAuthenticated) {
+    return <LandingPage />;
+  }
+
+  // 인증된 사용자는 리다이렉트 중 (null 반환)
   return null;
 }
-
-export default withAuth(Home);

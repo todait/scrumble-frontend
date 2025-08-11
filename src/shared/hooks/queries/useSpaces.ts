@@ -25,13 +25,16 @@ import { spaceInvalidateHelpers, spacesKeys } from './spacesKeys';
 
 /**
  * 내 스페이스 목록을 가져오는 React Query 훅
- * @param options 조회 옵션 (타임존)
+ * @param options 조회 옵션 (enabled)
  * @returns React Query 결과
  */
-export const useMySpaces = () => {
+export const useMySpaces = (options?: { enabled?: boolean }) => {
+  const { enabled = true } = options || {};
+  
   return useQuery({
     queryKey: spacesKeys.myList(),
     queryFn: () => spacesApi.getMySpaces(),
+    enabled,
     staleTime: 1000 * 60 * 5, // 5분
     gcTime: 1000 * 60 * 15, // 15분
     refetchOnWindowFocus: false,

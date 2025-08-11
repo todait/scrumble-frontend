@@ -180,8 +180,12 @@ export function useAutoRefreshTokenGeneric({
 }
 
 // 기존 훅들과의 호환성을 위한 래퍼
-export function useAutoRefreshToken() {
-  useAutoRefreshTokenGeneric({ tokenType: 'user' });
+export function useAutoRefreshToken(options?: { enabled?: boolean }) {
+  const { enabled = true } = options || {};
+  useAutoRefreshTokenGeneric({ 
+    tokenType: 'user',
+    enabled 
+  });
 }
 
 export function useAutoRefreshSpaceMemberToken({
