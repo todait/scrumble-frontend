@@ -85,7 +85,7 @@ const TrustSection = () => {
               transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
               className="bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg"
             >
-              <div className="text-[#9747FF] text-3xl mb-4">"</div>
+              <div className="text-[#9747FF] text-3xl mb-4">&ldquo;</div>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
                 {testimonial.quote}
               </p>

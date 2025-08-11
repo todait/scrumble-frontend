@@ -17,9 +17,10 @@ const rollingMessages = [
 
 interface IntroSectionProps {
   onCTAClick: () => void;
+  onDemoClick?: () => void;
 }
 
-const IntroSection = ({ onCTAClick }: IntroSectionProps) => {
+const IntroSection = ({ onCTAClick, onDemoClick }: IntroSectionProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLastMessage, setIsLastMessage] = useState(false);
 
