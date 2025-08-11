@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import ScrollIndicator from './ScrollIndicator';
 import { FiFileText, FiEye, FiTrendingUp, FiHeart, FiClock, FiLink } from 'react-icons/fi';
 
 const benefits = [
@@ -140,7 +139,6 @@ const Section6 = () => {
           </div>
         </div>
       </div>
-      <ScrollIndicator targetId="section7" />
     </div>
   );
 };

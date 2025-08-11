@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import ScrollIndicator from './ScrollIndicator';
 
 const beforeList = [
   '매일 팀원 상황 확인에 시간 소모',
@@ -114,7 +113,6 @@ const Section7 = () => {
           </div>
         </div>
       </div>
-      <ScrollIndicator targetId="section8" />
     </div>
   );
 };

@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import ScrollIndicator from './ScrollIndicator';
-import { FiUserCheck, FiCheckCircle, FiLayout, FiFileText } from 'react-icons/fi';
+import { FiCheckCircle, FiFileText, FiLayout, FiUserCheck } from 'react-icons/fi';
 
 const features = [
   {
@@ -33,22 +32,19 @@ const Section5 = () => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           setIsVisible(entry.isIntersecting);
         });
       },
       { threshold: 0.3 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    const element = sectionRef.current;
+    if (element) observer.observe(element);
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      if (element) observer.unobserve(element);
     };
   }, []);
 
@@ -56,49 +52,50 @@ const Section5 = () => {
     <div
       id="section5"
       ref={sectionRef}
-      className="w-full min-h-screen flex flex-col justify-center items-center text-center relative px-10 py-[120px] bg-gradient-to-br from-[#f8f9fa] to-white"
+      className="relative flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#f8f9fa] to-white px-10 py-[120px] text-center"
     >
-      <div className="w-full max-w-[1440px] mx-auto">
+      <div className="mx-auto w-full max-w-[1440px]">
         <div
-          className={`text-[40px] font-bold text-[#1d1d1f] mb-4 transition-all duration-800 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          className={`duration-800 mb-4 text-[40px] font-bold text-[#1d1d1f] transition-[opacity,transform] ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
           }`}
-          style={{ transitionDelay: '200ms' }}
+          style={{ transitionDelay: isVisible ? '200ms' : '0ms' }}
         >
           관리가 아니라 리더십을.
         </div>
         <div
-          className={`text-[32px] font-bold text-[#6e6e73] mb-16 transition-all duration-800 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          className={`duration-800 mb-16 text-[32px] font-bold text-[#6e6e73] transition-[opacity,transform] ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
           }`}
-          style={{ transitionDelay: '500ms' }}
+          style={{ transitionDelay: isVisible ? '500ms' : '0ms' }}
         >
           팀을 움직이는 본질에 집중하세요.
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[1200px] mx-auto">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 md:grid-cols-2">
           {features.map((feature, index) => (
             <div
               key={index}
-              className={`bg-white rounded-3xl p-10 text-center shadow-[0_8px_32px_rgba(0,0,0,0.06)] border border-black/[0.04] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_48px_rgba(0,0,0,0.12)] flex flex-col justify-center items-center min-h-[320px] ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              className={`duration-800 transition-[opacity,transform] ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
               }`}
-              style={{ transitionDelay: `${800 + index * 200}ms` }}
+              style={{ transitionDelay: isVisible ? `${800 + index * 200}ms` : '0ms' }}
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-[#8c4bf9] to-[#b478f7] rounded-[20px] flex items-center justify-center mb-6 mx-auto transition-transform duration-300 hover:scale-110">
-                <div className="text-white text-[28px]">{feature.icon}</div>
+              <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-black/[0.04] bg-white p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_48px_rgba(0,0,0,0.12)]">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-[#8c4bf9] to-[#b478f7] transition-transform duration-300 hover:scale-110">
+                  <div className="text-[28px] text-white">{feature.icon}</div>
+                </div>
+                <h3 className="mb-4 text-[32px] font-bold leading-[1.3] text-[#1d1d1f]">
+                  {feature.title}
+                </h3>
+                <p className="whitespace-pre-line text-[24px] font-bold leading-[1.5] text-[#9999a2]">
+                  {feature.description}
+                </p>
               </div>
-              <h3 className="text-[32px] font-bold text-[#1d1d1f] mb-4 leading-[1.3]">
-                {feature.title}
-              </h3>
-              <p className="text-[24px] font-bold text-[#9999a2] leading-[1.5] whitespace-pre-line">
-                {feature.description}
-              </p>
             </div>
           ))}
         </div>
       </div>
-      <ScrollIndicator targetId="section6" />
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import ScrollIndicator from './ScrollIndicator';
 
 const textData = [
   { text: '장황한 회의만 하다가', emojis: ['😵‍💫', '😅'] },
@@ -28,7 +27,7 @@ interface EmojiItem {
   size: number;
 }
 
-const Section1 = () => {
+const IntroSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [emojis, setEmojis] = useState<EmojiItem[]>([]);
 
@@ -103,9 +102,11 @@ const Section1 = () => {
     ]);
   }, [currentIndex]);
 
-
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#F3F3F3] px-10 py-20 text-center">
+    <div
+      id="intro"
+      className="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#F3F3F3] px-10 py-20 text-center"
+    >
       <div className="mx-auto w-full max-w-[1440px]">
         {/* Title */}
         <h1 className="mb-8 text-[54px] font-bold tracking-[-0.02em] text-[#1d1d1f]">
@@ -155,8 +156,6 @@ const Section1 = () => {
 
         {/* Question */}
         <p className="mb-16 text-center text-[54px] font-bold text-[#1d1d1f]">하루가 끝났나요?</p>
-
-        <ScrollIndicator targetId="section2" />
       </div>
 
       <style jsx>{`
@@ -182,4 +181,4 @@ const Section1 = () => {
   );
 };
 
-export default Section1;
+export default IntroSection;

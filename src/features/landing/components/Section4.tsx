@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import ScrollIndicator from './ScrollIndicator';
 
 const Section4 = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -54,7 +53,6 @@ const Section4 = () => {
           <span className="text-[#1d1d1f]">결정에 집중.</span>
         </div>
       </div>
-      <ScrollIndicator targetId="section5" />
     </div>
   );
 };
