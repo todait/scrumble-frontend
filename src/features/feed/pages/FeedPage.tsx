@@ -320,15 +320,15 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
         <div
           className={`flex w-full transition-all duration-300 ${
             selectedPost && isPostDetailVisible
-              ? 'pt-2 lg:max-w-[1196px] lg:pt-6'
-              : 'pt-4 md:max-w-[672px] md:pt-6'
+              ? 'pt-2 lg:w-[1196px] lg:pt-6'
+              : 'pt-4 md:w-[672px] md:pt-6'
           }`}
         >
           {/* 중앙 피드 영역 - 모바일에서는 PostDetail 선택시 숨김 */}
           <div
-            className={`relative flex min-h-0 w-full flex-col px-2 transition-[flex-basis] duration-300 ease-in-out md:px-4 ${
+            className={`relative flex min-h-0 w-full flex-col px-2 transition-all duration-300 ease-in-out md:px-4 ${
               selectedPost && isPostDetailVisible
-                ? 'hidden lg:flex lg:flex-none lg:basis-[496px] lg:pl-4 lg:pr-0'
+                ? 'hidden lg:flex lg:w-[496px] lg:pl-4 lg:pr-0'
                 : 'md:w-[672px]'
             }`}
           >
