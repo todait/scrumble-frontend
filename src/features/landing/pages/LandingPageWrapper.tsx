@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { Suspense, useEffect, useState } from 'react';
 import IntroSection from '../components/IntroSection';
 import CTASection from '../components/CTASection';
 import ContrastSection from '../components/ContrastSection';
@@ -9,13 +10,29 @@ import BenefitsSection from '../components/BenefitsSection';
 import BeforeAfterSection from '../components/BeforeAfterSection';
 import ROISection from '../components/ROISection';
 import BetaForm from '../components/BetaForm';
-import StickyCTA from '../components/StickyCTA';
 
-const LandingPage = () => {
+// Dynamic imports for better performance
+const StickyCTA = dynamic(() => import('../components/StickyCTA'), {
+  ssr: false,
+});
+
+const DemoModal = dynamic(() => import('../components/DemoModal'), {
+  ssr: false,
+});
+
+const LandingPageWrapper = () => {
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     const handleScroll = () => {
       const scrollPercentage = (window.scrollY / document.documentElement.scrollHeight) * 100;
       setShowStickyCTA(scrollPercentage > 30);
@@ -28,18 +45,23 @@ const LandingPage = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // 초기 스크롤 체크
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMounted]);
 
   const scrollToForm = () => {
-    document.getElementById('beta-form')?.scrollIntoView({ behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      document.getElementById('beta-form')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white">
       {/* Hero Section */}
-      <IntroSection onCTAClick={scrollToForm} />
+      <IntroSection onCTAClick={scrollToForm} onDemoClick={() => setIsDemoModalOpen(true)} />
       
       {/* Value Proposition */}
       <CTASection onCTAClick={scrollToForm} />
@@ -62,12 +84,21 @@ const LandingPage = () => {
       {/* Beta Form */}
       <BetaForm />
       
-      {/* Sticky CTA */}
-      {showStickyCTA && !isFormVisible && (
-        <StickyCTA onClick={scrollToForm} />
+      {/* Sticky CTA - Only render on client */}
+      {isMounted && showStickyCTA && !isFormVisible && (
+        <Suspense fallback={null}>
+          <StickyCTA onClick={scrollToForm} />
+        </Suspense>
       )}
-    </div>
+      
+      {/* Demo Modal - Only render on client */}
+      {isMounted && (
+        <Suspense fallback={null}>
+          <DemoModal isOpen={isDemoModalOpen} onClose={() => setIsDemoModalOpen(false)} />
+        </Suspense>
+      )}
+    </main>
   );
 };
 
-export default LandingPage;
+export default LandingPageWrapper;
