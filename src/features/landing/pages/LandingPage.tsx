@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import IntroSection from '../components/IntroSection';
+import BeforeAfterSection from '../components/BeforeAfterSection';
+import BenefitsSection from '../components/BenefitsSection';
+import BetaForm from '../components/BetaForm';
 import CTASection from '../components/CTASection';
 import ContrastSection from '../components/ContrastSection';
 import FeatureSection from '../components/FeatureSection';
-import BenefitsSection from '../components/BenefitsSection';
-import BeforeAfterSection from '../components/BeforeAfterSection';
+import IntroSection from '../components/IntroSection';
 import ROISection from '../components/ROISection';
-import BetaForm from '../components/BetaForm';
 import StickyCTA from '../components/StickyCTA';
 
 const LandingPage = () => {
@@ -40,32 +40,30 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <IntroSection onCTAClick={scrollToForm} />
-      
+
       {/* Value Proposition */}
       <CTASection onCTAClick={scrollToForm} />
-      
+
       {/* Contrast Section */}
       <ContrastSection />
-      
+
       {/* Features Grid */}
       <FeatureSection />
-      
+
       {/* Benefits */}
       <BenefitsSection onCTAClick={scrollToForm} />
-      
+
       {/* Before/After */}
       <BeforeAfterSection />
-      
+
       {/* ROI Calculator */}
       <ROISection />
-      
+
       {/* Beta Form */}
       <BetaForm />
-      
+
       {/* Sticky CTA */}
-      {showStickyCTA && !isFormVisible && (
-        <StickyCTA onClick={scrollToForm} />
-      )}
+      {showStickyCTA && !isFormVisible && <StickyCTA onClick={scrollToForm} />}
     </div>
   );
 };
