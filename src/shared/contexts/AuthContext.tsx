@@ -30,13 +30,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isInitialized: userAuth.isInitialized,
   });
 
-  // 자동 토큰 갱신 활성화
-  useAutoRefreshToken();
+  // 자동 토큰 갱신 활성화 - 인증된 사용자만
+  const isAuthenticated = userAuth.isInitialized && !!userAuth.user;
+  useAutoRefreshToken({ enabled: isAuthenticated });
 
   // SpaceMember 토큰 자동 갱신 활성화
   useAutoRefreshSpaceMemberToken({
     currentSpaceSlug: spaceManager.currentSpaceSlug,
-    enabled: userAuth.isInitialized && !!spaceManager.currentSpaceSlug,
+    enabled: isAuthenticated && !!spaceManager.currentSpaceSlug,
   });
 
   // Effect에서 사용할 의존성 최소화용 구조분해
@@ -50,6 +51,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 다른 탭에서 토큰 변경 시 처리
     const unsubscribeStorage = storageEventListener.subscribe(() => {
+      // 초기화되지 않았으면 무시
+      if (!userAuth.isInitialized) return;
+
       // 유저 리프레시 토큰이 유효하지 않다면 로그인 페이지로 이동
       if (!TokenManager.isRefreshTokenValid()) {
         router.replace(ROUTES.AUTH);
@@ -78,11 +82,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const handleVisibilityChange = () => {
       if (document.visibilityState !== 'visible') return;
 
+      // 초기화되지 않았으면 무시
+      if (!userAuth.isInitialized) return;
+
+      // 공개 페이지(/auth, /)에서는 토큰 체크를 하지 않음
+      const publicPaths = ['/', '/auth'];
+      const currentPath = window.location.pathname;
+      if (publicPaths.some(path => currentPath === path || currentPath.startsWith('/auth'))) {
+        return;
+      }
+
       // 유저 리프레시 토큰이 유효하지 않으면 로그인 페이지로 이동
       if (!TokenManager.isRefreshTokenValid()) {
-        if (!window.location.pathname.includes('/auth')) {
-          router.replace(ROUTES.AUTH);
-        }
+        router.replace(ROUTES.AUTH);
         return;
       }
 
@@ -137,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handleSpaceMemberTokenExpired as unknown as EventListener
       );
     };
-  }, [router, currentSpaceSlug, switchSpace, refetchSpaceMember]);
+  }, [router, currentSpaceSlug, switchSpace, refetchSpaceMember, userAuth.isInitialized]);
 
   // Context 값 조합
   const value: AuthContextValue = {
