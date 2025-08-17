@@ -45,8 +45,9 @@ export default function MemberSettingsPage() {
   });
 
   const tableMembers: TableMember[] = useMemo(() => {
-    const membersFromSpace = (spaceData?.space?.members ??
-      []) as import('@/shared/types/space').SpaceMember[];
+    // TODO: members 목록을 가져오는 별도 API 필요
+    // 현재 Space 타입에는 memberCount만 있고 members 배열이 없음
+    const membersFromSpace: import('@/shared/types/space').SpaceMember[] = [];
     return membersFromSpace.map(m => ({
       id: m.id,
       name: m.name,
@@ -54,7 +55,7 @@ export default function MemberSettingsPage() {
       avatarURL: m.avatarURL,
       joinedAt: m.joinedAt,
     }));
-  }, [spaceData?.space?.members]);
+  }, []);
 
   // debug removed
 

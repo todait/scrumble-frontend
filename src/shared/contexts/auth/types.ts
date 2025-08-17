@@ -32,7 +32,7 @@ export interface SpaceInfo {
   slug: string;
   name: string;
   iconURL?: string;
-  members: SpaceMemberInfo[];
+  memberCount?: number;
 }
 
 // AuthContext 값 인터페이스

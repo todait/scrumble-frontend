@@ -32,7 +32,7 @@ export interface Space {
   slug: string; // 유니크한 스페이스 식별자
   name: string; // 스페이스 이름
   iconURL?: string; // 아이콘 URL
-  members: SpaceMember[]; // 멤버 목록
+  memberCount: number; // 멤버 수
   createdAt: DateString; // ISO 8601 형식의 생성일시
   updatedAt: DateString; // ISO 8601 형식의 수정일시
 }

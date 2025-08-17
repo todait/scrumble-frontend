@@ -61,7 +61,7 @@ export function SpaceItem({ space }: SpaceItemProps) {
         <div className="flex-1 text-left">
           <h3 className="text-lg font-semibold text-gray-900">{space.name}</h3>
           <p className="text-sm text-gray-500">
-            {space.createdAt ? formatDate(space.createdAt) : '날짜 없음'} • {space.members.length}명
+            {space.createdAt ? formatDate(space.createdAt) : '날짜 없음'} • {space.memberCount}명
           </p>
         </div>
       </div>
