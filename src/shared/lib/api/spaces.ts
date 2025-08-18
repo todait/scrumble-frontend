@@ -5,11 +5,13 @@
 
 import type {
   ApiSpace,
+  ApiSpaceMemberDTO,
   CreateSpaceApiRequest,
   CreateSpaceApiResponse,
   DeleteSpaceApiResponse,
   GetMySpacesApiResponse,
   GetSpaceApiResponse,
+  GetSpaceMemberListApiResponse,
   UpdateSpaceApiRequest,
   UpdateSpaceApiResponse,
 } from '@/shared/types/api';
@@ -21,39 +23,30 @@ import type {
   GetMySpacesResponse,
   GetSpaceParams,
   GetSpaceResponse,
+  GetSpaceMembersParams,
+  GetSpaceMembersResponse,
   Space,
+  SpaceMember,
   UpdateSpaceRequest,
   UpdateSpaceResponse,
 } from '@/shared/types/space';
 import { apiClient } from '../api';
 
 /**
- * 백엔드 API 멤버 응답을 프론트엔드 타입으로 변환하는 함수
- * snake_case에서 camelCase로 변환
+ * 백엔드 API 멤버 DTO를 프론트엔드 타입으로 변환하는 함수
  */
-// const convertApiMemberToMember = (apiMember: ApiSpaceMember): SpaceMember => {
-//   // 백엔드 응답의 필드 표기(snake_case)와 일부 엔드포인트의 camelCase를 모두 허용
-//   const anyMember = apiMember as unknown as {
-//     id: string;
-//     spaceId?: string;
-//     space_id?: string;
-//     name: string;
-//     avatar_url?: string;
-//     avatarURL?: string;
-//     role: string;
-//     joined_at?: string;
-//     joinedAt?: string;
-//   };
-
-//   return {
-//     id: anyMember.id,
-//     spaceId: anyMember.space_id ?? anyMember.spaceId ?? '',
-//     name: anyMember.name,
-//     avatarURL: anyMember.avatar_url ?? anyMember.avatarURL,
-//     role: anyMember.role as SpaceMember['role'],
-//     joinedAt: anyMember.joined_at ?? anyMember.joinedAt ?? '',
-//   };
-// };
+const convertApiMemberDTOToMember = (apiMember: ApiSpaceMemberDTO): SpaceMember => {
+  return {
+    id: apiMember.id,
+    spaceId: '', // spaceId는 선택적으로 비워둠
+    userId: apiMember.userId,
+    name: apiMember.name,
+    email: apiMember.email,
+    avatarURL: apiMember.avatarURL,
+    role: apiMember.role as SpaceMember['role'],
+    joinedAt: apiMember.joinedAt,
+  };
+};
 
 /**
  * 백엔드 API 스페이스 응답을 프론트엔드 타입으로 변환하는 함수
@@ -153,6 +146,31 @@ export const spacesApi = {
 
     return {
       message: data.message,
+    };
+  },
+
+  /**
+   * 스페이스 멤버 목록 조회
+   * @param params 조회 파라미터 (스페이스 슬러그, 페이지네이션)
+   * @returns 스페이스 멤버 목록
+   */
+  getSpaceMembers: async (params: GetSpaceMembersParams): Promise<GetSpaceMembersResponse> => {
+    const queryParams = new URLSearchParams();
+    if (params.limit) {
+      queryParams.append('limit', params.limit.toString());
+    }
+    if (params.cursor) {
+      queryParams.append('cursor', params.cursor);
+    }
+
+    const { data } = await apiClient.get<GetSpaceMemberListApiResponse>(
+      `/api/v1/spaces/${params.spaceSlug}/members${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    );
+
+    return {
+      members: data.members.map(member => convertApiMemberDTOToMember(member)),
+      message: data.message,
+      nextCursor: data.nextCursor,
     };
   },
 };

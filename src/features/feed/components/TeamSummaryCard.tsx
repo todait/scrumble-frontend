@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  RiHeart3Fill,
-  RiPokerClubsFill,
-  RiPokerDiamondsFill,
-  RiQuestionLine,
-} from '@remixicon/react';
+import { RiCheckboxCircleFill, RiCheckboxCircleLine, RiHeart3Fill } from '@remixicon/react';
 import type { TeamSummary } from '../types/feed.types';
 
 interface TeamSummaryCardProps {
@@ -20,14 +15,13 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
     <div className="rounded-2xl border border-[rgba(34,34,34,0.08)] bg-white p-2.5">
       {/* 활동 요약 보기 버튼 */}
       <div className="flex w-[140px] flex-col gap-1 px-2 py-2.5">
-        <span className="text-xs font-bold text-[#222222]">오늘의 팀 활동</span>
+        <span className="text-xs font-bold text-[#222222]">오늘의 활동 멤버: {totalMembers}명</span>
       </div>
 
       {/* 팀 컨디션 */}
       <div className="flex flex-col gap-1 px-2 py-2.5">
         <div className="flex items-center gap-0.5 opacity-50">
           <span className="text-xs text-[#222222]">팀 컨디션</span>
-          <RiQuestionLine className="h-2.5 w-2.5 text-[#222222]" />
         </div>
         <div className="flex items-center gap-1">
           <RiHeart3Fill className="h-3.5 w-3.5 text-[#9747FF]" />
@@ -39,10 +33,9 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
       <div className="flex flex-col gap-1 px-2 py-2.5">
         <div className="flex items-center gap-0.5 opacity-50">
           <span className="text-xs text-[#222222]">체크인</span>
-          <RiQuestionLine className="h-2.5 w-2.5 text-[#222222]" />
         </div>
         <div className="flex items-center gap-1">
-          <RiPokerClubsFill className="h-3.5 w-3.5 text-[#39CD32]" />
+          <RiCheckboxCircleFill className="h-3.5 w-3.5 text-[#39CD32]" />
           <span className="text-[15px] font-bold text-[#222222]">
             {isAllCheckedIn ? '모두 완료' : `${checkedInCount}/${totalMembers}`}
           </span>
@@ -53,10 +46,9 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
       <div className="flex flex-col gap-1 px-2 py-2.5">
         <div className="flex items-center gap-0.5 opacity-50">
           <span className="text-xs text-[#222222]">체크아웃</span>
-          <RiQuestionLine className="h-2.5 w-2.5 text-[#222222]" />
         </div>
         <div className="flex items-center gap-1">
-          <RiPokerDiamondsFill className="h-3.5 w-3.5 text-[#009DFF]" />
+          <RiCheckboxCircleLine className="h-3.5 w-3.5 text-[#009DFF]" />
           <span className="text-[15px] font-bold text-[#222222]">{checkedOutCount}명</span>
         </div>
       </div>

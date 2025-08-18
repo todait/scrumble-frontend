@@ -21,15 +21,15 @@ import {
 } from '@/features/feed/hooks';
 import type { Post as FeedPost } from '@/features/feed/types/feed.types';
 import { WebSocketErrorBoundary } from '@/shared/components/ErrorBoundary';
-import { SettingsDropdown } from '@/shared/components/layout/SettingsDropdown';
 import { ROUTES } from '@/shared/constants';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { usePostDate } from '@/shared/hooks/queries/usePosts';
 
 import { useDateStore } from '@/shared/stores/useDateStore';
-import { formatDateToAPIString } from '@/shared/utils';
+import { convertToKoreanOrder, formatDateToAPIString } from '@/shared/utils';
 import { debug, debug as logDebug } from '@/shared/utils/debug';
-import { RiSettings6Line } from '@remixicon/react';
+import { RiPokerClubsFill } from '@remixicon/react';
+import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -45,18 +45,14 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     currentSpaceMember: member,
     isAuthenticated,
     isSpaceAuthenticated,
-    logout,
     switchSpace,
   } = useAuth();
   const { selectedDate, setSelectedDate, initializeFromUrl } = useDateStore();
 
   // 설정 드롭다운 상태
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPostDetailVisible, setIsPostDetailVisible] = useState(false);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false); // 페이지 전환 감지 상태
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoNavigatedRef = useRef<string | null>(null); // 자동 날짜 이동이 실행된 postId 추적
 
   // 인증 체크 - 유저 미인증은 /auth, 스페이스 미인증은 조용히 복구 시도
@@ -184,26 +180,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     }, 0);
   };
 
-  // 설정 드롭다운 핸들러
-  const handleMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setIsDropdownOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsDropdownOpen(false);
-    }, 200);
-  };
-
-  const handleLogout = () => {
-    setIsDropdownOpen(false);
-    logout();
-  };
-
   useEffect(() => {
     // 오늘일 때만 체크인 강제 (과거 날짜는 체크인 없어도 피드 볼 수 있음)
     const isToday = formatDateToAPIString(selectedDate) === formatDateToAPIString(new Date());
@@ -245,9 +221,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // 컴포넌트 언마운트 시 타이머 정리 및 관찰 중지
   useEffect(() => {
     return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
       unobserveAll();
     };
   }, [unobserveAll]);
@@ -305,9 +278,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   );
   const isCheckoutAvailable = existsMyCheckin && !existsMyCheckout;
 
-  // 설정 아이콘 상태
-  const SettingsIcon = RiSettings6Line;
-
   // 페이지 전환 중이면 빈 화면 표시
   if (isNavigatingAway) {
     return null;
@@ -333,32 +303,8 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
             }`}
           >
             {/* 필터 드롭다운과 설정 아이콘 - 고정 */}
-            <div className="mb-4 flex flex-shrink-0 items-center justify-between px-2 md:mb-[22px] md:justify-center md:px-0">
-              {/* 모바일에서만 보이는 빈 공간 */}
-              <div className="w-10 md:hidden"></div>
-
+            <div className="mb-4 flex flex-shrink-0 items-center justify-center px-2 md:mb-[22px] md:px-0">
               <FilterDropdown value={filterType} onChange={setFilterType} />
-
-              {/* 모바일 설정 아이콘 */}
-              <div
-                className="relative md:hidden"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button className="flex h-10 w-10 items-center justify-center rounded-lg transition-all hover:bg-[rgba(34,34,34,0.08)]">
-                  <SettingsIcon className="h-6 w-6 text-[#222222] opacity-30" />
-                </button>
-
-                {/* 모바일 드롭다운 메뉴 */}
-                {isDropdownOpen && (
-                  <SettingsDropdown
-                    ref={dropdownRef}
-                    spaceSlug={spaceSlug}
-                    onLogout={handleLogout}
-                    className="absolute right-0 top-full mt-2"
-                  />
-                )}
-              </div>
             </div>
 
             {/* 피드 컨테이너 */}
@@ -366,11 +312,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
               {/* 헤더 - 포스트가 없을 때 */}
               {(isLoading || posts.length === 0) && (
                 <div className="relative flex-shrink-0">
-                  <FeedHeader
-                    selectedDate={selectedDate}
-                    activeUsers={teamSummary?.totalMembers || 0}
-                    onDateChange={handleDateChange}
-                  />
+                  <FeedHeader selectedDate={selectedDate} onDateChange={handleDateChange} />
                 </div>
               )}
 
@@ -378,26 +320,60 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
               {!isLoading && posts.length > 0 && (
                 <div className="rounded-t-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-t-2xl">
                   <div className="relative flex-shrink-0">
-                    <FeedHeader
-                      selectedDate={selectedDate}
-                      activeUsers={teamSummary?.totalMembers || 0}
-                      onDateChange={handleDateChange}
-                    />
+                    <FeedHeader selectedDate={selectedDate} onDateChange={handleDateChange} />
                   </div>
+                </div>
+              )}
+
+              {/* 체크인 유도 버튼 - 체크인이 없을 때만 표시 */}
+              {!existsMyCheckin && !existsCheckinQuery.isLoading && (
+                <div className="border-b border-[rgba(29,29,31,0.08)] bg-white px-5 py-5 md:px-[30px] md:py-[20px]">
+                  <button
+                    onClick={() => router.push(`/${spaceSlug}/posts/checkins/new`)}
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[rgba(151,71,255,0.5)] bg-white transition-all hover:bg-[rgba(151,71,255,0.05)]"
+                  >
+                    <RiPokerClubsFill className="h-5 w-5 text-[#9747FF]" />
+                    <span className="text-center text-[15px] font-medium leading-[120%] text-[#1D1D1F]">
+                      {teamSummary?.nextCheckinOrder && teamSummary.nextCheckinOrder > 0 ? (
+                        <>
+                          오늘{' '}
+                          <span className="text-[#9747FF]">
+                            {convertToKoreanOrder(teamSummary.nextCheckinOrder)}번째로
+                          </span>{' '}
+                          체크인을 남겨보세요
+                        </>
+                      ) : (
+                        '오늘 체크인을 남겨보세요'
+                      )}
+                    </span>
+                  </button>
                 </div>
               )}
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
               <div
                 ref={scrollContainerRef}
-                className={`scrollbar-hide overflow-y-auto pb-20 md:pb-0 ${
+                className={`scrollbar-hide flex-1 overflow-y-auto pb-20 md:pb-0 ${
                   !isLoading && posts.length > 0
-                    ? 'rounded-b-xl shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)] md:rounded-b-2xl'
-                    : ''
+                    ? 'shadow-[4px_4px_20px_0px_rgba(160,160,160,0.04),-4px_-4px_20px_0px_rgba(160,160,160,0.04)]'
+                    : 'bg-white'
                 }`}
               >
                 {isLoading ? (
                   <FeedListSkeleton count={6} />
+                ) : posts.length === 0 ? (
+                  <div className="flex min-h-full flex-col items-center bg-white px-5 pt-40">
+                    <Image
+                      src="/made-with-blunge 2.svg"
+                      alt="Empty feed illustration"
+                      width={200}
+                      height={201}
+                      priority
+                    />
+                    <p className="mt-10 text-center text-[15px] font-normal leading-[150%] text-[#181818] opacity-50">
+                      체크인하고 피드에서 팀 소식을 확인하세요!
+                    </p>
+                  </div>
                 ) : (
                   <>
                     {posts.map(post => (
@@ -495,7 +471,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
         {/* 오른쪽 요약 카드 - 데스크톱에서만 표시 */}
         <div
-          className={`fixed left-[calc(50%+320px+24px)] top-[90px] hidden transition-all duration-300 xl:block ${
+          className={`fixed left-[calc(50%+320px+24px)] top-[78px] hidden transition-all duration-300 xl:block ${
             selectedPost && isPostDetailVisible ? 'pointer-events-none opacity-0' : 'opacity-100'
           }`}
         >

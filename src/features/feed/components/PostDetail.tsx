@@ -39,6 +39,7 @@ export function PostDetail({
   const scrollableAreaRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const commentsParam = searchParams.get('comments');
+  const actionParam = searchParams.get('action') as 'scroll' | 'focus' | null;
   const { mutate: createComment, isPending: isCreatingComment } = useCreateComment();
   const { mutate: updateComment, isPending: isUpdatingComment } = useUpdateComment();
   const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteComment();
@@ -69,8 +70,32 @@ export function PostDetail({
   }, [post.commentCount]);
 
   useEffect(() => {
-    if (commentsParam) {
-      // textarea 활성화만 수행
+    if (commentsParam && actionParam) {
+      setTimeout(() => {
+        if (actionParam === 'scroll') {
+          // 최신 댓글 클릭 - 댓글 섹션 제일 아래로 스크롤
+          if (scrollableAreaRef.current) {
+            scrollableAreaRef.current.scrollTo({
+              top: scrollableAreaRef.current.scrollHeight,
+              behavior: 'instant',
+            });
+          }
+        } else if (actionParam === 'focus') {
+          // "남겨보세요" 클릭 - 댓글 입력창으로 스크롤 및 포커스
+          if (scrollableAreaRef.current) {
+            scrollableAreaRef.current.scrollTo({
+              top: scrollableAreaRef.current.scrollHeight,
+              behavior: 'instant',
+            });
+          }
+          const textarea = commentInputRef.current?.querySelector('textarea');
+          if (textarea) {
+            textarea.focus();
+          }
+        }
+      }, 100); // PostDetail 렌더링 완료 후 실행
+    } else if (commentsParam) {
+      // 기존 동작 - textarea 활성화만 수행
       setTimeout(() => {
         const commentInput = commentInputRef.current;
         const textarea = commentInput?.querySelector('textarea');
@@ -79,7 +104,7 @@ export function PostDetail({
         }
       }, 100); // PostDetail 렌더링 완료 후 실행
     }
-  }, [commentsParam]);
+  }, [commentsParam, actionParam]);
 
   // ESC 키 눌렀을 때 닫기
   useEffect(() => {

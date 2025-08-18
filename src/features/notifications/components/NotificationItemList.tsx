@@ -12,7 +12,7 @@ import {
   SpaceInfoUpdateItem,
   SpaceNoticeItem,
 } from './items';
-import { EmptyState, NotificationSkeleton } from './ui';
+import { NotificationSkeleton } from './ui';
 
 interface NotificationItemListProps {
   spaceSlug: string;
@@ -32,7 +32,7 @@ const NotificationItemList = memo(function NotificationItemList({
   isLoading = false,
   isError = false,
   onMarkAsRead,
-  isMarkingAsRead,
+  isMarkingAsRead: _isMarkingAsRead,
   onLoadMore,
   hasMore = false,
   isFetchingNextPage = false,
@@ -316,9 +316,9 @@ const NotificationItemList = memo(function NotificationItemList({
     );
   }
 
-  // 빈 상태
+  // 빈 상태 - NotificationPage에서 처리하므로 여기서는 null 반환
   if (!notifications || notifications.length === 0) {
-    return <EmptyState category="all" isFiltered={false} />;
+    return null;
   }
 
   return (

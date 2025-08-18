@@ -12,6 +12,7 @@ import type {
   DeleteSpaceParams,
   DeleteSpaceResponse,
   GetSpaceParams,
+  GetSpaceMembersParams,
   Space,
   UpdateSpaceRequest,
   UpdateSpaceResponse,
@@ -258,5 +259,24 @@ export const useDeleteSpace = () => {
         });
       }
     },
+  });
+};
+
+/**
+ * 스페이스 멤버 목록을 가져오는 React Query 훅
+ * @param params 조회 파라미터
+ * @returns React Query 결과
+ */
+export const useSpaceMembers = (params: GetSpaceMembersParams & { enabled?: boolean }) => {
+  const { spaceSlug, limit = 20, cursor, enabled = true } = params;
+
+  return useQuery({
+    queryKey: spacesKeys.membersList(spaceSlug),
+    queryFn: () => spacesApi.getSpaceMembers({ spaceSlug, limit, cursor }),
+    enabled: !!spaceSlug && enabled,
+    staleTime: 1000 * 60 * 2, // 2분
+    gcTime: 1000 * 60 * 10, // 10분
+    refetchOnWindowFocus: false,
+    retry: authRetry,
   });
 };

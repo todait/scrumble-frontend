@@ -2,7 +2,7 @@
 
 import { Checkbox } from '@/shared/components/ui';
 import { useAuth } from '@/shared/contexts';
-import { useSpace } from '@/shared/hooks/queries/useSpaces';
+import { useSpaceMembers } from '@/shared/hooks/queries/useSpaces';
 import { RiAddLine, RiSearchLine } from '@remixicon/react';
 import { useMemo, useState } from 'react';
 import { MemberTableRow } from '../components/tables/MemberTableRow';
@@ -10,7 +10,7 @@ import { MemberTableRow } from '../components/tables/MemberTableRow';
 interface TableMember {
   id: string;
   name: string;
-  email?: string;
+  email: string;
   role: string;
   lastSeen?: string;
   joinedAt?: string;
@@ -34,28 +34,29 @@ function formatJoined(date?: string) {
   return date.substring(0, 10);
 }
 
-// 현재 스페이스의 실제 멤버 목록을 사용
-
 export default function MemberSettingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { currentSpaceSlug } = useAuth();
-  const { data: spaceData } = useSpace({
+
+  // 스페이스 멤버 목록 가져오기
+  const { data: membersData } = useSpaceMembers({
     spaceSlug: currentSpaceSlug ?? '',
     enabled: !!currentSpaceSlug,
+    limit: 100, // 일단 100명까지 가져오기
   });
 
   const tableMembers: TableMember[] = useMemo(() => {
-    // TODO: members 목록을 가져오는 별도 API 필요
-    // 현재 Space 타입에는 memberCount만 있고 members 배열이 없음
-    const membersFromSpace: import('@/shared/types/space').SpaceMember[] = [];
-    return membersFromSpace.map(m => ({
+    if (!membersData?.members) return [];
+    
+    return membersData.members.map(m => ({
       id: m.id,
       name: m.name,
+      email: m.email,
       role: m.role,
       avatarURL: m.avatarURL,
       joinedAt: m.joinedAt,
     }));
-  }, []);
+  }, [membersData]);
 
   // debug removed
 
@@ -63,7 +64,7 @@ export default function MemberSettingsPage() {
     const q = searchQuery.toLowerCase();
     return (
       member.name.toLowerCase().includes(q) ||
-      (member.email ? member.email.toLowerCase().includes(q) : false)
+      member.email.toLowerCase().includes(q)
     );
   });
 

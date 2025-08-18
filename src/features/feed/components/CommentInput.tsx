@@ -106,6 +106,7 @@ export function CommentInput({
           <textarea
             {...textareaProps}
             ref={textareaRef}
+            data-comment-input
             value={content}
             onChange={e => setContent(e.target.value)}
             onFocus={() => setIsFocused(true)}

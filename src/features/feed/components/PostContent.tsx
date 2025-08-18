@@ -5,12 +5,12 @@ import { CheckOutEditModal } from '@/features/checkout/components';
 import { CollapseSection, TodoContainer, TodoContainerRef } from '@/features/todo';
 import { EmojiReactions } from '@/shared/components/emoji';
 import {
+  ConditionScoreBadge,
   DeleteConfirmDialog,
   EditDeleteMenu,
   ImageGallery,
   ImageViewer,
   ProfileImage,
-  StatusBadge,
 } from '@/shared/components/ui';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import {
@@ -19,16 +19,17 @@ import {
   useExistsCheckin,
   useSaveTodos,
 } from '@/shared/hooks/queries';
-import { useToast } from '@/shared/hooks/useToast';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
-import { formatDateToAPIString, formatTime, getConditionLabel } from '@/shared/utils';
+import { useToast } from '@/shared/hooks/useToast';
+import { formatDateToAPIString, formatTime } from '@/shared/utils';
+import { RiArrowRightSLine, RiChat1Line } from '@remixicon/react';
 import router from 'next/router';
 import { useRef, useState } from 'react';
 import { usePostTodos } from '../hooks/usePostTodos';
 import { usePostTodoStore } from '../stores/usePostTodoStore';
 import type { Post } from '../types/feed.types';
 import { getPostContent } from '../types/feed.types';
-import { CommentPreview } from './CommentPreview';
+import { PostCommentSection } from './PostCommentSection';
 
 interface PostContentProps {
   spaceSlug: string;
@@ -36,7 +37,7 @@ interface PostContentProps {
   isSelected?: boolean;
   isDetailView?: boolean;
   onReaction?: (postId: string, emoji: string) => void; // 옵셔널 - 컴포넌트에서 직접 처리하거나 상위에서 처리 가능
-  onCommentClick?: (postId: string) => void;
+  onCommentClick?: (postId: string, action?: 'scroll' | 'focus') => void;
 }
 
 export function PostContent({
@@ -159,10 +160,9 @@ export function PostContent({
       actionText: '보기',
       onAction: () => {
         // 보기 액션 처리
-      }
+      },
     });
   };
-
 
   const handleReactionToggle = (emoji: string) => {
     if (onReaction) {
@@ -249,9 +249,7 @@ export function PostContent({
 
   const profileImageSize = isDetailView ? 48 : 40;
   const nameTextSize = isDetailView ? 'text-lg md:text-[17px]' : 'text-base md:text-[15px]';
-  const contentTextSize = isDetailView
-    ? 'text-base leading-[1.5] md:text-[16px] md:leading-[1.5]'
-    : 'text-base leading-[1.4] md:text-[15px] md:leading-[1.4]';
+  const contentTextSize = 'text-[15px] leading-[160%]';
   const padding = isDetailView ? 'p-4 md:p-6' : 'p-5 md:p-[30px]';
 
   return (
@@ -272,7 +270,7 @@ export function PostContent({
         </div>
 
         {/* 콘텐츠 영역 */}
-        <div className="min-w-0 flex-1 space-y-[10px] overflow-hidden">
+        <div className="min-w-0 flex-1 overflow-hidden">
           {/* 헤더 */}
           <div className="flex items-start justify-between gap-2">
             <div
@@ -281,15 +279,18 @@ export function PostContent({
             >
               {/* 이름 - 프로필 이미지 상단에서 0.5px 아래 */}
               <div
-                className={`font-bold text-[#222222] ${nameTextSize} leading-none`}
+                className={`flex items-center font-bold text-[#222222] ${nameTextSize} leading-none`}
                 style={{ transform: 'translateY(2px)' }}
               >
-                {post.author.name}
+                <span>{post.author.name}</span>
+                <RiArrowRightSLine className="h-4 w-4 text-[#9999A2]" />
+                <span className="font-bold" style={{ color: '#6E6E73', lineHeight: '120%' }}>
+                  {isCheckIn ? '체크인' : '체크아웃'}
+                </span>
               </div>
 
-              {/* 타입과 시간 - 프로필 이미지 하단에서 0.5px 위 */}
-              <div className="flex items-center gap-1" style={{ transform: 'translateY(-1px)' }}>
-                <StatusBadge type={isCheckIn ? 'checkin' : 'checkout'} />
+              {/* 시간 - 프로필 이미지 하단에서 0.5px 위 */}
+              <div className="flex items-center" style={{ transform: 'translateY(-2px)' }}>
                 <span className="text-sm leading-none text-[#222222] opacity-40 md:text-[13px]">
                   {formatTime(post.createdAt)}
                   {post.updatedAt &&
@@ -303,12 +304,7 @@ export function PostContent({
             {/* 체크인 점수 + 더보기 메뉴 */}
             {isCheckIn && 'conditionScore' in post ? (
               <div className="flex flex-shrink-0 items-center gap-2">
-                <div className="rounded border border-[rgba(34,34,34,0.08)] px-2 py-2">
-                  <span className="text-base text-[#222222] opacity-80 md:text-[15px]">
-                    {post.conditionEmoji || getConditionLabel(post.conditionScore)}{' '}
-                    {post.conditionScore}점
-                  </span>
-                </div>
+                <ConditionScoreBadge score={post.conditionScore} emoji={post.conditionEmoji} />
                 {/* 내 포스트일 때 수정/삭제 메뉴 (카드 뷰에서만) */}
                 {isMyPost && !isDetailView && (
                   <EditDeleteMenu onEdit={handleEdit} onDelete={handleDelete} />
@@ -325,53 +321,8 @@ export function PostContent({
             )}
           </div>
 
-          {/* 본문 */}
-          <div className="py-2">
-            {showFullContent ? (
-              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>{content}</p>
-            ) : (
-              <p className={`whitespace-pre-wrap text-[#222222] ${contentTextSize}`}>
-                {content.length > 200 ? (
-                  <>
-                    {contentPreview.replace(/\.\.\.$/, '')}
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowFullContent(true);
-                      }}
-                      className="ml-1 text-base font-medium text-[#A0A0A0] hover:text-[#808080] md:text-[15px]"
-                    >
-                      ...더보기
-                    </button>
-                  </>
-                ) : (
-                  content
-                )}
-              </p>
-            )}
-          </div>
-
-          {/* 이미지 섹션 */}
-          {post.images && post.images.length > 0 && (
-            <ImageGallery
-              images={post.images}
-              className="mt-2"
-              onClick={(index, event) => {
-                // 이벤트 전파를 막고 이미지 뷰어 열기
-                event.stopPropagation();
-                event.preventDefault();
-                setSelectedImageIndex(index);
-                // setTimeout을 사용하여 다음 이벤트 루프에서 실행
-                setTimeout(() => {
-                  setImageViewerOpen(true);
-                }, 0);
-              }}
-            />
-          )}
-
-          {/* Todo 리스트 섹션 */}
-          {(post.todoCount !== undefined || todos) &&
+          {/* 체크아웃일 때 Todo 리스트를 먼저 렌더링 */}
+          {isCheckOut && (post.todoCount !== undefined || todos) &&
             (() => {
               const hasTodos = todos && todos.length > 0;
               const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : 0;
@@ -406,7 +357,7 @@ export function PostContent({
                   title=""
                   isCollapsed={isTodoCollapsed}
                   onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
-                  className="mt-3"
+                  className="mt-[18px]"
                   headerContent={headerContent}
                 >
                   {isTodosLoading ? (
@@ -436,9 +387,169 @@ export function PostContent({
               );
             })()}
 
-          {/* 투두 편집 모드 저장/취소 버튼 */}
-          {isTodoEditMode && isMyPost && (
-            <div className="mt-3 space-y-2">
+          {/* 체크아웃일 때 투두 편집 모드 저장/취소 버튼 */}
+          {isCheckOut && isTodoEditMode && isMyPost && (
+            <div className="mt-[10px] space-y-2">
+              {/* 저장 버튼 */}
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  handleSaveTodos();
+                }}
+                disabled={isSaving}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    저장 중...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                    투두 저장
+                  </>
+                )}
+              </button>
+
+              {/* 취소 버튼 */}
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  handleCancelEdit();
+                }}
+                disabled={isSaving}
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                취소
+              </button>
+            </div>
+          )}
+
+          {/* 본문 */}
+          <div className="mt-[10px] py-2">
+            {showFullContent ? (
+              <p
+                className={`whitespace-pre-wrap ${contentTextSize}`}
+                style={{ color: '#1D1D1F', fontWeight: 400 }}
+              >
+                {content}
+              </p>
+            ) : (
+              <p
+                className={`whitespace-pre-wrap ${contentTextSize}`}
+                style={{ color: '#1D1D1F', fontWeight: 400 }}
+              >
+                {content.length > 200 ? (
+                  <>
+                    {contentPreview.replace(/\.\.\.$/, '')}
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowFullContent(true);
+                      }}
+                      className="ml-1 text-[15px] font-medium text-[#A0A0A0] hover:text-[#808080]"
+                    >
+                      ...더보기
+                    </button>
+                  </>
+                ) : (
+                  content
+                )}
+              </p>
+            )}
+          </div>
+
+          {/* 이미지 섹션 */}
+          {post.images && post.images.length > 0 && (
+            <ImageGallery
+              images={post.images}
+              className="mt-[10px]"
+              onClick={(index, event) => {
+                // 이벤트 전파를 막고 이미지 뷰어 열기
+                event.stopPropagation();
+                event.preventDefault();
+                setSelectedImageIndex(index);
+                // setTimeout을 사용하여 다음 이벤트 루프에서 실행
+                setTimeout(() => {
+                  setImageViewerOpen(true);
+                }, 0);
+              }}
+            />
+          )}
+
+          {/* 체크인일 때 Todo 리스트 섹션 (본문 뒤에) */}
+          {isCheckIn && (post.todoCount !== undefined || todos) &&
+            (() => {
+              const hasTodos = todos && todos.length > 0;
+              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : 0;
+              const totalCount = hasTodos ? todos.length : post.todoCount || 0;
+              const completionRate =
+                hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+              // 헤더 컨텐츠 결정
+              let headerContent;
+              if (!todos || isTodosLoading || todos.length === 0) {
+                // Todo 로드 전, 로딩 중, 또는 빈 배열
+                headerContent = (
+                  <div className="text-xs font-bold">
+                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
+                    <span className="text-[#222222]">{post.todoCount || 0}개</span>
+                  </div>
+                );
+              } else {
+                // Todo 로드 완료 및 실제 항목 존재
+                headerContent = (
+                  <div className="text-xs font-bold">
+                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
+                    <span className="text-[#222222]">
+                      {completionRate}% 달성 ({completedCount}/{totalCount})
+                    </span>
+                  </div>
+                );
+              }
+
+              return (
+                <CollapseSection
+                  title=""
+                  isCollapsed={isTodoCollapsed}
+                  onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
+                  className="mt-[10px]"
+                  headerContent={headerContent}
+                >
+                  {isTodosLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div
+                        data-testid="todo-loading-spinner"
+                        className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-600"
+                      />
+                    </div>
+                  ) : (
+                    <div data-testid="todo-section">
+                      <TodoContainer
+                        ref={todoContainerRef}
+                        mode="postContent"
+                        yesterdayTodos={[]}
+                        todayTodos={todos || []}
+                        isEditable={isMyPost}
+                        onUpdateTodayTodos={handleUpdateTodos}
+                        onToggleComplete={todoId => handleToggleComplete(todoId)}
+                        forceEditMode={isTodoEditMode} // zustand store의 편집 모드 상태 사용
+                        showEditButton={isMyPost}
+                        onToggleEditMode={handleToggleTodoEditMode}
+                      />
+                    </div>
+                  )}
+                </CollapseSection>
+              );
+            })()}
+
+          {/* 체크인일 때 투두 편집 모드 저장/취소 버튼 */}
+          {isCheckIn && isTodoEditMode && isMyPost && (
+            <div className="mt-[10px] space-y-2">
               {/* 저장 버튼 */}
               <button
                 onClick={e => {
@@ -478,7 +589,21 @@ export function PostContent({
           )}
 
           {/* 리액션 및 댓글 섹션 */}
-          <div className="flex flex-col gap-[10px] py-2">
+          <div className="mt-[10px] flex items-center gap-5 py-2">
+            {/* 댓글 개수 표시 */}
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                onCommentClick?.(post.id);
+              }}
+              className="flex items-center gap-1"
+              style={{ color: '#1D1D1F', opacity: 0.8 }}
+            >
+              <RiChat1Line className="h-5 w-5" />
+              <span className="text-[15px] font-medium">{post.commentCount || 0}</span>
+            </button>
+
             {/* 이모지 리액션 */}
             <EmojiReactions
               reactions={post.reactions}
@@ -489,18 +614,19 @@ export function PostContent({
               onReactionAdd={handleReactionAdd}
               onError={handleReactionError}
             />
-
-            {/* 댓글 정보 (카드 뷰에서만) */}
-            {!isDetailView && (
-              <CommentPreview
-                postId={post.id}
-                comments={post.comments}
-                commentCount={post.commentCount}
-                lastCommentTime={post.lastCommentTime}
-                onCommentClick={onCommentClick}
-              />
-            )}
           </div>
+
+          {/* 댓글 섹션 (카드 뷰에서만) */}
+          {!isDetailView && (
+            <PostCommentSection
+              postAuthorName={post.author.name}
+              comments={post.comments}
+              onCommentClick={(action) => {
+                onCommentClick?.(post.id, action);
+              }}
+              postType={post.type}
+            />
+          )}
         </div>
       </div>
 
@@ -531,7 +657,6 @@ export function PostContent({
           onSubmit={handleEditSubmit}
         />
       )}
-
 
       {/* 이미지 뷰어 */}
       {imageUrls && imageUrls.length > 0 && (

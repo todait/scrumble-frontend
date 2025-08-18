@@ -97,7 +97,7 @@ export const CommentSection = forwardRef<HTMLDivElement, CommentSectionProps>(
     }
 
     return (
-      <div ref={ref} className={`px-4 pb-6 md:px-[30px] md:pb-[30px] ${className}`}>
+      <div ref={ref} id="comments-section" className={`px-4 pb-6 md:px-[30px] md:pb-[30px] ${className}`}>
         <CommentDivider count={commentCount} />
         <div className="space-y-4">
           {commentItems}
@@ -362,7 +362,7 @@ function CommentItem({
       <div
         id={`comment-${comment.id}`}
         ref={editingContainerRef}
-        className={`group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
+        className={`comment-item group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
           showHighlight ? '-mx-3 rounded-lg bg-purple-50 p-3' : ''
         }`}
       >
@@ -478,7 +478,7 @@ function CommentItem({
     <>
       <div
         id={`comment-${comment.id}`}
-        className={`group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
+        className={`comment-item group relative flex gap-3 overflow-visible transition-all duration-500 ${className} ${
           showHighlight ? '-mx-3 rounded-lg bg-purple-50 p-3' : ''
         }`}
       >
