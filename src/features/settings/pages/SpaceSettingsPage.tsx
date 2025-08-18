@@ -279,7 +279,7 @@ export default function SpaceSettingsPage() {
                   {currentSpace?.name || localSpaceName}
                 </h2>
                 <p className="mt-1 text-[15px] font-medium text-[#6E6E73]">
-                  2025년 7월 16일 개설 • {currentSpace?.members?.length || 39}명
+                  2025년 7월 16일 개설 • {currentSpace?.memberCount || 39}명
                 </p>
                 <p className="text-[15px] font-medium text-[#6E6E73]">워크데이 : 월-금</p>
               </div>

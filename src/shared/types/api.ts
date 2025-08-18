@@ -509,7 +509,7 @@ export interface ApiSpace {
   slug: string; // 유니크한 스페이스 식별자
   name: string; // 스페이스 이름
   icon_url?: string; // 아이콘 URL (선택)
-  members: ApiSpaceMember[]; // 멤버 목록
+  memberCount: number; // 멤버 수
   created_at: string; // ISO 8601 형식
   updated_at: string; // ISO 8601 형식
 }

@@ -4,7 +4,7 @@
  */
 
 import type {
-  ApiSpaceMember,
+  ApiSpace,
   CreateSpaceApiRequest,
   CreateSpaceApiResponse,
   DeleteSpaceApiResponse,
@@ -22,7 +22,6 @@ import type {
   GetSpaceParams,
   GetSpaceResponse,
   Space,
-  SpaceMember,
   UpdateSpaceRequest,
   UpdateSpaceResponse,
 } from '@/shared/types/space';
@@ -32,43 +31,43 @@ import { apiClient } from '../api';
  * 백엔드 API 멤버 응답을 프론트엔드 타입으로 변환하는 함수
  * snake_case에서 camelCase로 변환
  */
-const convertApiMemberToMember = (apiMember: ApiSpaceMember): SpaceMember => {
-  // 백엔드 응답의 필드 표기(snake_case)와 일부 엔드포인트의 camelCase를 모두 허용
-  const anyMember = apiMember as unknown as {
-    id: string;
-    spaceId?: string;
-    space_id?: string;
-    name: string;
-    avatar_url?: string;
-    avatarURL?: string;
-    role: string;
-    joined_at?: string;
-    joinedAt?: string;
-  };
+// const convertApiMemberToMember = (apiMember: ApiSpaceMember): SpaceMember => {
+//   // 백엔드 응답의 필드 표기(snake_case)와 일부 엔드포인트의 camelCase를 모두 허용
+//   const anyMember = apiMember as unknown as {
+//     id: string;
+//     spaceId?: string;
+//     space_id?: string;
+//     name: string;
+//     avatar_url?: string;
+//     avatarURL?: string;
+//     role: string;
+//     joined_at?: string;
+//     joinedAt?: string;
+//   };
 
-  return {
-    id: anyMember.id,
-    spaceId: anyMember.space_id ?? anyMember.spaceId ?? '',
-    name: anyMember.name,
-    avatarURL: anyMember.avatar_url ?? anyMember.avatarURL,
-    role: anyMember.role as SpaceMember['role'],
-    joinedAt: anyMember.joined_at ?? anyMember.joinedAt ?? '',
-  };
-};
+//   return {
+//     id: anyMember.id,
+//     spaceId: anyMember.space_id ?? anyMember.spaceId ?? '',
+//     name: anyMember.name,
+//     avatarURL: anyMember.avatar_url ?? anyMember.avatarURL,
+//     role: anyMember.role as SpaceMember['role'],
+//     joinedAt: anyMember.joined_at ?? anyMember.joinedAt ?? '',
+//   };
+// };
 
 /**
  * 백엔드 API 스페이스 응답을 프론트엔드 타입으로 변환하는 함수
  * snake_case에서 camelCase로 변환
  */
-const convertApiSpaceToSpace = (apiSpace: any): Space => {
+const convertApiSpaceToSpace = (apiSpace: ApiSpace): Space => {
   return {
     id: apiSpace.id,
     slug: apiSpace.slug,
     name: apiSpace.name,
-    iconURL: apiSpace.iconURL || apiSpace.icon_url,
-    members: apiSpace.members.map(convertApiMemberToMember),
-    createdAt: apiSpace.createdAt || apiSpace.created_at,
-    updatedAt: apiSpace.updatedAt || apiSpace.updated_at,
+    iconURL: apiSpace.icon_url,
+    memberCount: apiSpace.memberCount,
+    createdAt: apiSpace.created_at,
+    updatedAt: apiSpace.updated_at,
   };
 };
 

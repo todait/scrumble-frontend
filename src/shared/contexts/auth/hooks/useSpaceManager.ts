@@ -81,14 +81,7 @@ export function useSpaceManager({ user }: UseSpaceManagerOptions) {
           slug: space.slug,
           name: space.name,
           iconURL: space.iconURL,
-          members: space.members.map(member => ({
-            id: member.id,
-            spaceId: member.spaceId,
-            spaceSlug: space.slug,
-            role: member.role,
-            name: member.name,
-            avatarURL: member.avatarURL,
-          })),
+          memberCount: space.memberCount,
         };
         setCurrentSpace(spaceInfo);
         SpaceMemberTokenManager.setCurrentSpace(spaceInfo);

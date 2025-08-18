@@ -21,6 +21,7 @@ export class CentrifugoService {
   private connectionState: ConnectionState = 'disconnected';
   private eventHandlers = new Map<WebSocketEventType, WebSocketEventHandler[]>();
   private subscriptions = new Map<string, Subscription>();
+  private savedSubscriptions = new Set<string>(); // 구독 채널 목록 영속화
   private spaceSlug: string | null = null;
   private spaceMemberId: string | null = null;
   private wsUrl: string;
@@ -30,6 +31,22 @@ export class CentrifugoService {
     // 환경 변수에서 Centrifugo URL 가져오기
     this.wsUrl =
       process.env.NEXT_PUBLIC_CENTRIFUGO_URL || 'ws://localhost:8000/connection/websocket';
+    
+    // 페이지 재활성화 이벤트 리스너 등록
+    if (typeof window !== 'undefined') {
+      window.addEventListener('page-reactivated', (event: CustomEvent) => {
+        debug('Centrifugo', 'Page reactivated event received', {
+          connectionState: this.connectionState,
+          timeSinceLastActive: event.detail.timeSinceLastActive,
+        });
+        
+        // 연결이 끊어져 있으면 재연결 시도
+        if (this.connectionState === 'disconnected' && this.centrifuge) {
+          debug('Centrifugo', 'Attempting to reconnect after page reactivation');
+          this.centrifuge.connect();
+        }
+      });
+    }
   }
 
   /**
@@ -108,6 +125,30 @@ export class CentrifugoService {
             spaceMemberId: this.spaceMemberId || '',
           });
 
+          // 저장된 구독이 있다면 복원
+          if (this.savedSubscriptions.size > 0) {
+            debug('Centrifugo', 'Restoring saved subscriptions', {
+              count: this.savedSubscriptions.size,
+              channels: Array.from(this.savedSubscriptions),
+            });
+            
+            // 짧은 지연 후 구독 복원 (연결 안정화 대기)
+            setTimeout(() => {
+              this.savedSubscriptions.forEach(channel => {
+                // 현재 스페이스와 일치하는 채널만 복원
+                if (channel.includes(`:${this.spaceSlug}:`)) {
+                  debug('Centrifugo', 'Restoring subscription to', channel);
+                  this.subscribe(channel);
+                }
+              });
+              
+              // 복원 완료 후 저장 목록 클리어
+              debug('Centrifugo', 'Subscription restoration complete', {
+                restoredCount: this.subscriptions.size,
+              });
+            }, 100);
+          }
+
           resolve();
         });
 
@@ -158,6 +199,15 @@ export class CentrifugoService {
    */
   disconnect(): void {
     if (this.centrifuge) {
+      // 구독 목록 저장 (재연결 시 복원용)
+      if (this.subscriptions.size > 0) {
+        this.savedSubscriptions = new Set(this.subscriptions.keys());
+        debug('Centrifugo', 'Saving subscriptions before disconnect', {
+          count: this.savedSubscriptions.size,
+          channels: Array.from(this.savedSubscriptions),
+        });
+      }
+      
       // 모든 구독 해제
       this.subscriptions.forEach(subscription => {
         subscription.unsubscribe();
@@ -168,7 +218,8 @@ export class CentrifugoService {
       this.centrifuge = null;
     }
     this.connectionState = 'disconnected';
-    this.eventHandlers.clear();
+    // 이벤트 핸들러는 유지 (컴포넌트에서 관리)
+    // this.eventHandlers.clear(); // 제거 - 재연결 시 핸들러 유지
     this.centrifugoToken = null;
   }
 

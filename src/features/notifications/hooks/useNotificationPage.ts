@@ -338,6 +338,7 @@ export const useNotificationPage = ({
     debug('[useNotificationPage]', 'Event listener effect triggered', {
       hasWebSocketActions: !!webSocketActions,
       hasEventHandlersRef: !!eventHandlersRef.current,
+      connected: webSocketActions?.connected,
       memberId,
       currentSpaceSlug,
       spaceSlug,
@@ -354,7 +355,9 @@ export const useNotificationPage = ({
 
     const handlers = eventHandlersRef.current;
 
-    debug('[useNotificationPage]', 'Registering notification event listeners');
+    debug('[useNotificationPage]', 'Registering notification event listeners', {
+      connected: webSocketActions.connected,
+    });
 
     // 타입 안전한 이벤트 리스너 등록
     webSocketActions.addEventListener('notification.created', handlers.notificationCreated);
@@ -368,7 +371,7 @@ export const useNotificationPage = ({
       webSocketActions.removeEventListener('notification.created', handlers.notificationCreated);
       webSocketActions.removeEventListener('notification.read', handlers.notificationRead);
     };
-  }, [webSocketActions, memberId]);
+  }, [webSocketActions, memberId, webSocketActions?.connected]); // 연결 상태도 의존성에 추가
 
   return {
     // 데이터

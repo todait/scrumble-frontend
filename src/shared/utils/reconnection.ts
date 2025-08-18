@@ -69,12 +69,26 @@ class ReconnectionManagerImpl implements ReconnectionManager {
       if (document.hidden) {
         // 페이지가 숨겨질 때 마지막 활성 시간 업데이트
         this.updateLastActiveTime();
+        debug('ReconnectionManager', '페이지 비활성화 - 타임스탬프 저장');
       } else {
-        // 페이지가 다시 보일 때 동기화 필요 여부 확인
+        // 페이지가 다시 보일 때
+        const timeSinceLastActive = this.getTimeSinceLastActive();
+        debug('ReconnectionManager', '페이지 재활성화', {
+          비활성시간: `${Math.round(timeSinceLastActive / 1000)}초`,
+        });
+        
+        // WebSocket 재연결 이벤트 발생 (항상)
+        // CentrifugoService가 자체적으로 재연결하도록 시그널 전송
+        window.dispatchEvent(new CustomEvent('page-reactivated', {
+          detail: { timeSinceLastActive }
+        }));
+        
+        // 데이터 동기화 필요 여부 확인
         if (this.shouldRefetchData()) {
-          debug('ReconnectionManager', '페이지 재활성화 - 데이터 동기화 필요');
+          debug('ReconnectionManager', '데이터 동기화 필요');
           this.executeReconnectionCallbacks();
         }
+        
         // 현재 시간으로 업데이트
         this.updateLastActiveTime();
       }
