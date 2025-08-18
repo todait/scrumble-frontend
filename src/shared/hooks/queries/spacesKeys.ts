@@ -25,6 +25,10 @@ export const spacesKeys = {
 
   // 삭제 관련 키
   deletes: () => [...spacesKeys.all, 'delete'] as const,
+
+  // 멤버 관련 키
+  members: () => [...spacesKeys.all, 'members'] as const,
+  membersList: (spaceSlug: string) => [...spacesKeys.members(), spaceSlug] as const,
 };
 
 // 선택적 무효화 헬퍼 함수들

@@ -501,6 +501,27 @@ export interface ApiSpaceMember {
 }
 
 /**
+ * API 스페이스 멤버 DTO (이메일 포함)
+ */
+export interface ApiSpaceMemberDTO {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  avatarURL?: string;
+  role: string;
+  joinedAt: string;
+}
+
+/**
+ * API 스페이스 멤버 커서 (페이지네이션용)
+ */
+export interface ApiSpaceMemberCursor {
+  id: string;
+  joined_at: string;
+}
+
+/**
  * API 스페이스 타입 (백엔드에서 반환하는 snake_case 형태)
  * 재사용성을 위해 별도로 정의
  */
@@ -565,4 +586,13 @@ export interface GetSpaceApiResponse {
  */
 export interface DeleteSpaceApiResponse {
   message: string;
+}
+
+/**
+ * 스페이스 멤버 목록 조회 API 응답 (백엔드)
+ */
+export interface GetSpaceMemberListApiResponse {
+  members: ApiSpaceMemberDTO[];
+  message: string;
+  nextCursor?: ApiSpaceMemberCursor;
 }

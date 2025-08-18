@@ -17,10 +17,20 @@ export type SpaceMemberRole = 'owner' | 'admin' | 'member';
 export interface SpaceMember {
   id: ID; // 멤버십 ID
   spaceId: ID; // 스페이스 ID
+  userId: ID; // 사용자 ID
   name: string; // 사용자 이름
+  email: string; // 이메일 주소
   avatarURL?: string; // 아바타 URL
   role: SpaceMemberRole; // 역할
   joinedAt: DateString; // ISO 8601 형식의 가입일시
+}
+
+/**
+ * 스페이스 멤버 커서 (페이지네이션용)
+ */
+export interface SpaceMemberCursor {
+  id: string;
+  joined_at: string;
 }
 
 /**
@@ -103,6 +113,24 @@ export interface DeleteSpaceParams {
  */
 export interface DeleteSpaceResponse {
   message: string;
+}
+
+/**
+ * 스페이스 멤버 목록 조회 파라미터
+ */
+export interface GetSpaceMembersParams {
+  spaceSlug: string;
+  limit?: number; // 기본값: 20, 최대: 100
+  cursor?: string; // JSON 인코딩된 SpaceMemberCursor
+}
+
+/**
+ * 스페이스 멤버 목록 조회 응답
+ */
+export interface GetSpaceMembersResponse {
+  members: SpaceMember[];
+  message: string;
+  nextCursor?: SpaceMemberCursor;
 }
 
 /**
