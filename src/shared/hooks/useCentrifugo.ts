@@ -73,6 +73,8 @@ export function useCentrifugo({
   const subscriptionTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const lastVisiblePostIdsRef = useRef<Set<string>>(new Set());
   const [wsConnected, setWsConnected] = useState(false);
+  const prevConnectedRef = useRef(false); // 이전 연결 상태 추적
+  const reconnectionRef = useRef(false); // 재연결 여부 추적
 
   // Debug wsConnected state changes
   useEffect(() => {
@@ -133,6 +135,9 @@ export function useCentrifugo({
       // 첫 연결 직후가 아닌 실제 재연결인지 확인하기 위해 약간의 지연
       const timer = setTimeout(() => {
         debug('useCentrifugo', 'Reconnection detected, checking if data sync needed');
+
+        // 재연결 플래그 설정
+        reconnectionRef.current = true;
 
         // 데이터 동기화 필요 여부 확인
         if (reconnectionManager.shouldRefetchData(dataSyncThresholdMs)) {
@@ -211,6 +216,35 @@ export function useCentrifugo({
     centrifugoService.unsubscribeFromNotifications(memberId);
   }, []);
 
+  // 재연결 시 강제 재구독 Effect
+  useEffect(() => {
+    // 연결 상태 변경 감지 (false → true = 재연결)
+    if (!prevConnectedRef.current && wsConnected) {
+      debug('useCentrifugo', '재연결 감지 - 강제 재구독 시작');
+      
+      // 재연결 후 짧은 지연 후 재구독 (연결 안정화 대기)
+      const resubscribeTimer = setTimeout(() => {
+        if (debouncedVisibleIds.length > 0) {
+          debug('useCentrifugo', '재연결 후 재구독 실행', {
+            postIds: debouncedVisibleIds,
+            count: debouncedVisibleIds.length,
+          });
+          
+          // 현재 보이는 포스트들 강제 재구독
+          batchSubscribeToComments(debouncedVisibleIds);
+          batchSubscribeToReactions(debouncedVisibleIds);
+          
+          // lastVisiblePostIdsRef 초기화하여 다음 Effect에서도 재구독 유도
+          lastVisiblePostIdsRef.current = new Set(debouncedVisibleIds);
+        }
+      }, 500); // 500ms 지연
+      
+      return () => clearTimeout(resubscribeTimer);
+    }
+    
+    prevConnectedRef.current = wsConnected;
+  }, [wsConnected, debouncedVisibleIds, batchSubscribeToComments, batchSubscribeToReactions]);
+
   // Viewport 기반 자동 구독 관리 (디바운스 적용) - 통합된 효과
   useEffect(() => {
     debug('useCentrifugo', 'Subscription effect triggered', {
@@ -219,6 +253,7 @@ export function useCentrifugo({
       subscribeToAllComments,
       debouncedVisibleIds,
       visiblePostsCount: debouncedVisibleIds.length,
+      isReconnection: reconnectionRef.current,
     });
 
     // 조건 체크: 연결되지 않았거나 모든 댓글 구독 모드이거나 보이는 포스트가 없으면 스킵
@@ -234,6 +269,11 @@ export function useCentrifugo({
         subscribeToAllComments,
         visiblePostsCount: debouncedVisibleIds.length,
       });
+      
+      // 재연결이었다면 플래그 리셋
+      if (reconnectionRef.current) {
+        reconnectionRef.current = false;
+      }
       return;
     }
 
@@ -477,13 +517,14 @@ export function useCentrifugo({
             );
             centrifugoService.removeEventListener('connection.lost', handleConnectionLost);
 
-            // 사용자 정의 핸들러들 제거
-            eventHandlersRef.current.forEach((handlers, eventType) => {
-              handlers.forEach(handler => {
-                centrifugoService.removeEventListener(eventType, handler);
-              });
-            });
-            eventHandlersRef.current.clear();
+            // 사용자 정의 핸들러들은 컴포넌트에서 관리하므로 여기서는 제거하지 않음
+            // (재연결 시 핸들러가 유지되어야 함)
+            // eventHandlersRef.current.forEach((handlers, eventType) => {
+            //   handlers.forEach(handler => {
+            //     centrifugoService.removeEventListener(eventType, handler);
+            //   });
+            // });
+            // eventHandlersRef.current.clear();
 
             // 연결 해제
             centrifugoService.disconnect();

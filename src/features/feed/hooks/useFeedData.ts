@@ -607,6 +607,11 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
     if (!webSocketActions || !eventHandlersRef.current) return;
 
     const handlers = eventHandlersRef.current;
+    
+    debug('useFeedData', 'Registering WebSocket event handlers', {
+      connected: webSocketActions.connected,
+      handlersExist: !!handlers,
+    });
 
     // 타입 안전한 이벤트 리스너 등록
     webSocketActions.addEventListener('comment.created', handlers.commentCreated);
@@ -617,13 +622,14 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
 
     // cleanup: 컴포넌트 언마운트 시 리스너 제거
     return () => {
+      debug('useFeedData', 'Unregistering WebSocket event handlers');
       webSocketActions.removeEventListener('comment.created', handlers.commentCreated);
       webSocketActions.removeEventListener('comment.updated', handlers.commentUpdated);
       webSocketActions.removeEventListener('comment.deleted', handlers.commentDeleted);
       webSocketActions.removeEventListener('reaction.added', handlers.reactionAdded);
       webSocketActions.removeEventListener('reaction.removed', handlers.reactionRemoved);
     };
-  }, [webSocketActions]);
+  }, [webSocketActions, webSocketActions.connected]); // 연결 상태도 의존성에 추가
 
   return {
     existsCheckinQuery,
