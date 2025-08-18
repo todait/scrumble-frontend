@@ -7,7 +7,7 @@ interface PostCardProps {
   spaceSlug: string;
   post: Post;
   onReaction?: (postId: string, emoji: string) => void;
-  onCommentClick?: (postId: string) => void;
+  onCommentClick?: (postId: string, action?: 'scroll' | 'focus') => void;
   isSelected?: boolean;
 }
 

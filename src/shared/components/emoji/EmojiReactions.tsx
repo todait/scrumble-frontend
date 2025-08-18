@@ -72,10 +72,10 @@ export function EmojiReactions({
             e.stopPropagation();
             handleReactionClick(reaction.emoji);
           }}
-          className={`flex items-center gap-1 rounded-2xl border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
+          className={`flex min-w-12 items-center justify-between rounded-full border px-[10px] py-[6px] text-sm transition-colors md:text-[13px] ${
             reaction.spaceMemberIds.includes(currentSpaceMemberId || '')
-              ? 'border-[#9747FF] bg-[rgba(151,71,255,0.1)] text-[#9747FF]'
-              : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] hover:bg-[rgba(241,241,241,0.8)]'
+              ? 'border-[#1D1D1F] text-[#1D1D1F]'
+              : 'border-transparent bg-[rgba(241,241,241,0.5)] text-[#1D1D1F] hover:bg-[rgba(241,241,241,0.8)]'
           }`}
         >
           <span>{reaction.emoji}</span>

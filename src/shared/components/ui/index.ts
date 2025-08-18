@@ -3,6 +3,7 @@ export * from './AutosaveIndicator';
 export * from './Button';
 export * from './Checkbox';
 export * from './CommentSection';
+export * from './ConditionScoreBadge';
 export * from './DeleteConfirmDialog';
 export * from './DropdownMenu';
 export * from './EditDeleteMenu';

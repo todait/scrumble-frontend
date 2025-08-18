@@ -3,16 +3,10 @@
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useNotificationUnreadCount } from '@/shared/hooks/queries/useNotifications';
 import {
-  RiBarChartFill,
-  RiBarChartLine,
-  RiCalendarFill,
-  RiCalendarLine,
   RiHeart3Fill,
   RiHeart3Line,
   RiHome5Fill,
   RiHome5Line,
-  RiPencilFill,
-  RiPencilLine,
   RiSettings6Fill,
   RiSettings6Line,
 } from '@remixicon/react';
@@ -57,31 +51,14 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
       label: '알림',
     },
     {
-      icon: RiPencilLine,
-      activeIcon: RiPencilFill,
-      href: `/${spaceSlug}/posts/checkins/new`,
-      label: '체크인',
-    },
-    {
-      icon: RiBarChartLine,
-      activeIcon: RiBarChartFill,
-      href: `/${spaceSlug}/reports`,
-      label: '리포트',
-    },
-    {
-      icon: RiCalendarLine,
-      activeIcon: RiCalendarFill,
-      href: `/${spaceSlug}/my-page`,
-      label: '마이페이지',
+      icon: RiSettings6Line,
+      activeIcon: RiSettings6Fill,
+      href: `/${spaceSlug}/settings/space`,
+      label: '설정',
     },
   ];
 
-  const settingsItem: NavItem = {
-    icon: RiSettings6Line,
-    activeIcon: RiSettings6Fill,
-    href: `/${spaceSlug}/settings/space`,
-    label: '설정',
-  };
+  const settingsItem = navItems[2]; // 설정 아이템 참조
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
@@ -94,7 +71,7 @@ export function SidebarNav({ spaceSlug }: SidebarNavProps) {
         {/* 메인 네비게이션 아이템들 - 중앙에 위치 */}
         <div className="flex flex-1 items-center">
           <nav className="flex flex-col gap-[7px]">
-            {navItems.map(item => {
+            {navItems.slice(0, 2).map(item => {
               const Icon = isActive(item.href) ? item.activeIcon : item.icon;
               const active = isActive(item.href);
 

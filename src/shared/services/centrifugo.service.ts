@@ -34,7 +34,7 @@ export class CentrifugoService {
     
     // 페이지 재활성화 이벤트 리스너 등록
     if (typeof window !== 'undefined') {
-      window.addEventListener('page-reactivated', (event: CustomEvent) => {
+      window.addEventListener('page-reactivated', ((event: CustomEvent) => {
         debug('Centrifugo', 'Page reactivated event received', {
           connectionState: this.connectionState,
           timeSinceLastActive: event.detail.timeSinceLastActive,
@@ -45,7 +45,7 @@ export class CentrifugoService {
           debug('Centrifugo', 'Attempting to reconnect after page reactivation');
           this.centrifuge.connect();
         }
-      });
+      }) as EventListener);
     }
   }
 

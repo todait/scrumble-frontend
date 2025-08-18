@@ -1,6 +1,6 @@
 'use client';
 
-import { RiArrowDownSFill, RiFlashlightFill } from '@remixicon/react';
+import { RiArrowDownSFill } from '@remixicon/react';
 import { format, isSameDay } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useEffect, useRef, useState } from 'react';
@@ -9,11 +9,10 @@ import 'react-day-picker/style.css';
 
 interface FeedHeaderProps {
   selectedDate: Date;
-  activeUsers: number;
   onDateChange?: (date: Date) => void;
 }
 
-export function FeedHeader({ selectedDate, activeUsers, onDateChange }: FeedHeaderProps) {
+export function FeedHeader({ selectedDate, onDateChange }: FeedHeaderProps) {
   const formattedDate = format(selectedDate, 'M월 d일 EEEE', { locale: ko });
   const isToday = isSameDay(selectedDate, new Date());
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -114,11 +113,6 @@ export function FeedHeader({ selectedDate, activeUsers, onDateChange }: FeedHead
               />
             </div>
           )}
-        </div>
-
-        <div className="flex items-center gap-0.5 opacity-50">
-          <RiFlashlightFill className="h-3 w-3 text-[#222222]" />
-          <span className="text-xs font-bold text-[#222222]">오늘 {activeUsers}명 활동 중</span>
         </div>
       </div>
     </div>
