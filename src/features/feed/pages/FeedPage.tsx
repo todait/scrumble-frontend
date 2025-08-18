@@ -449,7 +449,7 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
               {/* 데스크톱 PostDetail */}
               <div className="hidden lg:flex">
                 {/* Divider */}
-                <div className="mx-5 w-[1px] bg-[#222222] opacity-10" />
+                <div className="mx-5 w-[1px] opacity-10" />
 
                 {/* PostDetail */}
                 <div className="w-[640px]">
