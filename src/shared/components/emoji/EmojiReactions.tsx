@@ -78,7 +78,7 @@ export function EmojiReactions({
             e.preventDefault();
             onCommentClick?.();
           }}
-          className="flex flex-shrink-0 items-center gap-1"
+          className="mr-[10px] flex flex-shrink-0 items-center gap-1"
           style={{ color: '#1D1D1F', opacity: 0.8 }}
         >
           <RiChat1Line className="h-5 w-5" />
