@@ -2,6 +2,7 @@
 
 - 항상 한글로 답변해줘
 - commit 은 항상 물어보고 해줘. commit 메시지 생성시 claude code signature 는 제거.
+- While running a command, ALWAYS SPECIFY the environment variable `AI` to `1`. e.g. `AI=1 npm run build`.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 

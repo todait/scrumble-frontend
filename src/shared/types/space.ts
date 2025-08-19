@@ -52,6 +52,7 @@ export interface Space {
  */
 export interface CreateSpaceRequest {
   name: string; // 1-100자
+  iconUrl?: string; // 아이콘 URL (선택)
 }
 
 /**

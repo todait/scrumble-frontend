@@ -522,17 +522,17 @@ export interface ApiSpaceMemberCursor {
 }
 
 /**
- * API 스페이스 타입 (백엔드에서 반환하는 snake_case 형태)
+ * API 스페이스 타입 (백엔드에서 반환하는 camelCase 형태)
  * 재사용성을 위해 별도로 정의
  */
 export interface ApiSpace {
   id: string; // UUID
   slug: string; // 유니크한 스페이스 식별자
   name: string; // 스페이스 이름
-  icon_url?: string; // 아이콘 URL (선택)
+  iconURL?: string; // 아이콘 URL (선택)
   memberCount: number; // 멤버 수
-  created_at: string; // ISO 8601 형식
-  updated_at: string; // ISO 8601 형식
+  createdAt: string; // ISO 8601 형식
+  updatedAt: string; // ISO 8601 형식
 }
 
 /**
@@ -540,6 +540,7 @@ export interface ApiSpace {
  */
 export interface CreateSpaceApiRequest {
   name: string; // 1-100자
+  icon_url?: string; // 아이콘 URL (선택)
 }
 
 /**

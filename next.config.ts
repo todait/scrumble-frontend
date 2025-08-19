@@ -42,6 +42,8 @@ const nextConfig: NextConfig = {
     unoptimized: process.env.NODE_ENV === 'production',
   },
 
+  distDir: process.env.AI ? '.next-ai' : undefined,
+
   // 실험적 기능 설정
   experimental: {
     // 폰트 로딩 최적화
