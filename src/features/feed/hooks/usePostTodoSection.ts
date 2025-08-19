@@ -103,8 +103,9 @@ export const usePostTodoSection = ({
     };
   }, [todos, post.completedTodoCount, post.todoCount, post.completionRate]);
   
-  // Todo 섹션 표시 여부
-  const shouldShowTodoSection = post.todoCount !== undefined || todos !== undefined;
+  // Todo 섹션 표시 여부 - Todo가 1개 이상 있을 때만 표시
+  const shouldShowTodoSection = (post.todoCount !== undefined && post.todoCount > 0) || 
+                                 (todos !== undefined && todos.length > 0);
   
   // 편집 모드 토글 핸들러
   const handleToggleTodoEditMode = () => {
