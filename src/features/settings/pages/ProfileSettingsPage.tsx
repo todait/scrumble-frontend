@@ -52,15 +52,30 @@ export function ProfileSettingsPage() {
   }, [localName, localAvatar, uploadedAvatarUrl, profile?.name]);
 
   // 아바타 파일 선택 핸들러
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      
+      // 파일 형식 검증
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('JPG, PNG, WebP, GIF 형식의 이미지만 업로드 가능합니다.');
+        return;
+      }
+
+      // 파일 크기 검증 (10MB 제한)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        alert('이미지 크기는 10MB 이하로 업로드해 주세요.');
+        return;
+      }
+
       setLocalAvatar(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLocalAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const previewUrl = URL.createObjectURL(file);
+      setLocalAvatarPreview(previewUrl);
+
+      // R2에 즉시 업로드
+      await uploadImages([file]);
     }
   };
 
@@ -74,14 +89,7 @@ export function ProfileSettingsPage() {
     }
 
     try {
-      if (localAvatar && !uploadedAvatarUrl) {
-        await uploadImages([localAvatar]);
-        // onUploadComplete 콜백에서 uploadedAvatarUrl이 설정됨
-        // 업로드 완료를 기다리기 위해 짧은 지연 추가
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-
-      // 프로필 업데이트
+      // 프로필 업데이트 - 이미 업로드된 URL 사용
       const result = await updateProfileMutation.mutateAsync({
         name: trimmedName !== profile?.name ? trimmedName : undefined,
         avatarUrl: uploadedAvatarUrl || undefined,
@@ -92,10 +100,9 @@ export function ProfileSettingsPage() {
       setLocalAvatar(null);
 
       // 서버에서 반환된 새 이미지 URL을 localAvatarPreview에 설정
-      if (result?.spaceMember?.avatarURL) {
-        setLocalAvatarPreview(result.spaceMember.avatarURL);
-      } else if (uploadedAvatarUrl) {
-        setLocalAvatarPreview(uploadedAvatarUrl);
+      const newAvatarUrl = result?.spaceMember?.avatarURL || uploadedAvatarUrl;
+      if (newAvatarUrl) {
+        setLocalAvatarPreview(newAvatarUrl);
       }
 
       setUploadedAvatarUrl(null);

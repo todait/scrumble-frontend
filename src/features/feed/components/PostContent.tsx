@@ -589,22 +589,7 @@ export function PostContent({
           )}
 
           {/* 리액션 및 댓글 섹션 */}
-          <div className="mt-[10px] flex items-center gap-5 py-2">
-            {/* 댓글 개수 표시 */}
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                onCommentClick?.(post.id);
-              }}
-              className="flex items-center gap-1"
-              style={{ color: '#1D1D1F', opacity: 0.8 }}
-            >
-              <RiChat1Line className="h-5 w-5" />
-              <span className="text-[15px] font-medium">{post.commentCount || 0}</span>
-            </button>
-
-            {/* 이모지 리액션 */}
+          <div className="mt-[10px] py-2">
             <EmojiReactions
               reactions={post.reactions}
               currentSpaceMemberId={member?.id}
@@ -613,6 +598,9 @@ export function PostContent({
               onReactionToggle={handleReactionToggle}
               onReactionAdd={handleReactionAdd}
               onError={handleReactionError}
+              showCommentButton
+              commentCount={post.commentCount || 0}
+              onCommentClick={() => onCommentClick?.(post.id)}
             />
           </div>
 
