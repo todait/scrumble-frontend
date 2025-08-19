@@ -5,9 +5,9 @@ import {
   FeedHeader,
   FeedListSkeleton,
   FilterDropdown,
-  FloatingCheckoutButton,
   GoToFocusedPostButton,
   PostCard,
+  PostPromptButton,
   TeamSummaryCard,
 } from '@/features/feed/components';
 import { PostDetail } from '@/features/feed/components/PostDetail';
@@ -28,7 +28,6 @@ import { usePostDate } from '@/shared/hooks/queries/usePosts';
 import { useDateStore } from '@/shared/stores/useDateStore';
 import { convertToKoreanOrder, formatDateToAPIString } from '@/shared/utils';
 import { debug, debug as logDebug } from '@/shared/utils/debug';
-import { RiPokerClubsFill } from '@remixicon/react';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -327,27 +326,20 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
               {/* 체크인 유도 버튼 - 체크인이 없을 때만 표시 */}
               {!existsMyCheckin && !existsCheckinQuery.isLoading && (
-                <div className="border-b border-[rgba(29,29,31,0.08)] bg-white px-5 py-5 md:px-[30px] md:py-[20px]">
-                  <button
-                    onClick={() => router.push(`/${spaceSlug}/posts/checkins/new`)}
-                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[rgba(151,71,255,0.5)] bg-white transition-all hover:bg-[rgba(151,71,255,0.05)]"
-                  >
-                    <RiPokerClubsFill className="h-5 w-5 text-[#9747FF]" />
-                    <span className="text-center text-[15px] font-medium leading-[120%] text-[#1D1D1F]">
-                      {teamSummary?.nextCheckinOrder && teamSummary.nextCheckinOrder > 0 ? (
-                        <>
-                          오늘{' '}
-                          <span className="text-[#9747FF]">
-                            {convertToKoreanOrder(teamSummary.nextCheckinOrder)}번째로
-                          </span>{' '}
-                          체크인을 남겨보세요
-                        </>
-                      ) : (
-                        '오늘 체크인을 남겨보세요'
-                      )}
-                    </span>
-                  </button>
-                </div>
+                <PostPromptButton
+                  type="checkin"
+                  onClick={() => router.push(`/${spaceSlug}/posts/checkins/new`)}
+                  orderText={
+                    teamSummary?.nextCheckinOrder && teamSummary.nextCheckinOrder > 0
+                      ? `${convertToKoreanOrder(teamSummary.nextCheckinOrder)}번째로`
+                      : undefined
+                  }
+                />
+              )}
+
+              {/* 체크아웃 유도 버튼 - 체크인은 있고 체크아웃이 없을 때만 표시 */}
+              {isCheckoutAvailable && (
+                <PostPromptButton type="checkout" onClick={openCheckOutModal} />
               )}
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
@@ -478,19 +470,6 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
           {teamSummary && <TeamSummaryCard summary={teamSummary} />}
         </div>
       </div>
-
-      {/* 플로팅 체크아웃 버튼 - 모바일에서 위치 조정 */}
-      {!(selectedPost && isPostDetailVisible) && isCheckoutAvailable && (
-        <div className="pointer-events-none fixed bottom-24 left-0 right-0 z-10 flex justify-center px-4 md:bottom-8 md:px-8">
-          <div className="w-full max-w-[1200px]">
-            <div className="flex justify-end">
-              <div className="pointer-events-auto">
-                <FloatingCheckoutButton onClick={openCheckOutModal} />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 체크아웃 작성 모달 */}
       <CheckOutWriteModal isOpen={isCheckOutModalOpen} onClose={closeCheckOutModal} />

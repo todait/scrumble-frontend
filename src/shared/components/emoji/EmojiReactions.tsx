@@ -1,6 +1,6 @@
 'use client';
 
-import { RiEmojiStickerLine } from '@remixicon/react';
+import { RiChat1Line, RiEmojiStickerLine } from '@remixicon/react';
 import { useRef, useState } from 'react';
 import type { EmojiData } from './EmojiPicker';
 import { EmojiPicker } from './EmojiPicker';
@@ -19,6 +19,9 @@ interface EmojiReactionsProps {
   onReactionToggle?: (emoji: string) => void;
   onReactionAdd?: (emoji: string) => void;
   onError?: (message: string) => void;
+  showCommentButton?: boolean;
+  commentCount?: number;
+  onCommentClick?: () => void;
 }
 
 export function EmojiReactions({
@@ -29,6 +32,9 @@ export function EmojiReactions({
   onReactionToggle,
   onReactionAdd,
   onError,
+  showCommentButton = false,
+  commentCount = 0,
+  onCommentClick,
 }: EmojiReactionsProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
@@ -64,6 +70,22 @@ export function EmojiReactions({
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+      {/* 댓글 버튼 (옵션) */}
+      {showCommentButton && (
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            e.preventDefault();
+            onCommentClick?.();
+          }}
+          className="mr-[10px] flex flex-shrink-0 items-center gap-1"
+          style={{ color: '#1D1D1F', opacity: 0.8 }}
+        >
+          <RiChat1Line className="h-5 w-5" />
+          <span className="text-[15px] font-medium">{commentCount}</span>
+        </button>
+      )}
+
       {/* 기존 리액션들 */}
       {reactions.map((reaction, index) => (
         <button

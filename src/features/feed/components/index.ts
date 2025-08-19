@@ -7,5 +7,6 @@ export { GoToFocusedPostButton } from './GoToFocusedPostButton';
 export { PostCard } from './PostCard';
 export { PostContent } from './PostContent';
 export { PostDetail } from './PostDetail';
+export { PostPromptButton } from './PostPromptButton';
 export { TeamSummaryCard } from './TeamSummaryCard';
 export * from './ui';

@@ -49,6 +49,8 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
       profileImage: apiPost.author.avatarURL,
     },
     todoCount: apiPost.todoCount,
+    completedTodoCount: apiPost.completedTodoCount,
+    completionRate: apiPost.completionRate,
   };
 
   if (apiPost.postType === 'checkin') {

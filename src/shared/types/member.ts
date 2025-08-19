@@ -1,4 +1,4 @@
-import { DateString, ID } from './api';
+import { ApiSpaceMemberDTO, DateString, ID } from './api';
 
 /**
  * 멤버 관련 타입 정의
@@ -40,16 +40,6 @@ export interface MemberListResponse {
 }
 
 // 프로필 관련 타입 추가
-export interface ApiSpaceMemberDTO {
-  id: string;
-  userId: string;
-  name: string;
-  email: string;
-  avatarURL?: string;
-  role: 'owner' | 'admin' | 'member' | 'viewer';
-  joinedAt: string;
-}
-
 export interface SpaceMemberProfile {
   id: string;
   userId: string;

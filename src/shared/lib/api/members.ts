@@ -2,8 +2,8 @@
  * 멤버 관련 API 클라이언트
  */
 
+import type { ApiSpaceMemberDTO } from '@/shared/types/api';
 import type {
-  ApiSpaceMemberDTO,
   GetSpaceMemberProfileResponse,
   SpaceMemberProfile,
   UpdateSpaceMemberProfileApiRequest,
@@ -22,7 +22,7 @@ const convertApiMemberToProfile = (apiMember: ApiSpaceMemberDTO): SpaceMemberPro
     name: apiMember.name,
     email: apiMember.email,
     avatarURL: apiMember.avatarURL || null,
-    role: apiMember.role,
+    role: apiMember.role as SpaceMemberProfile['role'],
     joinedAt: apiMember.joinedAt,
   };
 };

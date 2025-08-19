@@ -68,6 +68,8 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     comments: apiPost.comments ? apiPost.comments.map(convertApiCommentToComment) : [],
     reactions: convertApiReactionsToReactions(apiPost.reactions),
     todoCount: apiPost.todo_count,
+    completedTodoCount: apiPost.completed_todo_count,
+    completionRate: apiPost.completion_rate,
   };
 };
 

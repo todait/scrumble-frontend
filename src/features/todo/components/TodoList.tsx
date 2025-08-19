@@ -168,17 +168,14 @@ export const TodoList = forwardRef<TodoListRef, TodoListProps>(
         {/* 투두 수정 버튼 (PostContent에서 사용될 때만 표시, view 모드에서만) */}
         {showEditButton && isEditable && mode === 'view' && (
           <>
-            {/* Divider */}
-            <div className="-mx-3 mt-3 border-t border-gray-200" />
-
             {/* 투두 수정 버튼 */}
             <div className="flex h-[22px] items-center justify-end pt-1">
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onToggleEditMode?.();
                 }}
-                className="text-xs text-[#222222] text-opacity-50 transition-opacity hover:text-opacity-70"
+                className="text-[12px] font-medium text-[#6E6E73] transition-opacity hover:text-opacity-70"
               >
                 투두 수정
               </button>
