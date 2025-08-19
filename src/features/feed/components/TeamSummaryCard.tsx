@@ -25,7 +25,9 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
           <span className="text-xs text-[#222222]">팀 컨디션</span>
         </div>
         <div className="flex items-center gap-1">
-          <RiHeart3Fill className={`h-3.5 w-3.5 ${isAllCheckedIn ? 'text-[#9747FF]' : 'text-[#9999A2]'}`} />
+          <RiHeart3Fill
+            className={`h-3.5 w-3.5 ${isAllCheckedIn ? 'text-[#9747FF]' : 'text-[#9999A2]'}`}
+          />
           <span className="text-[15px] font-bold text-[#222222]">{teamCondition.toFixed(1)}점</span>
         </div>
       </div>
@@ -36,9 +38,11 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
           <span className="text-xs text-[#222222]">체크인</span>
         </div>
         <div className="flex items-center gap-1">
-          <RiPokerClubsFill className={`h-3.5 w-3.5 ${isAllCheckedIn ? 'text-[#39CD32]' : 'text-[#9999A2]'}`} />
+          <RiPokerClubsFill
+            className={`h-3.5 w-3.5 ${isAllCheckedIn ? 'text-[#39CD32]' : 'text-[#9999A2]'}`}
+          />
           <span className="text-[15px] font-bold text-[#222222]">
-            {isAllCheckedIn ? '모두 완료' : `${checkedInCount}/${totalMembers}`}
+            {isAllCheckedIn ? '모두 완료' : `${checkedInCount}/${totalMembers}명`}
           </span>
         </div>
       </div>
@@ -49,8 +53,12 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
           <span className="text-xs text-[#222222]">체크아웃</span>
         </div>
         <div className="flex items-center gap-1">
-          <RiPokerDiamondsFill className={`h-3.5 w-3.5 ${isAllCheckedOut ? 'text-[#009DFF]' : 'text-[#9999A2]'}`} />
-          <span className="text-[15px] font-bold text-[#222222]">{checkedOutCount}명</span>
+          <RiPokerDiamondsFill
+            className={`h-3.5 w-3.5 ${isAllCheckedOut ? 'text-[#009DFF]' : 'text-[#9999A2]'}`}
+          />
+          <span className="text-[15px] font-bold text-[#222222]">
+            {isAllCheckedOut ? '모두 완료' : `${checkedOutCount}/${totalMembers}명`}
+          </span>
         </div>
       </div>
     </div>
