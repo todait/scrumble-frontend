@@ -157,6 +157,12 @@ export const useUpdateSpace = () => {
         () => data.space
       );
       
+      // 스페이스 상세 쿼리 무효화하여 즉시 새 데이터 반영
+      queryClient.invalidateQueries({ 
+        queryKey: spacesKeys.detail(variables.spaceSlug),
+        refetchType: 'active' 
+      });
+      
       // 현재 스페이스가 수정된 스페이스인 경우 localStorage도 업데이트
       const currentSpaceSlug = SpaceMemberTokenManager.getCurrentSpaceSlug();
       if (currentSpaceSlug === variables.spaceSlug) {

@@ -64,12 +64,17 @@ export default function SpaceSettingsPage() {
   useEffect(() => {
     if (currentSpace) {
       setLocalSpaceName(currentSpace.name || '');
-      // 업로드된 아이콘이 없을 때만 업데이트 (사용자가 수정 중이 아닐 때)
+      
+      // 사용자가 직접 수정 중이 아닐 때만 서버 이미지로 업데이트
+      // (localSpaceIcon: 사용자가 선택한 새 파일, uploadedIconUrl: 업로드 진행 중)
       if (!localSpaceIcon && !uploadedIconUrl) {
-        setLocalSpaceIconPreview(currentSpace.iconURL || null);
+        // 서버 iconURL이 현재 localSpaceIconPreview와 다를 때만 업데이트
+        if (currentSpace.iconURL !== localSpaceIconPreview) {
+          setLocalSpaceIconPreview(currentSpace.iconURL || null);
+        }
       }
     }
-  }, [currentSpace?.name, currentSpace?.iconURL]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentSpace, localSpaceIcon, uploadedIconUrl, localSpaceIconPreview]);
 
   // 변경사항 감지
   const [hasChanges, setHasChanges] = useState(false);
@@ -96,6 +101,7 @@ export default function SpaceSettingsPage() {
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    
     if (file) {
       // 파일 형식 검증
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -142,7 +148,7 @@ export default function SpaceSettingsPage() {
     }
 
     try {
-      await updateSpaceMutation.mutateAsync({
+      const result = await updateSpaceMutation.mutateAsync({
         spaceSlug: currentSpaceSlug,
         name: trimmedName !== originalSpaceName ? trimmedName : undefined,
         iconUrl: uploadedIconUrl || undefined,
@@ -150,12 +156,18 @@ export default function SpaceSettingsPage() {
 
       // 성공 시 상태 초기화
       setHasChanges(false);
-      setLocalSpaceIcon(null);
-      if (uploadedIconUrl) {
-        setLocalSpaceIconPreview(uploadedIconUrl);
-        setUploadedIconUrl(null);
+      
+      // 서버에서 반환된 새 이미지 URL을 localSpaceIconPreview에 설정
+      const newIconUrl = result?.space?.iconURL || uploadedIconUrl;
+      if (newIconUrl) {
+        setLocalSpaceIconPreview(newIconUrl);
       }
-    } catch (error) {
+      
+      // localSpaceIcon과 uploadedIconUrl을 즉시 null로 설정
+      // useEffect는 currentSpace.iconURL과 localSpaceIconPreview가 다를 때만 업데이트하므로 안전
+      setLocalSpaceIcon(null);
+      setUploadedIconUrl(null);
+    } catch {
       // 에러는 useUpdateSpace 훅에서 toast로 처리됨
     }
   };
@@ -250,6 +262,7 @@ export default function SpaceSettingsPage() {
                     width={120}
                     height={120}
                     className="h-full w-full object-cover"
+                    priority
                   />
                 ) : (
                   <span className="text-[48px] font-bold text-white">

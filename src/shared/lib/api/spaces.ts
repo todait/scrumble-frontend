@@ -50,17 +50,20 @@ const convertApiMemberDTOToMember = (apiMember: ApiSpaceMemberDTO): SpaceMember 
 
 /**
  * 백엔드 API 스페이스 응답을 프론트엔드 타입으로 변환하는 함수
- * snake_case에서 camelCase로 변환
+ * OpenAPI 명세에 따라 camelCase로 반환됨
  */
 const convertApiSpaceToSpace = (apiSpace: ApiSpace): Space => {
+  // iconURL이 null, undefined, 빈 문자열인 경우 undefined로 처리
+  const iconURL = apiSpace.iconURL && apiSpace.iconURL.trim() !== '' ? apiSpace.iconURL : undefined;
+
   return {
     id: apiSpace.id,
     slug: apiSpace.slug,
     name: apiSpace.name,
-    iconURL: apiSpace.icon_url,
+    iconURL: iconURL,
     memberCount: apiSpace.memberCount,
-    createdAt: apiSpace.created_at,
-    updatedAt: apiSpace.updated_at,
+    createdAt: apiSpace.createdAt,
+    updatedAt: apiSpace.updatedAt,
   };
 };
 
@@ -74,9 +77,16 @@ export const spacesApi = {
    * @returns 생성된 스페이스 정보
    */
   createSpace: async (request: CreateSpaceRequest): Promise<CreateSpaceResponse> => {
-    const { data } = await apiClient.post<CreateSpaceApiResponse>('/api/v1/spaces', {
+    const apiRequest: CreateSpaceApiRequest = {
       name: request.name,
-    } as CreateSpaceApiRequest);
+    };
+    
+    // iconUrl이 제공된 경우 icon_url로 전송
+    if (request.iconUrl) {
+      apiRequest.icon_url = request.iconUrl;
+    }
+
+    const { data } = await apiClient.post<CreateSpaceApiResponse>('/api/v1/spaces', apiRequest);
 
     return {
       message: data.message,
