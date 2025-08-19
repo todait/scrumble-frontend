@@ -4,10 +4,10 @@
 
 import { membersApi } from '@/shared/lib/api/members';
 import { ErrorCode } from '@/shared/types/api';
-import type {
-  SpaceMemberProfile,
-  UpdateSpaceMemberProfileRequest,
+import {
   MemberErrorCode,
+  type SpaceMemberProfile,
+  type UpdateSpaceMemberProfileRequest,
 } from '@/shared/types/member';
 import { getErrorCode, getErrorMessage, isErrorCode } from '@/shared/utils';
 import { authRetry } from '@/shared/utils/query';
