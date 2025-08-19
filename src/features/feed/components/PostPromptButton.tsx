@@ -8,16 +8,16 @@ interface PostPromptButtonProps {
 
 export function PostPromptButton({ type, onClick, orderText }: PostPromptButtonProps) {
   const isCheckin = type === 'checkin';
-  const borderColor = isCheckin ? 'rgba(57,205,50,0.5)' : 'rgba(151,71,255,0.5)';
-  const hoverBgColor = isCheckin ? 'rgba(57,205,50,0.05)' : 'rgba(151,71,255,0.05)';
-  const iconColor = isCheckin ? '#39CD32' : '#9747FF';
-  const highlightColor = isCheckin ? '#39CD32' : '#9747FF';
+  const borderColor = 'rgba(151,71,255,0.5)';
+  const hoverBgColor = 'rgba(151,71,255,0.05)';
+  const iconColor = '#9747FF';
+  const highlightColor = '#9747FF';
 
   return (
     <div className="border-b border-[rgba(29,29,31,0.08)] bg-white px-5 py-5 md:px-[30px] md:py-[20px]">
       <button
         onClick={onClick}
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border bg-white transition-all"
+        className="flex h-12 w-full items-center justify-center gap-1 rounded-xl border bg-white transition-all"
         style={{
           borderColor,
         }}
@@ -28,7 +28,7 @@ export function PostPromptButton({ type, onClick, orderText }: PostPromptButtonP
           e.currentTarget.style.backgroundColor = 'white';
         }}
       >
-        <RiPokerClubsFill className="h-5 w-5" style={{ color: iconColor }} />
+        <RiPokerClubsFill className="h-4 w-4" style={{ color: iconColor }} />
         <span className="text-center text-[15px] font-medium leading-[120%] text-[#1D1D1F]">
           {isCheckin ? (
             orderText ? (

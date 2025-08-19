@@ -106,6 +106,16 @@ export interface CollapseSectionProps {
   headerContent?: React.ReactNode;
   /** 섹션 클래스명 (선택적) */
   className?: string;
+  /** PostContent 전용 디자인 적용 여부 */
+  isPostContent?: boolean;
+  /** 완료율 (PostContent 전용) */
+  completionRate?: number;
+  /** 완료된 투두 개수 (PostContent 전용) */
+  completedCount?: number;
+  /** 전체 투두 개수 (PostContent 전용) */
+  totalCount?: number;
+  /** 편집 모드 여부 (PostContent 전용) */
+  isEditMode?: boolean;
 }
 
 export interface TodoContainerProps {

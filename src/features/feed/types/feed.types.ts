@@ -38,6 +38,8 @@ export interface BasePost {
   lastCommentTime?: Date;
   images?: ImageMetadata[];
   todoCount?: number;
+  completedTodoCount?: number; // 서버에서 받아올 예정
+  completionRate?: number; // 서버에서 받아올 예정
 }
 
 export interface CheckinPost extends BasePost {

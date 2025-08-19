@@ -22,7 +22,7 @@ import {
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
 import { useToast } from '@/shared/hooks/useToast';
 import { formatDateToAPIString, formatTime } from '@/shared/utils';
-import { RiArrowRightSLine, RiChat1Line } from '@remixicon/react';
+import { RiArrowRightSLine } from '@remixicon/react';
 import router from 'next/router';
 import { useRef, useState } from 'react';
 import { usePostTodos } from '../hooks/usePostTodos';
@@ -325,32 +325,13 @@ export function PostContent({
           {isCheckOut && (post.todoCount !== undefined || todos) &&
             (() => {
               const hasTodos = todos && todos.length > 0;
-              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : 0;
+              // 서버에서 받아올 예정인 값들 (임시값)
+              const serverCompletedCount = post.completedTodoCount ?? (hasTodos ? todos.filter(todo => todo.completedAt).length : Math.floor((post.todoCount || 0) * 0.3));
+              const serverCompletionRate = post.completionRate ?? (hasTodos && todos.length > 0 ? Math.round((todos.filter(todo => todo.completedAt).length / todos.length) * 100) : 30);
+              
+              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : serverCompletedCount;
               const totalCount = hasTodos ? todos.length : post.todoCount || 0;
-              const completionRate =
-                hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-
-              // 헤더 컨텐츠 결정
-              let headerContent;
-              if (!todos || isTodosLoading || todos.length === 0) {
-                // Todo 로드 전, 로딩 중, 또는 빈 배열
-                headerContent = (
-                  <div className="text-xs font-bold">
-                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
-                    <span className="text-[#222222]">{post.todoCount || 0}개</span>
-                  </div>
-                );
-              } else {
-                // Todo 로드 완료 및 실제 항목 존재
-                headerContent = (
-                  <div className="text-xs font-bold">
-                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
-                    <span className="text-[#222222]">
-                      {completionRate}% 달성 ({completedCount}/{totalCount})
-                    </span>
-                  </div>
-                );
-              }
+              const completionRate = hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : serverCompletionRate;
 
               return (
                 <CollapseSection
@@ -358,7 +339,11 @@ export function PostContent({
                   isCollapsed={isTodoCollapsed}
                   onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
                   className="mt-[18px]"
-                  headerContent={headerContent}
+                  isPostContent={true}
+                  completionRate={completionRate}
+                  completedCount={completedCount}
+                  totalCount={totalCount}
+                  isEditMode={isTodoEditMode}
                 >
                   {isTodosLoading ? (
                     <div className="flex justify-center py-8">
@@ -485,32 +470,13 @@ export function PostContent({
           {isCheckIn && (post.todoCount !== undefined || todos) &&
             (() => {
               const hasTodos = todos && todos.length > 0;
-              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : 0;
+              // 서버에서 받아올 예정인 값들 (임시값)
+              const serverCompletedCount = post.completedTodoCount ?? (hasTodos ? todos.filter(todo => todo.completedAt).length : Math.floor((post.todoCount || 0) * 0.3));
+              const serverCompletionRate = post.completionRate ?? (hasTodos && todos.length > 0 ? Math.round((todos.filter(todo => todo.completedAt).length / todos.length) * 100) : 30);
+              
+              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : serverCompletedCount;
               const totalCount = hasTodos ? todos.length : post.todoCount || 0;
-              const completionRate =
-                hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-
-              // 헤더 컨텐츠 결정
-              let headerContent;
-              if (!todos || isTodosLoading || todos.length === 0) {
-                // Todo 로드 전, 로딩 중, 또는 빈 배열
-                headerContent = (
-                  <div className="text-xs font-bold">
-                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
-                    <span className="text-[#222222]">{post.todoCount || 0}개</span>
-                  </div>
-                );
-              } else {
-                // Todo 로드 완료 및 실제 항목 존재
-                headerContent = (
-                  <div className="text-xs font-bold">
-                    <span className="text-[#222222] text-opacity-60">오늘의 투두 • </span>
-                    <span className="text-[#222222]">
-                      {completionRate}% 달성 ({completedCount}/{totalCount})
-                    </span>
-                  </div>
-                );
-              }
+              const completionRate = hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : serverCompletionRate;
 
               return (
                 <CollapseSection
@@ -518,7 +484,11 @@ export function PostContent({
                   isCollapsed={isTodoCollapsed}
                   onToggleCollapse={() => setIsTodoCollapsed(!isTodoCollapsed)}
                   className="mt-[10px]"
-                  headerContent={headerContent}
+                  isPostContent={true}
+                  completionRate={completionRate}
+                  completedCount={completedCount}
+                  totalCount={totalCount}
+                  isEditMode={isTodoEditMode}
                 >
                   {isTodosLoading ? (
                     <div className="flex justify-center py-8">
