@@ -1,6 +1,6 @@
 'use client';
 
-import { RiCheckboxCircleFill, RiCheckboxCircleLine, RiHeart3Fill } from '@remixicon/react';
+import { RiHeart3Fill, RiPokerClubsFill, RiPokerDiamondsFill } from '@remixicon/react';
 import type { TeamSummary } from '../types/feed.types';
 
 interface TeamSummaryCardProps {
@@ -10,6 +10,7 @@ interface TeamSummaryCardProps {
 export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
   const { teamCondition, checkedInCount, totalMembers, checkedOutCount } = summary;
   const isAllCheckedIn = checkedInCount === totalMembers;
+  const isAllCheckedOut = checkedOutCount === totalMembers;
 
   return (
     <div className="rounded-2xl border border-[rgba(34,34,34,0.08)] bg-white p-2.5">
@@ -24,7 +25,7 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
           <span className="text-xs text-[#222222]">팀 컨디션</span>
         </div>
         <div className="flex items-center gap-1">
-          <RiHeart3Fill className="h-3.5 w-3.5 text-[#9747FF]" />
+          <RiHeart3Fill className={`h-3.5 w-3.5 ${isAllCheckedIn ? 'text-[#9747FF]' : 'text-[#9999A2]'}`} />
           <span className="text-[15px] font-bold text-[#222222]">{teamCondition.toFixed(1)}점</span>
         </div>
       </div>
@@ -35,7 +36,7 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
           <span className="text-xs text-[#222222]">체크인</span>
         </div>
         <div className="flex items-center gap-1">
-          <RiCheckboxCircleFill className="h-3.5 w-3.5 text-[#39CD32]" />
+          <RiPokerClubsFill className={`h-3.5 w-3.5 ${isAllCheckedIn ? 'text-[#39CD32]' : 'text-[#9999A2]'}`} />
           <span className="text-[15px] font-bold text-[#222222]">
             {isAllCheckedIn ? '모두 완료' : `${checkedInCount}/${totalMembers}`}
           </span>
@@ -48,7 +49,7 @@ export function TeamSummaryCard({ summary }: TeamSummaryCardProps) {
           <span className="text-xs text-[#222222]">체크아웃</span>
         </div>
         <div className="flex items-center gap-1">
-          <RiCheckboxCircleLine className="h-3.5 w-3.5 text-[#009DFF]" />
+          <RiPokerDiamondsFill className={`h-3.5 w-3.5 ${isAllCheckedOut ? 'text-[#009DFF]' : 'text-[#9999A2]'}`} />
           <span className="text-[15px] font-bold text-[#222222]">{checkedOutCount}명</span>
         </div>
       </div>
