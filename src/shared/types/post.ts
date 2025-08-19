@@ -48,6 +48,8 @@ export interface Post {
   comments: Comment[];
   reactions: Reaction[];
   todoCount?: number; // 해당 날짜의 Todo 개수
+  completedTodoCount?: number; // 완료된 Todo 개수
+  completionRate?: number; // 완료율 (0-100)
 }
 
 /**

@@ -325,13 +325,15 @@ export function PostContent({
           {isCheckOut && (post.todoCount !== undefined || todos) &&
             (() => {
               const hasTodos = todos && todos.length > 0;
-              // 서버에서 받아올 예정인 값들 (임시값)
-              const serverCompletedCount = post.completedTodoCount ?? (hasTodos ? todos.filter(todo => todo.completedAt).length : Math.floor((post.todoCount || 0) * 0.3));
-              const serverCompletionRate = post.completionRate ?? (hasTodos && todos.length > 0 ? Math.round((todos.filter(todo => todo.completedAt).length / todos.length) * 100) : 30);
               
-              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : serverCompletedCount;
-              const totalCount = hasTodos ? todos.length : post.todoCount || 0;
-              const completionRate = hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : serverCompletionRate;
+              // 서버에서 받은 값을 기본값으로 사용
+              const completedCount = hasTodos 
+                ? todos.filter(todo => todo.completedAt).length 
+                : (post.completedTodoCount ?? 0);
+              const totalCount = hasTodos ? todos.length : (post.todoCount ?? 0);
+              const completionRate = hasTodos && totalCount > 0 
+                ? Math.round((completedCount / totalCount) * 100) 
+                : (post.completionRate ?? 0);
 
               return (
                 <CollapseSection
@@ -470,13 +472,15 @@ export function PostContent({
           {isCheckIn && (post.todoCount !== undefined || todos) &&
             (() => {
               const hasTodos = todos && todos.length > 0;
-              // 서버에서 받아올 예정인 값들 (임시값)
-              const serverCompletedCount = post.completedTodoCount ?? (hasTodos ? todos.filter(todo => todo.completedAt).length : Math.floor((post.todoCount || 0) * 0.3));
-              const serverCompletionRate = post.completionRate ?? (hasTodos && todos.length > 0 ? Math.round((todos.filter(todo => todo.completedAt).length / todos.length) * 100) : 30);
               
-              const completedCount = hasTodos ? todos.filter(todo => todo.completedAt).length : serverCompletedCount;
-              const totalCount = hasTodos ? todos.length : post.todoCount || 0;
-              const completionRate = hasTodos && totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : serverCompletionRate;
+              // 서버에서 받은 값을 기본값으로 사용
+              const completedCount = hasTodos 
+                ? todos.filter(todo => todo.completedAt).length 
+                : (post.completedTodoCount ?? 0);
+              const totalCount = hasTodos ? todos.length : (post.todoCount ?? 0);
+              const completionRate = hasTodos && totalCount > 0 
+                ? Math.round((completedCount / totalCount) * 100) 
+                : (post.completionRate ?? 0);
 
               return (
                 <CollapseSection

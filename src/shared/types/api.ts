@@ -173,6 +173,8 @@ export interface GetPostsApiResponse {
     comments: ApiComment[];
     reactions?: ApiReaction[];
     todo_count?: number;
+    completed_todo_count?: number;
+    completion_rate?: number;
   }>;
   nextCursor?: string;
   hasMore: boolean;

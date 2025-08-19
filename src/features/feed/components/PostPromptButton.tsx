@@ -1,4 +1,4 @@
-import { RiPokerClubsFill } from '@remixicon/react';
+import { RiPokerClubsFill, RiPokerDiamondsFill } from '@remixicon/react';
 
 interface PostPromptButtonProps {
   type: 'checkin' | 'checkout';
@@ -28,7 +28,11 @@ export function PostPromptButton({ type, onClick, orderText }: PostPromptButtonP
           e.currentTarget.style.backgroundColor = 'white';
         }}
       >
-        <RiPokerClubsFill className="h-4 w-4" style={{ color: iconColor }} />
+        {isCheckin ? (
+          <RiPokerClubsFill className="h-4 w-4" style={{ color: iconColor }} />
+        ) : (
+          <RiPokerDiamondsFill className="h-4 w-4" style={{ color: iconColor }} />
+        )}
         <span className="text-center text-[15px] font-medium leading-[120%] text-[#1D1D1F]">
           {isCheckin ? (
             orderText ? (
