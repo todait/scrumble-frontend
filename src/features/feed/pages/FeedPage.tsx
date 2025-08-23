@@ -30,7 +30,7 @@ import { convertToKoreanOrder, formatDateToAPIString } from '@/shared/utils';
 import { debug, debug as logDebug } from '@/shared/utils/debug';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface FeedPageProps {
   spaceSlug: string;
@@ -110,7 +110,9 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
   // 날짜 변경 함수 (URL과 store 모두 업데이트)
   const handleDateChange = (date: Date) => {
-    setIsPostDetailVisible(false);
+    // PostDetail이 열려있으면 유지 (실시간 이벤트 구독 유지를 위해)
+    // 단, 날짜 변경으로 인해 해당 포스트가 없어질 수 있으므로 나중에 처리
+    
     // 스크롤을 맨 위로 초기화
     scrollContainerRef.current?.scrollTo(0, 0);
 
@@ -137,8 +139,11 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
 
     setSelectedDate(date);
     const dateString = formatDateToAPIString(date);
-    const newUrl = `/${spaceSlug}/feed?date=${dateString}`;
-    debug('FeedPage', 'handleDateChange', newUrl);
+    // PostDetail이 열려있으면 post 파라미터 유지
+    const newUrl = selectedPostId 
+      ? `/${spaceSlug}/feed?date=${dateString}&post=${selectedPostId}`
+      : `/${spaceSlug}/feed?date=${dateString}`;
+    debug('FeedPage', 'handleDateChange', { newUrl, keepingPostDetail: !!selectedPostId });
 
     setTimeout(() => {
       router.replace(newUrl);
@@ -148,19 +153,49 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // 가시성 추적
   const { visiblePostIds, observePost, unobservePost, unobserveAll } = useVisiblePosts();
 
-  // 디버깅을 위한 로그
-  useEffect(() => {
-    logDebug('FeedPage', 'Visible post IDs changed', visiblePostIds);
-  }, [visiblePostIds]);
+  // URL 파라미터 처리
+  const selectedPostId = searchParams.get('post');
+  const selectedCommentId = searchParams.get('comment');
+
+  // 일단 기본 visiblePostIds에 selectedPostId만 추가한 상태로 데이터 로드
+  const baseEffectiveVisiblePostIds = useMemo(() => {
+    if (selectedPostId && !visiblePostIds.includes(selectedPostId)) {
+      logDebug('FeedPage', 'Adding selectedPostId to visiblePostIds for WebSocket subscription', {
+        selectedPostId,
+        originalVisiblePostIds: visiblePostIds,
+      });
+      return [...visiblePostIds, selectedPostId];
+    }
+    return visiblePostIds;
+  }, [visiblePostIds, selectedPostId]);
 
   // 데이터 및 상태 관리 (WebSocket 연결 포함)
   const { posts, teamSummary, filterType, setFilterType, existsCheckinQuery, isLoading } =
     useFeedData(spaceSlug, {
-      visiblePostIds, // 현재 화면에 보이는 포스트 ID들 전달
+      visiblePostIds: baseEffectiveVisiblePostIds, // 기본 보정된 visiblePostIds 전달
       onReconnectionDataSync: () => {
         logDebug('FeedPage', '재연결 감지 - 피드 데이터 동기화 완료');
       },
     });
+
+  // posts 로드 후 추가 보정 (초기 로드 시 최소 포스트 포함)
+  const effectiveVisiblePostIds = useMemo(() => {
+    const postIds = new Set(baseEffectiveVisiblePostIds);
+    
+    // 초기 로드 시 또는 보이는 포스트가 없을 때 최소한 처음 3개 포스트 구독
+    if (postIds.size === 0 && posts.length > 0 && !isLoading) {
+      const initialPosts = posts.slice(0, 3).map(p => p.id);
+      initialPosts.forEach(id => postIds.add(id));
+      logDebug('FeedPage', 'Adding initial posts to effective IDs', { initialPosts });
+    }
+    
+    return Array.from(postIds);
+  }, [baseEffectiveVisiblePostIds, posts, isLoading]);
+
+  // 디버깅을 위한 로그
+  useEffect(() => {
+    logDebug('FeedPage', 'Effective visible post IDs changed', effectiveVisiblePostIds);
+  }, [effectiveVisiblePostIds]);
   const { handleCommentClick } = useFeedActions(spaceSlug);
   const { isCheckOutModalOpen, openCheckOutModal, closeCheckOutModal } = useFeedModal();
   const { handlePostClick, handleClosePostDetail: navigateClosePostDetail } =
@@ -224,10 +259,23 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     };
   }, [unobserveAll]);
 
-  // URL 파라미터 처리
-  const selectedPostId = searchParams.get('post');
-  const selectedCommentId = searchParams.get('comment');
+  // selectedPost 찾기
   const selectedPost = selectedPostId ? posts.find(post => post.id === selectedPostId) : null;
+
+  // 날짜/필터 변경 후 포스트가 없어지면 PostDetail 닫기
+  useEffect(() => {
+    if (selectedPostId && !selectedPost && !isLoading) {
+      // 포스트가 로드되었는데 selectedPost가 없으면 닫기
+      logDebug('FeedPage', 'Selected post not found after data load, closing PostDetail', {
+        selectedPostId,
+        postsCount: posts.length,
+      });
+      setIsPostDetailVisible(false);
+      // URL에서 post 파라미터 제거
+      const newUrl = `/${spaceSlug}/feed?date=${formatDateToAPIString(selectedDate)}`;
+      router.replace(newUrl);
+    }
+  }, [selectedPostId, selectedPost, isLoading, posts.length, spaceSlug, selectedDate, router]);
 
   // 포스트 날짜 조회
   const { data: postDateData } = usePostDate({
