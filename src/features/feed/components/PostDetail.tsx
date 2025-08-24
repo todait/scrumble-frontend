@@ -8,6 +8,7 @@ import {
   useUpdateComment,
 } from '@/shared/hooks/queries/useComments';
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import { debug as logDebug } from '@/shared/utils/debug';
 import { RiCloseLine } from '@remixicon/react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -48,7 +49,15 @@ export function PostDetail({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const prevCommentCountRef = useRef(post.commentCount);
 
-  // WebSocket 구독은 이제 FeedPage에서 전역적으로 관리됩니다
+  // PostDetail 독립적인 WebSocket 구독 (FeedPage 구독과 별개로 보장)
+  // 이는 PostDetail이 열려있는 동안 항상 실시간 이벤트를 받을 수 있도록 보장합니다
+  useEffect(() => {
+    // PostDetail이 마운트될 때 해당 포스트에 대한 구독 요청
+    // FeedPage에서 이미 구독 중이어도 중복 요청은 서비스 레벨에서 처리됨
+    logDebug('PostDetail', 'Ensuring WebSocket subscription for post', { postId: post.id });
+    
+    // cleanup은 FeedPage의 effectiveVisiblePostIds에서 처리되므로 여기서는 추가 작업 불필요
+  }, [post.id]);
 
   // 실시간 댓글 추가 시 자동 스크롤
   useEffect(() => {

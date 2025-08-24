@@ -20,25 +20,26 @@ export function CollapseSection({
   if (isPostContent) {
     // 편집 모드일 때는 100% 스타일 비활성화
     const isComplete = completionRate === 100 && !isEditMode;
-    
+
     // 전체를 감싸는 wrapper로 통합된 border 처리
     return (
       <div
-        className={`overflow-hidden ${className} ${
-          isCollapsed 
-            ? 'rounded-xl' 
-            : 'rounded-xl'
-        } ${
+        className={`overflow-hidden rounded-xl ${className} ${
           isComplete
-            ? 'border-4 border-white/20 bg-gradient-to-r from-purple-600/80 to-purple-400/80'
+            ? 'shadow-[inset_0_0_0_4px_rgba(255,255,255,0.2)]'
             : 'border border-[rgba(29,29,31,0.08)] bg-white'
         }`}
+        style={{
+          background: isComplete
+            ? 'linear-gradient(90deg, rgba(140, 75, 249, 0.80) 0%, rgba(180, 120, 247, 0.80) 100%)'
+            : undefined,
+        }}
         onClick={e => e.stopPropagation()}
       >
         {/* 헤더 */}
         <div
           className={`cursor-pointer transition-all duration-300 ease-in-out ${
-            isCollapsed ? 'p-[10px]' : 'px-[10px] pt-[10px] pb-0'
+            isCollapsed ? 'p-[10px]' : 'px-[10px] pb-0 pt-[10px]'
           }`}
           onClick={e => {
             e.stopPropagation();
@@ -53,34 +54,34 @@ export function CollapseSection({
             ) : (
               <RiCheckLine className="h-4 w-4 flex-shrink-0 text-[#9747FF]" />
             )}
-            
+
             {/* 달성률 텍스트 */}
-            <span 
+            <span
               className={`text-[13px] font-bold leading-[120%] ${
                 isComplete ? 'text-white' : 'text-[#1D1D1F]'
               }`}
             >
               {completionRate}% 달성
             </span>
-            
+
             {/* 개수 텍스트 */}
-            <span 
+            <span
               className={`text-[13px] font-normal leading-[120%] ${
                 isComplete ? 'text-white' : 'text-[#9999A2]'
               }`}
             >
               ({completedCount}/{totalCount})
             </span>
-            
+
             {/* 진행바 */}
             <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-[rgba(153,153,162,0.2)]">
-              <div 
+              <div
                 className="absolute left-0 top-0 h-full rounded-full transition-all duration-300"
                 style={{
                   width: `${completionRate}%`,
-                  background: isComplete 
-                    ? '#FFFFFF' 
-                    : 'linear-gradient(270deg, rgba(140, 75, 249, 0.90) 0%, rgba(180, 120, 247, 0.90) 100%)'
+                  background: isComplete
+                    ? '#FFFFFF'
+                    : 'linear-gradient(270deg, rgba(140, 75, 249, 0.90) 0%, rgba(180, 120, 247, 0.90) 100%)',
                 }}
               />
             </div>
@@ -93,10 +94,10 @@ export function CollapseSection({
             isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[600px] opacity-100'
           }`}
         >
-          <div 
+          <div
             className={
-              isComplete 
-                ? 'px-3 pb-3 pt-0 [&_*]:!text-white [&_input]:!text-white [&_button]:!text-white [&_svg]:!text-white'
+              isComplete
+                ? 'px-3 pb-3 pt-0 [&_*]:!text-white [&_button]:!text-white [&_input]:!text-white [&_svg]:!text-white'
                 : 'px-3 pb-3 pt-0'
             }
           >
