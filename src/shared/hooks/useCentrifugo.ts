@@ -72,6 +72,7 @@ export function useCentrifugo({
   const eventHandlersRef = useRef<Map<WebSocketEventType, WebSocketEventHandler[]>>(new Map());
   const subscriptionTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const lastVisiblePostIdsRef = useRef<Set<string>>(new Set());
+  const visiblePostIdsRef = useRef<Set<string>>(new Set());
   const [wsConnected, setWsConnected] = useState(false);
   const prevConnectedRef = useRef(false); // 이전 연결 상태 추적
   const reconnectionRef = useRef(false); // 재연결 여부 추적
@@ -269,11 +270,13 @@ export function useCentrifugo({
         subscribeToAllComments,
         visiblePostsCount: debouncedVisibleIds.length,
       });
-      
+
       // 재연결이었다면 플래그 리셋
       if (reconnectionRef.current) {
         reconnectionRef.current = false;
       }
+
+      visiblePostIdsRef.current = new Set(debouncedVisibleIds);
       return;
     }
 
@@ -281,6 +284,16 @@ export function useCentrifugo({
 
     const currentVisibleSet = new Set<string>(debouncedVisibleIds);
     const previousVisibleSet = lastVisiblePostIdsRef.current;
+
+    // 새로 보이게 된 포스트는 예약된 구독 해제를 취소
+    currentVisibleSet.forEach(postId => {
+      const pendingTimer = subscriptionTimersRef.current.get(postId);
+      if (pendingTimer) {
+        clearTimeout(pendingTimer);
+        subscriptionTimersRef.current.delete(postId);
+        debug('useCentrifugo', 'Cancelled pending unsubscribe for visible post', { postId });
+      }
+    });
 
     // 현재 보이는 포스트 ID들과 이전 ID들을 비교
     const isInitialLoad = previousVisibleSet.size === 0;
@@ -365,13 +378,15 @@ export function useCentrifugo({
 
             // 30초 후 구독 해제 (다시 스크롤해서 보일 수 있으므로)
             const timer = setTimeout(() => {
-              const stillNotVisible = !debouncedVisibleIds.includes(postId);
-              if (stillNotVisible) {
-                // 댓글과 리액션 구독 해제
-                batchUnsubscribeFromComments([postId]);
-                batchUnsubscribeFromReactions([postId]);
-              }
               subscriptionTimersRef.current.delete(postId);
+
+              if (visiblePostIdsRef.current.has(postId)) {
+                debug('useCentrifugo', 'Skip unsubscribe because post is visible again', { postId });
+                return;
+              }
+
+              batchUnsubscribeFromComments([postId]);
+              batchUnsubscribeFromReactions([postId]);
             }, 30000); // 30초 지연
 
             subscriptionTimersRef.current.set(postId, timer);
@@ -381,6 +396,7 @@ export function useCentrifugo({
 
       // 현재 보이는 포스트 ID 업데이트
       lastVisiblePostIdsRef.current = currentVisibleSet;
+      visiblePostIdsRef.current = currentVisibleSet;
     }
   }, [
     wsConnected,
