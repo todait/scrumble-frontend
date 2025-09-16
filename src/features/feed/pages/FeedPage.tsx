@@ -36,6 +36,11 @@ interface FeedPageProps {
   spaceSlug: string;
 }
 
+const areArraysEqual = (a: readonly string[], b: readonly string[]) => {
+  if (a.length !== b.length) return false;
+  return a.every(id => b.includes(id));
+};
+
 export function FeedPage({ spaceSlug }: FeedPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -169,10 +174,16 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     return visiblePostIds;
   }, [visiblePostIds, selectedPostId]);
 
+  const [websocketPostIds, setWebsocketPostIds] = useState(baseEffectiveVisiblePostIds);
+
+  useEffect(() => {
+    setWebsocketPostIds(prev => (areArraysEqual(prev, baseEffectiveVisiblePostIds) ? prev : baseEffectiveVisiblePostIds));
+  }, [baseEffectiveVisiblePostIds]);
+
   // 데이터 및 상태 관리 (WebSocket 연결 포함)
   const { posts, teamSummary, filterType, setFilterType, existsCheckinQuery, isLoading } =
     useFeedData(spaceSlug, {
-      visiblePostIds: baseEffectiveVisiblePostIds, // 기본 보정된 visiblePostIds 전달
+      visiblePostIds: websocketPostIds,
       onReconnectionDataSync: () => {
         logDebug('FeedPage', '재연결 감지 - 피드 데이터 동기화 완료');
       },
@@ -181,16 +192,20 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
   // posts 로드 후 추가 보정 (초기 로드 시 최소 포스트 포함)
   const effectiveVisiblePostIds = useMemo(() => {
     const postIds = new Set(baseEffectiveVisiblePostIds);
-    
+
     // 초기 로드 시 또는 보이는 포스트가 없을 때 최소한 처음 3개 포스트 구독
     if (postIds.size === 0 && posts.length > 0 && !isLoading) {
       const initialPosts = posts.slice(0, 3).map(p => p.id);
       initialPosts.forEach(id => postIds.add(id));
       logDebug('FeedPage', 'Adding initial posts to effective IDs', { initialPosts });
     }
-    
+
     return Array.from(postIds);
   }, [baseEffectiveVisiblePostIds, posts, isLoading]);
+
+  useEffect(() => {
+    setWebsocketPostIds(prev => (areArraysEqual(prev, effectiveVisiblePostIds) ? prev : effectiveVisiblePostIds));
+  }, [effectiveVisiblePostIds]);
 
   // 디버깅을 위한 로그
   useEffect(() => {
