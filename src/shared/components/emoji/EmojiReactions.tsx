@@ -1,7 +1,7 @@
 'use client';
 
 import { RiChat1Line, RiEmojiStickerLine, RiThumbUpLine } from '@remixicon/react';
-import { useMemo, useRef, useState } from 'react';
+import { type ReactNode, useMemo, useRef, useState } from 'react';
 import type { EmojiData } from './EmojiPicker';
 import { EmojiPicker } from './EmojiPicker';
 
@@ -116,26 +116,55 @@ export function EmojiReactions({
       )}
 
       {/* 기존 리액션들 */}
-      {showDefaultThumb && (
-        <button
-          key={`${targetType}-${targetId}-${THUMBS_UP_EMOJI}-default`}
-          onClick={handleThumbsUpClick}
-          className={`flex items-center justify-center rounded-full transition-all ${
-            thumbsUpReaction?.spaceMemberIds.includes(currentSpaceMemberId || '')
-              ? 'min-w-12 gap-1 border border-[#1D1D1F] px-[10px] py-[6px] text-sm text-[#1D1D1F] md:text-[13px]'
-              : 'min-w-[36px] border border-transparent px-2 py-[3px] text-sm text-[#222222] hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100 md:text-[13px]'
-          } ${thumbsUpReaction ? '' : 'bg-[rgba(241,241,241,0.5)] opacity-50'}`}
-        >
-          {thumbsUpReaction?.spaceMemberIds.includes(currentSpaceMemberId || '') ? (
-            <>
-              <span>{THUMBS_UP_EMOJI}</span>
-              {thumbsUpReaction?.count ? <span>{thumbsUpReaction.count}</span> : null}
-            </>
-          ) : (
-            <RiThumbUpLine className="h-4 w-4" />
-          )}
-        </button>
-      )}
+      {showDefaultThumb &&
+        (() => {
+          const hasThumbsUp = Boolean(thumbsUpReaction);
+          const clickedByMe = hasThumbsUp
+            ? thumbsUpReaction?.spaceMemberIds.includes(currentSpaceMemberId || '')
+            : false;
+
+          const baseClasses = ['flex rounded-full transition-colors text-sm md:text-[13px]'];
+          let appearanceClasses = '';
+          let buttonContent: ReactNode;
+
+          if (!hasThumbsUp) {
+            // ① 아무도 리액션하지 않았을 때: 기본 사이즈 + 연한 회색, 아이콘만 노출
+            baseClasses.push('h-[26px] w-[36px] items-center justify-center');
+            appearanceClasses =
+              'border border-transparent bg-[rgba(241,241,241,0.5)] text-[#222222] opacity-50 hover:opacity-100 hover:bg-[rgba(241,241,241,0.8)]';
+            buttonContent = <RiThumbUpLine className="h-4 w-4" />;
+          } else {
+            baseClasses.push('min-w-12 items-center justify-between px-[10px] py-[6px]');
+
+            if (clickedByMe) {
+              // ② 내가 리액션한 상태: 기본 리액션과 동일한 보더/텍스트 컬러
+              appearanceClasses = 'border border-[#1D1D1F] text-[#1D1D1F]';
+            } else {
+              // ③ 다른 사람이 리액션한 상태: 기본 리액션의 비활성 스타일과 동일
+              appearanceClasses =
+                'border-transparent bg-[rgba(241,241,241,0.5)] text-[#1D1D1F] hover:bg-[rgba(241,241,241,0.8)]';
+            }
+
+            buttonContent = (
+              <>
+                <span>{THUMBS_UP_EMOJI}</span>
+                {thumbsUpReaction?.count ? <span>{thumbsUpReaction.count}</span> : null}
+              </>
+            );
+          }
+
+          const thumbButtonClasses = `${baseClasses.join(' ')} ${appearanceClasses}`;
+
+          return (
+            <button
+              key={`${targetType}-${targetId}-${THUMBS_UP_EMOJI}-default`}
+              onClick={handleThumbsUpClick}
+              className={thumbButtonClasses}
+            >
+              {buttonContent}
+            </button>
+          );
+        })()}
 
       {filteredReactions.map((reaction, index) => (
         <button
