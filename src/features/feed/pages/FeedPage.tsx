@@ -26,7 +26,7 @@ import { useAuth } from '@/shared/contexts/AuthContext';
 import { usePostDate } from '@/shared/hooks/queries/usePosts';
 
 import { useDateStore } from '@/shared/stores/useDateStore';
-import { convertToKoreanOrder, formatDateToAPIString } from '@/shared/utils';
+import { formatDateToAPIString } from '@/shared/utils';
 import { debug, debug as logDebug } from '@/shared/utils/debug';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -339,6 +339,9 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
     post => post.type === 'checkout' && post.author.id === member?.id
   );
   const isCheckoutAvailable = existsMyCheckin && !existsMyCheckout;
+  const totalMembers = teamSummary?.totalMembers;
+  const nextCheckinOrder = teamSummary?.nextCheckinOrder;
+  const nextCheckoutOrder = teamSummary ? teamSummary.checkedOutCount + 1 : undefined;
 
   // 페이지 전환 중이면 빈 화면 표시
   if (isNavigatingAway) {
@@ -392,17 +395,19 @@ export function FeedPage({ spaceSlug }: FeedPageProps) {
                 <PostPromptButton
                   type="checkin"
                   onClick={() => router.push(`/${spaceSlug}/posts/checkins/new`)}
-                  orderText={
-                    teamSummary?.nextCheckinOrder && teamSummary.nextCheckinOrder > 0
-                      ? `${convertToKoreanOrder(teamSummary.nextCheckinOrder)}번째로`
-                      : undefined
-                  }
+                  order={nextCheckinOrder}
+                  totalMembers={totalMembers}
                 />
               )}
 
               {/* 체크아웃 유도 버튼 - 체크인은 있고 체크아웃이 없을 때만 표시 */}
               {isCheckoutAvailable && (
-                <PostPromptButton type="checkout" onClick={openCheckOutModal} />
+                <PostPromptButton
+                  type="checkout"
+                  onClick={openCheckOutModal}
+                  order={nextCheckoutOrder}
+                  totalMembers={totalMembers}
+                />
               )}
 
               {/* 포스트 목록 - 스크롤 영역 (스크롤바 숨김) */}
