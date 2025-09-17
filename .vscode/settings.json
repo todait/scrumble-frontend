@@ -54,5 +54,7 @@
     "**/dist": true,
     "**/.next": true,
     "**/out": true
-  }
+  },
+  "chatgpt.openOnStartup": true,
+  "chatgpt.commentCodeLensEnabled": false
 }
