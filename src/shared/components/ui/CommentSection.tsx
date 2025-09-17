@@ -340,6 +340,12 @@ function CommentItem({
     setShowEmojiPicker(true);
   };
 
+  const handleThumbQuickAdd = () => {
+    if (hasReactions) return;
+    setShowEmojiPicker(false);
+    handleReactionAdd('👍');
+  };
+
   const handleEmojiSelect = (emoji: EmojiData, event?: React.MouseEvent<HTMLDivElement>) => {
     const shiftPressed = !!event?.shiftKey;
 
@@ -516,6 +522,7 @@ function CommentItem({
                 onReactionToggle={handleReactionToggle}
                 onReactionAdd={handleReactionAdd}
                 onError={handleReactionError}
+                showDefaultThumb
               />
             </div>
           )}
@@ -526,8 +533,10 @@ function CommentItem({
           onEdit={isMyComment && onEdit ? handleEditClick : undefined}
           onDelete={isMyComment && onDelete ? onDelete : undefined}
           onEmojiAdd={!hasReactions ? handleEmojiAdd : undefined}
+          onThumbAdd={!hasReactions ? handleThumbQuickAdd : undefined}
           variant="comment"
           showEmojiButton={!hasReactions}
+          showThumbButton={!hasReactions}
           emojiButtonRef={emojiButtonRef}
         />
 

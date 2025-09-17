@@ -1,6 +1,12 @@
 'use client';
 
-import { RiDeleteBinLine, RiEdit2Line, RiMore2Line, RiEmojiStickerLine } from '@remixicon/react';
+import {
+  RiDeleteBinLine,
+  RiEdit2Line,
+  RiMore2Line,
+  RiEmojiStickerLine,
+  RiThumbUpLine,
+} from '@remixicon/react';
 import { forwardRef, useEffect, useRef, useState } from 'react';
 
 interface EditDeleteMenuProps {
@@ -12,6 +18,8 @@ interface EditDeleteMenuProps {
   variant?: 'default' | 'comment';
   showEmojiButton?: boolean;
   emojiButtonRef?: React.RefObject<HTMLButtonElement | null>;
+  showThumbButton?: boolean;
+  onThumbAdd?: () => void;
 }
 
 export function EditDeleteMenu({
@@ -23,6 +31,8 @@ export function EditDeleteMenu({
   variant = 'default',
   showEmojiButton = false,
   emojiButtonRef,
+  showThumbButton = false,
+  onThumbAdd,
 }: EditDeleteMenuProps) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -99,9 +109,21 @@ export function EditDeleteMenu({
       )}
 
       {/* 댓글용 데스크톱 호버 메뉴 */}
-      {showDesktop && variant === 'comment' && (onEdit || onDelete || (showEmojiButton && onEmojiAdd)) && (
+      {showDesktop && variant === 'comment' && (onEdit || onDelete || showEmojiButton || showThumbButton) && (
         <div className="absolute right-0 top-0 z-30 hidden opacity-0 transition-opacity group-hover:opacity-100 md:block">
           <div className="flex items-center gap-1 rounded-lg bg-white p-1 shadow-[0px_2px_8px_rgba(0,0,0,0.08)]">
+            {showThumbButton && onThumbAdd && (
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  onThumbAdd();
+                }}
+                className="flex h-7 w-7 items-center justify-center rounded hover:bg-[#F1F1F1]"
+                title="엄지 리액션"
+              >
+                <RiThumbUpLine className="h-4 w-4 text-[#222222]" />
+              </button>
+            )}
             {onEdit && (
               <button
                 onClick={e => {
@@ -144,7 +166,7 @@ export function EditDeleteMenu({
       )}
 
       {/* 모바일 더보기 메뉴 */}
-      {showMobile && (onEdit || onDelete || (showEmojiButton && onEmojiAdd)) && (
+      {showMobile && (onEdit || onDelete || showEmojiButton || showThumbButton) && (
         <MobileMoreMenu
           ref={mobileMenuRef}
           showMenu={showMobileMenu}
@@ -152,8 +174,19 @@ export function EditDeleteMenu({
           onEdit={onEdit ? handleMobileEdit : undefined}
           onDelete={onDelete ? handleMobileDelete : undefined}
           onEmojiAdd={showEmojiButton && onEmojiAdd ? handleMobileEmojiAdd : undefined}
+          onThumbAdd={
+            showThumbButton && onThumbAdd
+              ? e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setShowMobileMenu(false);
+                  onThumbAdd?.();
+                }
+              : undefined
+          }
           variant={variant}
           showEmojiButton={showEmojiButton}
+          showThumbButton={showThumbButton}
         />
       )}
     </>
@@ -169,10 +202,25 @@ interface MobileMoreMenuProps {
   onEmojiAdd?: (e: React.MouseEvent) => void;
   variant?: 'default' | 'comment';
   showEmojiButton?: boolean;
+  onThumbAdd?: (e: React.MouseEvent) => void;
+  showThumbButton?: boolean;
 }
 
 const MobileMoreMenu = forwardRef<HTMLDivElement, MobileMoreMenuProps>(
-  ({ showMenu, onMenuToggle, onEdit, onDelete, onEmojiAdd, variant = 'default', showEmojiButton = false }, ref) => (
+  (
+    {
+      showMenu,
+      onMenuToggle,
+      onEdit,
+      onDelete,
+      onEmojiAdd,
+      variant = 'default',
+      showEmojiButton = false,
+      onThumbAdd,
+      showThumbButton = false,
+    },
+    ref
+  ) => (
     <div ref={ref} className="relative md:hidden">
       <button
         onClick={onMenuToggle}
@@ -184,6 +232,15 @@ const MobileMoreMenu = forwardRef<HTMLDivElement, MobileMoreMenuProps>(
       {/* 모바일 드롭다운 메뉴 */}
       {showMenu && (
         <div className="absolute right-0 top-full z-[9999] mt-1 flex min-w-[120px] flex-col rounded-lg bg-white p-1 shadow-[0px_4px_20px_rgba(0,0,0,0.15)]">
+          {showThumbButton && onThumbAdd && (
+            <button
+              onClick={onThumbAdd}
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-[#F1F1F1]"
+            >
+              <RiThumbUpLine className="h-4 w-4 text-[#222222]" />
+              <span className="font-medium text-[#222222]">엄지 리액션</span>
+            </button>
+          )}
           {onEdit && (
             <button
               onClick={onEdit}
