@@ -506,6 +506,7 @@ export function PostContent({
               showCommentButton
               commentCount={post.commentCount || 0}
               onCommentClick={() => onCommentClick?.(post.id)}
+              showDefaultThumb
             />
           </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { RiChat1Line, RiEmojiStickerLine } from '@remixicon/react';
-import { useRef, useState } from 'react';
+import { RiChat1Line, RiEmojiStickerLine, RiThumbUpLine } from '@remixicon/react';
+import { useMemo, useRef, useState } from 'react';
 import type { EmojiData } from './EmojiPicker';
 import { EmojiPicker } from './EmojiPicker';
 
@@ -22,6 +22,7 @@ interface EmojiReactionsProps {
   showCommentButton?: boolean;
   commentCount?: number;
   onCommentClick?: () => void;
+  showDefaultThumb?: boolean;
 }
 
 export function EmojiReactions({
@@ -35,15 +36,40 @@ export function EmojiReactions({
   showCommentButton = false,
   commentCount = 0,
   onCommentClick,
+  showDefaultThumb = false,
 }: EmojiReactionsProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
+
+  const THUMBS_UP_EMOJI = '👍';
+  const thumbsUpReaction = useMemo(
+    () => reactions.find(reaction => reaction.emoji === THUMBS_UP_EMOJI),
+    [reactions]
+  );
+  const filteredReactions = useMemo(
+    () => (showDefaultThumb ? reactions.filter(reaction => reaction.emoji !== THUMBS_UP_EMOJI) : reactions),
+    [reactions, showDefaultThumb]
+  );
 
   const handleReactionClick = (emoji: string) => {
     try {
       onReactionToggle?.(emoji);
     } catch {
       onError?.('리액션 처리에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleThumbsUpClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    if (thumbsUpReaction) {
+      handleReactionClick(THUMBS_UP_EMOJI);
+    } else {
+      try {
+        onReactionAdd?.(THUMBS_UP_EMOJI);
+      } catch {
+        onError?.('리액션 추가에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 
@@ -87,7 +113,28 @@ export function EmojiReactions({
       )}
 
       {/* 기존 리액션들 */}
-      {reactions.map((reaction, index) => (
+      {showDefaultThumb && (
+        <button
+          key={`${targetType}-${targetId}-${THUMBS_UP_EMOJI}-default`}
+          onClick={handleThumbsUpClick}
+          className={`flex items-center justify-center rounded-full transition-all ${
+            thumbsUpReaction?.spaceMemberIds.includes(currentSpaceMemberId || '')
+              ? 'min-w-12 gap-1 border border-[#1D1D1F] px-[10px] py-[6px] text-sm text-[#1D1D1F] md:text-[13px]'
+              : 'min-w-[36px] border border-transparent px-2 py-[3px] text-sm text-[#6B6B6B] hover:bg-[rgba(241,241,241,0.8)] md:text-[13px]'
+          } ${thumbsUpReaction ? 'bg-[rgba(241,241,241,0.8)]' : 'bg-[rgba(241,241,241,0.5)]'}`}
+        >
+          {thumbsUpReaction?.spaceMemberIds.includes(currentSpaceMemberId || '') ? (
+            <>
+              <span>{THUMBS_UP_EMOJI}</span>
+              {thumbsUpReaction?.count ? <span>{thumbsUpReaction.count}</span> : null}
+            </>
+          ) : (
+            <RiThumbUpLine className="h-4 w-4" />
+          )}
+        </button>
+      )}
+
+      {filteredReactions.map((reaction, index) => (
         <button
           key={`${targetType}-${targetId}-${reaction.emoji}-${index}`}
           onClick={e => {
