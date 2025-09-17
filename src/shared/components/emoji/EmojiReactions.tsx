@@ -47,7 +47,10 @@ export function EmojiReactions({
     [reactions]
   );
   const filteredReactions = useMemo(
-    () => (showDefaultThumb ? reactions.filter(reaction => reaction.emoji !== THUMBS_UP_EMOJI) : reactions),
+    () =>
+      showDefaultThumb
+        ? reactions.filter(reaction => reaction.emoji !== THUMBS_UP_EMOJI)
+        : reactions,
     [reactions, showDefaultThumb]
   );
 
@@ -120,8 +123,8 @@ export function EmojiReactions({
           className={`flex items-center justify-center rounded-full transition-all ${
             thumbsUpReaction?.spaceMemberIds.includes(currentSpaceMemberId || '')
               ? 'min-w-12 gap-1 border border-[#1D1D1F] px-[10px] py-[6px] text-sm text-[#1D1D1F] md:text-[13px]'
-              : 'min-w-[36px] border border-transparent px-2 py-[3px] text-sm text-[#6B6B6B] hover:bg-[rgba(241,241,241,0.8)] md:text-[13px]'
-          } ${thumbsUpReaction ? 'bg-[rgba(241,241,241,0.8)]' : 'bg-[rgba(241,241,241,0.5)]'}`}
+              : 'min-w-[36px] border border-transparent px-2 py-[3px] text-sm text-[#222222] hover:bg-[rgba(241,241,241,0.8)] hover:opacity-100 md:text-[13px]'
+          } ${thumbsUpReaction ? '' : 'bg-[rgba(241,241,241,0.5)] opacity-50'}`}
         >
           {thumbsUpReaction?.spaceMemberIds.includes(currentSpaceMemberId || '') ? (
             <>
