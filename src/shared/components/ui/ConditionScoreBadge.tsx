@@ -1,25 +1,14 @@
 'use client';
 
+import { getConditionScoreColor } from '@/shared/constants';
+
 interface ConditionScoreBadgeProps {
   score: number;
   emoji?: string | null;
 }
 
-const scoreColors: Record<number, string> = {
-  1: '#D94848',
-  2: '#DF5E2B',
-  3: '#E0890E',
-  4: '#EDC41F',
-  5: '#6CC921',
-  6: '#21C993',
-  7: '#27A8ED',
-  8: '#3666D6',
-  9: '#6A45E2',
-  10: '#9747FF',
-};
-
 export function ConditionScoreBadge({ score, emoji: _emoji }: ConditionScoreBadgeProps) {
-  const color = scoreColors[score] || '#222222';
+  const color = getConditionScoreColor(score);
   
   return (
     <div
