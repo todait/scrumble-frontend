@@ -223,7 +223,7 @@ export function PostDetail({
 
   return (
     <WebSocketErrorBoundary>
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex h-full min-h-[100dvh] flex-col overflow-hidden md:min-h-0">
         {/* 헤더 */}
         <div className="flex items-center justify-between border-b border-[rgba(34,34,34,0.08)] px-4 py-4 md:px-[30px] md:py-5">
           <h2 className="text-base font-bold text-[#222222] md:text-lg">
@@ -238,7 +238,10 @@ export function PostDetail({
         </div>
 
         {/* 포스트 내용 */}
-        <div ref={scrollableAreaRef} className="flex-1 overflow-y-auto">
+        <div
+          ref={scrollableAreaRef}
+          className="flex-1 overflow-x-hidden overflow-y-auto pb-6 md:pb-10"
+        >
           <PostContent
             spaceSlug={spaceSlug}
             post={post}
@@ -262,7 +265,11 @@ export function PostDetail({
         </div>
 
         {/* 댓글 입력 영역 */}
-        <div ref={commentInputRef} className="bg-white px-4 pb-4 pt-2 md:px-[30px] md:pb-5">
+        <div
+          ref={commentInputRef}
+          className="border-t border-[rgba(34,34,34,0.08)] bg-white px-4 pt-2 md:px-[30px]"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
+        >
           <CommentInput
             authorName={post.author.name}
             onSubmit={handleCommentSubmit}
