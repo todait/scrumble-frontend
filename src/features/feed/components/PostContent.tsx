@@ -14,6 +14,7 @@ import {
 } from '@/shared/components/ui';
 import { TiptapViewer } from '@/shared/components/tiptap';
 import { useAuth } from '@/shared/contexts/AuthContext';
+import { isEmptyJson } from '@/shared/utils/tiptap.utils';
 import {
   useDeleteCheckIn,
   useDeleteCheckOut,
@@ -59,6 +60,29 @@ export function PostContent({
   const isCheckIn = post.type === 'checkin';
   const isCheckOut = post.type === 'checkout';
   const content = getPostContent(post) || '';
+
+  // JSON이 비어있으면 plain text로 fallback
+  const getEffectiveContent = () => {
+    if (isCheckIn && 'conditionTextJson' in post) {
+      const json = post.conditionTextJson;
+      // JSON이 없거나 비어있으면 plain text 사용
+      if (!json || isEmptyJson(json)) {
+        return post.conditionText || '';
+      }
+      return json;
+    }
+    if (isCheckOut && 'reflectionTextJson' in post) {
+      const json = post.reflectionTextJson;
+      // JSON이 없거나 비어있으면 plain text 사용
+      if (!json || isEmptyJson(json)) {
+        return post.reflectionText || '';
+      }
+      return json;
+    }
+    return content;
+  };
+
+  const effectiveContent = getEffectiveContent();
 
   const { mutate: deleteCheckIn, isPending: isDeleteCheckInPending } = useDeleteCheckIn();
   const { mutate: deleteCheckOut, isPending: isDeleteCheckOutPending } = useDeleteCheckOut();
@@ -364,13 +388,7 @@ export function PostContent({
           {/* 본문 */}
           <div className="mt-[10px] py-2">
             <TiptapViewer
-              content={
-                isCheckIn
-                  ? post.conditionTextJson ?? post.conditionText
-                  : isCheckOut
-                    ? post.reflectionTextJson ?? post.reflectionText
-                    : content
-              }
+              content={effectiveContent}
               fallbackText={content}
               maxLength={isDetailView ? undefined : 200}
               initialExpanded={isDetailView}

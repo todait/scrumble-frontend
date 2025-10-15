@@ -95,8 +95,13 @@ export const extractPlainText = (json?: JSONContent, fallbackText = ''): string 
  * @param json - 확인할 JSON 문서
  * @returns 비어있으면 true
  */
-export const isEmptyJson = (json?: JSONContent): boolean => {
+export const isEmptyJson = (json?: JSONContent | any): boolean => {
   if (!json || !isValidTiptapDoc(json)) return true;
+  
+  // content가 없거나 빈 배열이면 비어있음
+  if (!json.content || json.content.length === 0) return true;
+  
+  // 텍스트 추출해서 trim 후 빈 문자열이면 비어있음
   const text = extractPlainText(json);
   return text.trim().length === 0;
 };
