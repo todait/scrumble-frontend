@@ -98,6 +98,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   // 실시간 폼 데이터 상태 관리
   const [formScore, setFormScore] = useState<number | null>(values.score || null);
   const [formMessage, setFormMessage] = useState(values.message || '');
+  const [formMessageJson, setFormMessageJson] = useState<any>(null);
   const [formImages, setFormImages] = useState<ImageMetadata[]>(values.images || []);
 
   // 자동 저장 데이터 준비
@@ -105,6 +106,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
     () => ({
       score: formScore,
       message: formMessage,
+      messageJson: formMessageJson,
       images: formImages,
       step,
       todos: {
@@ -113,7 +115,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       },
       date: formatDateToAPIString(selectedDate),
     }),
-    [formScore, formMessage, formImages, step, yesterdayTodos, todayTodos, selectedDate]
+    [formScore, formMessage, formMessageJson, formImages, step, yesterdayTodos, todayTodos, selectedDate]
   );
 
   // 자동 저장 훅 사용
@@ -133,6 +135,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
         setValue('images', restoredData.images || []);
         setFormScore(restoredData.score);
         setFormMessage(restoredData.message || '');
+        setFormMessageJson(restoredData.messageJson || null);
         setFormImages(restoredData.images || []);
         setStep(restoredData.step);
         setYesterdayTodos(restoredData.todos.yesterday);
@@ -179,6 +182,7 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   const handleSubmit = async (data: {
     score: number;
     message: string;
+    messageJson?: any;
     images: ImageMetadata[];
   }) => {
     setIsProcessing(true);
@@ -192,12 +196,14 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
       // 폼 상태도 업데이트 (자동 저장을 위해)
       setFormScore(data.score);
       setFormMessage(data.message);
+      setFormMessageJson(data.messageJson);
       setFormImages(data.images);
 
       await save(
         {
           score: data.score,
           message: data.message,
+          messageJson: data.messageJson,
           images: data.images,
         },
         formatDateToAPIString(selectedDate)
@@ -344,9 +350,10 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
   }, [calculateInitialBroughtData]);
 
   const handleFormChange = useCallback(
-    (data: { score: number | null; message: string; images: ImageMetadata[] }) => {
+    (data: { score: number | null; message: string; messageJson?: any; images: ImageMetadata[] }) => {
       setFormScore(data.score);
       setFormMessage(data.message);
+      setFormMessageJson(data.messageJson);
       setFormImages(data.images);
     },
     []
@@ -385,9 +392,9 @@ export function CheckInWriteModal({ isOpen, onClose }: CheckInWriteModalProps) {
             onScoreRequiredToast={handleScoreRequiredToast}
             initialData={
               mode === 'edit'
-                ? { score: values.score, message: values.message, images: values.images }
+                ? { score: values.score, message: values.message, messageJson: null, images: values.images }
                 : formScore !== null
-                  ? { score: formScore, message: formMessage, images: formImages }
+                  ? { score: formScore, message: formMessage, messageJson: formMessageJson, images: formImages }
                   : undefined
             }
           />

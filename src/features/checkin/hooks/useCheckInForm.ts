@@ -10,6 +10,7 @@ interface UseCheckInFormProps {
   initialData?: {
     score: number;
     message: string;
+    messageJson?: any;
     images?: ImageMetadata[];
   };
   onSuccess?: (postId: string) => void;
@@ -19,6 +20,7 @@ interface UseCheckInFormProps {
 interface CheckInFormValues {
   score: number;
   message: string;
+  messageJson?: any;
   images: ImageMetadata[];
 }
 
@@ -32,6 +34,7 @@ export const useCheckInForm = ({
   const [values, setValues] = useState<CheckInFormValues>({
     score: initialData?.score || 0,
     message: initialData?.message || '',
+    messageJson: initialData?.messageJson,
     images: initialData?.images || [],
   });
 
@@ -47,11 +50,12 @@ export const useCheckInForm = ({
     setValues((prev) => ({ ...prev, [key]: value }));
   };
 
-  const save = async (data?: { score?: number; message?: string; images?: ImageMetadata[] }, postedDate?: string) => {
+  const save = async (data?: { score?: number; message?: string; messageJson?: any; images?: ImageMetadata[] }, postedDate?: string) => {
     try {
       const finalData = {
         score: data?.score ?? values.score,
         message: data?.message ?? values.message,
+        messageJson: data?.messageJson,
         images: data?.images ?? values.images,
       };
 
@@ -59,6 +63,7 @@ export const useCheckInForm = ({
         const result = await createMutation.mutateAsync({
           conditionScore: finalData.score,
           conditionText: finalData.message,
+          conditionTextJson: finalData.messageJson,
           images: finalData.images,
           ...(postedDate && { postedDate }),
         });
@@ -68,6 +73,7 @@ export const useCheckInForm = ({
           postId,
           conditionScore: finalData.score,
           conditionText: finalData.message,
+          conditionTextJson: finalData.messageJson,
           images: finalData.images,
         });
         onSuccess?.(postId);

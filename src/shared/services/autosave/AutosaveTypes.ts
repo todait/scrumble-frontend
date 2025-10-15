@@ -12,6 +12,7 @@ export interface AutosaveData<T> {
 export interface CheckInAutosaveData {
   score: number | null;
   message: string;
+  messageJson?: any;
   images: ImageMetadata[];
   step: 'note' | 'todo';
   todos: {
@@ -24,6 +25,7 @@ export interface CheckInAutosaveData {
 // CheckOut 임시 저장 데이터
 export interface CheckOutAutosaveData {
   message: string;
+  messageJson?: any;
   images: ImageMetadata[];
   step: 'todo' | 'checkout';
   todos: Todo[];

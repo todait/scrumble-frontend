@@ -1,4 +1,5 @@
 import type { ImageMetadata } from '@/shared/types/upload.types';
+import type { JSONContent } from '@tiptap/react';
 
 export type PostType = 'checkin' | 'checkout';
 export type FilterType = 'all' | 'checkin' | 'checkout';
@@ -47,11 +48,13 @@ export interface CheckinPost extends BasePost {
   conditionScore: number;
   conditionEmoji: string;
   conditionText: string;
+  conditionTextJson?: JSONContent | null;
 }
 
 export interface CheckoutPost extends BasePost {
   type: 'checkout';
   reflectionText: string;
+  reflectionTextJson?: JSONContent | null;
 }
 
 export type Post = CheckinPost | CheckoutPost;

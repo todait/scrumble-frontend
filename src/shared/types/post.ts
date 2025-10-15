@@ -3,6 +3,7 @@
  * 체크인/체크아웃 포스트, 댓글, 반응 등 포스트 도메인 타입들
  */
 
+import type { JSONContent } from '@tiptap/react';
 import type { DateString, ID } from './api';
 import type { ImageMetadata } from './upload.types';
 import type { Reaction, Comment } from '@/features/feed/types/feed.types';
@@ -42,8 +43,10 @@ export interface Post {
   spaceSlug: string;
   author: PostAuthor;
   conditionScore?: number; // 체크인 전용 (1-10)
-  conditionText?: string; // 체크인 메시지
-  reflectionText?: string; // 체크아웃 메시지
+  conditionText?: string; // 체크인 메시지 (plainText)
+  conditionTextJson?: JSONContent | null; // 체크인 메시지 (Tiptap JSON)
+  reflectionText?: string; // 체크아웃 메시지 (plainText)
+  reflectionTextJson?: JSONContent | null; // 체크아웃 메시지 (Tiptap JSON)
   images: ImageMetadata[];
   comments: Comment[];
   reactions: Reaction[];
@@ -140,12 +143,23 @@ export interface CreateCheckInRequest {
   postedDate?: string; // YYYY-MM-DD
   conditionScore: number; // 1-10
   conditionText: string;
+  conditionTextJson?: JSONContent | null;
   images: ImageMetadata[];
 }
 
 export type CheckInPostResponse = Required<
-  Pick<Post, 'id' | 'conditionScore' | 'conditionText' | 'postedAt' | 'createdAt' | 'updatedAt'>
->;
+  Pick<
+    Post,
+    | 'id'
+    | 'conditionScore'
+    | 'conditionText'
+    | 'postedAt'
+    | 'createdAt'
+    | 'updatedAt'
+  >
+> & {
+  conditionTextJson?: JSONContent | null;
+};
 
 export interface CreateCheckInResponse {
   message: string;
@@ -156,6 +170,7 @@ export interface UpdateCheckInRequest {
   postId: string;
   conditionScore: number;
   conditionText: string;
+  conditionTextJson?: JSONContent | null;
   images: ImageMetadata[];
 }
 
@@ -175,12 +190,15 @@ export interface DeleteCheckInResponse {
 export interface CreateCheckOutRequest {
   postedDate?: string; // YYYY-MM-DD
   reflectionText?: string;
+  reflectionTextJson?: JSONContent | null;
   images: ImageMetadata[];
 }
 
 export type CheckOutPostResponse = Required<
   Pick<Post, 'id' | 'reflectionText' | 'postedAt' | 'createdAt' | 'updatedAt'>
->;
+> & {
+  reflectionTextJson?: JSONContent | null;
+};
 
 export interface CreateCheckOutResponse {
   message: string;
@@ -190,6 +208,7 @@ export interface CreateCheckOutResponse {
 export interface UpdateCheckOutRequest {
   postId: string;
   reflectionText: string;
+  reflectionTextJson?: JSONContent | null;
   images: ImageMetadata[];
 }
 
