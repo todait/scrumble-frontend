@@ -41,9 +41,9 @@
 
 ### 1.5 저장 및 API
 
-- [ ] CheckIn 저장 시 `conditionText` (plainText) 전송
-- [ ] CheckIn 저장 시 `conditionTextJson` (Tiptap JSON) 전송
-- [ ] 저장 성공 시 토스트 메시지 표시
+- [x] CheckIn 저장 시 `conditionText` (plainText) 전송
+- [x] CheckIn 저장 시 `conditionTextJson` (Tiptap JSON) 전송
+- [x] 저장 성공 시 토스트 메시지 표시
 - [ ] 저장 실패 시 에러 메시지 표시
 
 ---
@@ -52,27 +52,27 @@
 
 ### 2.1 기본 텍스트 작성
 
-- [ ] CheckOut 작성 모달에서 텍스트 입력 가능
-- [ ] Enter 키로 줄바꿈 가능
-- [ ] Placeholder 텍스트 정상 표시
-- [ ] CMD+Enter로 저장 가능
+- [x] CheckOut 작성 모달에서 텍스트 입력 가능
+- [x] Enter 키로 줄바꿈 가능
+- [x] Placeholder 텍스트 정상 표시
+- [x] CMD+Enter로 저장 가능
 
 ### 2.2 텍스트 스타일링
 
-- [ ] 플로팅 툴바 기능 모두 동작 (CheckIn과 동일)
-- [ ] Bold, Italic, Underline, Strike
-- [ ] List, Blockquote, Code
+- [x] 플로팅 툴바 기능 모두 동작 (CheckIn과 동일)
+- [x] Bold, Italic, Underline, Strike
+- [x] List, Blockquote, Code
 
 ### 2.3 링크 및 이미지
 
-- [ ] 링크 추가/제거 기능 동작
-- [ ] 이미지 업로드 기능 동작
+- [x] 링크 추가/제거 기능 동작
+- [x] 이미지 업로드 기능 동작
 
 ### 2.4 저장 및 API
 
-- [ ] CheckOut 저장 시 `reflectionText` (plainText) 전송
-- [ ] CheckOut 저장 시 `reflectionTextJson` (Tiptap JSON) 전송
-- [ ] 저장 성공 시 토스트 메시지 표시
+- [x] CheckOut 저장 시 `reflectionText` (plainText) 전송
+- [x] CheckOut 저장 시 `reflectionTextJson` (Tiptap JSON) 전송
+- [x] 저장 성공 시 토스트 메시지 표시
 
 ---
 
@@ -80,16 +80,16 @@
 
 ### 3.1 기존 Post 불러오기
 
-- [ ] 수정 모달 열 시 기존 텍스트 표시
-- [ ] 기존 스타일 (Bold, Italic 등) 유지
-- [ ] 기존 링크 유지
-- [ ] 기존 이미지 표시
+- [x] 수정 모달 열 시 기존 텍스트 표시
+- [x] 기존 스타일 (Bold, Italic 등) 유지
+- [x] 기존 링크 유지
+- [x] 기존 이미지 표시
 
 ### 3.2 수정 후 저장
 
-- [ ] 수정된 내용이 정상 저장
-- [ ] `conditionText`와 `conditionTextJson` 모두 업데이트
-- [ ] 수정 성공 시 토스트 메시지 표시
+- [x] 수정된 내용이 정상 저장
+- [x] `conditionText`와 `conditionTextJson` 모두 업데이트
+- [x] 수정 성공 시 토스트 메시지 표시
 
 ---
 
@@ -97,15 +97,15 @@
 
 ### 4.1 기존 Post 불러오기
 
-- [ ] 수정 모달 열 시 기존 텍스트 표시
-- [ ] 기존 스타일 유지
-- [ ] 기존 링크 유지
-- [ ] 기존 이미지 표시
+- [x] 수정 모달 열 시 기존 텍스트 표시
+- [x] 기존 스타일 유지
+- [x] 기존 링크 유지
+- [x] 기존 이미지 표시
 
 ### 4.2 수정 후 저장
 
-- [ ] 수정된 내용이 정상 저장
-- [ ] `reflectionText`와 `reflectionTextJson` 모두 업데이트
+- [x] 수정된 내용이 정상 저장
+- [x] `reflectionText`와 `reflectionTextJson` 모두 업데이트
 
 ---
 
