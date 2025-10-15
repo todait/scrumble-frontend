@@ -41,7 +41,7 @@ export function CheckOutEditModal({
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, onClose]);
 
-  const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
+  const handleSubmit = (data: { message: string; messageJson?: any; images: ImageMetadata[] }) => {
     data.message = data.message.trim();
     if (data.message === '') {
       error({
@@ -54,6 +54,7 @@ export function CheckOutEditModal({
       {
         postId: post.id,
         reflectionText: data.message,
+        reflectionTextJson: data.messageJson,
         images: data.images,
       },
       {
@@ -67,6 +68,7 @@ export function CheckOutEditModal({
 
   const initialData = {
     message: post.reflectionText,
+    messageJson: post.reflectionTextJson,
     images: post.images,
   };
 

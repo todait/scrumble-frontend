@@ -54,16 +54,18 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
 
   // 실시간 폼 데이터 상태 관리
   const [formMessage, setFormMessage] = useState(message);
+  const [formMessageJson, setFormMessageJson] = useState<any>(null);
   const [formImages, setFormImages] = useState<ImageMetadata[]>(images);
 
   // 자동 저장 데이터 준비
   const autosaveData = useMemo<CheckOutAutosaveData>(() => ({
     message: formMessage,
+    messageJson: formMessageJson,
     images: formImages,
     step,
     todos: todayData,
     date: formatDateToAPIString(selectedDate),
-  }), [formMessage, formImages, step, todayData, selectedDate]);
+  }), [formMessage, formMessageJson, formImages, step, todayData, selectedDate]);
 
   // 자동 저장 훅 사용
   const { status: autosaveStatus, restore, remove: removeAutosave } = useAutosave<CheckOutAutosaveData>({
@@ -76,6 +78,7 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
         setMessage(restoredData.message || '');
         setImages(restoredData.images || []);
         setFormMessage(restoredData.message || '');
+        setFormMessageJson(restoredData.messageJson || null);
         setFormImages(restoredData.images || []);
         setStep(restoredData.step);
         // TODO: Todo 데이터 복원은 API와 동기화 필요
@@ -118,19 +121,21 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, onClose]);
 
-  const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
+  const handleSubmit = (data: { message: string; messageJson?: any; images: ImageMetadata[] }) => {
     setIsProcessing(true);
     
     // 상태 업데이트 (자동 저장을 위해)
     setMessage(data.message);
     setImages(data.images);
     setFormMessage(data.message);
+    setFormMessageJson(data.messageJson);
     setFormImages(data.images);
 
     createCheckOut(
       {
         postedDate: formatDateToAPIString(selectedDate),
         reflectionText: data.message,
+        reflectionTextJson: data.messageJson,
         images: data.images || [],
       },
       {
@@ -168,8 +173,9 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
   // TodoContainer props 수정
   // (convertToTodos 함수 삭제)
 
-  const handleFormChange = useCallback((data: { message: string; images: ImageMetadata[] }) => {
+  const handleFormChange = useCallback((data: { message: string; messageJson?: any; images: ImageMetadata[] }) => {
     setFormMessage(data.message);
+    setFormMessageJson(data.messageJson);
     setFormImages(data.images);
   }, []);
 
@@ -244,7 +250,7 @@ export function CheckOutWriteModal({ isOpen, onClose }: CheckOutWriteModalProps)
             onChange={handleFormChange}
             disabled={isPending || isProcessing}
             isLoading={isPending || isProcessing}
-            initialData={{ message: formMessage, images: formImages }}
+            initialData={{ message: formMessage, messageJson: formMessageJson, images: formImages }}
           />
         </>
       )}

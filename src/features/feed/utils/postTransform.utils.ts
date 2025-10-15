@@ -60,12 +60,14 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
       conditionScore: apiPost.conditionScore || 5,
       conditionEmoji: getConditionEmoji(apiPost.conditionScore || 5),
       conditionText: apiPost.conditionText || '',
+    conditionTextJson: apiPost.conditionTextJson || null,
     } satisfies CheckinPost;
   } else {
     return {
       ...basePost,
       type: 'checkout' as const,
       reflectionText: apiPost.reflectionText || '',
+    reflectionTextJson: apiPost.reflectionTextJson || null,
     } satisfies CheckoutPost;
   }
 };

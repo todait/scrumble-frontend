@@ -44,17 +44,16 @@
 
 ### Frontend Stack
 
-- **Framework**: Next.js 15.1.8 (App Router)
-- **Language**: TypeScript 5.x
-- **Styling**: Tailwind CSS + Pretendard Font
-- **State Management**: Zustand 5.0.5
-- **API Client**: Axios 1.9.0 + React Query 5.77.0
-- **Real-time**: WebSocket (native) - _planned_
-- **Animations**: Framer Motion 12.12.2
-- **Forms**: React Hook Form 7.56.4 + Zod 3.25.28
-- **Icons**: Lucide React + React Icons
-- **PWA**: next-pwa 5.6.0 - _configured_
-- **Testing**: Jest 29.7.0 + React Testing Library 16.3.0 - _setup required_
+- **Framework**: Next.js 15.1.8 (App Router) on React 19 with Turbopack dev server
+- **Language**: TypeScript 5 (strict mode)
+- **Styling**: Tailwind CSS 3.4, tailwind-merge, class-variance-authority, Pretendard font, PostCSS/Autoprefixer
+- **State & Data**: Zustand 5 for client state, TanStack Query 5 + Axios 1.9 for server communication
+- **Forms & Validation**: React Hook Form 7, Zod 3, @hookform/resolvers 5
+- **Real-time**: Centrifugo integration via the `centrifuge` client with automatic reconnect and channel persistence
+- **File & Media**: Cloudflare R2 presigned uploads, HEIC to web conversion utilities (`heic2any`, `libheif-js`)
+- **UI/UX**: Framer Motion 12, Emoji Mart, Lucide/Remix icon sets, React Day Picker, React Window virtualization
+- **PWA**: next-pwa 5.6.0 service worker + manifest configuration
+- **Testing**: Jest 29.7.0 + React Testing Library 16.3.0 for unit tests, Playwright 1.52 for E2E regression suites
 
 ### Backend (별도 레포지토리)
 

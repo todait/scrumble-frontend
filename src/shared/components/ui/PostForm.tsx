@@ -1,22 +1,24 @@
 'use client';
 
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
+import { TiptapEditor } from '@/shared/components/tiptap';
+import type { JSONContent } from '@/shared/components/tiptap';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiCheckLine, RiImageLine } from '@remixicon/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ImagePreviewList } from './ImagePreviewList';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface PostFormProps {
-  onSubmit: (data: { message: string; images: ImageMetadata[] }) => void;
-  onChange?: (data: { message: string; images: ImageMetadata[] }) => void;
+  onSubmit: (data: { message: string; messageJson?: JSONContent | null; images: ImageMetadata[] }) => void;
+  onChange?: (data: { message: string; messageJson?: JSONContent | null; images: ImageMetadata[] }) => void;
   disabled?: boolean;
   isLoading?: boolean;
   placeholder?: string;
   initialMessage?: string;
+  initialMessageJson?: JSONContent | null;
   initialImages?: ImageMetadata[];
   children?: React.ReactNode;
   onTextAreaClick?: () => void;
@@ -30,12 +32,14 @@ export const PostForm = ({
   isLoading = false,
   placeholder = '오늘 하루는 어떠셨나요? 팀원들과 나누고 싶은 이야기를 들려주세요.',
   initialMessage = '',
+  initialMessageJson = null,
   initialImages = [],
   children,
   onTextAreaClick,
   submitDisabled = false,
 }: PostFormProps) => {
-  const [message, setMessage] = useState(initialMessage);
+  const messageJsonRef = useRef<JSONContent | null>(initialMessageJson);
+  const messagePlainTextRef = useRef<string>(initialMessage);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +48,11 @@ export const PostForm = ({
       initialImages,
       onUploadComplete: (images) => {
         if (onChange) {
-          onChange({ message, images });
+          onChange({ 
+            message: messagePlainTextRef.current, 
+            messageJson: messageJsonRef.current, 
+            images 
+          });
         }
       },
       onError: error => {
@@ -57,93 +65,92 @@ export const PostForm = ({
     acceptedFileTypes: ['image/'],
   });
 
-  // 클립보드 이미지 붙여넣기 기능
-  const { textareaProps } = useTextareaClipboardImagePaste({
-    onImagePaste: uploadImages,
-    onError: error => {
-      alert(error);
-    },
-    enabled: !disabled,
-  });
-
-  // removeImage 래핑 함수
   const handleRemoveImage = (imageId: string) => {
     removeImage(imageId);
-    // 이미지 제거 후 즉시 onChange 호출
     if (onChange) {
       const updatedImages = completedImages.filter(img => 
         uploadingImages.find(ui => ui.id === imageId)?.metadata?.url !== img.url
       );
-      onChange({ message, images: updatedImages });
+      onChange({ 
+        message: messagePlainTextRef.current, 
+        messageJson: messageJsonRef.current, 
+        images: updatedImages 
+      });
     }
   };
 
   useEffect(() => {
-    setMessage(initialMessage);
-  }, [initialMessage]);
+    messageJsonRef.current = initialMessageJson;
+    messagePlainTextRef.current = initialMessage;
+  }, [initialMessage, initialMessageJson]);
 
-  // 제출 핸들러
+  const handleEditorChange = (json: JSONContent, text: string) => {
+    messageJsonRef.current = json;
+    messagePlainTextRef.current = text;
+
+    if (onChange) {
+      onChange({
+        message: text,
+        messageJson: json,
+        images: completedImages,
+      });
+    }
+  };
+
   const handleSubmit = () => {
-    if (message.trim() || completedImages.length > 0) {
-      // 상태 초기화하지 않고 그대로 전달
-      onSubmit({ message, images: completedImages });
+    if (messagePlainTextRef.current.trim() || completedImages.length > 0) {
+      onSubmit({
+        message: messagePlainTextRef.current,
+        messageJson: messageJsonRef.current,
+        images: completedImages,
+      });
     }
   };
 
-  // 외부에서 저장 성공 시 상태를 초기화할 수 있도록 useEffect 추가
   useEffect(() => {
-    // isLoading이 true에서 false로 변경되면 (저장 완료) 상태 초기화
-    if (!isLoading && !initialMessage && initialImages.length === 0) {
+    if (!isLoading && !initialMessage && !initialMessageJson && initialImages.length === 0) {
       clearImages();
-      setMessage('');
+      messagePlainTextRef.current = '';
+      messageJsonRef.current = null;
     }
-  }, [isLoading, initialMessage, initialImages.length, clearImages]);
+  }, [isLoading, initialMessage, initialMessageJson, initialImages.length, clearImages]);
 
-  // 업로드 중인 이미지가 있는지 확인
   const hasUploadingImages = uploadingImages.some(
     img => (img.progress > 0 && img.progress < 100) || !img.metadata
   );
 
   const isSubmitDisabled =
-    (!message.trim() && completedImages.length === 0) ||
+    (!messagePlainTextRef.current.trim() && completedImages.length === 0) ||
     disabled ||
     isLoading ||
     submitDisabled ||
     isUploading ||
-    hasUploadingImages; // 업로드 중인 이미지가 있으면 submit 방지
+    hasUploadingImages;
 
   return (
     <div ref={formRef} className="relative" {...dragHandlers}>
       {children}
 
       <div className={`px-2 transition-colors md:px-7 ${isDragging ? 'bg-blue-50' : ''}`}>
-        <div className="relative cursor-text rounded-xl py-3" onClick={onTextAreaClick}>
-          <textarea
-            {...textareaProps}
-            value={message}
-            onChange={e => {
-              const newMessage = e.target.value;
-              setMessage(newMessage);
-              if (onChange) {
-                onChange({ message: newMessage, images: completedImages });
-              }
-            }}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                // 모든 Enter 키 이벤트에 대해 전파 차단
-                e.nativeEvent.stopImmediatePropagation();
-
-                // CMD/Meta + Enter인 경우에만 폼 제출
-                if (e.metaKey && !isSubmitDisabled) {
+        <div className="relative cursor-text rounded-xl py-3">
+          <TiptapEditor
+            content={initialMessageJson}
+            onChange={handleEditorChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            minHeight={240}
+            onEditorClick={onTextAreaClick}
+            className="min-h-[240px]"
+            onKeyDown={(e) => {
+              if (e.metaKey && e.key === 'Enter') {
+                if (messagePlainTextRef.current.trim() || completedImages.length > 0) {
                   e.preventDefault();
                   handleSubmit();
+                  return true;
                 }
-                // 일반 Enter는 줄바꿈을 위해 기본 동작 유지
               }
+              return false;
             }}
-            placeholder={placeholder}
-            className="h-[240px] w-full resize-none border-none p-[10px] text-base text-black placeholder-gray-400 outline-none disabled:cursor-not-allowed md:text-[15px]"
-            disabled={disabled}
           />
         </div>
 
