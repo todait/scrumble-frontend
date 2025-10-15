@@ -5,6 +5,7 @@ export * from './heic-converter';
 export { SubscriptionManager, subscriptionManager } from './subscriptionManager';
 export * from './time';
 export * from './timezone';
+export * from './tiptap.utils';
 
 /**
  * 숫자를 한국어 순서로 변환
