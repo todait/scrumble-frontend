@@ -2,11 +2,15 @@ import { QueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { getUserTimezone } from '../utils/timezone';
-import { TokenManager, SpaceMemberTokenManager } from './token';
-import { determineTokenType, handleTokenRefresh, handleAuthFailure } from './api/tokenRefreshHandler';
+import {
+  determineTokenType,
+  handleAuthFailure,
+  handleTokenRefresh,
+} from './api/tokenRefreshHandler';
+import { SpaceMemberTokenManager, TokenManager } from './token';
 
 // API 기본 URL 설정
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8079';
 
 // QueryClient 인스턴스를 외부에서 설정할 수 있도록
 let queryClientInstance: QueryClient | null = null;
@@ -73,12 +77,17 @@ apiClient.interceptors.response.use(
       // 에러 코드로 토큰 타입 확인
       const errorCode = error.response.data?.code;
       const errorDetails = error.response.data?.details;
-      const isUserTokenError = errorCode === 'TOKEN_EXPIRED' || errorCode === 'MISSING_AUTH_HEADER' || 
-                              errorCode === 'INVALID_AUTH_HEADER' || errorCode === 'UNAUTHORIZED';
-      const isSpaceMemberTokenError = errorCode === 'SPACE_MEMBER_EXPIRED' || errorCode === 'SPACE_MEMBER_NOT_FOUND' ||
-                                     errorDetails?.error_code === 'SPACE_MEMBER_TOKEN_EXPIRED' ||
-                                     errorDetails?.error_code === 'SPACE_MEMBER_TOKEN_INVALID' ||
-                                     errorDetails?.error_code === 'SPACE_MEMBER_NOT_FOUND';
+      const isUserTokenError =
+        errorCode === 'TOKEN_EXPIRED' ||
+        errorCode === 'MISSING_AUTH_HEADER' ||
+        errorCode === 'INVALID_AUTH_HEADER' ||
+        errorCode === 'UNAUTHORIZED';
+      const isSpaceMemberTokenError =
+        errorCode === 'SPACE_MEMBER_EXPIRED' ||
+        errorCode === 'SPACE_MEMBER_NOT_FOUND' ||
+        errorDetails?.error_code === 'SPACE_MEMBER_TOKEN_EXPIRED' ||
+        errorDetails?.error_code === 'SPACE_MEMBER_TOKEN_INVALID' ||
+        errorDetails?.error_code === 'SPACE_MEMBER_NOT_FOUND';
 
       // 명시적인 에러 코드가 없으면 URL로 판단
       const tokenType = isUserTokenError
@@ -92,9 +101,13 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // 토큰 갱신 실패 시 무조건 인증 실패 처리
         handleAuthFailure(queryClientInstance);
-        
-        if (refreshError && typeof refreshError === 'object' && 'type' in refreshError && 
-            (refreshError as any).type === 'AUTH_FAILURE') {
+
+        if (
+          refreshError &&
+          typeof refreshError === 'object' &&
+          'type' in refreshError &&
+          (refreshError as any).type === 'AUTH_FAILURE'
+        ) {
           const authError = refreshError as { type: string; error?: unknown };
           return Promise.reject(authError.error || refreshError);
         }
@@ -111,19 +124,21 @@ apiClient.interceptors.response.use(
     // 404 에러 중 인증 관련 엔드포인트 처리
     if (error.response?.status === 404 && !originalRequest._retry) {
       const url = originalRequest.url || '';
-      const isAuthEndpoint = url.includes('/space-members/me') || 
-                            url.includes('/users/me') ||
-                            url.includes('/api/v1/spaces/') ||
-                            url.includes('/api/v1/posts');
-      
+      const isAuthEndpoint =
+        url.includes('/space-members/me') ||
+        url.includes('/users/me') ||
+        url.includes('/api/v1/spaces/') ||
+        url.includes('/api/v1/posts');
+
       if (isAuthEndpoint) {
         originalRequest._retry = true;
-        
+
         // SpaceMember 엔드포인트면 SpaceMember 토큰 갱신
-        const tokenType = url.includes('/space-members/') || url.includes('/spaces/') || url.includes('/posts')
-          ? 'spaceMember' 
-          : 'user';
-          
+        const tokenType =
+          url.includes('/space-members/') || url.includes('/spaces/') || url.includes('/posts')
+            ? 'spaceMember'
+            : 'user';
+
         try {
           return await handleTokenRefresh(tokenType, originalRequest, queryClientInstance);
         } catch (refreshError) {

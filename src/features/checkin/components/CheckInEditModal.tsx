@@ -28,6 +28,7 @@ export function CheckInEditModal({ isOpen, onClose, post, onSubmit }: CheckInEdi
     initialData: {
       score: post.conditionScore,
       message: post.conditionText,
+      messageJson: post.conditionTextJson,
       images: post.images,
     },
     onSuccess: () => {
@@ -44,6 +45,7 @@ export function CheckInEditModal({ isOpen, onClose, post, onSubmit }: CheckInEdi
   const handleSubmit = async (data: {
     score: number;
     message: string;
+    messageJson?: any;
     images: ImageMetadata[];
   }) => {
     const trimmedMessage = data.message.trim();
@@ -62,6 +64,7 @@ export function CheckInEditModal({ isOpen, onClose, post, onSubmit }: CheckInEdi
     await save({
       score: data.score,
       message: trimmedMessage,
+      messageJson: data.messageJson,
       images: data.images,
     });
   };
@@ -97,6 +100,7 @@ export function CheckInEditModal({ isOpen, onClose, post, onSubmit }: CheckInEdi
         initialData={{
           score: values.score,
           message: values.message,
+          messageJson: values.messageJson,
           images: values.images,
         }}
         disabled={isLoading}

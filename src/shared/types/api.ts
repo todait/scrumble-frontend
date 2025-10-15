@@ -168,7 +168,9 @@ export interface GetPostsApiResponse {
     author: ApiUser;
     condition_score?: number;
     condition_text?: string;
+    condition_text_json?: any;
     reflection_text?: string;
+    reflection_text_json?: any;
     images: ApiImage[];
     comments: ApiComment[];
     reactions?: ApiReaction[];
@@ -297,6 +299,7 @@ export interface CreateCheckInApiResponse {
     id: string;
     condition_score: number;
     condition_text: string;
+    condition_text_json?: any;
     posted_at: string;
     created_at: string;
     updated_at: string;
@@ -308,6 +311,7 @@ export interface CreateCheckOutApiResponse {
   post: {
     id: string;
     reflection_text: string;
+    reflection_text_json?: any;
     posted_at: string;
     created_at: string;
     updated_at: string;
@@ -320,6 +324,7 @@ export interface UpdateCheckInApiResponse {
     id: string;
     condition_score: number;
     condition_text: string;
+    condition_text_json?: any;
     posted_at: string;
     created_at: string;
     updated_at: string;
@@ -331,6 +336,7 @@ export interface UpdateCheckOutApiResponse {
   post: {
     id: string;
     reflection_text: string;
+    reflection_text_json?: any;
     posted_at: string;
     created_at: string;
     updated_at: string;

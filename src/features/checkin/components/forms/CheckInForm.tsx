@@ -1,17 +1,18 @@
 'use client';
 
 import { PostForm } from '@/shared/components/ui';
+import type { JSONContent } from '@/shared/components/tiptap';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScoreSelector } from '../ui';
 
 interface CheckInFormProps {
-  onSubmit: (data: { score: number; message: string; images: ImageMetadata[] }) => void;
-  onChange?: (data: { score: number | null; message: string; images: ImageMetadata[] }) => void;
+  onSubmit: (data: { score: number; message: string; messageJson?: JSONContent | null; images: ImageMetadata[] }) => void;
+  onChange?: (data: { score: number | null; message: string; messageJson?: JSONContent | null; images: ImageMetadata[] }) => void;
   disabled?: boolean;
   isLoading?: boolean;
-  initialData?: { score: number; message: string; images?: ImageMetadata[] };
-  onScoreRequiredToast?: () => void; // 점수 선택 요구 Toast 콜백
+  initialData?: { score: number; message: string; messageJson?: JSONContent | null; images?: ImageMetadata[] };
+  onScoreRequiredToast?: () => void;
 }
 
 export const CheckInForm = ({
@@ -23,12 +24,16 @@ export const CheckInForm = ({
   onScoreRequiredToast,
 }: CheckInFormProps) => {
   const [selectedScore, setSelectedScore] = useState<number | null>(initialData?.score || null);
-  const [currentFormData, setCurrentFormData] = useState<{ message: string; images: ImageMetadata[] }>({
+  const [currentFormData, setCurrentFormData] = useState<{
+    message: string;
+    messageJson?: JSONContent | null;
+    images: ImageMetadata[];
+  }>({
     message: initialData?.message || '',
-    images: initialData?.images || []
+    messageJson: initialData?.messageJson || null,
+    images: initialData?.images || [],
   });
-  
-  // selectedScore를 ref로도 관리하여 콜백에서 최신 값 참조
+
   const selectedScoreRef = useRef(selectedScore);
   selectedScoreRef.current = selectedScore;
 
@@ -38,7 +43,11 @@ export const CheckInForm = ({
     }
   }, [initialData]);
 
-  const handleSubmit = (data: { message: string; images: ImageMetadata[] }) => {
+  const handleSubmit = (data: {
+    message: string;
+    messageJson?: JSONContent | null;
+    images: ImageMetadata[];
+  }) => {
     if (!selectedScore) {
       if (onScoreRequiredToast) {
         onScoreRequiredToast();
@@ -46,7 +55,12 @@ export const CheckInForm = ({
       return;
     }
     if (selectedScore && data.message.trim()) {
-      onSubmit({ score: selectedScore, message: data.message, images: data.images });
+      onSubmit({
+        score: selectedScore,
+        message: data.message,
+        messageJson: data.messageJson,
+        images: data.images,
+      });
     }
   };
 
@@ -63,16 +77,29 @@ export const CheckInForm = ({
   const handleScoreChange = (score: number | null) => {
     setSelectedScore(score);
     if (onChange) {
-      onChange({ score, message: currentFormData.message, images: currentFormData.images });
+      onChange({
+        score,
+        message: currentFormData.message,
+        messageJson: currentFormData.messageJson,
+        images: currentFormData.images,
+      });
     }
   };
 
-  const handlePostFormChange = useCallback((data: { message: string; images: ImageMetadata[] }) => {
-    setCurrentFormData(data);
-    if (onChange) {
-      onChange({ score: selectedScoreRef.current, message: data.message, images: data.images });
-    }
-  }, [onChange]);
+  const handlePostFormChange = useCallback(
+    (data: { message: string; messageJson?: JSONContent | null; images: ImageMetadata[] }) => {
+      setCurrentFormData(data);
+      if (onChange) {
+        onChange({
+          score: selectedScoreRef.current,
+          message: data.message,
+          messageJson: data.messageJson,
+          images: data.images,
+        });
+      }
+    },
+    [onChange]
+  );
 
   return (
     <PostForm
@@ -82,6 +109,7 @@ export const CheckInForm = ({
       submitDisabled={!selectedScore}
       isLoading={isLoading}
       initialMessage={initialData?.message}
+      initialMessageJson={initialData?.messageJson}
       initialImages={initialData?.images}
       placeholder={placeholder}
       onTextAreaClick={handleTextAreaClick}

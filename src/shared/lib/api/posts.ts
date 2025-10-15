@@ -43,6 +43,22 @@ import { convertApiCommentToComment } from './comments';
 import { convertApiReactionsToReactions } from '@/shared/utils/reactions.utils';
 
 /**
+ * JSON 문자열을 파싱하는 헬퍼 함수
+ * 이미 객체인 경우 그대로 반환, 문자열인 경우 파싱
+ */
+const parseJsonField = (field: any): any => {
+  if (!field) return null;
+  if (typeof field === 'string') {
+    try {
+      return JSON.parse(field);
+    } catch {
+      return null;
+    }
+  }
+  return field;
+};
+
+/**
  * 백엔드 API 응답을 프론트엔드 타입으로 변환하는 함수
  * snake_case에서 camelCase로 변환하고 필요한 필드 추가
  */
@@ -63,7 +79,9 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     },
     conditionScore: apiPost.condition_score,
     conditionText: apiPost.condition_text,
+    conditionTextJson: parseJsonField(apiPost.condition_text_json),
     reflectionText: apiPost.reflection_text,
+    reflectionTextJson: parseJsonField(apiPost.reflection_text_json),
     images: apiPost.images || [],
     comments: apiPost.comments ? apiPost.comments.map(convertApiCommentToComment) : [],
     reactions: convertApiReactionsToReactions(apiPost.reactions),
@@ -192,6 +210,7 @@ export const postsApi = {
     const { data } = await apiClient.post<CreateCheckInApiResponse>(`/api/v1/posts/checkin`, {
       condition_score: params.conditionScore,
       condition_text: params.conditionText,
+      condition_text_json: params.conditionTextJson,
       ...(params.postedDate ? { posted_date: params.postedDate } : {}),
       images: params.images,
     });
@@ -202,6 +221,7 @@ export const postsApi = {
         id: data.post.id,
         conditionScore: data.post.condition_score,
         conditionText: data.post.condition_text,
+        conditionTextJson: parseJsonField(data.post.condition_text_json),
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,
@@ -212,6 +232,7 @@ export const postsApi = {
   createCheckOut: async (params: CreateCheckOutRequest): Promise<CreateCheckOutResponse> => {
     const { data } = await apiClient.post<CreateCheckOutApiResponse>(`/api/v1/posts/checkout`, {
       reflection_text: params.reflectionText,
+      reflection_text_json: params.reflectionTextJson,
       ...(params.postedDate ? { posted_date: params.postedDate } : {}),
       images: params.images,
     });
@@ -221,6 +242,7 @@ export const postsApi = {
       post: {
         id: data.post.id,
         reflectionText: data.post.reflection_text,
+        reflectionTextJson: parseJsonField(data.post.reflection_text_json),
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,
@@ -234,6 +256,7 @@ export const postsApi = {
       {
         condition_score: params.conditionScore,
         condition_text: params.conditionText,
+        condition_text_json: params.conditionTextJson,
         images: params.images,
       }
     );
@@ -244,6 +267,7 @@ export const postsApi = {
         id: data.post.id,
         conditionScore: data.post.condition_score,
         conditionText: data.post.condition_text,
+        conditionTextJson: parseJsonField(data.post.condition_text_json),
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,
@@ -256,6 +280,7 @@ export const postsApi = {
       `/api/v1/posts/checkout/${params.postId}`,
       {
         reflection_text: params.reflectionText,
+        reflection_text_json: params.reflectionTextJson,
         images: params.images,
       }
     );
@@ -265,6 +290,7 @@ export const postsApi = {
       post: {
         id: data.post.id,
         reflectionText: data.post.reflection_text,
+        reflectionTextJson: parseJsonField(data.post.reflection_text_json),
         postedAt: data.post.posted_at,
         createdAt: data.post.created_at,
         updatedAt: data.post.updated_at,

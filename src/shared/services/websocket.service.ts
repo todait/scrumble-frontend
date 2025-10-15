@@ -56,7 +56,7 @@ export class WebSocketService {
 
   constructor() {
     // 환경 변수에서 WebSocket URL 가져오기
-    this.wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/ws';
+    this.wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8079/ws';
   }
 
   /**

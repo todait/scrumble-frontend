@@ -12,6 +12,7 @@ import {
   ImageViewer,
   ProfileImage,
 } from '@/shared/components/ui';
+import { TiptapViewer } from '@/shared/components/tiptap';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import {
   useDeleteCheckIn,
@@ -46,7 +47,7 @@ export function PostContent({
   onReaction,
   onCommentClick,
 }: PostContentProps) {
-  const [showFullContent, setShowFullContent] = useState(isDetailView);
+
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
@@ -58,7 +59,7 @@ export function PostContent({
   const isCheckIn = post.type === 'checkin';
   const isCheckOut = post.type === 'checkout';
   const content = getPostContent(post) || '';
-  const contentPreview = content && content.length > 200 ? content.slice(0, 200) + '...' : content;
+
   const { mutate: deleteCheckIn, isPending: isDeleteCheckInPending } = useDeleteCheckIn();
   const { mutate: deleteCheckOut, isPending: isDeleteCheckOutPending } = useDeleteCheckOut();
   const { refetch: refetchExistsCheckin } = useExistsCheckin({
@@ -362,37 +363,19 @@ export function PostContent({
 
           {/* 본문 */}
           <div className="mt-[10px] py-2">
-            {showFullContent ? (
-              <p
-                className={`whitespace-pre-wrap ${contentTextSize}`}
-                style={{ color: '#1D1D1F', fontWeight: 400 }}
-              >
-                {content}
-              </p>
-            ) : (
-              <p
-                className={`whitespace-pre-wrap ${contentTextSize}`}
-                style={{ color: '#1D1D1F', fontWeight: 400 }}
-              >
-                {content.length > 200 ? (
-                  <>
-                    {contentPreview.replace(/\.\.\.$/, '')}
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowFullContent(true);
-                      }}
-                      className="ml-1 text-[15px] font-medium text-[#A0A0A0] hover:text-[#808080]"
-                    >
-                      ...더보기
-                    </button>
-                  </>
-                ) : (
-                  content
-                )}
-              </p>
-            )}
+            <TiptapViewer
+              content={
+                isCheckIn
+                  ? post.conditionTextJson ?? post.conditionText
+                  : isCheckOut
+                    ? post.reflectionTextJson ?? post.reflectionText
+                    : content
+              }
+              fallbackText={content}
+              maxLength={isDetailView ? undefined : 200}
+              initialExpanded={isDetailView}
+              className={contentTextSize}
+            />
           </div>
 
           {/* 이미지 섹션 */}
