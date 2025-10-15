@@ -4,6 +4,7 @@ import { ProfileImage } from '@/shared/components/ui';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import type { CommentNotificationPayload, NotificationDTO } from '@/shared/types/notification';
 import { formatTime } from '@/shared/utils';
+import { extractPlainText } from '@/shared/utils/tiptap.utils';
 import { memo } from 'react';
 import {
   getActionAuthorDisplayName,
@@ -23,6 +24,9 @@ const CommentItem = memo(function CommentItem({ notification, onClick }: Comment
   const { post, comment } = payload;
 
   if (!comment) return null;
+
+  // JSON → plainText 추출 후 truncate
+  const commentText = extractPlainText(comment.contentJson, comment.content || '');
 
   return (
     <div
@@ -49,7 +53,7 @@ const CommentItem = memo(function CommentItem({ notification, onClick }: Comment
           </div>
           <div className="text-[13px] text-[#1D1D1F]">
             {getActionAuthorDisplayName(comment.author.id, comment.author.name, member?.id, '댓글')}
-            : <span className="text-[#6E6E73]">{truncateText(comment.content || '', 150)}</span>
+            : <span className="text-[#6E6E73]">{truncateText(commentText, 150)}</span>
           </div>
         </div>
 

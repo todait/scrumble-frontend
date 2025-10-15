@@ -10,6 +10,7 @@ import {
   UpdateCommentResponse,
 } from '@/shared/types/comment';
 import { convertApiReactionsToReactions } from '@/shared/utils/reactions.utils';
+import { normalizeApiJson } from '@/shared/utils/tiptap.utils';
 import { apiClient } from '../api';
 
 /**
@@ -40,6 +41,7 @@ export const convertApiCommentToComment = (apiComment: ApiComment): Comment => (
     profileImage: apiComment.author.avatar_url || '',
   },
   content: apiComment.content,
+  contentJson: normalizeApiJson(apiComment.content_json, apiComment.content),
   createdAt: new Date(apiComment.created_at),
   images: apiComment.images?.map(convertApiImageToImage),
   reactions: convertApiReactionsToReactions(apiComment.reactions),
@@ -49,6 +51,7 @@ export const commentsApi = {
   createComment: async (params: CreateCommentRequest): Promise<CreateCommentResponse> => {
     const { data } = await apiClient.post(`/api/v1/posts/${params.postId}/comments`, {
       content: params.content,
+      content_json: params.contentJson ?? null,
       images: params.images,
     });
 
@@ -58,6 +61,7 @@ export const commentsApi = {
         id: data.comment.id,
         postId: data.comment.post_id,
         content: data.comment.content,
+        contentJson: normalizeApiJson(data.comment.content_json, data.comment.content),
         createdAt: data.comment.created_at,
         updatedAt: data.comment.updated_at,
         author: {
@@ -76,6 +80,7 @@ export const commentsApi = {
       `/api/v1/posts/${params.postId}/comments/${params.commentId}`,
       {
         content: params.content,
+        content_json: params.contentJson ?? null,
         images: params.images,
       }
     );
@@ -86,6 +91,7 @@ export const commentsApi = {
         id: data.comment.id,
         postId: data.comment.post_id,
         content: data.comment.content,
+        contentJson: normalizeApiJson(data.comment.content_json, data.comment.content),
         createdAt: data.comment.created_at,
         updatedAt: data.comment.updated_at,
         author: {

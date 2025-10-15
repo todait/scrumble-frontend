@@ -196,6 +196,7 @@ export interface ApiComment {
     avatar_url: string;
   };
   content: string;
+  content_json?: unknown; // Tiptap JSON (object or stringified)
   created_at: string;
   updated_at: string;
   images?: {

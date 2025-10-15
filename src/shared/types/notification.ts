@@ -142,6 +142,7 @@ export interface CommentNotificationPayload {
   comment: {
     commentId: string;
     content: string;
+    contentJson?: any; // Tiptap JSON
     author: {
       id: string;
       name: string;
@@ -183,6 +184,7 @@ export interface CommentReactionNotificationPayload {
   comment: {
     commentId: string;
     content: string;
+    contentJson?: any; // Tiptap JSON
     author: {
       id: string;
       name: string;

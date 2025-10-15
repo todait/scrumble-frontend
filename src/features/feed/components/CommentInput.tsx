@@ -1,18 +1,19 @@
 'use client';
 
+import { TiptapEditor } from '@/shared/components/tiptap/TiptapEditor';
 import { IconButton, ImagePreviewList, LoadingSpinner } from '@/shared/components/ui';
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine, RiSendPlaneFill } from '@remixicon/react';
-import { useEffect, useRef, useState } from 'react';
+import type { JSONContent } from '@tiptap/core';
+import { useRef, useState } from 'react';
 
 interface CommentInputProps {
   authorName: string;
   placeholder?: string;
-  onSubmit: (content: string, images: ImageMetadata[]) => void;
+  onSubmit: (content: string, contentJson: JSONContent | undefined, images: ImageMetadata[]) => void;
   isSubmitting?: boolean; // 사용하지 않지만 API 호환성을 위해 유지
 }
 
@@ -22,10 +23,8 @@ export function CommentInput({
   onSubmit,
   isSubmitting: _isSubmitting = false, // _ prefix로 사용하지 않음을 명시
 }: CommentInputProps) {
-  const [content, setContent] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const [isComposing, setIsComposing] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [plainText, setPlainText] = useState('');
+  const [contentJson, setContentJson] = useState<JSONContent | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { uploadImages, uploadingImages, completedImages, removeImage, clearImages, isUploading } =
@@ -40,44 +39,20 @@ export function CommentInput({
     acceptedFileTypes: ['image/'],
   });
 
-  // 클립보드 이미지 붙여넣기 기능
-  const { textareaProps } = useTextareaClipboardImagePaste({
-    onImagePaste: uploadImages,
-    onError: error => {
-      alert(error);
-    },
-    enabled: true,
-  });
-
-  // textarea 높이 자동 조정
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '22px';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = `${Math.min(scrollHeight, 150)}px`;
-    }
-  }, [content]);
-
   const handleSubmit = () => {
-    if (content.trim() || completedImages.length > 0) {
+    if (plainText.trim() || completedImages.length > 0) {
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
-      const contentToSubmit = content.trim();
+      const textToSubmit = plainText.trim();
+      const jsonToSubmit = contentJson;
 
       // 상태 초기화를 먼저 수행
       clearImages();
-      setContent('');
+      setPlainText('');
+      setContentJson(undefined);
 
       // 복사된 데이터로 제출
-      onSubmit(contentToSubmit, imagesToSubmit);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // 한글 조합 중이거나 isComposing이 true인 경우 Enter 처리 방지
-    if (e.key === 'Enter' && !e.shiftKey && !isComposing && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-      handleSubmit();
+      onSubmit(textToSubmit, jsonToSubmit, imagesToSubmit);
     }
   };
 
@@ -87,7 +62,7 @@ export function CommentInput({
   );
 
   const isSubmitEnabled =
-    (content.trim().length > 0 || completedImages.length > 0) &&
+    (plainText.trim().length > 0 || completedImages.length > 0) &&
     !isUploading &&
     !hasUploadingImages;
 
@@ -100,32 +75,29 @@ export function CommentInput({
       }`}
       {...dragHandlers}
     >
-      {/* 텍스트 입력 영역 */}
+      {/* 텍스트 입력 영역 - TiptapEditor */}
       <div className="flex items-start gap-2">
         <div className="relative flex-1">
-          <textarea
-            {...textareaProps}
-            ref={textareaRef}
-            data-comment-input
-            value={content}
-            onChange={e => setContent(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onKeyDown={handleKeyDown}
-            onCompositionStart={() => setIsComposing(true)}
-            onCompositionEnd={() => setIsComposing(false)}
-            className="w-full resize-none overflow-y-auto border-none bg-transparent text-[15px] leading-[1.4] text-[#181818] focus:outline-none"
-            style={{ minHeight: '22px', maxHeight: '150px' }}
+          <TiptapEditor
+            content={contentJson}
+            onChange={(json, text) => {
+              setContentJson(json);
+              setPlainText(text);
+            }}
+            placeholder={displayPlaceholder}
+            minHeight={22}
+            maxHeight={150}
             disabled={false}
+            onKeyDown={(event, editor) => {
+              // Enter 키로 제출 (Shift+Enter는 줄바꿈)
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                handleSubmit();
+                return true;
+              }
+              return false;
+            }}
           />
-          {/* 커서 애니메이션 - 빈 상태일 때만 */}
-          {!content && !isFocused && (
-            <div className="pointer-events-none absolute left-0 top-0">
-              <span className="text-[15px] leading-[1.4] text-[#181818] opacity-20">
-                {displayPlaceholder}
-              </span>
-            </div>
-          )}
         </div>
       </div>
 

@@ -20,6 +20,7 @@ export interface Comment {
   id: string;
   author: Member;
   content: string;
+  contentJson?: any; // Tiptap JSON
   createdAt: Date;
   updatedAt?: Date;
   images?: ImageMetadata[];
