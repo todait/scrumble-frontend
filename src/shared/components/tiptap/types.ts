@@ -17,6 +17,7 @@ export interface TiptapEditorProps {
   onFocus?: () => void;
   onBlur?: () => void;
   onKeyDown?: (event: KeyboardEvent, editor: Editor) => boolean;
+  onPaste?: (event: ClipboardEvent) => boolean;
 }
 
 export interface TiptapViewerProps {

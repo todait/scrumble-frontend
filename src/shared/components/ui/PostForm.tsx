@@ -4,6 +4,7 @@ import { TiptapEditor } from '@/shared/components/tiptap';
 import type { JSONContent } from '@/shared/components/tiptap';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
+import { useClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiCheckLine, RiImageLine } from '@remixicon/react';
@@ -59,6 +60,14 @@ export const PostForm = ({
         alert(error);
       },
     });
+
+  const { handlePaste: handleClipboardPaste } = useClipboardImagePaste({
+    onImagePaste: uploadImages,
+    onError: error => {
+      alert(error);
+    },
+    enabled: !disabled,
+  });
 
   const { isDragging, dragHandlers } = useDragAndDrop({
     onDrop: uploadImages,
@@ -151,6 +160,7 @@ export const PostForm = ({
               }
               return false;
             }}
+            onPaste={handleClipboardPaste}
           />
         </div>
 

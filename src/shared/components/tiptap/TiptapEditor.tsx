@@ -21,6 +21,7 @@ export const TiptapEditor = ({
   onFocus,
   onBlur,
   onKeyDown,
+  onPaste,
 }: TiptapEditorProps) => {
   const editor: Editor | null = useEditor({
     immediatelyRender: typeof window !== 'undefined',
@@ -31,6 +32,7 @@ export const TiptapEditor = ({
       attributes: {
         class: 'tiptap-editor-content',
         'data-placeholder': placeholder,
+        'data-tiptap-editor': 'true',
       },
       handleDOMEvents: {
         mousedown: () => {
@@ -43,6 +45,12 @@ export const TiptapEditor = ({
       handleKeyDown: (view, event) => {
         if (onKeyDown) {
           return onKeyDown(event, editor!);
+        }
+        return false;
+      },
+      handlePaste: (_view, event) => {
+        if (!disabled && onPaste) {
+          return onPaste(event);
         }
         return false;
       },

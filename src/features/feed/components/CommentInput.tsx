@@ -4,11 +4,12 @@ import { TiptapEditor } from '@/shared/components/tiptap/TiptapEditor';
 import { IconButton, ImagePreviewList, LoadingSpinner } from '@/shared/components/ui';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
+import { useClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine, RiSendPlaneFill } from '@remixicon/react';
 import type { JSONContent } from '@tiptap/core';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface CommentInputProps {
   authorName: string;
@@ -25,7 +26,10 @@ export function CommentInput({
 }: CommentInputProps) {
   const [plainText, setPlainText] = useState('');
   const [contentJson, setContentJson] = useState<JSONContent | undefined>();
+  const [editorKey, setEditorKey] = useState(0); // 에디터 강제 리렌더용
+  const [shouldFocus, setShouldFocus] = useState(false); // 제출 후 포커스 플래그
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
 
   const { uploadImages, uploadingImages, completedImages, removeImage, clearImages, isUploading } =
     useImageUpload({
@@ -39,6 +43,13 @@ export function CommentInput({
     acceptedFileTypes: ['image/'],
   });
 
+  const { handlePaste: handleClipboardPaste } = useClipboardImagePaste({
+    onImagePaste: uploadImages,
+    onError: error => {
+      alert(error);
+    },
+  });
+
   const handleSubmit = () => {
     if (plainText.trim() || completedImages.length > 0) {
       // 이미지 상태를 먼저 복사해서 안전하게 전달
@@ -46,15 +57,33 @@ export function CommentInput({
       const textToSubmit = plainText.trim();
       const jsonToSubmit = contentJson;
 
-      // 상태 초기화를 먼저 수행
+      // 복사된 데이터로 제출
+      onSubmit(textToSubmit, jsonToSubmit, imagesToSubmit);
+
+      // 제출 후 상태 초기화
       clearImages();
       setPlainText('');
       setContentJson(undefined);
-
-      // 복사된 데이터로 제출
-      onSubmit(textToSubmit, jsonToSubmit, imagesToSubmit);
+      setEditorKey(prev => prev + 1); // 에디터 강제 리마운트
+      setShouldFocus(true); // 포커스 플래그 설정
     }
   };
+
+  // 에디터 리마운트 후 포커스
+  useEffect(() => {
+    if (shouldFocus) {
+      // 에디터가 리마운트될 시간을 주기 위해 약간의 지연
+      const timer = setTimeout(() => {
+        const editor = editorContainerRef.current?.querySelector('[data-tiptap-editor]');
+        if (editor) {
+          (editor as HTMLElement).focus();
+        }
+        setShouldFocus(false);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [shouldFocus, editorKey]); // editorKey 변경 시에도 확인
 
   // 업로드 중인 이미지가 있는지 확인
   const hasUploadingImages = uploadingImages.some(
@@ -76,9 +105,10 @@ export function CommentInput({
       {...dragHandlers}
     >
       {/* 텍스트 입력 영역 - TiptapEditor */}
-      <div className="flex items-start gap-2">
+      <div ref={editorContainerRef} className="flex items-start gap-2">
         <div className="relative flex-1">
           <TiptapEditor
+            key={editorKey}
             content={contentJson}
             onChange={(json, text) => {
               setContentJson(json);
@@ -88,7 +118,7 @@ export function CommentInput({
             minHeight={22}
             maxHeight={150}
             disabled={false}
-            onKeyDown={(event, editor) => {
+            onKeyDown={(event, _editor) => {
               // Enter 키로 제출 (Shift+Enter는 줄바꿈)
               if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -97,6 +127,7 @@ export function CommentInput({
               }
               return false;
             }}
+            onPaste={handleClipboardPaste}
           />
         </div>
       </div>
