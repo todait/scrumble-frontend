@@ -39,7 +39,7 @@
 
 /* Viewer */
 .tiptap-viewer-wrapper {
-  @apply w-full;
+  @apply w-full relative;
 }
 
 .tiptap-viewer-content {
@@ -156,6 +156,7 @@
   max-height: 10.5rem; /* ~7 lines at 1.6 line-height */
   overflow: hidden;
   position: relative;
+  padding-right: 3.5rem; /* leave space for expand button */
 }
 
 .tiptap-viewer-wrapper .tiptap-clamped::after {
@@ -163,8 +164,13 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  right: 4rem; /* leave space for the ...더보기 button */
+  right: 0;
   height: 2.2rem;
   background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
   pointer-events: none;
+}
+
+.tiptap-expand-button {
+  @apply absolute right-0 bottom-0 text-[15px] font-medium text-[#A0A0A0] hover:text-[#808080];
+  @apply bg-white pl-2;
 }
