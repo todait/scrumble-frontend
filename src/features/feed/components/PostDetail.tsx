@@ -10,6 +10,7 @@ import {
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { debug as logDebug } from '@/shared/utils/debug';
 import { RiCloseLine } from '@remixicon/react';
+import type { JSONContent } from '@tiptap/core';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useScrollToHighlightedComment } from '../hooks';
@@ -97,9 +98,9 @@ export function PostDetail({
               behavior: 'instant',
             });
           }
-          const textarea = commentInputRef.current?.querySelector('textarea');
-          if (textarea) {
-            textarea.focus();
+          const editorEl = commentInputRef.current?.querySelector('[data-tiptap-editor]');
+          if (editorEl) {
+            (editorEl as HTMLElement).focus();
           }
         }
       }, 100); // PostDetail 렌더링 완료 후 실행
@@ -107,9 +108,9 @@ export function PostDetail({
       // 기존 동작 - textarea 활성화만 수행
       setTimeout(() => {
         const commentInput = commentInputRef.current;
-        const textarea = commentInput?.querySelector('textarea');
-        if (textarea) {
-          textarea.focus();
+        const editorEl = commentInput?.querySelector('[data-tiptap-editor]');
+        if (editorEl) {
+          (editorEl as HTMLElement).focus();
         }
       }, 100); // PostDetail 렌더링 완료 후 실행
     }
@@ -142,7 +143,12 @@ export function PostDetail({
     setEditingCommentId(prev => (prev === commentId ? null : commentId));
   };
 
-  const handleCommentUpdate = (commentId: string, content: string, images: ImageMetadata[]) => {
+  const handleCommentUpdate = (
+    commentId: string,
+    content: string,
+    contentJson: JSONContent | undefined,
+    images: ImageMetadata[]
+  ) => {
     // Optimistic UI: 즉시 편집 모드 종료
     setEditingCommentId(null);
 
@@ -151,6 +157,7 @@ export function PostDetail({
         commentId,
         postId: post.id,
         content,
+        contentJson,
         images,
       },
       {
@@ -190,20 +197,25 @@ export function PostDetail({
     }
   };
 
-  const handleCommentSubmit = (content: string, images: ImageMetadata[]) => {
+  const handleCommentSubmit = (
+    content: string,
+    contentJson: JSONContent | undefined,
+    images: ImageMetadata[]
+  ) => {
     createComment(
       {
         postId: post.id,
         content,
+        contentJson,
         images,
       },
       {
         onSuccess: () => {
-          // 1. 댓글 제출 성공 후 textarea에 다시 포커스
+          // 1. 댓글 제출 성공 후 TiptapEditor에 다시 포커스
           setTimeout(() => {
-            const textarea = commentInputRef.current?.querySelector('textarea');
-            if (textarea) {
-              textarea.focus();
+            const editor = commentInputRef.current?.querySelector('[data-tiptap-editor]');
+            if (editor) {
+              (editor as HTMLElement).focus();
             }
           }, 100);
 

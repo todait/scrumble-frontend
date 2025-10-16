@@ -1,4 +1,5 @@
 import type { Post as ApiPost } from '@/shared/types/post';
+import { normalizeApiJson } from '@/shared/utils/tiptap.utils';
 import type { CheckinPost, CheckoutPost, Post as FeedPost } from '../types/feed.types';
 
 /**
@@ -33,7 +34,9 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
           profileImage: comment.author.profileImage ?? '',
         },
         content: comment.content,
+        contentJson: normalizeApiJson(comment.contentJson, comment.content),
         createdAt: new Date(comment.createdAt),
+        updatedAt: comment.updatedAt ? new Date(comment.updatedAt) : undefined,
         images: comment.images,
         reactions: comment.reactions || [], // 댓글 reactions 추가
       })) || [],
@@ -60,14 +63,14 @@ export const convertApiPostToFeedPost = (apiPost: ApiPost): FeedPost => {
       conditionScore: apiPost.conditionScore || 5,
       conditionEmoji: getConditionEmoji(apiPost.conditionScore || 5),
       conditionText: apiPost.conditionText || '',
-    conditionTextJson: apiPost.conditionTextJson || null,
+      conditionTextJson: apiPost.conditionTextJson || null,
     } satisfies CheckinPost;
   } else {
     return {
       ...basePost,
       type: 'checkout' as const,
       reflectionText: apiPost.reflectionText || '',
-    reflectionTextJson: apiPost.reflectionTextJson || null,
+      reflectionTextJson: apiPost.reflectionTextJson || null,
     } satisfies CheckoutPost;
   }
 };

@@ -1,5 +1,6 @@
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import type { JSONContent } from '@tiptap/react';
+import { normalizeApiJson } from '@/shared/utils/tiptap.utils';
 
 export type PostType = 'checkin' | 'checkout';
 export type FilterType = 'all' | 'checkin' | 'checkout';
@@ -20,6 +21,7 @@ export interface Comment {
   id: string;
   author: Member;
   content: string;
+  contentJson?: JSONContent | null;
   createdAt: Date;
   updatedAt?: Date;
   images?: ImageMetadata[];
@@ -104,6 +106,7 @@ export interface WebSocketComment {
   };
   content: string;
   createdAt: string; // WebSocket에서는 string
+  contentJson?: JSONContent | string | null;
   images?: ImageMetadata[];
 }
 
@@ -116,6 +119,7 @@ export const transformWebSocketComment = (wsComment: WebSocketComment): Comment 
     profileImage: wsComment.author.avatarURL, // avatarURL -> profileImage
   },
   content: wsComment.content,
+  contentJson: normalizeApiJson(wsComment.contentJson, wsComment.content),
   createdAt: new Date(wsComment.createdAt), // string -> Date
   images: wsComment.images || [],
 });

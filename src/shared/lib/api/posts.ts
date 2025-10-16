@@ -83,7 +83,15 @@ const convertApiPostToPost = (apiPost: GetPostsApiResponse['posts'][0]): Post =>
     reflectionText: apiPost.reflection_text,
     reflectionTextJson: parseJsonField(apiPost.reflection_text_json),
     images: apiPost.images || [],
-    comments: apiPost.comments ? apiPost.comments.map(convertApiCommentToComment) : [],
+    comments: apiPost.comments ? apiPost.comments.map((c, idx) => {
+      console.log(`[transformApiPostToPost] Comment ${idx}:`, {
+        id: c.id,
+        has_content_json: !!c.content_json,
+        content_json_type: typeof c.content_json,
+        content_preview: c.content?.substring(0, 50),
+      });
+      return convertApiCommentToComment(c);
+    }) : [],
     reactions: convertApiReactionsToReactions(apiPost.reactions),
     todoCount: apiPost.todo_count,
     completedTodoCount: apiPost.completed_todo_count,

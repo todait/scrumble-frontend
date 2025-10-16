@@ -10,6 +10,7 @@ import {
   UpdateCommentResponse,
 } from '@/shared/types/comment';
 import { convertApiReactionsToReactions } from '@/shared/utils/reactions.utils';
+import { normalizeApiJson } from '@/shared/utils/tiptap.utils';
 import { apiClient } from '../api';
 
 /**
@@ -32,23 +33,42 @@ export const convertApiImageToImage = (apiImage: ApiImage): CommentImage => ({
  * @param apiComment - 백엔드 API에서 반환된 댓글 데이터
  * @returns 프론트엔드에서 사용하는 Comment 타입
  */
-export const convertApiCommentToComment = (apiComment: ApiComment): Comment => ({
-  id: apiComment.id,
-  author: {
-    id: apiComment.author.id,
-    name: apiComment.author.name,
-    profileImage: apiComment.author.avatar_url || '',
-  },
-  content: apiComment.content,
-  createdAt: new Date(apiComment.created_at),
-  images: apiComment.images?.map(convertApiImageToImage),
-  reactions: convertApiReactionsToReactions(apiComment.reactions),
-});
+export const convertApiCommentToComment = (apiComment: ApiComment): Comment => {
+  console.log('[convertApiCommentToComment]', {
+    commentId: apiComment.id,
+    has_content_json: !!apiComment.content_json,
+    content_json_type: typeof apiComment.content_json,
+    content_json_preview: apiComment.content_json ? JSON.stringify(apiComment.content_json).substring(0, 100) : null,
+  });
+
+  const contentJson = normalizeApiJson(apiComment.content_json, apiComment.content);
+  
+  console.log('[convertApiCommentToComment] normalized:', {
+    commentId: apiComment.id,
+    has_normalized: !!contentJson,
+    normalized_preview: contentJson ? JSON.stringify(contentJson).substring(0, 100) : null,
+  });
+
+  return {
+    id: apiComment.id,
+    author: {
+      id: apiComment.author.id,
+      name: apiComment.author.name,
+      profileImage: apiComment.author.avatar_url || '',
+    },
+    content: apiComment.content,
+    contentJson,
+    createdAt: new Date(apiComment.created_at),
+    images: apiComment.images?.map(convertApiImageToImage),
+    reactions: convertApiReactionsToReactions(apiComment.reactions),
+  };
+};
 
 export const commentsApi = {
   createComment: async (params: CreateCommentRequest): Promise<CreateCommentResponse> => {
     const { data } = await apiClient.post(`/api/v1/posts/${params.postId}/comments`, {
       content: params.content,
+      content_json: params.contentJson ?? null,
       images: params.images,
     });
 
@@ -58,6 +78,7 @@ export const commentsApi = {
         id: data.comment.id,
         postId: data.comment.post_id,
         content: data.comment.content,
+        contentJson: normalizeApiJson(data.comment.content_json, data.comment.content),
         createdAt: data.comment.created_at,
         updatedAt: data.comment.updated_at,
         author: {
@@ -76,6 +97,7 @@ export const commentsApi = {
       `/api/v1/posts/${params.postId}/comments/${params.commentId}`,
       {
         content: params.content,
+        content_json: params.contentJson ?? null,
         images: params.images,
       }
     );
@@ -86,6 +108,7 @@ export const commentsApi = {
         id: data.comment.id,
         postId: data.comment.post_id,
         content: data.comment.content,
+        contentJson: normalizeApiJson(data.comment.content_json, data.comment.content),
         createdAt: data.comment.created_at,
         updatedAt: data.comment.updated_at,
         author: {

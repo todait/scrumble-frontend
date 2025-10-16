@@ -2,9 +2,24 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import Underline from '@tiptap/extension-underline';
+import type { AnyExtension } from '@tiptap/core';
+
+function dedupeExtensions(extensions: AnyExtension[]) {
+  const seen = new Set<string>();
+  return extensions.filter(extension => {
+    if (!extension?.name) {
+      return true;
+    }
+    if (seen.has(extension.name)) {
+      return false;
+    }
+    seen.add(extension.name);
+    return true;
+  });
+}
 
 export function getDefaultExtensions(placeholder?: string) {
-  return [
+  return dedupeExtensions([
     StarterKit.configure({
       heading: false,
       bulletList: {
@@ -46,11 +61,11 @@ export function getDefaultExtensions(placeholder?: string) {
       showOnlyCurrent: true,
       emptyEditorClass: 'is-editor-empty',
     }),
-  ];
+  ]);
 }
 
 export function getViewerExtensions() {
-  return [
+  return dedupeExtensions([
     StarterKit.configure({
       heading: false,
       bulletList: {
@@ -85,5 +100,5 @@ export function getViewerExtensions() {
       },
     }),
     Underline,
-  ];
+  ]);
 }

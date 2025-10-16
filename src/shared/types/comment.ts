@@ -1,5 +1,6 @@
 import type { DateString, ID } from './api';
 import { ImageMetadata } from './upload.types';
+import type { JSONContent } from '@tiptap/core';
 
 export interface CommentAuthor {
   id: ID;
@@ -22,6 +23,7 @@ export interface Comment {
   postId: ID;
   author: CommentAuthor;
   content: string;
+  contentJson?: JSONContent; // Tiptap JSON
   createdAt: DateString;
   updatedAt?: DateString;
   images?: CommentImage[];
@@ -30,12 +32,13 @@ export interface Comment {
 export interface CreateCommentRequest {
   postId: string;
   content: string;
+  contentJson?: JSONContent; // Tiptap JSON
   images: ImageMetadata[];
 }
 
 export type CommentResponse = Required<
   Pick<Comment, 'id' | 'postId' | 'author' | 'content' | 'createdAt' | 'updatedAt'>
-> & Pick<Comment, 'images'>;
+> & Pick<Comment, 'images' | 'contentJson'>;
 
 export interface CreateCommentResponse {
   message: string;
@@ -46,6 +49,7 @@ export interface UpdateCommentRequest {
   commentId: string;
   postId: string;
   content: string;
+  contentJson?: JSONContent; // Tiptap JSON
   images: ImageMetadata[];
 }
 
