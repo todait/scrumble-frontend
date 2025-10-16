@@ -4,10 +4,12 @@ import type { Comment } from '@/features/feed/types/feed.types';
 import { EmojiReactions } from '@/shared/components/emoji';
 import type { EmojiData } from '@/shared/components/emoji/EmojiPicker';
 import { EmojiPicker } from '@/shared/components/emoji/EmojiPicker';
+import { TiptapEditor, TiptapViewer } from '@/shared/components/tiptap';
 import { useAuth } from '@/shared/contexts/AuthContext';
+import type { JSONContent } from '@tiptap/core';
 import { useToast } from '@/shared/hooks/useToast';
 import { useToggleReaction } from '@/shared/hooks/queries/useReactions';
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
+import { useClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
 import type { ImageMetadata } from '@/shared/types/upload.types';
@@ -34,7 +36,12 @@ interface CommentSectionProps {
   renderComment?: (comment: Comment, index: number) => ReactNode;
   onCommentEdit?: (commentId: string) => void;
   onCommentDelete?: (commentId: string) => void;
-  onCommentUpdate?: (commentId: string, content: string, images: ImageMetadata[]) => void;
+  onCommentUpdate?: (
+    commentId: string,
+    content: string,
+    contentJson: JSONContent | undefined,
+    images: ImageMetadata[]
+  ) => void;
   editingCommentId?: string | null;
   isUpdating?: boolean;
   highlightedCommentId?: string | null;
@@ -134,7 +141,12 @@ interface CommentItemProps {
   className?: string;
   onEdit?: () => void;
   onDelete?: () => void;
-  onUpdate?: (commentId: string, content: string, images: ImageMetadata[]) => void;
+  onUpdate?: (
+    commentId: string,
+    content: string,
+    contentJson: JSONContent | undefined,
+    images: ImageMetadata[]
+  ) => void;
   editingCommentId?: string | null;
   isUpdating?: boolean;
   isHighlighted?: boolean;
@@ -156,11 +168,12 @@ function CommentItem({
   // const spaceSlug = params.spaceSlug as string;
   const isMyComment = member?.id === comment.author.id;
   const isEditing = editingCommentId === comment.id;
-  const [editContent, setEditContent] = useState(comment.content);
+  const [editPlainText, setEditPlainText] = useState(comment.content);
+  const [editContentJson, setEditContentJson] = useState<JSONContent | undefined>(
+    comment.contentJson ?? undefined
+  );
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
-  const [isComposing, setIsComposing] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wasEditingRef = useRef(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
@@ -191,7 +204,7 @@ function CommentItem({
   });
 
   // 클립보드 이미지 붙여넣기 설정
-  const { textareaProps } = useTextareaClipboardImagePaste({
+  const { handlePaste: handleClipboardPaste } = useClipboardImagePaste({
     onImagePaste: uploadImages,
     onError: error => {
       show(error);
@@ -201,8 +214,9 @@ function CommentItem({
 
   // 편집 상태 변경 시 콘텐츠 초기화 및 편집 종료 시 최신 데이터 반영
   useEffect(() => {
-    setEditContent(comment.content);
-  }, [comment.content]);
+    setEditPlainText(comment.content);
+    setEditContentJson(comment.contentJson ?? undefined);
+  }, [comment.content, comment.contentJson]);
 
   // 편집 모드 시작 시에만 기존 이미지 초기화 (오직 한 번만)
   useEffect(() => {
@@ -220,27 +234,15 @@ function CommentItem({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]); // 의존성 배열에서 clearImages와 initializeWithImages 제거
 
-  // textarea 높이 자동 조정
+  // 편집 모드 진입 시 포커스
   useEffect(() => {
-    if (textareaRef.current && isEditing) {
-      const textarea = textareaRef.current;
-
-      // 높이 자동 조정
-      textarea.style.height = '22px';
-      const scrollHeight = textarea.scrollHeight;
-      textarea.style.height = `${Math.min(scrollHeight, 300)}px`;
-    }
-  }, [editContent, isEditing]);
-
-  // 편집 모드 진입 시 포커스 및 커서 위치 설정
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      const textarea = textareaRef.current;
-      textarea.focus();
-      // 커서를 텍스트 끝으로 이동
-      textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-      // 스크롤도 맨 아래로
-      textarea.scrollTop = textarea.scrollHeight;
+    if (isEditing && editingContainerRef.current) {
+      setTimeout(() => {
+        const editorEl = editingContainerRef.current?.querySelector('[data-tiptap-editor]');
+        if (editorEl) {
+          (editorEl as HTMLElement).focus();
+        }
+      }, 100);
     }
   }, [isEditing]);
 
@@ -273,14 +275,15 @@ function CommentItem({
   };
 
   const handleCancel = () => {
-    setEditContent(comment.content);
+    setEditPlainText(comment.content);
+    setEditContentJson(comment.contentJson ?? undefined);
     clearImages();
     if (onEdit) onEdit(); // 편집 모드 종료 신호
   };
 
   const handleSave = () => {
-    if ((editContent.trim() || completedImages.length > 0) && onUpdate) {
-      onUpdate(comment.id, editContent.trim(), completedImages);
+    if ((editPlainText.trim() || completedImages.length > 0) && onUpdate) {
+      onUpdate(comment.id, editPlainText.trim(), editContentJson, completedImages);
       // 편집 모드는 성공 응답 후에 종료하도록 변경
     }
   };
@@ -290,10 +293,10 @@ function CommentItem({
   );
 
   const isSaveEnabled =
-    (editContent.trim().length > 0 || completedImages.length > 0) &&
+    (editPlainText.trim().length > 0 || completedImages.length > 0) &&
     !isUploading &&
     !hasUploadingImages &&
-    (editContent.trim() !== comment.content.trim() || // 내용이 변경되었거나
+    (editPlainText.trim() !== comment.content.trim() || // 내용이 변경되었거나
       completedImages.length !== (comment.images?.length || 0)); // 이미지가 변경되었을 때
 
   const handleReactionToggle = (emoji: string) => {
@@ -392,24 +395,28 @@ function CommentItem({
           {/* 편집 영역 */}
           <div className="space-y-3" {...dragHandlers}>
             <div className="relative">
-              <textarea
-                {...textareaProps}
-                ref={textareaRef}
-                value={editContent}
-                onChange={e => setEditContent(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
-                    e.preventDefault();
+              <TiptapEditor
+                content={editContentJson}
+                onChange={(json, text) => {
+                  setEditContentJson(json);
+                  setEditPlainText(text);
+                }}
+                placeholder="댓글을 수정하세요..."
+                minHeight={60}
+                maxHeight={300}
+                disabled={false}
+                className="w-full rounded-lg border border-[rgba(34,34,34,0.08)] bg-white focus-within:border-[#9747FF]"
+                onPaste={handleClipboardPaste}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
                     if (isSaveEnabled) {
                       handleSave();
                     }
+                    return true;
                   }
+                  return false;
                 }}
-                onCompositionStart={() => setIsComposing(true)}
-                onCompositionEnd={() => setIsComposing(false)}
-                className="w-full resize-none overflow-y-auto rounded-lg border border-[rgba(34,34,34,0.08)] bg-white p-3 text-sm text-[#222222] focus:border-[#9747FF] focus:outline-none md:text-[14px]"
-                style={{ minHeight: '60px', maxHeight: '300px' }}
-                disabled={false}
               />
 
               {/* 드래그 오버레이 */}
@@ -504,9 +511,13 @@ function CommentItem({
               {formattedTime}
             </span>
           </div>
-          <p className="whitespace-pre-line text-sm text-[#222222] md:text-[14px]">
-            {comment.content}
-          </p>
+          <div className="text-sm text-[#222222] md:text-[14px]">
+            <TiptapViewer
+              content={comment.contentJson ?? comment.content}
+              fallbackText={comment.content}
+              className="text-sm text-[#222222] md:text-[14px]"
+            />
+          </div>
           {comment.images && comment.images.length > 0 && (
             <ImageGallery images={comment.images} className="mt-2" />
           )}

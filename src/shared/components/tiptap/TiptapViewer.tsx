@@ -105,7 +105,7 @@ export const TiptapViewer = ({
       {shouldTruncate && (
         <button
           onClick={handleExpand}
-          className="ml-1 text-[15px] font-medium text-[#A0A0A0] hover:text-[#808080] inline"
+          className="tiptap-expand-button"
         >
           {expandText}
         </button>

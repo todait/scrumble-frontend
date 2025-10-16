@@ -15,6 +15,7 @@ import type {
 } from '@/shared/types/websocket.types';
 import { convertWebSocketImageToImageMetadata } from '@/shared/types/websocket.types';
 import { formatDateToAPIString, getErrorMessage } from '@/shared/utils';
+import { normalizeApiJson } from '@/shared/utils/tiptap.utils';
 import { debug } from '@/shared/utils/debug';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -134,12 +135,15 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
         }
 
         // 임시 ID를 가진 댓글이 있는지 체크 (작성자와 내용으로 매칭)
-        const tempCommentIndex = existingComments.findIndex(
-          (c: Comment) =>
-            c.id.startsWith('temp-') &&
-            c.author.id === comment.author.id &&
-            c.content === comment.content
-        );
+        const tempCommentIndex = existingComments.findIndex((c: Comment) => {
+          if (!c.id.startsWith('temp-')) return false;
+          const sameAuthor = c.author.id === comment.author.id;
+          const sameContent = c.content === comment.content;
+          const sameJson =
+            (!!c.contentJson && !!comment.contentJson && JSON.stringify(c.contentJson) === JSON.stringify(comment.contentJson)) ||
+            (!c.contentJson && !comment.contentJson);
+          return sameAuthor && (sameJson || sameContent);
+        });
 
         if (tempCommentIndex >= 0) {
           debug('useFeedData', 'Replacing temp comment', {
@@ -207,6 +211,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
                       ? {
                           ...c, // 기존 데이터 유지 (생성시간, 작성자 등)
                           content: comment.content,
+                          contentJson: comment.contentJson ?? c.contentJson,
                           images: comment.images || c.images || [], // 새 이미지 사용 또는 기존 이미지 유지
                           updatedAt: new Date(), // 수정 시간 업데이트
                         }
@@ -556,7 +561,8 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
               profileImage: message.data.spaceMemberAvatarURL,
             },
             content: message.data.content || '',
-            createdAt: new Date(),
+            contentJson: normalizeApiJson(message.data.contentJson, message.data.content),
+            createdAt: new Date(message.timestamp || Date.now()),
             images: convertedImages,
             reactions: [],
           };
@@ -575,6 +581,7 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
               profileImage: message.data.spaceMemberAvatarURL,
             },
             content: message.data.content || '',
+            contentJson: normalizeApiJson(message.data.contentJson, message.data.content),
             createdAt: new Date(message.timestamp || Date.now()), // 서버 타임스탬프 사용
             images: (message.data.images || []).map(convertWebSocketImageToImageMetadata),
             reactions: [], // 리액션은 별도로 처리되므로 비워둡

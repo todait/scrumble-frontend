@@ -1,18 +1,20 @@
 'use client';
 
+import { TiptapEditor } from '@/shared/components/tiptap/TiptapEditor';
 import { IconButton, ImagePreviewList, LoadingSpinner } from '@/shared/components/ui';
-import { useTextareaClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import { useDragAndDrop } from '@/shared/hooks/useDragAndDrop';
 import { useImageUpload } from '@/shared/hooks/useImageUpload';
+import { useClipboardImagePaste } from '@/shared/hooks/useClipboardImagePaste';
 import type { ImageMetadata } from '@/shared/types/upload.types';
 import { handleFileInputChange } from '@/shared/utils/image.utils';
 import { RiImageLine, RiSendPlaneFill } from '@remixicon/react';
+import type { JSONContent } from '@tiptap/core';
 import { useEffect, useRef, useState } from 'react';
 
 interface CommentInputProps {
   authorName: string;
   placeholder?: string;
-  onSubmit: (content: string, images: ImageMetadata[]) => void;
+  onSubmit: (content: string, contentJson: JSONContent | undefined, images: ImageMetadata[]) => void;
   isSubmitting?: boolean; // 사용하지 않지만 API 호환성을 위해 유지
 }
 
@@ -22,11 +24,12 @@ export function CommentInput({
   onSubmit,
   isSubmitting: _isSubmitting = false, // _ prefix로 사용하지 않음을 명시
 }: CommentInputProps) {
-  const [content, setContent] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const [isComposing, setIsComposing] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [plainText, setPlainText] = useState('');
+  const [contentJson, setContentJson] = useState<JSONContent | undefined>();
+  const [editorKey, setEditorKey] = useState(0); // 에디터 강제 리렌더용
+  const [shouldFocus, setShouldFocus] = useState(false); // 제출 후 포커스 플래그
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
 
   const { uploadImages, uploadingImages, completedImages, removeImage, clearImages, isUploading } =
     useImageUpload({
@@ -40,46 +43,47 @@ export function CommentInput({
     acceptedFileTypes: ['image/'],
   });
 
-  // 클립보드 이미지 붙여넣기 기능
-  const { textareaProps } = useTextareaClipboardImagePaste({
+  const { handlePaste: handleClipboardPaste } = useClipboardImagePaste({
     onImagePaste: uploadImages,
     onError: error => {
       alert(error);
     },
-    enabled: true,
   });
 
-  // textarea 높이 자동 조정
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '22px';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = `${Math.min(scrollHeight, 150)}px`;
-    }
-  }, [content]);
-
   const handleSubmit = () => {
-    if (content.trim() || completedImages.length > 0) {
+    if (plainText.trim() || completedImages.length > 0) {
       // 이미지 상태를 먼저 복사해서 안전하게 전달
       const imagesToSubmit = [...completedImages];
-      const contentToSubmit = content.trim();
-
-      // 상태 초기화를 먼저 수행
-      clearImages();
-      setContent('');
+      const textToSubmit = plainText.trim();
+      const jsonToSubmit = contentJson;
 
       // 복사된 데이터로 제출
-      onSubmit(contentToSubmit, imagesToSubmit);
+      onSubmit(textToSubmit, jsonToSubmit, imagesToSubmit);
+
+      // 제출 후 상태 초기화
+      clearImages();
+      setPlainText('');
+      setContentJson(undefined);
+      setEditorKey(prev => prev + 1); // 에디터 강제 리마운트
+      setShouldFocus(true); // 포커스 플래그 설정
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // 한글 조합 중이거나 isComposing이 true인 경우 Enter 처리 방지
-    if (e.key === 'Enter' && !e.shiftKey && !isComposing && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-      handleSubmit();
+  // 에디터 리마운트 후 포커스
+  useEffect(() => {
+    if (shouldFocus) {
+      // 에디터가 리마운트될 시간을 주기 위해 약간의 지연
+      const timer = setTimeout(() => {
+        const editor = editorContainerRef.current?.querySelector('[data-tiptap-editor]');
+        if (editor) {
+          (editor as HTMLElement).focus();
+        }
+        setShouldFocus(false);
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
-  };
+  }, [shouldFocus, editorKey]); // editorKey 변경 시에도 확인
 
   // 업로드 중인 이미지가 있는지 확인
   const hasUploadingImages = uploadingImages.some(
@@ -87,7 +91,7 @@ export function CommentInput({
   );
 
   const isSubmitEnabled =
-    (content.trim().length > 0 || completedImages.length > 0) &&
+    (plainText.trim().length > 0 || completedImages.length > 0) &&
     !isUploading &&
     !hasUploadingImages;
 
@@ -100,32 +104,31 @@ export function CommentInput({
       }`}
       {...dragHandlers}
     >
-      {/* 텍스트 입력 영역 */}
-      <div className="flex items-start gap-2">
+      {/* 텍스트 입력 영역 - TiptapEditor */}
+      <div ref={editorContainerRef} className="flex items-start gap-2">
         <div className="relative flex-1">
-          <textarea
-            {...textareaProps}
-            ref={textareaRef}
-            data-comment-input
-            value={content}
-            onChange={e => setContent(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onKeyDown={handleKeyDown}
-            onCompositionStart={() => setIsComposing(true)}
-            onCompositionEnd={() => setIsComposing(false)}
-            className="w-full resize-none overflow-y-auto border-none bg-transparent text-[15px] leading-[1.4] text-[#181818] focus:outline-none"
-            style={{ minHeight: '22px', maxHeight: '150px' }}
+          <TiptapEditor
+            key={editorKey}
+            content={contentJson}
+            onChange={(json, text) => {
+              setContentJson(json);
+              setPlainText(text);
+            }}
+            placeholder={displayPlaceholder}
+            minHeight={22}
+            maxHeight={150}
             disabled={false}
+            onKeyDown={(event, _editor) => {
+              // Enter 키로 제출 (Shift+Enter는 줄바꿈)
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                handleSubmit();
+                return true;
+              }
+              return false;
+            }}
+            onPaste={handleClipboardPaste}
           />
-          {/* 커서 애니메이션 - 빈 상태일 때만 */}
-          {!content && !isFocused && (
-            <div className="pointer-events-none absolute left-0 top-0">
-              <span className="text-[15px] leading-[1.4] text-[#181818] opacity-20">
-                {displayPlaceholder}
-              </span>
-            </div>
-          )}
         </div>
       </div>
 

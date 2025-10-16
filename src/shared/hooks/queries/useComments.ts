@@ -84,6 +84,7 @@ export const useCreateComment = () => {
           profileImage: member?.avatarURL || '',
         },
         content: variables.content,
+        contentJson: variables.contentJson,
         createdAt: new Date(),
         images: normalizedImages,
         reactions: [],
@@ -143,6 +144,7 @@ export const useCreateComment = () => {
           profileImage: data.comment.author.avatarURL || '',
         },
         content: data.comment.content,
+        contentJson: data.comment.contentJson ?? context.optimisticComment.contentJson,
         createdAt: new Date(data.comment.createdAt),
         images: shouldKeepOptimisticImages ? context.optimisticComment.images : convertedImages,
         reactions: [],
@@ -213,6 +215,8 @@ export const useUpdateComment = () => {
     previousQueries: [any, any][];
     originalImages?: ImageMetadata[]; // 원본 이미지 저장
     newImages?: ImageMetadata[]; // 사용자가 새로 입력한 이미지
+    originalContentJson?: Comment['contentJson'];
+    newContentJson?: Comment['contentJson'];
   };
 
   return useMutation<UpdateCommentResponse, Error, UpdateCommentRequest, MutationContext>({
@@ -238,16 +242,16 @@ export const useUpdateComment = () => {
 
       // 현재 댓글의 원본 이미지를 찾아 저장
       let originalImages: ImageMetadata[] | undefined;
-      for (const [, data] of previousQueries) {
-        if (data?.posts) {
-          for (const post of data.posts) {
-            const comment = post.comments?.find((c: any) => c.id === variables.commentId);
-            if (comment?.images) {
-              originalImages = comment.images;
-              break;
-            }
+      let originalContentJson: Comment['contentJson'];
+      outerLoop: for (const [, data] of previousQueries) {
+        if (!data?.posts) continue;
+        for (const post of data.posts) {
+          const comment = post.comments?.find((c: any) => c.id === variables.commentId);
+          if (comment) {
+            originalImages = comment.images;
+            originalContentJson = comment.contentJson;
+            break outerLoop;
           }
-          if (originalImages) break;
         }
       }
 
@@ -292,6 +296,7 @@ export const useUpdateComment = () => {
                   return {
                     ...comment,
                     content: variables.content,
+                    contentJson: variables.contentJson ?? comment.contentJson,
                     images: optimisticImages,
                     updatedAt: new Date(),
                     _isOptimistic: true, // 옵티미스틱 업데이트 표시
@@ -304,7 +309,13 @@ export const useUpdateComment = () => {
         }
       );
 
-      return { previousQueries, originalImages, newImages };
+      return {
+        previousQueries,
+        originalImages,
+        newImages,
+        originalContentJson,
+        newContentJson: variables.contentJson,
+      };
     },
     onSuccess: (data, variables, context) => {
       // 서버 응답에서 이미지 데이터가 없으면 사용자가 입력한 새 이미지 사용
@@ -340,8 +351,14 @@ export const useUpdateComment = () => {
       });
 
       // 서버 응답으로 최종 업데이트 (더 정확한 데이터 반영)
+      const finalContentJson =
+        data.comment.contentJson ??
+        context?.newContentJson ??
+        context?.originalContentJson;
+
       const updatedComment: Partial<Comment> = {
         content: data.comment.content,
+        contentJson: finalContentJson,
         images: shouldUseNewImages ? (context?.newImages || []) : convertedImages, // 서버에 이미지가 없으면 새로 입력한 이미지 사용
         updatedAt: new Date(data.comment.updatedAt || Date.now()), // 서버에서 온 수정 시간
       };

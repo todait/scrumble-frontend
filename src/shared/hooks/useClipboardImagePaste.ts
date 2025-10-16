@@ -49,18 +49,18 @@ export function useClipboardImagePaste(options: UseClipboardImagePasteOptions) {
 
   const elementRef = useRef<HTMLElement>(null);
 
-  const handlePaste = useCallback((event: ClipboardEvent) => {
-    if (!enabled) return;
+  const handlePaste = useCallback((event: ClipboardEvent): boolean => {
+    if (!enabled) return false;
 
     try {
       // 이미지가 클립보드에 있는지 확인
       if (!hasImagesInClipboard(event)) {
-        return; // 이미지가 없으면 기본 붙여넣기 동작 허용
+        return false; // 이미지가 없으면 기본 붙여넣기 동작 허용
       }
 
       // 커스텀 onBeforePaste 콜백 실행
       if (onBeforePaste && !onBeforePaste(event)) {
-        return; // false를 반환하면 처리 중단
+        return false; // false를 반환하면 처리 중단
       }
 
       // 기본 붙여넣기 동작 방지 (이미지가 텍스트로 붙여넣어지는 것을 방지)
@@ -70,12 +70,13 @@ export function useClipboardImagePaste(options: UseClipboardImagePasteOptions) {
       const imageFiles = extractImagesFromClipboard(event);
       
       if (imageFiles.length === 0) {
-        return;
+        return false;
       }
 
       // 이미지 업로드 함수 호출
       onImagePaste(imageFiles);
 
+      return true;
     } catch (error) {
       console.error('클립보드 이미지 처리 중 오류 발생:', error);
       
@@ -85,12 +86,16 @@ export function useClipboardImagePaste(options: UseClipboardImagePasteOptions) {
           : '이미지 붙여넣기 중 오류가 발생했습니다.';
         onError(errorMessage);
       }
+
+      return false;
     }
   }, [enabled, onImagePaste, onBeforePaste, onError]);
 
   // textarea나 다른 요소에 적용할 props
   const elementProps = {
-    onPaste: (e: React.ClipboardEvent) => handlePaste(e.nativeEvent),
+    onPaste: (e: React.ClipboardEvent) => {
+      handlePaste(e.nativeEvent);
+    },
     ref: elementRef,
   };
 
