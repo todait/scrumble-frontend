@@ -174,26 +174,3 @@
   @apply absolute right-0 bottom-0 text-[15px] font-medium text-[#A0A0A0] hover:text-[#808080];
   @apply bg-white pl-2;
 }
-
-.tiptap-viewer-wrapper.tiptap-notification {
-  @apply inline-block w-full align-top;
-}
-
-.tiptap-viewer-wrapper.tiptap-notification .tiptap-viewer-content {
-  @apply text-[13px] text-[#6E6E73];
-}
-
-.tiptap-viewer-wrapper.tiptap-notification .tiptap-clamped {
-  padding-right: 0;
-  max-height: 6rem;
-}
-
-.tiptap-viewer-wrapper.tiptap-notification .tiptap-clamped::after {
-  right: 0;
-}
-
-.tiptap-viewer-wrapper.tiptap-notification .tiptap-expand-button {
-  @apply text-[12px];
-  right: 0;
-  bottom: -0.25rem;
-}
