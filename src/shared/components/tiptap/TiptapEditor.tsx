@@ -48,12 +48,7 @@ export const TiptapEditor = ({
         }
         return false;
       },
-      handlePaste: (_view, event) => {
-        if (!disabled && onPaste) {
-          return onPaste(event);
-        }
-        return false;
-      },
+      handlePaste: () => false,
     },
     onUpdate: ({ editor }) => {
       if (onChange) {
@@ -75,6 +70,25 @@ export const TiptapEditor = ({
       editor.setEditable(editable && !disabled);
     }
   }, [editable, disabled, editor]);
+
+  useEffect(() => {
+    if (!editor || !onPaste || disabled) {
+      return;
+    }
+
+    const dom = editor.view.dom as HTMLElement;
+    const handleDomPaste = (event: ClipboardEvent) => {
+      const handled = onPaste(event);
+      if (handled) {
+        event.preventDefault();
+      }
+    };
+
+    dom.addEventListener('paste', handleDomPaste);
+    return () => {
+      dom.removeEventListener('paste', handleDomPaste);
+    };
+  }, [editor, onPaste, disabled]);
 
   if (!editor) {
     return (

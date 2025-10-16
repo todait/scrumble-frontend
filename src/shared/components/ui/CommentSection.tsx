@@ -170,7 +170,7 @@ function CommentItem({
   const isEditing = editingCommentId === comment.id;
   const [editPlainText, setEditPlainText] = useState(comment.content);
   const [editContentJson, setEditContentJson] = useState<JSONContent | undefined>(
-    comment.contentJson
+    comment.contentJson ?? undefined
   );
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
@@ -215,7 +215,7 @@ function CommentItem({
   // 편집 상태 변경 시 콘텐츠 초기화 및 편집 종료 시 최신 데이터 반영
   useEffect(() => {
     setEditPlainText(comment.content);
-    setEditContentJson(comment.contentJson);
+    setEditContentJson(comment.contentJson ?? undefined);
   }, [comment.content, comment.contentJson]);
 
   // 편집 모드 시작 시에만 기존 이미지 초기화 (오직 한 번만)
@@ -276,7 +276,7 @@ function CommentItem({
 
   const handleCancel = () => {
     setEditPlainText(comment.content);
-    setEditContentJson(comment.contentJson);
+    setEditContentJson(comment.contentJson ?? undefined);
     clearImages();
     if (onEdit) onEdit(); // 편집 모드 종료 신호
   };

@@ -47,6 +47,7 @@ export interface CommentCreatedMessage extends BaseWebSocketMessage {
     spaceMemberAvatarURL: string;
     spaceSlug: string;
     content: string;
+    contentJson?: unknown;
     images: WebSocketImageMetadata[];
     action: string;
   };
@@ -65,6 +66,7 @@ export interface CommentUpdatedMessage extends BaseWebSocketMessage {
     spaceMemberAvatarURL: string;
     spaceSlug: string;
     content: string;
+    contentJson?: unknown;
     images: WebSocketImageMetadata[];
     action: string;
   };
