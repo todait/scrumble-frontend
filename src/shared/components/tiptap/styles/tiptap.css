@@ -128,7 +128,7 @@
 
 /* Floating toolbar */
 .tiptap-floating-toolbar {
-  @apply absolute z-50 flex items-center gap-1;
+  @apply fixed z-[999] flex items-center gap-1;
   @apply bg-white rounded-lg shadow-lg border border-gray-200;
   @apply px-2 py-1.5;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
 import {
   RiBold,
@@ -14,6 +14,7 @@ import {
   RiCodeSSlashLine,
   RiDoubleQuotesL,
 } from '@remixicon/react';
+import { createPortal } from 'react-dom';
 
 interface TiptapFloatingToolbarProps {
   editor: Editor;
@@ -22,10 +23,12 @@ interface TiptapFloatingToolbarProps {
 export const TiptapFloatingToolbar = ({ editor }: TiptapFloatingToolbarProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [isMounted, setIsMounted] = useState(false);
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
 
   const updatePosition = useCallback(() => {
     try {
-      if (!editor.view || !editor.view.hasFocus()) {
+      if (!isMounted || !editor.view || !editor.view.hasFocus()) {
         setIsVisible(false);
         return;
       }
@@ -38,13 +41,26 @@ export const TiptapFloatingToolbar = ({ editor }: TiptapFloatingToolbarProps) =>
         return;
       }
 
-      const { from: startPos } = editor.view.state.selection;
-      const start = editor.view.coordsAtPos(startPos);
-      const editorRect = editor.view.dom.getBoundingClientRect();
+      const start = editor.view.coordsAtPos(from);
+      const end = editor.view.coordsAtPos(to);
+      const toolbarHeight = toolbarRef.current?.offsetHeight ?? 48;
+      const toolbarWidth = toolbarRef.current?.offsetWidth ?? 0;
 
-      const toolbarHeight = 48;
-      const top = start.top - editorRect.top - toolbarHeight - 8;
-      const left = start.left - editorRect.left;
+      const selectionTop = Math.min(start.top, end.top);
+      const selectionBottom = Math.max(start.bottom, end.bottom);
+
+      let top = selectionTop - toolbarHeight - 8;
+      if (top < 8) {
+        top = selectionBottom + 8;
+      }
+
+      let left = start.left;
+      if (toolbarWidth > 0) {
+        const viewportWidth = window.innerWidth;
+        const maxLeft = viewportWidth - toolbarWidth - 8;
+        left = Math.min(left, maxLeft);
+      }
+      left = Math.max(left, 8);
 
       setPosition({ top, left });
       setIsVisible(true);
@@ -52,7 +68,12 @@ export const TiptapFloatingToolbar = ({ editor }: TiptapFloatingToolbarProps) =>
       // Editor may have been destroyed
       setIsVisible(false);
     }
-  }, [editor]);
+  }, [editor, isMounted]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -99,6 +120,28 @@ export const TiptapFloatingToolbar = ({ editor }: TiptapFloatingToolbarProps) =>
     };
   }, [editor, updatePosition]);
 
+  useEffect(() => {
+    if (isVisible) {
+      updatePosition();
+    }
+  }, [isVisible, updatePosition]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const handleRealtimePositionUpdate = () => {
+      updatePosition();
+    };
+
+    window.addEventListener('resize', handleRealtimePositionUpdate);
+    window.addEventListener('scroll', handleRealtimePositionUpdate, true);
+
+    return () => {
+      window.removeEventListener('resize', handleRealtimePositionUpdate);
+      window.removeEventListener('scroll', handleRealtimePositionUpdate, true);
+    };
+  }, [isVisible, updatePosition]);
+
   const handleLinkAdd = () => {
     const url = window.prompt('링크 URL을 입력하세요:');
     if (url) {
@@ -106,7 +149,7 @@ export const TiptapFloatingToolbar = ({ editor }: TiptapFloatingToolbarProps) =>
     }
   };
 
-  if (!isVisible) return null;
+  if (!isMounted || !isVisible) return null;
 
   const buttons = [
     {
@@ -175,14 +218,15 @@ export const TiptapFloatingToolbar = ({ editor }: TiptapFloatingToolbarProps) =>
     },
   ];
 
-  return (
+  const toolbar = (
     <div
+      ref={toolbarRef}
       className="tiptap-floating-toolbar"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
-      onMouseDown={(e) => {
+      onMouseDown={e => {
         e.preventDefault();
       }}
     >
@@ -211,4 +255,6 @@ export const TiptapFloatingToolbar = ({ editor }: TiptapFloatingToolbarProps) =>
       })}
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(toolbar, document.body) : null;
 };

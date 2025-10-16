@@ -1,4 +1,5 @@
 import { Comment } from '@/features/feed/types/feed.types';
+import { debug } from '@/shared/utils/debug';
 import { ApiComment, ApiImage } from '@/shared/types/api';
 import {
   CommentImage,
@@ -34,16 +35,18 @@ export const convertApiImageToImage = (apiImage: ApiImage): CommentImage => ({
  * @returns 프론트엔드에서 사용하는 Comment 타입
  */
 export const convertApiCommentToComment = (apiComment: ApiComment): Comment => {
-  console.log('[convertApiCommentToComment]', {
+  debug('ApiComment', 'convertApiCommentToComment:source', {
     commentId: apiComment.id,
     has_content_json: !!apiComment.content_json,
     content_json_type: typeof apiComment.content_json,
-    content_json_preview: apiComment.content_json ? JSON.stringify(apiComment.content_json).substring(0, 100) : null,
+    content_json_preview: apiComment.content_json
+      ? JSON.stringify(apiComment.content_json).substring(0, 100)
+      : null,
   });
 
   const contentJson = normalizeApiJson(apiComment.content_json, apiComment.content);
   
-  console.log('[convertApiCommentToComment] normalized:', {
+  debug('ApiComment', 'convertApiCommentToComment:normalized', {
     commentId: apiComment.id,
     has_normalized: !!contentJson,
     normalized_preview: contentJson ? JSON.stringify(contentJson).substring(0, 100) : null,
