@@ -15,12 +15,67 @@ import type {
 } from '@/shared/types/websocket.types';
 import { convertWebSocketImageToImageMetadata } from '@/shared/types/websocket.types';
 import { formatDateToAPIString, getErrorMessage } from '@/shared/utils';
-import { normalizeApiJson } from '@/shared/utils/tiptap.utils';
 import { debug } from '@/shared/utils/debug';
+import { isValidTiptapDoc, normalizeApiJson, safeParseJson } from '@/shared/utils/tiptap.utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { JSONContent } from '@tiptap/core';
 import type { Comment, FilterType, Post, Reaction } from '../types/feed.types';
 import { convertApiPostsToFeedPosts } from '../utils/postTransform.utils';
+
+const COMMENT_JSON_LOG_ENABLED =
+  process.env.NEXT_PUBLIC_ENABLE_COMMENT_JSON_LOG === 'true';
+
+const logCommentJsonDiagnostics = (
+  eventType: CommentCreatedMessage['type'] | CommentUpdatedMessage['type'],
+  message: CommentCreatedMessage | CommentUpdatedMessage,
+  normalizedContent: JSONContent | null | undefined
+) => {
+  if (!COMMENT_JSON_LOG_ENABLED) {
+    return;
+  }
+
+  const rawContentJson = message.data?.contentJson;
+  const parsedContent =
+    typeof rawContentJson === 'string'
+      ? safeParseJson<JSONContent>(rawContentJson)
+      : rawContentJson;
+  const rawValid = isValidTiptapDoc(parsedContent);
+
+  const previewString = (value: unknown): string | null => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value.slice(0, 200);
+    }
+
+    try {
+      return JSON.stringify(value).slice(0, 200);
+    } catch {
+      return '[unserializable]';
+    }
+  };
+
+  const normalizedPreview = previewString(normalizedContent);
+  const rawPreview = previewString(rawContentJson);
+
+  // eslint-disable-next-line no-console
+  console.info('[CommentRealtime]', {
+    eventType,
+    postId: message.data?.postId,
+    commentId: message.data?.commentId,
+    timestamp: message.timestamp,
+    hasRawContentJson: rawContentJson !== null && rawContentJson !== undefined,
+    rawType: typeof rawContentJson,
+    rawValidDoc: rawValid,
+    normalizedAvailable: normalizedContent != null,
+    normalizedPreview,
+    rawPreview,
+    fallbackContentPreview: message.data?.content?.slice(0, 200) ?? null,
+  });
+};
 
 interface UseFeedDataOptions {
   onReconnectionDataSync?: () => void;
@@ -567,6 +622,8 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
             reactions: [],
           };
 
+          logCommentJsonDiagnostics('comment.created', message, comment.contentJson);
+
           handleCommentAdded(message.data.postId, comment);
         }
       },
@@ -586,6 +643,9 @@ export const useFeedData = (spaceSlug: string, options?: UseFeedDataOptions) => 
             images: (message.data.images || []).map(convertWebSocketImageToImageMetadata),
             reactions: [], // 리액션은 별도로 처리되므로 비워둡
           };
+
+          logCommentJsonDiagnostics('comment.updated', message, comment.contentJson);
+
           handleCommentUpdated(message.data.postId, comment);
         }
       },
