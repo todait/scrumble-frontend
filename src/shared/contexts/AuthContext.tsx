@@ -85,10 +85,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 초기화되지 않았으면 무시
       if (!userAuth.isInitialized) return;
 
-      // 공개 페이지(/auth, /)에서는 토큰 체크를 하지 않음
-      const publicPaths = ['/', '/auth'];
+      // 공개 페이지(/, /auth/*, /landing)에서는 토큰 체크를 하지 않음
+      // → 인증된 사용자가 랜딩을 켜둔 채 탭 복귀 시 토큰 만료로 /auth 로 튕기는 문제 방지
       const currentPath = window.location.pathname;
-      if (publicPaths.some(path => currentPath === path || currentPath.startsWith('/auth'))) {
+      const isPublicPath =
+        currentPath === '/' ||
+        currentPath.startsWith('/auth') ||
+        currentPath === '/landing' ||
+        currentPath.startsWith('/landing/');
+      if (isPublicPath) {
         return;
       }
 
