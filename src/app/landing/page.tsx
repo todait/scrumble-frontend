@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import LandingPageWrapper from '@/features/landing/pages/LandingPageWrapper';
+import { LandingPage } from '@/features/landing/pages';
 
 export const metadata: Metadata = {
   title: 'Scrumble - 관리 시간을 절반으로, 리더십에 집중하세요',
@@ -91,7 +91,7 @@ export default function Landing() {
           }),
         }}
       />
-      <LandingPageWrapper />
+      <LandingPage />
     </>
   );
 }

@@ -73,6 +73,12 @@ const nextConfig: NextConfig = {
       exprContextCritical: false,
     };
 
+    // ?raw 쿼리스트링 import → 파일을 string으로 로드 (랜딩 정적 HTML 인라인용)
+    config.module.rules.push({
+      resourceQuery: /raw/,
+      type: 'asset/source',
+    });
+
     return config;
   },
 };
