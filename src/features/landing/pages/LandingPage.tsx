@@ -1,70 +1,64 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import BeforeAfterSection from '../components/BeforeAfterSection';
-import BenefitsSection from '../components/BenefitsSection';
-import BetaForm from '../components/BetaForm';
-import CTASection from '../components/CTASection';
-import ContrastSection from '../components/ContrastSection';
-import FeatureSection from '../components/FeatureSection';
-import IntroSection from '../components/IntroSection';
-import ROISection from '../components/ROISection';
-import StickyCTA from '../components/StickyCTA';
+import { useEffect } from 'react';
+
+import landingHtml from '../static/landing.html?raw';
+
+// ---------------------------------------------------------------------------
+// 새 정적 랜딩 HTML을 빌드 타임에 raw 텍스트로 import 한 뒤,
+//   - <head> 의 <link>/<style>
+//   - <body> 콘텐츠 (단, <script> 는 분리)
+// 으로 쪼개어 dangerouslySetInnerHTML 로 SSR 시점에 그대로 출력한다.
+//
+// dangerouslySetInnerHTML 안의 <script> 는 브라우저 보안상 실행되지 않으므로,
+// 추출한 인라인 스크립트는 useEffect 에서 createElement('script') 로 수동 주입.
+//
+// 페이지 언마운트 시 주입한 스크립트 노드와 모달 잔존 상태 (body overflow) 를 정리한다.
+// ---------------------------------------------------------------------------
+
+const HEAD_INNER =
+  landingHtml.match(/<head[^>]*>([\s\S]*?)<\/head>/i)?.[1] ?? '';
+
+const BODY_INNER_RAW =
+  landingHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? '';
+
+const INLINE_SCRIPTS = [
+  ...landingHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi),
+].map((m) => m[1]);
+
+const BODY_INNER = BODY_INNER_RAW.replace(
+  /<script\b[\s\S]*?<\/script>/gi,
+  '',
+);
+
+const STATIC_HTML = HEAD_INNER + BODY_INNER;
 
 const LandingPage = () => {
-  const [showStickyCTA, setShowStickyCTA] = useState(false);
-  const [isFormVisible, setIsFormVisible] = useState(false);
-
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPercentage = (window.scrollY / document.documentElement.scrollHeight) * 100;
-      setShowStickyCTA(scrollPercentage > 30);
+    const injected: HTMLScriptElement[] = [];
 
-      // Form 섹션이 보이는지 체크
-      const formElement = document.getElementById('beta-form');
-      if (formElement) {
-        const rect = formElement.getBoundingClientRect();
-        setIsFormVisible(rect.top < window.innerHeight && rect.bottom > 0);
-      }
+    INLINE_SCRIPTS.forEach((code) => {
+      const trimmed = code.trim();
+      if (!trimmed) return;
+      const script = document.createElement('script');
+      script.textContent = trimmed;
+      script.dataset.landingInline = 'true';
+      document.body.appendChild(script);
+      injected.push(script);
+    });
+
+    return () => {
+      injected.forEach((node) => node.remove());
+      // 모달이 열린 상태에서 라우팅된 경우의 잔존 스크롤 잠금 해제
+      document.body.style.overflow = '';
     };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToForm = () => {
-    document.getElementById('beta-form')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <IntroSection onCTAClick={scrollToForm} />
-
-      {/* Value Proposition */}
-      <CTASection onCTAClick={scrollToForm} />
-
-      {/* Contrast Section */}
-      <ContrastSection />
-
-      {/* Features Grid */}
-      <FeatureSection />
-
-      {/* Benefits */}
-      <BenefitsSection onCTAClick={scrollToForm} />
-
-      {/* Before/After */}
-      <BeforeAfterSection />
-
-      {/* ROI Calculator */}
-      <ROISection />
-
-      {/* Beta Form */}
-      <BetaForm />
-
-      {/* Sticky CTA */}
-      {showStickyCTA && !isFormVisible && <StickyCTA onClick={scrollToForm} />}
-    </div>
+    <div
+      data-landing="scrumble-static"
+      dangerouslySetInnerHTML={{ __html: STATIC_HTML }}
+    />
   );
 };
 
